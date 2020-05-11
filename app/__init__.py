@@ -12,13 +12,19 @@ app = Flask(__name__)
 
 # Blueprints (Routes)
 from app.routes.rutas_seba import mod
+from app.routes.rutas_pablo import mod
+from app.routes.rutas_victor import mod
+from app.routes.rutas_nico import mod
+from app.routes.rutas_lorenzo import mod
+from app.routes.rutas_cony import mod
 app.register_blueprint(routes.rutas_seba.mod)
+app.register_blueprint(routes.rutas_pablo.mod)
+app.register_blueprint(routes.rutas_victor.mod)
+app.register_blueprint(routes.rutas_nico.mod)
+app.register_blueprint(routes.rutas_lorenzo.mod)
+app.register_blueprint(routes.rutas_cony.mod)
 # Configurations
 app.config.from_object('config')
-
-# Login Manager
-#login_manager = LoginManager()
-#login_manager.init_app(app)
 
 # Sample HTTP error handling
 @app.errorhandler(404)

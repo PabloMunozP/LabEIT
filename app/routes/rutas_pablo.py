@@ -2,8 +2,8 @@ from flask import Flask,Blueprint,render_template,request,redirect,url_for,flash
 #from config import db,cursor
 import os,time,bcrypt
 
-mod = Blueprint("rutas_seba",__name__)
+mod = Blueprint("rutas_pablo",__name__)
 
-@mod.route("/",methods=["GET"])
+@mod.route("/pablo",methods=["GET"])
 def principal():
     return "OK"

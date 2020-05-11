@@ -5,11 +5,12 @@ DEBUG = True
 import os,mysql.connector
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 
-# ----------------------- MYSQL DB CONNECTION ------------------------------------------------------------
-db = mysql.connector.connect(user="root",passwd="sgpa.2020",host="45.7.231.160",port="3000",database="sgpadb",autocommit=True)
-cursor = db.cursor(dictionary=True,buffered=True)
+# ----------------------- Conexión a base de datos MySQL ------------------------------------------------------------
+#db = mysql.connector.connect(user="...",passwd="...",host="...",port="...",database="...",autocommit=True)
+#cursor = db.cursor(dictionary=True,buffered=True)
+#cursor.execute("SET NAMES utf8mb4;")
 
-cursor.execute("SET NAMES utf8mb4;")
+# -----------------------------------------------------------------------
 
 # Configuraciones de archivos
 UPLOAD_FOLDER = 'static/upload_folder'
