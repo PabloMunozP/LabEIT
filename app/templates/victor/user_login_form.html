@@ -1,7 +1,16 @@
-<form action="/victor/añadir/usuario" method="POST">
-    <div>Rut: <input type="text" name="rut" placeholder="12.345.678-9"> </div>
-    <div>Contraseña: <input type="password" name="contraseña"> </div>
+
+<form action="/victor/user_login" method="POST">
+    <div>Rut:           <input type="text" name="rut" placeholder="12.345.678-9"> </div>
+    <div>Contraseña:    <input type="password" name="contraseña"> </div>
     <div><button type="summit">
         Entrar
     </button></div>
 </form>
+
+{% with mensajes = get_flashed_messages() %}
+{% if mensajes %}
+{% for mensaje in mensajes %}
+    <p>{{mensaje}}</p>
+{% endfor %}
+{% endif %}
+{% endwith %}
