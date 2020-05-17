@@ -1,0 +1,2 @@
+INSERT INTO usuario (rut, dv, nombre, apellido, num_celular, email, direccion, comuna, credencial, tipo, contraseña)
+VALUES (19818235,'8','Víctor','Sánchez',958370260,'victor.sanchez1@mail.udp.cl','pasaja quirihue 220', 'quilicura',0,0,'mariomario555');
