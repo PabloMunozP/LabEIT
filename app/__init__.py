@@ -52,7 +52,7 @@ def rem_com(s):
     s = s.replace("'","\\'")
     s = s.replace('"','\\"')
     return s
-@app.template_filter('underscore_espacio') # Permite reemplazar espacios por '_' (Se usa para el ID de los label de campos dinámicos)
+@app.template_filter('underscore_espacio') # Permite reemplazar espacios por '_'
 def underscore_espacio(s):
     return s.replace(" ","_")
 # -------------------------------------------

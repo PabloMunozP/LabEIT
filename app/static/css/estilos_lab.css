@@ -1,0 +1,62 @@
+/* ========================== Colores institucionales UDP/EIT para fondo y letras ================================ */
+.bg-rojo-udp{
+	background: #FC4E47;
+}
+.bg-verde-eit{
+	background: #0db26b;
+}
+.bg-gris-eit{
+	background: #4D4D4D;
+}
+.bg-gris-body{
+	background: #f5f5f5;
+}
+.texto-rojo-udp{
+	color: #FC4E47;
+}
+.texto-verde-eit{
+	color: #0db26b;
+}
+.texto-gris-eit{
+	color: #4D4D4D;
+}
+/* =========================== Botones personalizados ================================ */
+.btn-rojo-udp {
+  color: #fff;
+  background-color: #FC4E47;
+  border-color: #FC4E47;;
+}
+
+.btn-rojo-udp:hover {
+  color: #fff;
+  background-color: #d4423d;
+  border-color: #d4423d;
+}
+
+.btn-rojo-udp:focus, .btn-rojo-udp.focus {
+  box-shadow: 0 0 0 3px rgba(216, 55, 49, 0.82);
+}
+
+.btn-rojo-udp.disabled, .btn-rojo-udp:disabled {
+  background-color: #e3716d;
+  border-color: #e3716d;
+}
+
+.btn-rojo-udp:active, .btn-rojo-udp.active,
+.show > .btn-rojo-udp.dropdown-toggle {
+  background-color: #d4423d;
+  background-image: none;
+  border-color: #d4423d;
+}
+
+/* ****************************** */
+#body-login{
+	background-color: #6DB3F2;
+	background:url(../../static/imgs/background_login.jpg) no-repeat !important;
+}
+.footer-login {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+	vertical-align: middle;
+}
