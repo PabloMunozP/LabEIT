@@ -2,10 +2,17 @@ body {
     background-color: #f5f5f5;
   }
   
-.section-red{
+.section-red-card{
+    border: 0px;
     color: white;
     background-color: #FC4E47;
-    margin: 50px;
+    margin-top: 50px;
+    margin-bottom: 50px;
     padding: 5px;
     padding-left: 30px;
+}
+
+.row-profile{
+    margin-left: 0px;
+    margin-right: 0px;
 }

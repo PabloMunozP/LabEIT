@@ -100,7 +100,6 @@ def add_user2():
             email_entrada, 
             int(credencial_entrada)
             ))
-
         connection.commit()
         return redirect('/victor/user_add_form')
 
