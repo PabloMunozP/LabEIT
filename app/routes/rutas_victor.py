@@ -1,20 +1,8 @@
 from flask import Flask,Blueprint,render_template,request,redirect,url_for,flash,session,jsonify
-#from config import db,cursor
-import os, time, bcrypt, mysql.connector
-
-connection = mysql.connector.connect(
-    host = "localhost",
-    user = "root",
-    passwd = "sodasoda",
-    database = "LABEIT"
-)
-
-# Datos de 
+from config import db,cursor
+import os, time, bcrypt
 
 mod = Blueprint('rutas_victor',__name__)
-
-
-
 
 # Formulario para agregar usuario
 @mod.route('/victor/user_add_form')
@@ -40,18 +28,18 @@ def prueba_login():
 @mod.route('/victor/user_login', methods = ['POST'])
 def login_session():
     if request.method == 'POST':
-        # Valores obtenidos por el metodo 
+        # Valores obtenidos por el metodo
         rut_entrada = request.form['rut']
         contraseña_entrada = request.form['contraseña']
         print('usuario: ', rut_entrada)
         print('contraseña: ', contraseña_entrada)
-        
+
         # Query donde se obtienen los datos del usuario
         query = ('''
-            SELECT 
+            SELECT
                 rut,
-                contraseña, 
-                credencial, 
+                contraseña,
+                credencial,
                 email
             FROM Usuario
             WHERE rut = %s;
@@ -60,10 +48,10 @@ def login_session():
         cursor.execute(query, (rut_entrada,))
         resultado = cursor.fetchall()
         # Si los datos para ingresar son incorrectos redirigira al login y enviara un mensaje
-        if (resultado == []):    
+        if (resultado == []):
             flash('El usuario o la contraseña estan mal xD')
             return redirect('/victor/login')
-            
+
         # Si la contraseña es incorrecta
         elif (contraseña_entrada != resultado[0][1] ):
             flash('El usuario o la contraseña estan mal xD')

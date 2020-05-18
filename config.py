@@ -6,9 +6,15 @@ import os,mysql.connector
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 
 # ----------------------- Conexión a base de datos MySQL ------------------------------------------------------------
-#db = mysql.connector.connect(user="...",passwd="...",host="...",port="...",database="...",autocommit=True)
-#cursor = db.cursor(dictionary=True,buffered=True)
-#cursor.execute("SET NAMES utf8mb4;")
+db = mysql.connector.connect(user="root_labeit",passwd="labeit_udp_2020",host="www.db4free.net",port="3306",database="labeit_db",autocommit=True)
+#db = mysql.connector.connect(
+#    host = "localhost",
+#    user = "root",
+#    passwd = "sodasoda",
+#    database = "LABEIT"
+#)
+cursor = db.cursor(dictionary=True,buffered=True)
+cursor.execute("SET NAMES utf8mb4;")
 
 # -----------------------------------------------------------------------
 
