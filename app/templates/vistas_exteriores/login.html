@@ -14,10 +14,30 @@
 		    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 		    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css" integrity="sha384-oS3vJWv+0UjzBfQzYUhtDYW+Pj2yciDJxpsK1OYPAYjqT085Qq/1cq5FLXAZQ7Ay" crossorigin="anonymous">
 				<link href="{{ url_for('static', filename='../static/css/estilos_lab.css') }}" rel="stylesheet"/>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.inputmask/3.3.4/inputmask/inputmask.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.inputmask/3.3.4/jquery.inputmask.bundle.js"></script>
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/jquery.inputmask/3.3.4/css/inputmask.min.css" rel="stylesheet"/>
 
     </head>
 
     <body id="body-login">
+
+      <div class="col-md-12 mt-2 mx-auto">
+        {% with msgs = get_flashed_messages() %}
+          {% if msgs %}
+            {% for msg in msgs %}
+              {% if msg == "credenciales-invalidas"%}
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                  <i class="fas fa-times-circle mr-2"></i>El usuario y/o la contraseña que ingresaste no coinciden con nuestros registros. Por favor, revisa e inténtalo nuevamente.
+                  <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+              {%endif%}
+            {%endfor%}
+          {%endif%}
+        {%endwith%}
+      </div>
 
 			<div class="col-md-4 mt-5 mx-auto">
 				<img src="{{ url_for('static', filename="../static/imgs/logo_eit.png")}}" class="img-fluid rounded-0 mx-auto d-block mb-2" alt="..." style="width:70%;opacity:88%;">
@@ -30,38 +50,22 @@
       </div>
 					</div>
 					<div class="card-body bg-gris-eit" style="opacity:95%;">
-
-						{% with msgs = get_flashed_messages() %}
-							{% if msgs %}
-								{% for msg in msgs %}
-									{% if msg == "usuario-invalido"%}
-										<div class="alert alert-danger alert-dismissible fade show" role="alert">
-											<i class="fas fa-times-circle mr-2"></i><small>El usuario y/o la contraseña que ingresaste no coinciden con nuestros registros. Por favor, revisa e inténtalo nuevamente.</small>
-											<button type="button" class="close" data-dismiss="alert" aria-label="Close">
-											<span aria-hidden="true">&times;</span>
-											</button>
-										</div>
-									{%endif%}
-								{%endfor%}
-							{%endif%}
-						{%endwith%}
-
 						<form action="/iniciar_sesion" method="post" autocomplete="off">
 							<div class="col-md-12 mb-3">
 								<div class="input-group">
 									<div class="input-group-prepend">
 											<span class="input-group-text"> <i class="fas fa-user-circle"></i> </span>
 									 </div>
-										<input type="text" required name="rut" class="form-control" placeholder="Ingresa tu RUT" autocomplete="off">
+										<input type="text" id="rut_input_login" required name="rut" maxlength="9" class="form-control" placeholder="Ingresa tu RUT" autocomplete="off">
 								</div>
-								<small class="form-text text-white">Ingresa tu RUT sin guión ni puntos.</small>
+								<small class="form-text text-white ">Ingresa tu RUT sin guión ni puntos.</small>
 							</div>
 							<div class="col-md-12 mb-3">
 								<div class="input-group">
 									<div class="input-group-prepend">
 											<span class="input-group-text"> <i class="fa fa-lock"></i> </span>
 									 </div>
-										<input type="password" required name="Password" class="form-control" placeholder="Ingresa tu contraseña" autocomplete="off">
+										<input type="password" id="password_input_login" required name="password" class="form-control" placeholder="Ingresa tu contraseña" autocomplete="off">
 								</div>
 							</div>
 							<button type="submit" class="btn btn-block btn-rojo-udp rounded-0"><i class="fas fa-sign-in-alt mr-2"></i>Ingresar</button>
@@ -72,8 +76,8 @@
 				</div>
 			</div>
 
-			<footer class="footer-login bg-gris-eit" style="opacity:0.9;">
-				<p class="text-center mt-2 text-white small"><i class="fas fa-exclamation-triangle mr-2"></i>En caso de tener dudas o problemas con tu cuenta, no dudes en escribirnos al mail: <a href="mailto:labeit@mail.udp.cl?subject=feedback">labeit@mail.udp.cl</a> o dirigirte al laboratorio.</p>
+			<footer class="footer-login bg-gris-eit mt-5" style="opacity:0.9;">
+				<p class="text-center mt-2 text-white small"><i class="fas fa-exclamation-triangle mr-2"></i>En caso de tener dudas o problemas con tu cuenta, no dudes en escribirnos al mail: <a href="mailto:labeit@mail.udp.cl?subject=Duda/Problema-LabEIT">labeit@mail.udp.cl</a> o dirigirte al laboratorio.</p>
 			</footer>
 
 
