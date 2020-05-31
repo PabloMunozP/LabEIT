@@ -26,7 +26,7 @@ def añadir_usuario():
    
 @mod.route("/editar_usuario/<string:rut>",methods=["GET","POST"])
 def editar(rut=None):
-    if request.method=='GET'
+    if request.method=='GET':
         if rut:
             query=('''SELECT * FROM Usuario WHERE rut= %s''')
             cursor = db.cursor()
