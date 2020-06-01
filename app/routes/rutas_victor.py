@@ -3,12 +3,7 @@ from flask import Flask,Blueprint,render_template,request,redirect,url_for,flash
 import os, time, bcrypt
 import mysql.connector
 
-db = mysql.connector.connect(
-    host = "localhost",
-    user = "root",
-    passwd = "LabEIT_UDP_2020",
-    database = "LABEIT"
-    )
+
 
 def redirect_url(default='index'): # Redireccionamiento desde donde vino la request
     return request.args.get('next') or \
