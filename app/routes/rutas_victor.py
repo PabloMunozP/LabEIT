@@ -1,15 +1,7 @@
 from flask import Flask,Blueprint,render_template,request,redirect,url_for,flash,session,jsonify
-#from config import db,cursor
+from config import db,cursor
 import os, time, bcrypt
 import mysql.connector
-
-connection = mysql.connector.connect(
-    host = "localhost",
-    user = "root",
-    passwd = "sodasoda",
-    database = "LABEIT"
-)
-
 
 mod = Blueprint('rutas_victor',__name__)
 
@@ -38,7 +30,6 @@ def login_session():
             FROM Usuario
             WHERE rut = %s;
         ''')
-        cursor = connection.cursor()
         cursor.execute(query, (rut_entrada,))
         resultado = cursor.fetchall()
 
@@ -93,7 +84,6 @@ def add_user2():
             INSERT INTO Usuario (rut, contraseña, email, credencial) 
             VALUES (%s, %s, %s, %s)
         '''
-        cursor = connection.cursor()
         cursor.execute( query, 
             ( rut_entrada, 
             contraseña_encriptada, 
