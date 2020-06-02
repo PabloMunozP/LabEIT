@@ -23,7 +23,7 @@ def añadir_usuario():
        datos_usuario=request.form.to_dict()#obtener datos del usuario en un diccionario
        print(datos_usuario)
        return 'OK'
-   
+
 @mod.route("/editar_usuario/<string:rut>",methods=["GET","POST"])
 def editar(rut=None):
     if request.method=='GET':
@@ -42,6 +42,3 @@ def editar(rut=None):
             return render.template("/pablo/editar_usuario.html",msg='Error en el rut')
     elif request.method=='POST':
         datos_usuario=request.form.to_dict()
-        
-
-       
