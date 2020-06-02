@@ -1,0 +1,91 @@
+<head>
+    <title>Perfil</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+    <link href="{{ url_for('static', filename='../static/css/estilos_lab.css') }}" rel="stylesheet"/>
+</head>
+
+
+
+<body class="body-profile">
+    
+    <div class="container-fluid">
+    
+        <div class="card section-red-card">
+            <h1>
+                <b>Tu perfil</b> 
+            </h1>
+        </div>
+
+        
+        <div class="row row-profile">
+            
+
+            <div class="col-md-4 justify-content-center">
+                <img src="https://via.placeholder.com/220"/>
+                <h6 class="profile-subtext"> Credencial: Alummno</h6>
+                <h6 class="profile-subtext"> <span>Sanción activa:</span>    <span style="color: #96d37c;">No</span></h6>
+                <h6 class="profile-subtext" style="color: #69adde;"> <a href="#">Configurar perfil</a></h6>                
+            </div>
+            
+            <div class="col-md-8">
+                <h1><b> {{perfil_info.nombres}} {{perfil_info.apellidos}} </b></h1>
+                <table style="width: 100%;">
+                    <tr>
+                        <td><h5>    Correo:                 </h5></td>
+                        <td><h5>    {{perfil_info.email}}   </h5></td>
+                    </tr>
+                    <tr>
+                        <td><h5>    Rut:                    </h5></td>
+                        <td><h5>    {{perfil_info.rut}}     </h5></td>
+                    </tr>
+                    <tr>
+                        <td><h5>    Región:                 </h5></td>
+                        <td><h5>    {{perfil_info.region}}  </h5></td>
+                    </tr>
+                    <tr>
+                        <td><h5>    Ciudad:                 </h5></td>
+                        <td><h5>    {{perfil_info.ciudad}}  </h5></td>
+                    </tr>
+                    <tr>
+                        <td><h5>    Comuna:                 </h5></td>
+                        <td><h5>    {{perfil_info.comuna}}  </h5></td>
+                    </tr>
+                    <tr>
+                        <td><h5>    Dirección               </h5></td>
+                        <td><h5>    {{perfil_info.direccion}}</h5></td>
+                    </tr>
+
+                </table>
+
+            </div>
+        </div>
+
+        <hr>
+        <div>
+            <h1>
+                <b>Resumen</b> 
+            </h1>
+        </div>
+        <div>
+            {{perfil_info.fecha_registro}}
+        </div>
+
+
+
+
+
+
+    </div>
+
+
+
+        
+
+
+
+
+
+
+
+   
+</body>
