@@ -8,6 +8,23 @@
                 <div class="card-body">
                     <h1 class="texto-gris-eit text-center">Añadir Usuario </h1>
                     <hr>
+                    <div class="col-md-12 mt-2 mx-auto">
+                        {% with msgs = get_flashed_messages() %}
+                          {% if msgs %}
+                            {% for msg in msgs %}
+                              {% if msg == "usuario_existe"%}
+                                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                  <i class="fas fa-times-circle mr-2">El usuario que intentas añadir ya existe.</i>
+                                  <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                  <span aria-hidden="true">&times;</span>
+                                  </button>
+                                </div>
+                              {%endif%}
+                            {%endfor%}
+                          {%endif%}
+                        {%endwith%}
+                      </div>
+
                     <form action="/anadir_usuario" method="POST">
                         <div class="form-row">
                             <div class="form-group col-md-3">
@@ -36,9 +53,9 @@
                                 <div>
                                     <label for="crendencial">Crendencial:</label>
                                     <select name="credencial" id="credencial" class="form-control">
-                                        <option selected value="3">Alumno</option>
+                                        <option selected value="1">Alumno</option>
                                         <option value="2">Profesor</option>
-                                        <option value="1">Administrador</option>
+                                        <option value="3">Administrador</option>
                                     </select>
                                 </div>
                             </div>
@@ -58,4 +75,5 @@
                 </div>
             </div>
         </div>
+
 {% endblock %}
