@@ -1,0 +1,61 @@
+{%extends '/pablo/base.html' %}
+
+{%block title%}LabEIT- Añadir Usuario{% endblock %}
+
+{% block content %}
+        <div class="container h-100">
+            <div class="row align-items-center h-100">
+                <div class="card-body">
+                    <h1 class="texto-gris-eit text-center">Añadir Usuario </h1>
+                    <hr>
+                    <form action="/anadir_usuario" method="POST">
+                        <div class="form-row">
+                            <div class="form-group col-md-3">
+                                <p>Aqui va la imagen</p>
+                            </div>
+                            <div class="form-group col-md-6">
+            
+                                <div>
+                                    <label for="Nombres">Nombres:</label>
+                                    <input type="text" id="nombres" name="nombres" class="form-control" required>
+                                </div>
+                                <div>
+                                    <label for="apellidos">Apellidos:</label>
+                                    <input type="text" name="apellidos" id="apellidos" class="form-control" required>
+                                </div>
+                                <div>
+                                    <label for="rut">Rut:</label>
+                                    <input type="text" name="rut" id="rut" class="form-control" required>
+                                </div>
+                                <div>
+                                    <label for="correo">Correo:</label>
+                                    <input type="email" name="correo" id="correo" class="form-control" required>
+                                </div> 
+                            </div>
+                            <div class="form-group col-md-3">
+                                <div>
+                                    <label for="crendencial">Crendencial:</label>
+                                    <select name="credencial" id="credencial" class="form-control">
+                                        <option selected value="3">Alumno</option>
+                                        <option value="2">Profesor</option>
+                                        <option value="1">Administrador</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group col-md-6">
+                                <div class="col text-center">
+                                    <button type="reset" class="btn btn-danger mt-3">Cancelar</button>
+                                </div>
+                            </div>
+                            <div  class="form-group col-md-6">
+                                <div class="col text-center">
+                                    <button type="submit" class="btn btn-success mt-3">Guardar</button>
+                                </div>
+                            </div>
+                        </div>
+                            
+                    </form>
+                </div>
+            </div>
+        </div>
+{% endblock %}
