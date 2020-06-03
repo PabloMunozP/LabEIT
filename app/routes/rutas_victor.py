@@ -51,7 +51,7 @@ def perfil():
         ''')
         cursor.execute(query_perfil,(session['usuario']['rut'],))
         resultado_perfil = cursor.fetchone()
-        resultado_perfil['rut'] = rut_chile.formato_rut(resultado_perfil['rut'])# Le da formato al rut como "12.345.678-9"
+        resultado_perfil['rut'] = rut_chile.formato_rut(resultado_perfil['rut']) # Le da formato al rut como "12.345.678-9"
 
         for key in resultado_perfil:
             print(resultado_perfil[key])
@@ -59,7 +59,7 @@ def perfil():
         print('resultado: ', resultado_perfil)
         return render_template('victor/perfil.html', perfil_info = resultado_perfil)
     else: 
-        return redirect('/victor/back_login') # ** cambiar url en produccion ** 
+        return redirect('/')
 
 # Configurar perfil
 @mod.route('/perfil/configurar') # ** Importante CONFIGURAR PERFIL** #
@@ -69,36 +69,6 @@ def configurar_perfil():
     else:
         return redirect('/')
 
-
-# ********** borrar antes de producción ************************ #
-# puerta trasera de login 
-@mod.route('/victor/back_login')
-def back_login():
-    return render_template('victor/back_login.html')
-
-# Validador del login
-@mod.route('/victor/validar_back_login', methods = ['POST'])
-def validar_back_login():
-    datos_login=request.form.to_dict()
-    print(datos_login)
-    query = ('''
-            SELECT
-                id_credencial,
-                rut       
-            FROM Usuario
-            WHERE rut = %s
-        ''') % (datos_login['rut'])
-    cursor.execute(query)
-    resultado = cursor.fetchone()
-    print(resultado)
-    session['usuario'] = {}
-    session['usuario']['rut'] = resultado['rut']
-    session['usuario']['id_credencial'] = resultado ['id_credencial']
-
-    print('session:', session)
-    return redirect('/perfil')
-
-# ************************************************************** #
 
 # Formulario para agregar usuario
 @mod.route('/victor/user_add_form')
