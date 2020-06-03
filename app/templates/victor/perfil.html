@@ -1,9 +1,5 @@
 <head>
     <title>Perfil</title>
-<<<<<<< HEAD
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
-    <link href="{{ url_for('static', filename='../static/css/victor_css/prueba.css') }}" rel="stylesheet"/>
-=======
     <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -14,14 +10,10 @@
 		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 		<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css" integrity="sha384-oS3vJWv+0UjzBfQzYUhtDYW+Pj2yciDJxpsK1OYPAYjqT085Qq/1cq5FLXAZQ7Ay" crossorigin="anonymous">
 		<link href="{{ url_for('static', filename='../static/css/estilos_lab.css') }}" rel="stylesheet"/>
->>>>>>> master
 </head>
 
 
 
-<<<<<<< HEAD
-<body>
-=======
 <body class="body-profile">
 
     
@@ -30,7 +22,6 @@
           <img src="{{ url_for('static', filename="../static/imgs/logo_eit.png")}}" style="width:40%;" alt="Logo EIT">
         </a>
     </nav>
->>>>>>> master
     
     <div class="container-fluid">
     
@@ -46,39 +37,6 @@
 
             <div class="col-md-4 justify-content-center">
                 <img src="https://via.placeholder.com/220"/>
-<<<<<<< HEAD
-                <h6 class="profile-subtext"> Credencial: Alummno</h6>
-                <h6 class="profile-subtext"> <span>Sanción activa:</span>    <span style="color: #96d37c;">No</span></h6>
-                <h6 class="profile-subtext" style="color: #69adde;"> <a href="#">Configurar perfil</a></h6>                
-            </div>
-            
-            <div class="col-md-8">
-                <h1><b> Victor Esteban Sanchez Ulloa </b></h1>
-                <table style="width: 100%;">
-                    <tr>
-                        <td><h5>Correo:</h5></td>
-                        <td><h5>victor.sanchez1@mail.udp.cl</h5></td>
-                    </tr>
-                    <tr>
-                        <td><h5>Rut:</h5></td>
-                        <td><h5>19.818.235-4</h5></td>
-                    </tr>
-                    <tr>
-                        <td><h5>Región:</h5></td>
-                        <td><h5>Región Metropolitana</h5></td>
-                    </tr>
-                    <tr>
-                        <td><h5>Ciudad:</h5></td>
-                        <td><h5>Santiago</h5></td>
-                    </tr>
-                    <tr>
-                        <td><h5>Comuna:</h5></td>
-                        <td><h5>Quilicura</h5></td>
-                    </tr>
-                    <tr>
-                        <td><h5>Dirección</h5></td>
-                        <td><h5>Psj Quirihue 220</h5></td>
-=======
                 <h6 class="profile-subtext"> Credencial: {{perfil_info.credencial_nombre}} </h6>
                 <h6 class="profile-subtext"> <span>Sanción activa:</span>    <span style="color: #96d37c;">No</span></h6>
                 <h6 class="profile-subtext" style="color: #69adde;"> <a href="/perfil/configurar">Configurar perfil</a></h6>                
@@ -103,7 +61,7 @@
                     <tr>
                         <td><h5>    Dirección               </h5></td>
                         <td><h5>    {{perfil_info.direccion}}</h5></td>
->>>>>>> master
+
                     </tr>
 
                 </table>
@@ -111,24 +69,17 @@
             </div>
         </div>
 
-<<<<<<< HEAD
-        <div class="card section-red-card">
-=======
+
         <hr>
         <div>
->>>>>>> master
             <h1>
                 <b>Resumen</b> 
             </h1>
         </div>
-<<<<<<< HEAD
-        
-
-=======
         <div>
             {{perfil_info.fecha_registro}}
         </div>
->>>>>>> master
+
 
 
 

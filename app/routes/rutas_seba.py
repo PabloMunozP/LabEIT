@@ -36,7 +36,7 @@ def principal():
     if "usuario" not in session.keys():
         return render_template("/vistas_exteriores/login.html")
     else:
-        return "Autenticado"
+        return redirect('/perfil')
 
 # Luego de ingresar los datos en el formulario del login, se reciben para la autenticación.
 @mod.route("/iniciar_sesion",methods=["POST"])
@@ -75,7 +75,7 @@ def iniciar_sesion():
     session["usuario"]["rut"] = datos_usuario_registrado["rut"]
     session["usuario"]["id_credencial"] = datos_usuario_registrado["id_credencial"]
 
-    return "Se ingresa al perfil"
+    return redirect('/perfil')
 
 # Vista para recuperación de contraseña.
 @mod.route("/recuperacion_password",methods=["GET"])
