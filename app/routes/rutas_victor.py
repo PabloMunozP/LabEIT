@@ -2,8 +2,7 @@ from flask import Flask,Blueprint,render_template,request,redirect,url_for,flash
 from config import db,cursor
 import os, time, bcrypt
 import mysql.connector
-
-
+import rut_chile 
 
 def redirect_url(default='index'): # Redireccionamiento desde donde vino la request
     return request.args.get('next') or \
@@ -23,75 +22,55 @@ def validar_session():
     else:
         return render_template('victor/user_login_form.html')
 
-# Validador de login
-
-@mod.route('/victor/user_login', methods = ['POST'])
-def login_session():
-    if request.method == 'POST':
-        
-        # Valores obtenidos por el metodo 
-        rut_entrada = request.form.get('rut')
-        contraseña_entrada = request.form.get('contraseña')
-        
-        # Query donde se obtienen los datos del usuario
-        query = ('''
-            SELECT 
-                rut,
-                contraseña, 
-                id_credencial 
-            FROM Usuario
-            WHERE rut = %s;
-        ''')
-        cursor.execute(query, (rut_entrada,))
-        resultado = cursor.fetchall()
 
 
-        # Si los datos para ingresar son incorrectos redirigira al login con un error
-        if (resultado == []):    
-            flash('El usuario o la contraseña no son validos')
-            return redirect('/victor/login')
-        # Si la contraseña es correctoa guarda los 
-        elif bcrypt.checkpw(contraseña_entrada.encode('utf-8'), resultado[0][1].encode('utf-8')):
-            session['rut'] = rut_entrada
-            session['id_credencial'] = resultado[0][2]
-            return redirect('/victor/login')
-        else:
-            flash('El usuario o la contraseña no son validos')
-            return redirect('/victor/login')
 
+# Perfil del usuario
 
-@mod.route('/perfil')
+@mod.route('/perfil') # ** Importante PERFIL** #
 def perfil():
-    # si hay un usuario en la session
+    # si hay un usuario en la session carga el perfil
     if 'usuario' in session:
+    # Query para obtener datos del perfil
         query_perfil = ('''
             SELECT
                 id_credencial,
+                Credencial.nombre AS credencial_nombre,
                 rut,
                 email,
                 nombres,
                 apellidos,
                 region,
-                ciudad,
                 comuna,
                 direccion,
-                fecha_registro,
-                foto           
+                fecha_registro      
             FROM Usuario
+            LEFT JOIN Credencial
+            ON Credencial.id = Usuario.id_credencial
             WHERE rut = %s
         ''')
         cursor.execute(query_perfil,(session['usuario']['rut'],))
         resultado_perfil = cursor.fetchone()
+        resultado_perfil['rut'] = rut_chile.formato_rut(resultado_perfil['rut'])# Le da formato al rut como "12.345.678-9"
+
         for key in resultado_perfil:
             print(resultado_perfil[key])
+        
         print('resultado: ', resultado_perfil)
         return render_template('victor/perfil.html', perfil_info = resultado_perfil)
     else: 
         return redirect('/victor/back_login') # ** cambiar url en produccion ** 
 
+# Configurar perfil
+@mod.route('/perfil/configurar') # ** Importante CONFIGURAR PERFIL** #
+def configurar_perfil():
+    if 'usuario' in session:
+        return render_template('victor/configurar_perfil.html')
+    else:
+        return redirect('/')
 
 
-# ********** borrar ante de producción ************************ #
+# ********** borrar antes de producción ************************ #
 # puerta trasera de login 
 @mod.route('/victor/back_login')
 def back_login():
