@@ -22,9 +22,9 @@ def crear_usuario():
     hashpass = bcrypt.hashpw(pass_.encode(encoding="UTF-8"), bcrypt.gensalt())
     sql_query = """
         INSERT INTO Usuario (rut,nombres,apellidos,contraseña)
-            VALUES ('%s','%s','%s','%s')
-    """ % ("19889608K","Sebastián Ignacio","Toro Severino",hashpass.decode("UTF-8"))
-    cursor.execute(sql_query)
+            VALUES (%s,%s,%s,%s)
+    """
+    cursor.execute(sql_query,("19889608K","Sebastián Ignacio","Toro Severino",hashpass.decode("UTF-8")))
 
     return redirect(redirect_url())
 
@@ -42,16 +42,16 @@ def principal():
 @mod.route("/iniciar_sesion",methods=["POST"])
 def iniciar_sesion():
     datos_solicitante = request.form.to_dict() # Se obtienen los datos del formulario
-    datos_solicitante["rut"] = db.converter.escape(datos_solicitante["rut"])
-    datos_solicitante["password"] = db.converter.escape(datos_solicitante["password"])
+    datos_solicitante["rut"] = datos_solicitante["rut"]
+    datos_solicitante["password"] = datos_solicitante["password"]
 
     # Se obtienen los datos del colaborador (contraseña --> hash de contraseña)
     sql_query = """
         SELECT rut,id_credencial,email,contraseña
             FROM Usuario
-                WHERE rut = '%s'
-    """ % (datos_solicitante["rut"])
-    cursor.execute(sql_query)
+                WHERE rut = %s
+    """
+    cursor.execute(sql_query,(datos_solicitante["rut"],))
     # Se obtienen los datos asociados al rut ingresado en el formulario
     datos_usuario_registrado = cursor.fetchone()
 
@@ -77,7 +77,6 @@ def iniciar_sesion():
 
     return "Se ingresa al perfil"
 
-
 # Vista para recuperación de contraseña.
 @mod.route("/recuperacion_password",methods=["GET"])
 def recuperacion_password():
@@ -88,16 +87,16 @@ def enviar_recuperacion_password():
 
     # Se obtienen los datos del formulario
     datos_recuperacion = request.form.to_dict()
-    datos_recuperacion["identificacion_usuario"] = db.converter.escape(datos_recuperacion["identificacion_usuario"])
+    datos_recuperacion["identificacion_usuario"] = datos_recuperacion["identificacion_usuario"]
 
     # Se revisa si el RUT o correo coincide con el registro de usuarios
     sql_query = """
         SELECT rut,nombres,email
             FROM Usuario
-                WHERE rut = '%s'
-                OR email = '%s'
-    """ % (datos_recuperacion["identificacion_usuario"],datos_recuperacion["identificacion_usuario"])
-    cursor.execute(sql_query)
+                WHERE rut = %s
+                OR email = %s
+    """
+    cursor.execute(sql_query,(datos_recuperacion["identificacion_usuario"],datos_recuperacion["identificacion_usuario"]))
     datos_usuario = cursor.fetchone()
 
     # Si el correo o el rut no se encuentran registrados, se alerta al usuario
@@ -117,9 +116,9 @@ def enviar_recuperacion_password():
     # Se eliminan los registros de token asociados al rut del usuario en caso de existir
     sql_query = """
         DELETE FROM Token_recuperacion_password
-            WHERE rut_usuario = '%s'
-    """ % (datos_usuario["rut"])
-    cursor.execute(sql_query)
+            WHERE rut_usuario = %s
+    """
+    cursor.execute(sql_query,(datos_usuario["rut"],))
 
     # Se reemplazan los datos del usuario en el template a enviar vía correo
     html_restablecimiento = html_restablecimiento.replace("%nombre_usuario%",datos_usuario["nombres"])
@@ -144,9 +143,9 @@ def enviar_recuperacion_password():
         sql_query = """
             INSERT INTO Token_recuperacion_password
                 (token,rut_usuario)
-                    VALUES ('%s','%s')
-        """ % (str(token),datos_usuario["rut"])
-        cursor.execute(sql_query)
+                    VALUES (%s,%s)
+        """
+        cursor.execute(sql_query,(str(token),datos_usuario["rut"]))
         flash("correo-recuperacion-exito") # Notificación de éxito al enviar el correo
 
     except Exception as e:
@@ -166,9 +165,9 @@ def restablecer_password(token):
     sql_query = """
         SELECT token_id,rut_usuario
             FROM Token_recuperacion_password
-                WHERE token = '%s'
-    """ % (token)
-    cursor.execute(sql_query)
+                WHERE token = %s
+    """
+    cursor.execute(sql_query,(token,))
     registro_token = cursor.fetchone()
 
     # En caso de que el token sea inválido, se redirecciona a la sección de recuperación de contraseña
@@ -179,9 +178,9 @@ def restablecer_password(token):
     sql_query = """
         SELECT nombres,apellidos
             FROM Usuario
-                WHERE rut = '%s'
-    """ % (registro_token["rut_usuario"])
-    cursor.execute(sql_query)
+                WHERE rut = %s
+    """
+    cursor.execute(sql_query,(registro_token["rut_usuario"],))
     registro_nombre_usuario = cursor.fetchone()
 
     if registro_nombre_usuario is not None:
@@ -202,9 +201,9 @@ def modificar_password_recuperacion():
     sql_query = """
         SELECT rut_usuario
             FROM Token_recuperacion_password
-                WHERE token_id = %d
-    """ % (int(datos_formulario["token_id"]))
-    cursor.execute(sql_query)
+                WHERE token_id = %s
+    """
+    cursor.execute(sql_query,(int(datos_formulario["token_id"]),))
     datos_usuario = cursor.fetchone()
 
     # Si se ha obtenido un registro, se obtiene el rut
@@ -232,17 +231,17 @@ def modificar_password_recuperacion():
     # Se almacena la nueva contraseña en la base de datos
     sql_query = """
         UPDATE Usuario
-            SET contraseña = '%s'
-                WHERE rut = '%s'
-    """ % (db.converter.escape(hashpass.decode("UTF-8")),rut_usuario)
-    cursor.execute(sql_query)
+            SET contraseña = %s
+                WHERE rut = %s
+    """
+    cursor.execute(sql_query,(hashpass.decode("UTF-8"),rut_usuario))
 
     # Se elimina el token generado de la base de datos
     sql_query = """
         DELETE FROM Token_recuperacion_password
-            WHERE token_id = %d
-    """ % (int(datos_formulario["token_id"]))
-    cursor.execute(sql_query)
+            WHERE token_id = %s
+    """
+    cursor.execute(sql_query,(int(datos_formulario["token_id"]),))
 
     flash("contraseña-actualizada") # Se notifica el éxito al modificar la contraseña
     return redirect(url_for("rutas_seba.principal")) # Se redirecciona al login
