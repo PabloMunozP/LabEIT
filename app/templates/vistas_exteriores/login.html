@@ -72,7 +72,7 @@
 									<div class="input-group-prepend">
 											<span class="input-group-text"> <i class="fas fa-user-circle"></i> </span>
 									 </div>
-										<input type="text" id="rut_input_login" required name="rut" maxlength="9" class="form-control" placeholder="Ingresa tu RUT" autocomplete="off">
+										<input type="text" id="rut_input_login" required name="rut" maxlength="9" onkeyup="validar_rut(this)" class="form-control" placeholder="Ingresa tu RUT" autocomplete="off">
 								</div>
 								<small class="form-text text-white ">Ingresa tu RUT sin guión ni puntos.</small>
 							</div>
@@ -102,6 +102,34 @@
 				<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
 		    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
         <script src="{{ url_for('static', filename='../static/js/script_labeit.js') }}"></script>
+
+        <script type="text/javascript"> // Formato de solo números y 'K' final en input de RUT
+          function validar_rut(input_rut){
+            input_rut.value = input_rut.value.replace(/ +?/g, '');
+            var rut = input_rut.value;
+            if(!rut.length){
+              return;
+            }else{
+              sub_string = ""
+              for(var i = 0 ; i < rut.length ; i++){
+                if(isNaN(rut[i])){
+                  if(rut.length != 9){ // El caracter no crresponde al último dígito
+                    input_rut.value = sub_string.replace(/ +?/g, '');
+                    break;
+                  }else{ // El caracter se encuentra al final del string
+                    if(rut[i].toLowerCase() != "k"){ // El último caracter no es el caracter K (único permitido)
+                      input_rut.value = sub_string.replace(/ +?/g, '');
+                      break;
+                    }else{
+                    }
+                  }
+                }else{
+                  sub_string += rut[i];
+                }
+              }
+            }
+          }
+        </script>
 
     </body>
 

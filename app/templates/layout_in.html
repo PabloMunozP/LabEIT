@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width", initial-scale="1.0">
     <!-- Hojas de estilo CSS -->
     <script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+    <link href="{{ url_for('static', filename='../static/css/styles.css') }}" rel="stylesheet"/>
+    <link href="{{ url_for('static', filename='../static/css/estilos_lab.css') }}" rel="stylesheet"/>
+    <link href="{{ url_for('static', filename='../static/css/victor_css/prueba.css') }}" rel="stylesheet"/>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css" integrity="sha384-oS3vJWv+0UjzBfQzYUhtDYW+Pj2yciDJxpsK1OYPAYjqT085Qq/1cq5FLXAZQ7Ay" crossorigin="anonymous">
     <title>LabEIT UDP</title>
@@ -15,168 +18,91 @@
     @import url(https://fonts.googleapis.com/css?family=Roboto:300);
     </style>
 
-    <nav class="sb-topnav navbar navbar-expand sticky-top" style="background:#032936;">
-      <a class="navbar-brand" href="">
-        <!--<img src="{{ url_for('static', filename="../static/imgs/logo_contac.png")}}" width="80" height="50" class="d-inline-block mt-1 mb-2" alt="">-->
-        <strong>SPAA CONTAC</strong>
+    <nav class="sb-topnav navbar navbar-expand sticky-top bg-verde-eit">
+      <a class="navbar-brand text-white" href="/">
+        <img src="{{ url_for('static', filename="../static/imgs/logo_eit.png")}}" style="width:80%;" class="d-inline-block mt-1 mb-2" alt="">
       </a>
-      <button class="btn btn-link btn-sm order-1 order-lg-0" title="Minimizar navegación global" id="sidebarToggle" href="#"><i id="icono_toggle_sidebar" class="fas fa-chevron-circle-left fa-2x" style="color:#BDC3C7;"></i></button>
+      <button class="btn btn-link btn-sm order-1 order-lg-0 text-white" title="Maximizar/Minimizar navegación global" id="sidebarToggle" href="#"><i id="icono_toggle_sidebar" class="fas fa-bars fa-2x"></i></button>
 
-      <!--{% if title %}
-      <div class="collapse navbar-collapse" id="navbarText">
-        <span class="navbar-text ml-auto" style="color:#ECF0F1;">
-          <strong>{{title}}</strong>
-        </span>
-      </div>
-      {% endif %}-->
 
-      {% with permisos = '' %}
-        {% if colaboradorActual['PermisosID'] == 4 %}
-          {% set permisos = 'Administrador' %}
-        {% elif colaboradorActual['PermisosID'] == 3 %}
-          {% set permisos = 'Jefe de proyectos Senior' %}
-        {% elif colaboradorActual['PermisosID'] == 2 %}
-          {% set permisos = 'Jefe de proyectos' %}
-        {% else %}
-          {% set permisos = 'Colaborador' %}
-        {% endif %}
-
-      {% endwith %}
     </nav>
     <div id="layoutSidenav">
         <div id="layoutSidenav_nav">
-            <nav class="sb-sidenav accordion sticky-top" id="sidenavAccordion" style="background:#044F67;">
+            <nav class="sb-sidenav accordion sticky-top bg-gris-eit" id="sidenavAccordion">
                 <div class="sb-sidenav-menu">
                     <div class="nav">
-                        <div class="sb-sidenav-menu-heading" style="color:#ECF0F1;">Proyectos</div>
+                        <div class="sb-sidenav-menu-heading" style="color:#ECF0F1;">LabEIT UDP</div>
 
-                        <a class="nav-link" href="/tablero-principal">
-                          <div class="sb-nav-link-icon"><i class="fas fa-chalkboard-teacher"></i></div>
-                            Mi tablero
+                        <a class="nav-link" href="/perfil">
+                          <div class="sb-nav-link-icon"><i class="fas fa-user-circle mr-1"></i></div>
+                            Tu perfil de usuario
+                         </a>
+
+                        <a class="nav-link" href="/solicitudes_prestamos">
+                          <div class="sb-nav-link-icon"><i class="fas fa-laptop mr-1"></i></div>
+                          Solicitudes de préstamos
                         </a>
 
-                        <a class="nav-link" href="/calendario-actividades">
-                          <div class="sb-nav-link-icon"><i class="fas fa-calendar-alt mr-1"></i></div>
-                          Mi calendario de actividades
+                        <a class="nav-link" href="/wishlist_usuario">
+                          <div class="sb-nav-link-icon"><i class="fas fa-envelope-open-text mr-1"></i></div>
+                          Sección de Wishlist
                         </a>
 
-                        <a class="nav-link" href="/proyectos-registrados">
-                          <div class="sb-nav-link-icon"><i class="fas fa-project-diagram"></i></div>
-                            Proyectos registrados
+                        <a class="nav-link" href="/faq">
+                          <div class="sb-nav-link-icon"><i class="fas fa-question-circle mr-1"></i></div>
+                          Preguntas frecuentes
                         </a>
 
-                        {% if colaboradorActual['PermisosID'] == 2 %}
-                        <div class="sb-sidenav-menu-heading" style="color:#ECF0F1;">Jefe de proyectos</div>
-                        <a class="nav-link" href="/calendario_jp">
-                          <div class="sb-nav-link-icon"><i class="fas fa-calendar-alt"></i></div>
-                          Calendario proyectos
-                        </a>
-                        {% endif %}
+                        {% if session["usuario"]["id_credencial"] == 3 %}
 
-                        {% if colaboradorActual['PermisosID'] == 3 %}
-                        <div class="sb-sidenav-menu-heading" style="color:#ECF0F1;">Jefe de proyectos</div>
-                        <a class="nav-link" href="/calendario_jp">
-                          <div class="sb-nav-link-icon"><i class="fas fa-calendar-alt"></i></div>
-                          Calendario proyectos
-                        </a>
-                        <div class="sb-sidenav-menu-heading" style="color:#ECF0F1;">Jefe de proyectos senior</div>
-                        <a class="nav-link" href="/calendario_jps">
-                          <div class="sb-nav-link-icon"><i class="fas fa-calendar-alt"></i></div>
-                          Calendario global
-                        </a>
-                        {% endif %}
+                          <div class="sb-sidenav-menu-heading" style="color:#ECF0F1;">Administración</div>
 
-                        <!--
-                        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseLayouts" aria-expanded="false" aria-controls="collapseLayouts"
-                            ><div class="sb-nav-link-icon"><i class="fas fa-tasks mr-1"></i></div>
-                            Actividades
-                            <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div
-                        ></a>
-                        <div class="collapse" id="collapseLayouts" aria-labelledby="headingOne" data-parent="#sidenavAccordion">
-                            <nav class="sb-sidenav-menu-nested nav">
-                              <a class="nav-link" href="/actividades-por-asignar">Actividades por asignar</a>
-                              <a class="nav-link" href="/actividades-por-revisar">Actividades por revisar</a>
-                              <a class="nav-link" href="/actividades-con-problemas">Actividades con problemas</a>
-                            </nav>
-                        </div> -->
-
-                        {% if session["usuario"]["PermisosID"] != 4 %}
-                        <!--
-                        <div class="sb-sidenav-menu-heading" style="color:#ECF0F1;">Otros</div>
-                        <a class="nav-link" href="/colaboradores">
-                          <div class="sb-nav-link-icon"><i class="fas fa-users"></i></div>
-                            Colaboradores
-                        </a>
-                            <a class="nav-link" href="/configuraciones">
-                              <div class="sb-nav-link-icon"><i class="fas fa-cogs"></i></div>
-                            Configuraciones
-                          </a> -->
-                        {% else %}
-                        <div class="sb-sidenav-menu-heading" style="color:#ECF0F1;">Administración</div>
-
-                        <a class="nav-link" href="/calendario_jp">
-                          <div class="sb-nav-link-icon"><i class="fas fa-calendar-alt"></i></div>
-                          Calendario proyectos
-                        </a>
-
-                        <a class="nav-link" href="/calendario_jps">
-                          <div class="sb-nav-link-icon"><i class="fas fa-calendar-alt"></i></div>
-                          Calendario global
-                        </a>
-
-                        <a class="nav-link" href="/colaboradores">
-                          <div class="sb-nav-link-icon"><i class="fas fa-users"></i></div>
-                            Colaboradores
-                        </a>
-                            <a class="nav-link" href="/historial-registros">
-                              <div class="sb-nav-link-icon"><i class="fas fa-file-alt"></i></div>
-                            Historial de registros
+                          <a class="nav-link" href="/gestion_solicitudes_prestamos">
+                            <div class="sb-nav-link-icon"><i class="fas fa-file-invoice mr-1"></i></div>
+                            Gestión de solicitudes de préstamos
                           </a>
 
-                          <a class="nav-link" href="/estadisticas-generales">
-                            <div class="sb-nav-link-icon"><i class="fas fa-chart-pie"></i></div>
-                          Estadísticas generales
-                        </a>
+                          <a class="nav-link" href="/gestion_inventario">
+                            <div class="sb-nav-link-icon"><i class="fas fa-boxes mr-1"></i></div>
+                            Gestión de inventario
+                          </a>
+
+                          <a class="nav-link" href="/gestion_wishlist">
+                            <div class="sb-nav-link-icon"><i class="fas fa-envelope-open-text mr-1"></i></div>
+                            Gestión de Wishlist
+                          </a>
+
+                          <a class="nav-link" href="/gestion_usuarios">
+                            <div class="sb-nav-link-icon"><i class="fas fa-users mr-1"></i></div>
+                            Gestión de usuarios
+                          </a>
+
+                          <a class="nav-link" href="/gestion_cursos">
+                            <div class="sb-nav-link-icon"><i class="fas fa-chalkboard-teacher mr-1"></i></div>
+                            Gestión de cursos
+                          </a>
+
+                          <a class="nav-link" href="/modificar_wifi">
+                            <div class="sb-nav-link-icon"><i class="fas fa-wifi mr-1"></i></div>
+                            Modificar contraseña Wifi
+                          </a>
 
                         {% endif %}
 
-                        <!--
-                        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapsePages" aria-expanded="false" aria-controls="collapsePages"
-                            ><div class="sb-nav-link-icon"><i class="fas fa-book-open"></i></div>
-                            Pages
-                            <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div
-                        ></a>
-                        <div class="collapse" id="collapsePages" aria-labelledby="headingTwo" data-parent="#sidenavAccordion">
-                            <nav class="sb-sidenav-menu-nested nav accordion" id="sidenavAccordionPages">
-                                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#pagesCollapseAuth" aria-expanded="false" aria-controls="pagesCollapseAuth"
-                                    >Authentication
-                                    <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div
-                                ></a>
-                                <div class="collapse" id="pagesCollapseAuth" aria-labelledby="headingOne" data-parent="#sidenavAccordionPages">
-                                    <nav class="sb-sidenav-menu-nested nav"><a class="nav-link" href="login.html">Login</a><a class="nav-link" href="register.html">Register</a><a class="nav-link" href="password.html">Forgot Password</a></nav>
-                                </div>
-                                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#pagesCollapseError" aria-expanded="false" aria-controls="pagesCollapseError"
-                                    >Error
-                                    <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div
-                                ></a>
-                                <div class="collapse" id="pagesCollapseError" aria-labelledby="headingOne" data-parent="#sidenavAccordionPages">
-                                    <nav class="sb-sidenav-menu-nested nav"><a class="nav-link" href="401.html">401 Page</a><a class="nav-link" href="404.html">404 Page</a><a class="nav-link" href="500.html">500 Page</a></nav>
-                                </div>
-                            </nav>
-                        </div> -->
+
                     </div>
                 </div>
-                <div class="sb-sidenav-footer text-white" style="background:#032936;">
-                    <div class="small">Sesión iniciada como:</div>
+                <div class="sb-sidenav-footer text-white" style="background:#262626;">
+                  <div class="small mb-2">
+                    {{session["usuario"]["nombres"]}} {{session["usuario"]["apellidos"]}}
+                  </div>
                     <div class="dropdown show mt-1">
-      <a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-        <i class="fas fa-user-circle mr-1"></i>{{session["usuario"]["NombreUsuario"]}}
+      <a class="btn btn-verde-eit dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <i class="fas fa-user-circle mr-1"></i>{{session["usuario"]["rut"]|formato_rut}}
       </a>
 
       <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-        <a class="dropdown-item" id="opcion-dropdown-usuario-sidebar" href="/perfil-usuario"><i class="far fa-id-card mr-2"></i>Ver perfil</a>
-        <div class="dropdown-divider"></div>
-        <a class="dropdown-item" id="opcion-dropdown-usuario-sidebar" href="/cerrar-sesion"><i class="fas fa-sign-out-alt mr-2"></i>Cerrar sesión</a>
+        <a class="dropdown-item" href="/cerrar_sesion"><i class="fas fa-sign-out-alt mr-2"></i>Cerrar sesión</a>
       </div>
     </div>
                 </div>
@@ -188,36 +114,11 @@
 
               {%endblock%}
             </main>
-
-            <!--
-            <footer class="py-4 mt-auto" style="background:#032936;">
-                <div class="container-fluid">
-                    <div class="d-flex align-items-center justify-content-between small">
-                        <div class="text-muted">Copyright &copy; Your Website 2019</div>
-                        <div>
-                            <a href="#">Privacy Policy</a>
-                            &middot;
-                            <a href="#">Terms &amp; Conditions</a>
-                        </div>
-                    </div>
-                </div>
-            </footer> -->
         </div>
     </div>
     <!-- Scripts JS -->
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
-    <script type="text/javascript">
-      $("#sidebarToggle").click(function(){
-        // Se debe reemplazar por la flecha derecha (Se está desactivando el sidebar)
-        if($("#icono_toggle_sidebar").hasClass("fa-chevron-circle-left")){
-          $("#icono_toggle_sidebar").removeClass('fa-chevron-circle-left').addClass('fa-chevron-circle-right');
-          $("#sidebarToggle").prop("title","Expandir navegación global");
-        }else{ // Se debe reemplazar por la flecha izquierda (Se está activando el sidebar)
-          $("#icono_toggle_sidebar").removeClass('fa-chevron-circle-right').addClass('fa-chevron-circle-left');
-          $("#sidebarToggle").prop("title","Minimizar navegación global");
-        }
-      });
-    </script>
+    <script src="{{ url_for('static', filename="../static/js/script_labeit.js")}}"></script>
   </body>
 </html>

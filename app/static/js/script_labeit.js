@@ -1,5 +1,5 @@
 // Test de robustez de contraseña (password strength)
-function CheckPasswordStrength(elemento_password,id_elemento_robustez,id_barra_progreso) {
+function CheckPasswordStrength(elemento_password,id_elemento_robustez,id_barra_progreso,id_boton_submit) {
 	password = elemento_password.value; // Valor de la contraseña en cada input de teclado
   var password_strength = document.getElementById(id_elemento_robustez);  // Elemento para mostrar info de robustez
 	var progress_bar = document.getElementById(id_barra_progreso);
@@ -7,6 +7,7 @@ function CheckPasswordStrength(elemento_password,id_elemento_robustez,id_barra_p
     if(password.length==0){
 				progress_bar.style.width = "0%";
         password_strength.innerHTML = "";
+				document.getElementById(id_boton_submit).disabled = true;
         return;
     }
 
@@ -78,4 +79,33 @@ function CheckPasswordStrength(elemento_password,id_elemento_robustez,id_barra_p
     }
     password_strength.innerHTML = passwordStrength;
     password_strength.style.color = color;
+		if(passed >= 2){
+			document.getElementById(id_boton_submit).disabled = false;
+		}else{
+			document.getElementById(id_boton_submit).disabled = true;
+		}
+
 	}
+
+	/*!
+	    * Start Bootstrap - SB Admin v6.0.0 (https://startbootstrap.com/templates/sb-admin)
+	    * Copyright 2013-2020 Start Bootstrap
+	    * Licensed under MIT (https://github.com/BlackrockDigital/startbootstrap-sb-admin/blob/master/LICENSE)
+	    */
+	    (function($) {
+	    "use strict";
+
+	    // Add active state to sidbar nav links
+	    var path = window.location.href; // because the 'href' property of the DOM element is the absolute path
+	        $("#layoutSidenav_nav .sb-sidenav a.nav-link").each(function() {
+	            if (this.href === path) {
+	                $(this).addClass("active");
+	            }
+	        });
+
+	    // Toggle the side navigation
+	    $("#sidebarToggle").on("click", function(e) {
+	        e.preventDefault();
+	        $("body").toggleClass("sb-sidenav-toggled");
+	    });
+	})(jQuery);

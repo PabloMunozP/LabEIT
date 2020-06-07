@@ -47,7 +47,7 @@ def iniciar_sesion():
 
     # Se obtienen los datos del colaborador (contraseña --> hash de contraseña)
     sql_query = """
-        SELECT rut,id_credencial,email,contraseña
+        SELECT rut,nombres,apellidos,id_credencial,email,contraseña
             FROM Usuario
                 WHERE rut = %s
     """
@@ -72,8 +72,23 @@ def iniciar_sesion():
     # En caso de que se compruebe la validez de la contraseña, se crea la sesión
     # Adicionalmente, se redirecciona al perfil de usuario
     session["usuario"] = {} # Creación de sesión para usuario
-    session["usuario"]["rut"] = datos_usuario_registrado["rut"]
-    session["usuario"]["id_credencial"] = datos_usuario_registrado["id_credencial"]
+    for atributo in datos_usuario_registrado.keys():
+        session["usuario"][str(atributo)] = datos_usuario_registrado[str(atributo)]
+
+    # Se verifica si el usuario presenta sanciones
+    sql_query = """
+        SELECT *
+            FROM Sanciones
+                WHERE rut_alumno = %s
+                AND activo = 1
+    """
+    cursor.execute(sql_query,(session["usuario"]["rut"],))
+    sancion_usuario = cursor.fetchone()
+
+    if sancion_usuario is not None:
+        session["usuario"]["sancionado"] = True
+    else: # Si no se recibe nada de la consulta, no tiene sanciones
+        session["usuario"]["sancionado"] = False
 
     return redirect('/perfil')
 
@@ -245,3 +260,25 @@ def modificar_password_recuperacion():
 
     flash("contraseña-actualizada") # Se notifica el éxito al modificar la contraseña
     return redirect(url_for("rutas_seba.principal")) # Se redirecciona al login
+
+@mod.route("/cerrar_sesion",methods=["GET"])
+def cerrar_sesion():
+    if "usuario" not in session.keys():
+        return redirect(redirect_url())
+
+    # Se elimina al usuario de la sesión
+    del session["usuario"]
+
+    # Se redirecciona al login una vez eliminada la sesión de usuario
+    return redirect("/")
+
+
+# ================================== GESTIÓN DE SOLICITUDES DE PRÉSTAMOS
+@mod.route("/gestion_solicitudes_prestamos",methods=["GET"])
+def gestion_solicitudes_prestamos():
+    if "usuario" not in session.keys():
+        return redirect("/")
+    if session["usuario"]["id_credencial"] != 3: # El usuario debe ser un administrador (Credencial = 3)
+        return redirect("/")
+
+    return render_template("/vistas_gestion_solicitudes_prestamos/lista_solicitudes.html")
