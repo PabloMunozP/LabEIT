@@ -43,6 +43,7 @@ def perfil():
                 region,
                 comuna,
                 direccion,
+                celular,
                 fecha_registro      
             FROM Usuario
             LEFT JOIN Credencial
@@ -53,20 +54,47 @@ def perfil():
         resultado_perfil = cursor.fetchone()
         resultado_perfil['rut'] = rut_chile.formato_rut(resultado_perfil['rut']) # Le da formato al rut como "12.345.678-9"
 
+        # For para validar si es que faltan completar datos
+        validar_completar = False # Variable que sera pasada para completar la informacion
         for key in resultado_perfil:
-            print(resultado_perfil[key])
-        
+            if resultado_perfil[key] == None:
+                validar_completar = True
+                break
+
+                
         print('resultado: ', resultado_perfil)
-        return render_template('victor/perfil.html', perfil_info = resultado_perfil)
+        return render_template('victor/perfil.html', perfil_info = resultado_perfil, completar_info = validar_completar)
     else: 
         return redirect('/')
 
 # Configurar perfil
-@mod.route('/perfil/configurar') # ** Importante CONFIGURAR PERFIL** #
+@mod.route('/perfil/actualizar_informacion', methods = ['POST']) # ** Importante CONFIGURAR PERFIL** #
 def configurar_perfil():
-    if 'usuario' in session:
-        return render_template('victor/configurar_perfil.html')
-    else:
+    if 'usuario' not in session:
+        return redirect('/')
+    if request.method == 'POST':
+        informacion_a_actualizar = request.form.to_dict()
+        print(informacion_a_actualizar)
+        query = ('''
+            UPDATE Usuario
+            SET nombres = %s,
+                apellidos = %s,
+                region = %s,
+                comuna = %s,
+                direccion = %s,
+                celular = %s
+            Where Usuario.rut = %s
+        ''')
+        cursor.execute(query,(  
+            informacion_a_actualizar['nombres'],
+            informacion_a_actualizar['apellidos'],
+            informacion_a_actualizar['region'],
+            informacion_a_actualizar['comuna'],
+            informacion_a_actualizar['direccion'],
+            informacion_a_actualizar['celular'],
+            session['usuario']['rut']
+            ))
+        db.commit()
         return redirect('/')
 
 

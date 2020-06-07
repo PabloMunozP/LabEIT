@@ -1,7 +1,31 @@
 {% extends "layout_in.html"%}
 {%block body%}
+<head>
+    <title>Perfil</title>
+    <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>LabEIT UDP</title>
+		<!-- Hojas de estilo CSS -->
+		<script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+		<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Roboto:400,100,300,500">
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+		<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css" integrity="sha384-oS3vJWv+0UjzBfQzYUhtDYW+Pj2yciDJxpsK1OYPAYjqT085Qq/1cq5FLXAZQ7Ay" crossorigin="anonymous">
+		<link href="{{ url_for('static', filename='../static/css/estilos_lab.css') }}" rel="stylesheet"/>
+</head>
 
 
+
+<body class="body-profile" onload="Cargar_informacion()">
+
+    
+    <nav class="navbar bg-verde-eit">
+        <a class="navbar-brand" href="/">
+          <img src="{{ url_for('static', filename="../static/imgs/logo_eit.png")}}" style="width:40%;" alt="Logo EIT">
+        </a>
+    </nav>
+    
+  
     <div class="container-fluid">
 
         <div class="card rounded-0 section-red-card">
@@ -18,7 +42,9 @@
                 <img src="https://via.placeholder.com/220"/>
                 <h6 class="profile-subtext"> Credencial: {{perfil_info.credencial_nombre}} </h6>
                 <h6 class="profile-subtext"> <span>Sanción activa:</span>    <span style="color: #96d37c;">No</span></h6>
-                <h6 class="profile-subtext" style="color: #69adde;"> <a href="/perfil/configurar">Configurar perfil</a></h6>
+                <button type="button" data-target="#editar_informacion" class="btn btn-primary" data-toggle="modal">
+                    Editar información
+                </button>
             </div>
 
             <div class="col-md-8">
@@ -49,7 +75,7 @@
         </div>
 
 
-        <hr>
+        <!-- <hr>
         <div>
             <h1>
                 <b>Resumen</b>
@@ -59,7 +85,7 @@
             {{perfil_info.fecha_registro}}
         </div>
 
-
+ -->
 
 
 
@@ -67,6 +93,6 @@
 
     </div>
 
-
-
+  {% include "victor/configurar_perfil.html" %}
+  
 {% endblock %}
