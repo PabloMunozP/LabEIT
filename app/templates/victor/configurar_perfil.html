@@ -1,6 +1,4 @@
-
-
-  <!-- Modal -->
+<!-- Modal -->
   <div id="editar_informacion" class="modal fade in" tabindex="-1" role="dialog" aria-labelledby="editar_informacion_label" aria-hidden="true" data-keyboard="false" data-backdrop="static">
       <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -31,13 +29,14 @@
       
                   <label for="celular"> Número de celular</label>
                   <input class="form-control" type="text" name="celular" id="celular" onchange="validar_informacion_perfil()" value="">
+                  
               
           </div>
           <div class="modal-footer">
                   {% if completar_info == False %}
-                  <button type="button" id="boton_cerrar" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                  <button type="button" id="boton_cerrar" class="btn btn-secondary" data-dismiss="modal" onclick="Cargar_informacion()">Cancelar</button>
                   {% else %}
-                  <button type="button" id="boton_cerrar" class="btn btn-secondary" data-dismiss="modal" hidden>Cancelar</button>
+                  <button type="button" id="boton_cerrar" class="btn btn-secondary" data-dismiss="modal" onclick="Cargar_informacion()" hidden>Cancelar</button>
                   {% endif %}
                   <button type="summit" id="boton_guardar" class="btn btn-primary" disabled="disabled"> Guardar cambios</button>
           </div>
@@ -63,6 +62,9 @@
     }
     validar_informacion_perfil();
   };
+  $( document ).ready(function() {
+    Cargar_informacion();
+});
 </script>
 
 
@@ -115,7 +117,7 @@
         $('#editar_informacion').modal({
           backdrop: 'static',
           keyboard: false
-        })
+        });
     });
 </script>
 {% endif %}
