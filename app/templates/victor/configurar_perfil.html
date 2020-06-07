@@ -1,47 +1,123 @@
-<head>
-    <title>Configurar perfil</title>
-    <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>LabEIT UDP</title>
-		<!-- Hojas de estilo CSS -->
-		<script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
-		<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Roboto:400,100,300,500">
-		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-		<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css" integrity="sha384-oS3vJWv+0UjzBfQzYUhtDYW+Pj2yciDJxpsK1OYPAYjqT085Qq/1cq5FLXAZQ7Ay" crossorigin="anonymous">
-		<link href="{{ url_for('static', filename='../static/css/estilos_lab.css') }}" rel="stylesheet"/>
-</head>
 
 
+  <!-- Modal -->
+  <div id="editar_informacion" class="modal fade in" tabindex="-1" role="dialog" aria-labelledby="editar_informacion_label" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="editar_informacion_label">Editar información</h5>
+              <!-- <button type="button" class="close" data-dismiss="modal" aria-label="Close"></button>
+                <span aria-hidden="true">&times; asdasdds</span>
+              </button> -->
+        </div>
+        <form id="editar_form" action="/perfil/actualizar_informacion" method="POST">
+          <div class="modal-body">
 
-<body style="background-color: #f5f5f5;">
-
-    <nav class="navbar bg-verde-eit">
-        <a class="navbar-brand" href="/">
-          <img src="{{ url_for('static', filename="../static/imgs/logo_eit.png")}}" style="width:40%;" alt="Logo EIT">
-        </a>
-    </nav>
-
-
-    <div class="container-fluid">
-        <form action="">
-            <label for="nombres"> Nombres</label>
-            <input class="form-control" type="text" name="nombres" id="nombres">
-
-            <label for="apellidos"> Apellidos</label>
-            <input class="form-control" type="text" name="apellidos" id="apellidos">
-
-            <select class="form-control" id="regiones"></select>
-
-            <select class="form-control" id="comunas"></select>
-
-        </form>
-
+                  <label for="nombres"> Nombres</label>
+                  <div>
+                  <input class="form-control" type="text" name="nombres" id="nombres" onchange="validar_informacion_perfil()" value="">
+      
+                  <label for="apellidos"> Apellidos</label>
+                  <input class="form-control" type="text" name="apellidos" id="apellidos" onchange="validar_informacion_perfil()" value="">
+      
+                  <label for="regiones"> Región</label>
+                  <select class="form-control" name="region" id="regiones" onchange="validar_informacion_perfil();"></select>
+      
+                  <label for="comunas"> Comuna</label>
+                  <select class="form-control" name="comuna" id="comunas" onchange="validar_informacion_perfil()"></select>
+      
+                  <label for="direccion"> Dirección</label>
+                  <input class="form-control" type="text" name="direccion" id="direccion" onchange="validar_informacion_perfil()" value="">
+      
+                  <label for="celular"> Número de celular</label>
+                  <input class="form-control" type="text" name="celular" id="celular" onchange="validar_informacion_perfil()" value="">
+              
+          </div>
+          <div class="modal-footer">
+                  {% if completar_info == False %}
+                  <button type="button" id="boton_cerrar" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                  {% else %}
+                  <button type="button" id="boton_cerrar" class="btn btn-secondary" data-dismiss="modal" hidden>Cancelar</button>
+                  {% endif %}
+                  <button type="summit" id="boton_guardar" class="btn btn-primary" disabled="disabled"> Guardar cambios</button>
+          </div>
+        </form> 
+      </div>
     </div>
+  </div>
 
 
+  <!-- Script para darle valores al modal Editar perfil -->
+<script>
+  function Cargar_informacion() {
+    if('{{perfil_info.apellidos}}' != 'None'){document.getElementById("apellidos").value = "{{perfil_info.apellidos}}";}
+    if('{{perfil_info.nombres}}' != 'None'){document.getElementById("nombres").value = "{{perfil_info.nombres}}";}
+    if('{{perfil_info.celular}}' != 'None'){document.getElementById("celular").value = "{{perfil_info.celular}}";}
+    if('{{perfil_info.direccion}}' != 'None'){document.getElementById("direccion").value = "{{perfil_info.direccion}}";}
+    if('{{perfil_info.region}}' != 'None'){
+      //document.getElementById("regiones").value = "{{perfil_info.region}}";
+      $("#regiones").val('{{perfil_info.region}}').change();
+    }
+    if('{{perfil_info.comuna}}' != 'None'){
+      $("#comunas").val('{{perfil_info.comuna}}');
+    }
+    validar_informacion_perfil();
+  };
+</script>
 
-   <script src="{{ url_for('static', filename="../static/js/ubicacion_chile.js")}}"></script>
-</body>
+
+<!-- Script para habilitar el boton de guardar en el form -->
+<script>
+  const region_select = document.getElementById("regiones");
+  const comuna_select = document.getElementById("comunas");
+  const boton_guardar = document.getElementById("boton_guardar");
+  var validar_inputs = false;
+  // Valida el contenido de inputs
+  editar_form.addEventListener('input',() =>{
+    if (nombres.value.length > 0 &&
+        apellidos.value.length > 0 &&
+        direccion.value.length > 0 &&
+        celular.value.length > 0){
+          validar_inputs = true;
+    } else {
+      validar_inputs = false;
+    }
+  });
+
+  // Valida el valor de los select
+  function validar_informacion_perfil(){
+    if(region_select.value != "sin-region" &&
+       region_select.value != "sin-comuna" &&
+       comuna_select.value != "sin-region" &&
+       comuna_select.value != "sin-comuna" &&
+       validar_inputs){
+         boton_guardar.removeAttribute('disabled');
+      } else {
+        boton_guardar.setAttribute('disabled','disabled');
+      }
+  };
+</script>
+
+
+{% if completar_info == True %}
+<!-- Script para hacer que aparezca el botton de cerrar -->
+<script>
+  const boton_cerrar = document.getElementById("boton_cerrar");
+  function display_button(){
+    boton_cerrar = boton_cerrar.removeAttribute('hidden');
+  };
+</script>
+
+<!-- Script para que aparezca el modal automaticamente -->
+<script type="text/javascript">
+    $(window).on('load',function(){
+        $('#editar_informacion').modal('show');
+        $('#editar_informacion').modal({
+          backdrop: 'static',
+          keyboard: false
+        })
+    });
+</script>
+{% endif %}
 
 

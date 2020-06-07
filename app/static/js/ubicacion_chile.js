@@ -70,13 +70,12 @@ jQuery(document).ready(function () {
 	var htmlComunas = '<option value="sin-region">Seleccione comuna</option><option value="sin-region">--</option>';
 
 	jQuery.each(RegionesYcomunas.regiones, function () {
-		htmlRegion = htmlRegion + '<option value="' + RegionesYcomunas.regiones[iRegion].NombreRegion + '">' + RegionesYcomunas.regiones[iRegion].NombreRegion + '</option>';
+		htmlRegion = htmlRegion + '<option id="'+RegionesYcomunas.regiones[iRegion].NombreRegion+'" value="' + RegionesYcomunas.regiones[iRegion].NombreRegion + '">' + RegionesYcomunas.regiones[iRegion].NombreRegion + '</option>';
 		iRegion++;
 	});
 
 	jQuery('#regiones').html(htmlRegion);
 	jQuery('#comunas').html(htmlComunas);
-
 	jQuery('#regiones').change(function () {
 		var iRegiones = 0;
 		var valorRegion = jQuery(this).val();
@@ -85,7 +84,7 @@ jQuery(document).ready(function () {
 			if (RegionesYcomunas.regiones[iRegiones].NombreRegion == valorRegion) {
 				var iComunas = 0;
 				jQuery.each(RegionesYcomunas.regiones[iRegiones].comunas, function () {
-					htmlComuna = htmlComuna + '<option value="' + RegionesYcomunas.regiones[iRegiones].comunas[iComunas] + '">' + RegionesYcomunas.regiones[iRegiones].comunas[iComunas] + '</option>';
+					htmlComuna = htmlComuna + '<option id="' +RegionesYcomunas.regiones[iRegiones].comunas[iComunas] + '" value="' + RegionesYcomunas.regiones[iRegiones].comunas[iComunas] + '">' + RegionesYcomunas.regiones[iRegiones].comunas[iComunas] + '</option>';
 					iComunas++;
 				});
 			}
