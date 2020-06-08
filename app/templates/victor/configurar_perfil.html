@@ -14,23 +14,22 @@
                   <label for="nombres"> Nombres</label>
                   <div>
                   <input class="form-control" type="text" name="nombres" id="nombres" onchange="validar_informacion_perfil()" value="">
-      
+
                   <label for="apellidos"> Apellidos</label>
                   <input class="form-control" type="text" name="apellidos" id="apellidos" onchange="validar_informacion_perfil()" value="">
-      
+
                   <label for="regiones"> Región</label>
                   <select class="form-control" name="region" id="regiones" onchange="validar_informacion_perfil();"></select>
-      
+
                   <label for="comunas"> Comuna</label>
                   <select class="form-control" name="comuna" id="comunas" onchange="validar_informacion_perfil()"></select>
-      
+
                   <label for="direccion"> Dirección</label>
                   <input class="form-control" type="text" name="direccion" id="direccion" onchange="validar_informacion_perfil()" value="">
-      
+
                   <label for="celular"> Número de celular</label>
                   <input class="form-control" type="text" name="celular" id="celular" onchange="validar_informacion_perfil()" value="">
-                  
-              
+
           </div>
           <div class="modal-footer">
                   {% if completar_info == False %}
@@ -40,7 +39,7 @@
                   {% endif %}
                   <button type="summit" id="boton_guardar" class="btn btn-primary" disabled="disabled"> Guardar cambios</button>
           </div>
-        </form> 
+        </form>
       </div>
     </div>
   </div>
@@ -110,7 +109,7 @@
   };
 </script>
 {% endif %}
-    
+
 <!-- Script para que aparezca el modal automaticamente -->
 <script type="text/javascript">
     $(window).on('load',function(){
@@ -123,6 +122,3 @@
         });
     });
 </script>
-
-
-
