@@ -2,7 +2,8 @@ from flask import Flask,Blueprint,render_template,request,redirect,url_for,flash
 from config import db,cursor
 import os, time, bcrypt
 import mysql.connector
-import rut_chile 
+import rut_chile
+import glob
 
 def redirect_url(default='index'): # Redireccionamiento desde donde vino la request
     return request.args.get('next') or \
@@ -30,8 +31,10 @@ def validar_session():
 @mod.route('/perfil') # ** Importante PERFIL** #
 def perfil():
     # si hay un usuario en la session carga el perfil
-    if 'usuario' in session:
+    if 'usuario' not in session:
+        return redirect('/')
     # Query para obtener datos del perfil
+    else:
         query_perfil = ('''
             SELECT
                 id_credencial,
@@ -54,20 +57,37 @@ def perfil():
         resultado_perfil = cursor.fetchone()
         resultado_perfil['rut'] = rut_chile.formato_rut(resultado_perfil['rut']) # Le da formato al rut como "12.345.678-9"
 
-        # For para validar si es que faltan completar datos
-        validar_completar = False # Variable que sera pasada para completar la informacion
+        
+        validar_completar = False # Variable que sera pasada para completar la información
+        # Loop para validar si es que faltan completar datos (marcados como None)
+        # Si falta completar algún dato, la variable cambiará a True
         for key in resultado_perfil:
             if resultado_perfil[key] == None:
                 validar_completar = True
                 break
+        
+        
+        # Funcion que verifica si existe la foto de perfil
+        # Las fotos puedes estar guardadas en cualquier tipo de extension
+        # Si existe una foto para del usuario obtiene el nombre del archivo + extension
+        if glob.glob(os.getcwd()+'/app/static/imgs/profile_pics/'+ session['usuario']['rut'] +'.*'):
+            filename = glob.glob(os.getcwd()+'/app/static/imgs/profile_pics/'+ session['usuario']['rut'] +'.*')
+            head, tail = os.path.split(filename[0])
+            archivo_foto_perfil = tail
+        else:
+            archivo_foto_perfil = 'default_pic.png'
 
+        print(archivo_foto_perfil)
                 
         print('resultado: ', resultado_perfil)
-        return render_template('victor/perfil.html', perfil_info = resultado_perfil, completar_info = validar_completar)
-    else: 
-        return redirect('/')
+        return render_template(
+            'victor/perfil.html',
+            perfil_info = resultado_perfil,
+            dir_foto_perfil = archivo_foto_perfil,
+            completar_info = validar_completar)
+    
 
-# Configurar perfil
+# Configurar perfil # ** Importante MODAL PERFIl ** #
 @mod.route('/perfil/actualizar_informacion', methods = ['POST']) # ** Importante CONFIGURAR PERFIL** #
 def configurar_perfil():
     if 'usuario' not in session:
