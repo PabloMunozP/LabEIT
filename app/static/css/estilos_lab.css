@@ -166,8 +166,13 @@
   border-radius: 50%;
   width: 200px;
   height: 200px;
+  border: 2px solid #51D2B7;
   background-size: cover;
 }
 #inner-div{
   margin: 0 auto;
+}
+#inner-table{
+  border: 0px;
+  border-top: 0px
 }
