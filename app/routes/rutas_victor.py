@@ -77,14 +77,42 @@ def perfil():
         else:
             archivo_foto_perfil = 'default_pic.png'
 
-        print(archivo_foto_perfil)
+        # print(archivo_foto_perfil)         
+        # print('resultado: ', resultado_perfil)
+
+        # Query de prestamos alumno
+        # En esta Query la tabla dominante es Solicitud pero muestra la parte de Detalle
+        query_prestamos = ('''
+            SELECT
+                Solicitud.fecha_registro AS fecha_registro_solicitud,
+                Detalle_solicitud.id_equipo,
+                Detalle_solicitud.fecha_inicio AS fecha_entrega_equipo,
+                Detalle_solicitud.fecha_devolucion AS fecha_devolucion_equipo,
+                Usuario.nombres AS profesor_nombres,
+                Usuario.apellidos AS profesor_apellidos
+            FROM
+                Solicitud JOIN
+                Detalle_solicitud ON Detalle_solicitud.id_solicitud = Solicitud.id JOIN
+                Usuario ON Usuario.rut = Solicitud.rut_profesor
+            WHERE 
+                Solicitud.rut_alumno = %s
+            ;
+        ''')
+                #         Usuario.nombres AS profesor_nombres,
+                # Usuario.apellidos AS profesor_apellidos,
                 
-        print('resultado: ', resultado_perfil)
+        cursor.execute(query_prestamos,(session['usuario']['rut'],))
+        resultado_prestamos = cursor.fetchall()
+        for i in range(len(resultado_prestamos)):
+            print('PRESTAMOS',resultado_prestamos[i])
+
+
         return render_template(
             'victor/perfil.html',
             perfil_info = resultado_perfil,
             dir_foto_perfil = archivo_foto_perfil,
-            completar_info = validar_completar)
+            completar_info = validar_completar,
+            prestamos_info = resultado_prestamos)
     
 
 # Configurar perfil # ** Importante MODAL PERFIl ** #
