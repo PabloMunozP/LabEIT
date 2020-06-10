@@ -129,6 +129,39 @@
   margin-top: 10px;
   margin-left: 10px;
 }
+/* TABS DE GESTIÓN DE SOLICITUDES DE PRÉSTAMOS */
+.project-tab #tabs{
+    background: #007b5e;
+    color: #eee;
+}
+.project-tab #tabs h6.section-title{
+    color: #eee;
+}
+.project-tab #tabs .nav-tabs .nav-item.show .nav-link, .nav-tabs .nav-link.active {
+    color: inherit;
+    border-bottom: 3px solid #0db26b !important;
+    font-weight: bold;
+}
+.project-tab .nav-link {
+		color: inherit;
+		background-color: transparent; /* Use this instead */
+    color: #4D4D4D;
+}
+.project-tab .nav-link:hover {
+		background: inherit;
+}
+.project-tab .nav-link:hover {
+    border: none;
+}
+.project-tab thead{
+    background: #f3f3f3;
+    color: #333;
+}
+.project-tab a{
+    text-decoration: none;
+    color: #333;
+    font-weight: 600;
+}
 #profile-pic{
   border-radius: 50%;
   width: 200px;

@@ -281,4 +281,13 @@ def gestion_solicitudes_prestamos():
     if session["usuario"]["id_credencial"] != 3: # El usuario debe ser un administrador (Credencial = 3)
         return redirect("/")
 
-    return render_template("/vistas_gestion_solicitudes_prestamos/lista_solicitudes.html")
+    return render_template("/vistas_gestion_solicitudes_prestamos/gestion_solicitudes.html")
+
+@mod.route("/gestion_solicitudes_prestamos/detalle_solicitud/<string:id_detalle_solicitud>",methods=["GET"])
+def detalle_solicitud(id_detalle_solicitud):
+    if "usuario" not in session.keys():
+        return redirect("/")
+    if session["usuario"]["id_credencial"] != 3: # El usuario debe ser un administrador (Credencial = 3)
+        return redirect("/")
+
+    return render_template("/vistas_gestion_solicitudes_prestamos/detalle_solicitud.html")
