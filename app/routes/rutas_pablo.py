@@ -9,38 +9,48 @@ from email.mime.multipart import MIMEMultipart
 from jinja2 import Environment
 from uuid import uuid4 # Token
 
+mod = Blueprint("rutas_pablo",__name__)
+
 def redirect_url(default='index'): # Redireccionamiento desde donde vino la request
     return request.args.get('next') or \
            request.referrer or \
            url_for(default)
 
-mod = Blueprint("rutas_pablo",__name__)
-
-@mod.route("/pablo",methods=["GET"])
-def principal():
-    return "OK"
-
-@mod.route("/ver_usuario",methods=['GET'])
+@mod.route("/gestion_usuarios",methods=['GET'])
 def ver_usuarios():
-    query= """ SELECT Usuario.nombres as nombres, Usuario.apellidos as apellidos, Usuario.rut as rut, Credencial.nombre as credencial FROM Usuario, Credencial WHERE Usuario.id_credencial=Credencial.id"""
-    cursor=db.cursor()
+    if "usuario" not in session.keys():
+        return redirect("/")
+    if session["usuario"]["id_credencial"] != 3:
+        return redirect("/")
+
+    query= """
+            SELECT Usuario.nombres AS nombres, Usuario.apellidos AS apellidos, Usuario.rut AS rut, Credencial.nombre AS credencial
+                FROM Usuario,Credencial
+                    WHERE Usuario.id_credencial= Credencial.id
+            """
     cursor.execute(query)
     usuarios=cursor.fetchall()
+
     return render_template("/pablo/ver_usuarios.html",usuarios=usuarios)
 
 @mod.route("/anadir_usuario",methods=["GET","POST"])
 def añadir_usuario():
+    if "usuario" not in session.keys():
+        return redirect("/")
+    if session["usuario"]["id_credencial"] != 3:
+        return redirect("/")
+
     if request.method=='GET':
         return render_template("/pablo/añadir_usuario.html")
     elif request.method=='POST':
         #Creacion del usuario
         datos_usuario=request.form.to_dict()#obtener datos del usuario en un diccionario
-        query = ''' INSERT INTO Usuario(rut, id_credencial, email, nombres, apellidos) VALUES (%s, %s, %s, %s, %s)'''
-        cursor=db.cursor()
+        query = ''' INSERT INTO Usuario(rut, id_credencial, email, nombres, apellidos)
+            VALUES (%s, %s, %s, %s, %s)'''
         cursor.execute(query,(datos_usuario['rut'], datos_usuario['credencial'], datos_usuario['correo'], datos_usuario['nombres'], datos_usuario['apellidos']))
-        print('se creo usuario')    
+
         #Una vez creado, se le notifica al usuario para que cambie su contraseña y complete sus datos
-    
+
         # Se abre el template HTML correspondiente al restablecimiento de contraseña
         direccion_template = os.path.normpath(os.path.join(os.getcwd(), "app/templates/vistas_exteriores/establecer_password_mail.html"))
         html_restablecimiento = open(direccion_template,encoding="utf-8").read()
@@ -54,8 +64,7 @@ def añadir_usuario():
                 WHERE rut_usuario = %s
         """
         cursor.execute(sql_query,(datos_usuario["rut"],))
-        
-        
+
         # Se reemplazan los datos del usuario en el template a enviar vía correo
         html_restablecimiento = html_restablecimiento.replace("%nombre_usuario%",datos_usuario["nombres"])
         html_restablecimiento = html_restablecimiento.replace("%codigo_restablecimiento%",str(random.randint(0,1000)))
@@ -88,13 +97,17 @@ def añadir_usuario():
             print(e)
             flash("correo-recuperacion-fallido") # Notificación de fallo al enviar el correo
         return render_template("/pablo/ver_usuario.html")
-    
+
 @mod.route("/editar_usuario/<string:rut>",methods=["GET","POST"])
 def editar(rut=None):
+    if "usuario" not in session.keys():
+        return redirect("/")
+    if session["usuario"]["id_credencial"] != 3:
+        return redirect("/")
+
     if request.method =='GET' :
         if rut:
             query='''SELECT * FROM Usuario WHERE rut= %s'''
-            cursor = db.cursor()
             cursor.execute(query, (rut,))
             resultado = cursor.fetchall()
             if(resultado==[]):
@@ -109,7 +122,5 @@ def editar(rut=None):
         if rut:
             query=''' UPDATE Usuario SET credencial = %s, email=%s, nombres =%s, apellidos= %s, celular = %s, region = %s, comuna = %s, direccion = %s
                      WHERE rut= %s'''
-            cursor=db.cursor()
-            cursor.execute(query(datos_usuario['credencial'],datos_usuario['correo'],datos_usuario['nombres'],datos_usuario['apellidos'],datos_usuario['celular'],datos_usuario['region'],datos_usuario['comuna'],datos_usuario['direccion'],rut))
+            cursor.execute(query,(datos_usuario['credencial'],datos_usuario['correo'],datos_usuario['nombres'],datos_usuario['apellidos'],datos_usuario['celular'],datos_usuario['region'],datos_usuario['comuna'],datos_usuario['direccion'],rut))
             return render_template("/pablo/ver_usuario.html",msg='Actualizado con exito')
-

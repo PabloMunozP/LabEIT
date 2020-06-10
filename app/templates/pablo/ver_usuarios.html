@@ -1,12 +1,10 @@
-{%extends '/pablo/base.html' %}
+{% extends 'layout_in.html' %}
 
-{%block title%}LabEIT - Gestion Usuarios{% endblock %}
-
-{% block content %}
+{% block body %}
     <div class="container h-100">
         <div class="row align-items-center h-100">
             <div class="card-body">
-                <h1 class="texto-gris-eit text-center">Gestion Usuario</h1>
+                <h3 class="texto-gris-eit text-center">Gestión de usuarios</h3>
                 <hr>
                 <div class="card-body">
                     <table class="table table-striped">
@@ -16,29 +14,29 @@
                                 <th scope="col">Nombre</th>
                                 <th scope="col">Apellido</th>
                                 <th scope="col">Rut</th>
-                                <th scope="col">Credencial</th>
-                                <th scope="col"></th>
-                                <th scope="col"></th>
-                                <th scope="col"></th>
+                                <th scope="col">Tipo de credencial</th>
+                                <th scope="col" class="text-center">Acciones</th>
                             </tr>
                         </thead>
                         <tbody>
                             {%for usuario in usuarios%}
                                 <tr>
-                                    <td>{{usuario[0]}}</td>
-                                    <td>{{usuario[1]}}</td>
-                                    <td>{{usuario[2]}}</td>
-                                    <td>{{usuario[3]}}</td>
-                                    <td><a class="btn btn-primary" href="/editar_usuario/{{usuario[2]}}" role="button" >Editar <svg class="bi bi-pencil" width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                    <td>{{usuario["nombres"]}}</td>
+                                    <td>{{usuario["apellidos"]}}</td>
+                                    <td>{{usuario["rut"]|formato_rut}}</td>
+                                    <td>{{usuario["credencial"]}}</td>
+                                    <td>
+                                      <a class="btn btn-primary" href="/editar_usuario/{{usuario[2]}}" role="button" >Editar <svg class="bi bi-pencil" width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                                         <path fill-rule="evenodd" d="M11.293 1.293a1 1 0 0 1 1.414 0l2 2a1 1 0 0 1 0 1.414l-9 9a1 1 0 0 1-.39.242l-3 1a1 1 0 0 1-1.266-1.265l1-3a1 1 0 0 1 .242-.391l9-9zM12 2l2 2-9 9-3 1 1-3 9-9z"/>
                                         <path fill-rule="evenodd" d="M12.146 6.354l-2.5-2.5.708-.708 2.5 2.5-.707.708zM3 10v.5a.5.5 0 0 0 .5.5H4v.5a.5.5 0 0 0 .5.5H5v.5a.5.5 0 0 0 .5.5H6v-1.5a.5.5 0 0 0-.5-.5H5v-.5a.5.5 0 0 0-.5-.5H3z"/>
-                                      </svg> </a></td>
-                                    <td><a class="btn btn-secondary">Ver mas <svg class="bi bi-plus-circle-fill" width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                                        <path fill-rule="evenodd" d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8.5 4a.5.5 0 0 0-1 0v3.5H4a.5.5 0 0 0 0 1h3.5V12a.5.5 0 0 0 1 0V8.5H12a.5.5 0 0 0 0-1H8.5V4z"/>
-                                      </svg> </a></td>
-                                    <td><button class="btn btn-danger">Eliminar<svg class="bi bi-trash-fill" width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                                        <path fill-rule="evenodd" d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5a.5.5 0 0 0-1 0v7a.5.5 0 0 0 1 0v-7z"/>
-                                      </svg> </button></td>
+                                      </svg> </a>
+                                      <a class="btn btn-secondary">Ver mas <svg class="bi bi-plus-circle-fill" width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                          <path fill-rule="evenodd" d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8.5 4a.5.5 0 0 0-1 0v3.5H4a.5.5 0 0 0 0 1h3.5V12a.5.5 0 0 0 1 0V8.5H12a.5.5 0 0 0 0-1H8.5V4z"/>
+                                        </svg> </a>
+                                      <button class="btn btn-danger">Eliminar<svg class="bi bi-trash-fill" width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                          <path fill-rule="evenodd" d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5a.5.5 0 0 0-1 0v7a.5.5 0 0 0 1 0v-7z"/>
+                                        </svg> </button>
+                                    </td>
                                 </tr>
                             {%endfor%}
                         </tbody>
