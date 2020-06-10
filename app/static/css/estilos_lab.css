@@ -104,7 +104,7 @@
   border: 0px;
   color: white;
   background-color: #FC4E47;
-  margin-top: 50px;
+  margin-top: 0px;
   margin-bottom: 50px;
   padding: 5px;
   padding-left: 30px;
@@ -129,7 +129,6 @@
   margin-top: 10px;
   margin-left: 10px;
 }
-
 /* TABS DE GESTIÓN DE SOLICITUDES DE PRÉSTAMOS */
 .project-tab #tabs{
     background: #007b5e;
@@ -162,4 +161,13 @@
     text-decoration: none;
     color: #333;
     font-weight: 600;
+}
+#profile-pic{
+  border-radius: 50%;
+  width: 200px;
+  height: 200px;
+  background-size: cover;
+}
+#inner-div{
+  margin: 0 auto;
 }
