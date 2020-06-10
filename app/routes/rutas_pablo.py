@@ -9,6 +9,11 @@ from email.mime.multipart import MIMEMultipart
 from jinja2 import Environment
 from uuid import uuid4 # Token
 
+def redirect_url(default='index'): # Redireccionamiento desde donde vino la request
+    return request.args.get('next') or \
+           request.referrer or \
+           url_for(default)
+
 mod = Blueprint("rutas_pablo",__name__)
 
 @mod.route("/pablo",methods=["GET"])
@@ -107,3 +112,4 @@ def editar(rut=None):
             cursor=db.cursor()
             cursor.execute(query(datos_usuario['credencial'],datos_usuario['correo'],datos_usuario['nombres'],datos_usuario['apellidos'],datos_usuario['celular'],datos_usuario['region'],datos_usuario['comuna'],datos_usuario['direccion'],rut))
             return render_template("/pablo/ver_usuario.html",msg='Actualizado con exito')
+

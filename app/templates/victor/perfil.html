@@ -1,0 +1,66 @@
+{% extends "layout_in.html"%}
+    {%block body%}
+    
+    <div class="section-red-card" style="margin-top: 0px;">
+        <h3>
+            <b>Tu información</b>
+        </h3>
+    </div>
+    <div class="container-fluid">
+
+
+        <div class="row row-profile">
+
+
+            <div class="col-md-4 justify-content-center">
+                <div id="inner-div" style="width: 200px; margin-bottom: 30px; ">
+                    <img id="profile-pic" class="profile-pic" src="/static/imgs/profile_pics/{{dir_foto_perfil}}"/>
+                    <h6 class="profile-subtext"> Credencial: {{perfil_info.credencial_nombre}} </h6>
+                    <h6 class="profile-subtext"> <span>Sanción activa:</span>    <span style="color: #96d37c;">No</span></h6>
+                    <button type="button" data-target="#editar_informacion" class="btn btn-info" data-toggle="modal" style="margin-left: 10px;">Editar información</button>
+                </div>
+            </div>
+
+            <div class="col-md-8">
+                <div id="inner-div" style="width: 400px;">
+                    <h3><b> {{perfil_info.nombres}} {{perfil_info.apellidos}} </b></h3>
+                    <h4>    {{perfil_info.email}}   </h4>
+
+                    <table style="width: 100%;">
+                        <tr>
+                            <td><h6>    Rut:                    </h6></td>
+                            <td><h6>    {{perfil_info.rut}}     </h6></td>
+                        </tr>
+                        <tr>
+                            <td><h6>    Región:                 </h6></td>
+                            <td><h6>    {{perfil_info.region}}  </h6></td>
+                        </tr>
+                        <tr>
+                            <td><h6>    Comuna:                 </h6></td>
+                            <td><h6>    {{perfil_info.comuna}}  </h6></td>
+                        </tr>
+                        <tr>
+                            <td><h6>    Dirección:               </h6></td>
+                            <td><h6>    {{perfil_info.direccion}}</h6></td>
+
+                        </tr>
+                    </table>
+
+                </div>
+            </div>
+        </div>
+
+
+ <hr>
+        <div style="margin-left: 30px;">
+            <h3>
+                <b>Resumen</b>
+            </h3>
+        </div>
+        <div>
+            {{perfil_info.fecha_registro}}
+        </div>
+
+    {% include "victor/configurar_perfil.html" %}
+
+  {% endblock %}
