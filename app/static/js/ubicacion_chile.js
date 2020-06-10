@@ -53,7 +53,7 @@ var RegionesYcomunas = {
 			"comunas": ["Coihaique", "Lago Verde", "Aisén", "Cisnes", "Guaitecas", "Cochrane", "O’Higgins", "Tortel", "Chile Chico", "Río Ibáñez"]
 	},
 		{
-			"NombreRegion": "Región de Magallanes y de la AntárVca Chilena",
+			"NombreRegion": "Región de Magallanes y de la Antártica Chilena",
 			"comunas": ["Punta Arenas", "Laguna Blanca", "Río Verde", "San Gregorio", "Cabo de Hornos (Ex Navarino)", "AntárVca", "Porvenir", "Primavera", "Timaukel", "Natales", "Torres del Paine"]
 	},
 		{
