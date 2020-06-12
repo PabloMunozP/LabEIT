@@ -1,0 +1,130 @@
+<!-- Modal -->
+<div id="agregar_equipo" class="modal fade in" tabindex="-1" role="dialog" aria-labelledby="editar_informacion_label" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header bg-verde-eit">
+        <h5 class="modal-title text-white" id="editar_informacion_label"><i class="fas fa-plus-circle"></i> Agregar Equipo</h5>
+    </div>
+          <form id="editar_form" action="/perfil/actualizar_informacion" method="POST">
+          <div class="modal-body">
+
+              <label for="nombres"> Código</label>
+              <input class="form-control" type="text" name="nombres" id="nombres" onchange="validar_informacion_perfil()" value="">
+
+              <label for="apellidos"> Módelo</label>
+              <input class="form-control" type="text" name="apellidos" id="apellidos" onchange="validar_informacion_perfil()" value="">
+
+              <label for="apellidos"> Marca</label>
+              <input class="form-control" type="text" name="apellidos" id="apellidos" onchange="validar_informacion_perfil()" value="">
+
+              <label for="apellidos"> Stock</label>
+              <input class="form-control" type="text" name="apellidos" id="apellidos" onchange="validar_informacion_perfil()" value="">
+
+
+
+              <label for="regiones"> Etiquetas</label>
+              <select class="form-control" name="region" id="regiones" onchange="validar_informacion_perfil();"></select>
+
+              <label for="comunas"> Descripción</label>
+              <select class="form-control" name="comuna" id="comunas" onchange="validar_informacion_perfil()"></select>
+
+              <label for="apellidos"> Fecha de compra</label>
+              <input class="form-control" type="text" name="apellidos" id="apellidos" onchange="validar_informacion_perfil()" value="">
+
+              <label for="apellidos"> Días de prestamo</label>
+              <input class="form-control" type="text" name="apellidos" id="apellidos" onchange="validar_informacion_perfil()" value="">
+
+              <label for="apellidos"> Imagen</label>
+              <input class="form-control" type="text" name="apellidos" id="apellidos" onchange="validar_informacion_perfil()" value="">
+
+              <label for="apellidos"> Manual</label>
+              <input class="form-control" type="text" name="apellidos" id="apellidos" onchange="validar_informacion_perfil()" value="">
+
+              <label for="apellidos"> Tutorial</label>
+              <input class="form-control" type="text" name="apellidos" id="apellidos" onchange="validar_informacion_perfil()" value="">
+
+
+
+      </div>
+      <div class="modal-footer">
+              <button type="button" id="boton_cerrar" class="btn btn-secondary" data-dismiss="modal" onclick="Cargar_informacion()">Cancelar</button>
+              <button type="button" id="boton_cerrar" class="btn btn-secondary" data-dismiss="modal" onclick="Cargar_informacion()" hidden>Cancelar</button>
+              <button type="summit" id="boton_guardar" class="btn btn-info" disabled="disabled"> Guardar cambios</button>
+      </div>
+    </form>
+  </div>
+</div>
+</div>
+
+<!-- Modal -->
+<div id="editar_equipo" class="modal fade in" tabindex="-1" role="dialog" aria-labelledby="editar_informacion_label" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header bg-verde-eit">
+        <h5 class="modal-title text-white" id="editar_informacion_label"><i class="fas fa-edit"></i> Editar equipo</h5>
+    </div>
+      <div class="modal-body">
+
+              <label for="nombres"> Código</label>
+              <input class="form-control" type="text" name="nombres" id="nombres" onchange="validar_informacion_perfil()" value="">
+
+              <label for="apellidos"> Módelo</label>
+              <input class="form-control" type="text" name="apellidos" id="apellidos" onchange="validar_informacion_perfil()" value="">
+
+              <label for="apellidos"> Marca</label>
+              <input class="form-control" type="text" name="apellidos" id="apellidos" onchange="validar_informacion_perfil()" value="">
+
+              <label for="apellidos"> Stock</label>
+              <input class="form-control" type="text" name="apellidos" id="apellidos" onchange="validar_informacion_perfil()" value="">
+
+              <label for="regiones"> Etiquetas</label>
+              <select class="form-control" name="region" id="regiones" onchange="validar_informacion_perfil();"></select>
+
+              <label for="comunas"> Descripción</label>
+              <select class="form-control" name="comuna" id="comunas" onchange="validar_informacion_perfil()"></select>
+
+              <label for="apellidos"> Fecha de compra</label>
+              <input class="form-control" type="text" name="apellidos" id="apellidos" onchange="validar_informacion_perfil()" value="">
+
+              <label for="apellidos"> Días de prestamo</label>
+              <input class="form-control" type="text" name="apellidos" id="apellidos" onchange="validar_informacion_perfil()" value="">
+
+              <label for="apellidos"> Imagen</label>
+              <input class="form-control" type="text" name="apellidos" id="apellidos" onchange="validar_informacion_perfil()" value="">
+
+              <label for="apellidos"> Manual</label>
+              <input class="form-control" type="text" name="apellidos" id="apellidos" onchange="validar_informacion_perfil()" value="">
+
+              <label for="apellidos"> Tutorial</label>
+              <input class="form-control" type="text" name="apellidos" id="apellidos" onchange="validar_informacion_perfil()" value="">
+
+
+      </div>
+      <div class="modal-footer">
+              <button type="button" id="boton_cerrar" class="btn btn-secondary" data-dismiss="modal" onclick="Cargar_informacion()">Cancelar</button>
+              <button type="button" id="boton_cerrar" class="btn btn-secondary" data-dismiss="modal" onclick="Cargar_informacion()" hidden>Cancelar</button>
+              <button type="summit" id="boton_guardar" class="btn btn-info" disabled="disabled"> Guardar cambios</button>
+      </div>
+  </div>
+</div>
+</div>
+
+<div id="eliminar_equipo" class="modal fade in" tabindex="-1" role="dialog" aria-labelledby="editar_informacion_label" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header bg-verde-eit">
+        <h5 class="modal-title text-white" id="editar_informacion_label"><i class="fas fa-trash"></i>Eliminar equipo</h5>
+    </div>
+      <div class="modal-body">
+      ¿Realmente deseas eliminar X?
+      </div>
+      <div class="modal-footer">
+              <button type="button" id="boton_cerrar"  class="btn btn-primary" data-dismiss="modal" onclick="Cargar_informacion()">Cancelar</button>
+              <button type="button" id="boton_cerrar"  class="btn btn-primary" data-dismiss="modal" onclick="Cargar_informacion()" hidden>Cancelar</button>
+              <button type="summit" id="boton_guardar" class="btn btn-danger" disabled="disabled"> Eliminar</button>
+      </div>
+  </div>
+</div>
+</div>
+
+<h5 class="modal-title text-white" id="editar_informacion_label"><i class="fas fa-edit" class="hidden"></i> </h5>

@@ -3,10 +3,56 @@
 
     <div class="row mt-3">
     	<div class="col-md-12">
-    		<h5 class="texto-gris-eit">Lista de equipos</h5>
+    		<h5 class="texto-gris-eit">  Gestión de equipos</h5>
     	</div>
     </div>
     <hr>
+
+
+
+    <form action="redirect.php" method="POST">
+  <div class="form-group">
+    <label for="exampleInputEmail1">  Buscar por código, marca o modelo</label>
+    <div class="container">
+     <div class="row">
+<div class="col-sm-6" >
+    <input type="text" class="form-control" aria-describedby="emailHelp" name="search1">
+ </div>
+  <div class="col-sm-6">
+    <button type="submit" title="Buscar" class="btn btn-primary"> <i class="fas fa-search"></i></button>
+</div>
+</div>
+</div>
+  </form>
+
+
+  <form action="redirect.php" method="POST">
+  <div class="form-group">
+    <label for="exampleInputEmail2">  Buscar por tag</label>
+    <div class="container">
+     <div class="row">
+    <div class="col-sm-6">
+    <input type="text" class="form-control" aria-describedby="emailHelp" maxlength="4" name="search2">
+    </div>
+    <div class="col-sm-6">
+    <button type="submit" title="Buscar" class="btn btn-primary"><i class="fas fa-search"></i></button>
+  </div>
+  </div>
+  </div>
+</form>
+<div class="mx-auto" style="height: 30px;">
+</div>
+
+
+<button type="button" data-target="#agregar_equipo" class="btn btn-info" data-toggle="modal">Agregar equipo</button>
+
+    <a href="">
+      <button type="button" title="Descargar planilla" class="btn btn-success">Descargar planilla</button>
+    </a>
+
+    <div class="mx-auto" style="height: 30px;">
+    </div>
+
 
     <div class="table-responsive">
     	<div class="table-wrapper-scroll-y" style="position: relative;
@@ -24,7 +70,7 @@
     		    </tr>
     		  </thead>
     		  <tbody>
-    				{% for i in range(4) %}
+    				{% for i in range(5) %}
     					<tr>
     						<td>{{loop.index}}</td>
     						<td> Pi</td>
@@ -33,15 +79,15 @@
     						<td>
     							<span class="btn-group">
     								<a href="gestion_solicitudes_prestamos/detalle_solicitud/{{loop.index}}">
-    									<button type="button" title="Ver detalles de equipo" class="btn btn-sm btn-secondary mr-1"><i class="fas fa-search-plus"></i></button>
+    									<button type="button" title="Ver detalles de equipo" data-toggle="modal" class="btn btn-info"><i class="fas fa-search-plus"></i></button>
     								</a>
-                    <a href="gestion_solicitudes_prestamos/detalle_solicitud/{{loop.index}}">
-                      <button type="button" title="Editar equipo" class="btn btn-sm btn-secondary mr-1"><i class="fas fa-edit"></i></button>
-                    </a>
-                    <a href="gestion_solicitudes_prestamos/detalle_solicitud/{{loop.index}}">
-                      <button type="button" title="Ver equipos similares" class="btn btn-sm btn-secondary mr-1"><i class="fas fa-clipboard-list"></i></button>
-                    </a>
-    								<button type="button" title="Eliminar equipo" class="btn btn-sm btn-danger"><i class="fas fa-minus-circle"></i></button>
+
+                    <button type="button" data-target="#editar_equipo" title="Editar equipo" class="btn btn-primary" data-toggle="modal"><i class="fas fa-edit"></i></button>
+
+                    <button type="button" title="Eliminar equipo" data-toggle="modal" data-target="#eliminar_equipo" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
+
+                    <a class="btn btn-primary" href="similares_tabla.html" title="Ver equipos similares" role="button"><i class="fas fa-clipboard-list"></i> </a>
+                    
     							</span>
     						</td>
     					</tr>
@@ -51,7 +97,17 @@
     	</div>
     </div>
 
+    <center>
+    <nav aria-label="Page navigation example">
+      <ul class="pagination">
+        <li class="page-item"><a class="page-link" href="#">Previous</a></li>
+        <li class="page-item"><a class="page-link" href="#">1</a></li>
+        <li class="page-item"><a class="page-link" href="#">2</a></li>
+        <li class="page-item"><a class="page-link" href="#">3</a></li>
+        <li class="page-item"><a class="page-link" href="#">Next</a></li>
+      </ul>
+    </nav>
+  </center>
 
-
-    
+{% include "vistas_gestion_inventario/agregar.html" %}
 {% endblock %}
