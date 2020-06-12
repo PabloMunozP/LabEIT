@@ -9,6 +9,6 @@ def redirect_url(default='index'): # Redireccionamiento desde donde vino la requ
            request.referrer or \
            url_for(default)
 
-@mod.route("/cony",methods=["GET"])
+@mod.route("/busqueda-solicitudes",methods=["GET"])
 def principal():
     return render_template('busqueda-solicitudes\test.html')
