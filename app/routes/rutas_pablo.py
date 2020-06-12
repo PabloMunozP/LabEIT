@@ -75,7 +75,7 @@ def añadir_usuario():
         correo.set_charset("utf-8")
         correo["From"] = "labeit.udp@gmail.com"
         correo["To"] = datos_usuario["correo"]
-        correo["Subject"] = "Recuperación de contraseña - LabEIT UDP"
+        correo["Subject"] = "Establecer Contraseña - LabEIT UDP"
 
         try:
             server = smtplib.SMTP("smtp.gmail.com",587)
