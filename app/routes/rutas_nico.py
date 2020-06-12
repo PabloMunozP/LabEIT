@@ -12,3 +12,8 @@ mod = Blueprint("rutas_nico",__name__)
 @mod.route("/nico",methods=["GET"])
 def principal():
     return "OK"
+
+
+@mod.route("/gestion_inventario_admin")
+def gestion_inventario_admin():
+    return render_template('vistas_gestion_inventario/gestion_inventario.html')
