@@ -1,0 +1,45 @@
+
+<div class="table-responsive">
+    <div class="table-wrapper-scroll-y" style="position: relative;
+                max-height: 450px;
+                overflow:auto;">
+      <table class="table table-hover">
+        <thead class="text-white" style="background:#4D4D4D;">
+          <tr>
+            <th scope="col">Código</th>
+            <th scope="col">Marca</th>
+            <th scope="col">Módelo</th>
+            <th scope="col">Descripción</th>
+            <th scope="col">Stock</th>
+            <th scope="col">Gestionar</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for i in range(4) %}
+            <tr>
+              <td>{{loop.index}}</td>
+              <td>Test</td>
+              <td>Raspberry Pi</td>
+
+                <td > mucho texto</td>
+
+                <td>{{loop.index}} / {{loop.index+1}}</td>
+              <td>
+                <span class="btn-group">
+                  <a href="gestion_solicitudes_prestamos/detalle_solicitud/{{loop.index}}">
+                    <button type="button" title="Ver detalles de equipo" data-toggle="modal" class="btn btn-info"><i class="fas fa-search-plus"></i></button>
+                  </a>
+
+                  <button type="button" data-target="#editar_equipo" title="Editar equipo" class="btn btn-primary" data-toggle="modal"><i class="fas fa-edit"></i></button>
+
+                  <button type="button" title="Eliminar equipo" data-toggle="modal" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
+
+
+                </span>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
