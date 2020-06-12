@@ -56,12 +56,12 @@ def consultar_lista_equipos_detalle(codigo_equipo, ask_print = False):
     equipos_detalle = cursor.fetchall()
     if ask_print == True:
         print('################')
-        for i in range(len(equipos_detalle)):
-            print(equipos_detalle[i])
+        print(equipos_detalle)
         print('################')
     return equipos_detalle
 
 
+# Agrega un tipo de equipo con sus datos generales
 def insertar_lista_equipos_general(valores_a_insertar):
     query = ('''
         INSERT INTO Equipo (codigo, modelo, marca, descripcion, dias_max_prestamo, adquiridos, codigo_sufijo)
@@ -82,12 +82,16 @@ def insertar_lista_equipos_general(valores_a_insertar):
 @mod.route("/gestion_inventario_admin")
 def gestion_inventario_admin():
     equipos = consultar_lista_equipos_general(True)
-    # equipos_detalle = consultar_lista_equipos_detalle(equipos[0]['codigo'],True)
-    
+    equipos_detalle = consultar_lista_equipos_detalle('AAXDAA',True)
+     
     # return 'Ok'
-    return render_template('vistas_gestion_inventario/gestion_inventario.html')
-    #return render_template('pruebas/inventario.html', lista_equipo = equipos)
+    # return render_template('vistas_gestion_inventario/gestion_inventario.html')
+    return render_template('pruebas/inventario.html', lista_equipo = equipos)
 
+@mod.route("/gestion_inventario_admin/<string:codigo_equipo>")
+def gestion_inventario_admin_equipo(codigo_equipo):
+    equipos = consultar_lista_equipos_detalle(codigo_equipo,True)
+    return render_template('pruebas/inventario_copy.html', equipos_detalle = equipos)
 
 
 
