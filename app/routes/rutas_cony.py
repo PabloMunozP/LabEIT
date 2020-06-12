@@ -11,4 +11,4 @@ def redirect_url(default='index'): # Redireccionamiento desde donde vino la requ
 
 @mod.route("/cony",methods=["GET"])
 def principal():
-    return "OK"
+    return render_template('busqueda-solicitudes\test.html')
