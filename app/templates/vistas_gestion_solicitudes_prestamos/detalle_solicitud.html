@@ -1,6 +1,9 @@
 {% extends "layout_in.html" %}
 	{% block body %}
 
+	{% include "/vistas_gestion_solicitudes_prestamos/modals/confirmacion_aprobacion.html" %}
+	{% include "/vistas_gestion_solicitudes_prestamos/modals/confirmacion_rechazo.html" %}
+
 	<div class="container-fluid mt-2">
 
 		<nav aria-label="breadcrumb">
@@ -235,8 +238,8 @@ La familia Raspberry Pi tiene un nuevo integrante y corresponde a la nueva versi
 			<div class="card-footer rounded-0 text-right" style="background:#ECF0F1;">
 				<span class="btn-group flex-wrap">
 					<button type="button" class="btn btn-warning mr-1"><i class="fas fa-edit mr-1"></i>Modificar solicitud</button>
-					<button type="button" class="btn btn-danger mr-1"><i class="fas fa-times-circle mr-1"></i>Rechazar solicitud</button>
-					<button type="button" class="btn btn-success"><i class="fas fa-clipboard-check mr-1"></i>Aprobar solicitud</button>
+					<button type="button" class="btn btn-danger mr-1" data-toggle="modal" data-target="#confirmacion_rechazo_solicitud"><i class="fas fa-times-circle mr-1"></i>Rechazar solicitud</button>
+					<button type="button" class="btn btn-success" data-toggle="modal" data-target="#confirmacion_aprobacion_solicitud"><i class="fas fa-clipboard-check mr-1"></i>Aprobar solicitud</button>
 				</span>
 			</div>
 
