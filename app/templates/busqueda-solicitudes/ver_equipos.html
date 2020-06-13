@@ -9,6 +9,7 @@
                   <th scope="col">Modelo</th>
                   <th scope="col">Descripción</th>
                   <th scope="col">Disponibles</th>
+                  <th scope="col">Solicitar</th>
                 </tr>
               </thead>
               <tbody>
@@ -19,7 +20,7 @@
                         <td>{{equipo["modelo"]}}</td>
                         <td>{{equipo["descripcion"]}}</td>
                         <td>{{equipo["disponibles"]}}</td>
-                        <td>
+                        <td> <input type="checkbox" aria-label="Checkbox">
                 </tr>
                 {%endfor%}
               </tbody>
