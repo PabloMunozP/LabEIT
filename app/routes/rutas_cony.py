@@ -22,4 +22,4 @@ def ver_equipos():
           """
     cursor.execute(query)
     equipos=cursor.fetchall()
-    return render_template("/busqueda-solicitudes/busqueda.html",equipos=equipos)
+    return render_template("/busqueda-solicitudes/ver_equipos.html",equipos=equipos)
