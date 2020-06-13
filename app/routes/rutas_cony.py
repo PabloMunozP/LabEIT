@@ -29,10 +29,12 @@ def ver_equipos():
             COUNT(CASE WHEN Equipo_diferenciado.activo = 1 THEN 1 ELSE NULL END) AS disponibles,
             COUNT(Equipo_diferenciado.activo) AS total_equipos
         FROM
-            Equipo, Etiqueta, Etiqueta_equipo
-            LEFT JOIN Equipo_diferenciado ON Equipo_diferenciado.codigo_equipo = Equipo.codigo
+            Equipo
+            LEFT JOIN Equipo_diferenciado ON Equipo_diferenciado.codigo_equipo = Equipo.codigo,
+            Etiqueta, Etiqueta_equipo
         WHERE
             Equipo.id = Etiqueta_equipo.id_equipo AND Etiqueta.id = Etiqueta_equipo.id_etiqueta
+
         GROUP BY Equipo.codigo
           """
     cursor.execute(query)
