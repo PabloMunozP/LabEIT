@@ -18,7 +18,7 @@ def ver_equipos():
     if "usuario" not in session.keys():
         return redirect("/")
     query="""
-        SELECT Equipo.codigo AS codigo, Equipo.marca AS marca, Equipo.modelo AS modelo, Equipo.descripcion AS descripcion, Equipo.stock AS stock FROM Equipo
+        SELECT Equipo.codigo AS codigo, Equipo.marca AS marca, Equipo.modelo AS modelo, Equipo.descripcion AS descripcion, Equipo.adquiridos AS adquiridos FROM Equipo
           """
     cursor.execute(query)
     equipos=cursor.fetchall()
