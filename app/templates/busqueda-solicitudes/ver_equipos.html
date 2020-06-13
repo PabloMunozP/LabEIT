@@ -12,13 +12,14 @@
                 </tr>
               </thead>
               <tbody>
-                {% for i in range(4)%}
-                <tr>
-                  <td>{{loop.index}}</td>
-                  <td>owo</td>
-                  <td>owo</td>
-                  <td>owo</td>
-                  <td>owo</td>
+                {%for equipo in equiposs%}
+                    <tr>
+                        <td>{{equipo["codigo"]}}</td>
+                        <td>{{equipo["marca"]}}</td>
+                        <td>{{equipo["modelo"]}}</td>
+                        <td>{{equipo["descripcion"]}}</td>
+                        <td>{{equipo["stock"]}}</td>
+                        <td>
                 </tr>
                 {%endfor%}
               </tbody>
