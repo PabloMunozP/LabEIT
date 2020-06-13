@@ -18,7 +18,19 @@ def ver_equipos():
     if "usuario" not in session.keys():
         return redirect("/")
     query="""
-        SELECT Equipo.codigo AS codigo, Equipo.marca AS marca, Equipo.modelo AS modelo, Equipo.descripcion AS descripcion, Equipo.adquiridos AS adquiridos FROM Equipo
+        SELECT
+            Equipo.id,
+            Equipo.codigo,
+            Equipo.modelo,
+            Equipo.marca,
+            Equipo.descripcion,
+            Equipo.dias_max_prestamo,
+            COUNT(CASE WHEN Equipo_diferenciado.activo = 1 THEN 1 ELSE NULL END) AS disponibles,
+            COUNT(Equipo_diferenciado.activo) AS total_equipos
+        FROM
+            Equipo
+            LEFT JOIN Equipo_diferenciado ON Equipo_diferenciado.codigo_equipo = Equipo.codigo
+        GROUP BY Equipo.codigo
           """
     cursor.execute(query)
     equipos=cursor.fetchall()
