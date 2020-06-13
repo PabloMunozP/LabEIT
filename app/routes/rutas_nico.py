@@ -1,6 +1,7 @@
 from flask import Flask,Blueprint,render_template,request,redirect,url_for,flash,session,jsonify
 from config import db,cursor
 import os,time,bcrypt
+from datetime import datetime
 
 def redirect_url(default='index'): # Redireccionamiento desde donde vino la request
     return request.args.get('next') or \
@@ -12,8 +13,9 @@ mod = Blueprint("rutas_nico",__name__)
 @mod.route("/nico",methods=["GET"])
 def principal():
     return "OK"
-
-
+# ************************************************************* #
+# *                   IMPORTANTE FUNCIONES                    * #
+# ************************************************************* #
 
 # Consulta una lista con los equipos
 # Es usada en la vista general de todos los equipos
@@ -75,34 +77,69 @@ def insertar_lista_equipos_general(valores_a_insertar):
         valores_a_insertar['dias_maximo_prestamo'],
         valores_a_insertar['adquiridos'],
         valores_a_insertar['codigo_sufijo']))
-
     db.commit()
     return 'OK'
 
+# Agrega un equipo a partir de la relacion que que tenga
+def insertar_lista_equipos_detalle(codigo_equipo, valores_a_insertar):
+    query = ('''
+        INSERT INTO Equipo_diferenciado (codigo_equipo, codigo_sufijo, fecha_compra, activo)
+        VALUES (%s, %s, %s, %s);
+    ''')
+    cursor.execute(query,(
+        codigo_equipo,
+        valores_a_insertar['codigo_sufijo'],
+        valores_a_insertar['fecha_compra'],
+        valores_a_insertar['activo']))
+    db.commit()
+    return 'OK'
+# ************************************************************* #
+# *                                                           * #
+# ************************************************************* #
+
+# ** Importante VISTA PRINCIPAL GESTION INVENTARIO ** #
 @mod.route("/gestion_inventario_admin")
 def gestion_inventario_admin():
     equipos = consultar_lista_equipos_general(True)
-    equipos_detalle = consultar_lista_equipos_detalle('AAXDAA',True)
-     
-    # return 'Ok'
-    # return render_template('vistas_gestion_inventario/gestion_inventario.html')
-    return render_template('pruebas/inventario.html', lista_equipo = equipos)
+    return render_template('vistas_gestion_inventario/gestion_inventario.html', lista_equipo = equipos)
 
+
+# ** Importante VISTA GESTION INVENTARIO DIFERENCIADO ** #
 @mod.route("/gestion_inventario_admin/<string:codigo_equipo>")
 def gestion_inventario_admin_equipo(codigo_equipo):
     equipos = consultar_lista_equipos_detalle(codigo_equipo,True)
-    return render_template('pruebas/inventario_copy.html', equipos_detalle = equipos)
+    return render_template('pruebas/inventario_copy.html', equipos_detalle = equipos) #Cambiar render por el que corresponda
 
+# ** VALIDA FORMULARIO DE PRUEBA INGRESAR EQUIPO ** #
+# ** BORRAR ANTES DE PRODUCCION ** #
+@mod.route("/gestion_inventario_admin/form/<string:codigo_equipo>") 
+def form_añadir_equipo_espeficio(codigo_equipo):
+    return render_template('pruebas/form_inventario.html',codigo_equipo = codigo_equipo)
 
-
-@mod.route("/form_add_inventario")
-def añadir_equipo_form():
-    return render_template('pruebas/form_inventario.html')
-
+# ** Importante FUNCION() QUE INGRESA LOS VALORES DE FORMULARIO "AGREGAR" EN VISTA PRINCIPAL DE GESTION INVENTARIO ** #
 @mod.route("/validar_form_add_inventario", methods = ['POST'])
 def funcion_añadir_equipo_form():
     if request.method == 'POST':
         informacion_a_insertar = request.form.to_dict()
-        print(informacion_a_insertar)
         insertar_lista_equipos_general(informacion_a_insertar)
-        return 'OK'
+        flash("El equipo fue agregado correctamente")
+        return 'OK' #Cambiar a redirect de VISTA PRINCIPAL GESTION INVENTARIO
+
+
+
+# Importante FUNCION() ENCARGADA DE INGRESAR LOS VALORES DEL FORMULARIO "AGREGAR" EN VISTA GESTION INVENTARIO DIFERENCIAD0 ** #
+
+@mod.route("/gestion_inventario_admin/validar_add/<string:codigo_equipo>", methods = ['POST']) 
+def validar_form_añadir_equipo_espeficio(codigo_equipo):
+    if request.method == 'POST':
+        print(codigo_equipo)
+        informacion_a_insertar = request.form.to_dict()
+        dateTimeObj = datetime.now()
+        informacion_a_insertar['fecha_compra'] = dateTimeObj # cambiar despues
+        insertar_lista_equipos_detalle(codigo_equipo, informacion_a_insertar)
+        flash("El equipo fue agregado correctamente")
+        return redirect("/gestion_inventario_admin/form/"+codigo_equipo) #Cambiar a redirect VISTA GESTION INVENTARIO DIFERENCIAD0
+                                                                         # mantener " + codigo_equipo"
+
+
+    
