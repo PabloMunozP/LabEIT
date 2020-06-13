@@ -25,7 +25,7 @@ def ver_equipos():
             Equipo.marca,
             Equipo.descripcion,
             Equipo.dias_max_prestamo,
-            Etiqueta.nombre AS etiqueta,
+            Etiqueta.descripcion AS etiqueta,
             COUNT(CASE WHEN Equipo_diferenciado.activo = 1 THEN 1 ELSE NULL END) AS disponibles,
             COUNT(Equipo_diferenciado.activo) AS total_equipos
         FROM
