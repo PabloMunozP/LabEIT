@@ -11,7 +11,7 @@ def redirect_url(default='index'): # Redireccionamiento desde donde vino la requ
 
 @mod.route("/solicitudes_prestamos",methods=["GET"])
 def principal():
-    return render_template('busqueda-solicitudes/ver_equipos.html')
+    return render_template('busqueda-solicitudes/busqueda.html')
 
 '''@mod.route("/solicitudes_prestamos",methods=["GET"])
 def ver_equipos():
