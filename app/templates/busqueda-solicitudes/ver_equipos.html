@@ -1,15 +1,10 @@
 {% extends 'layout_in.html' %}
 
 {% block body %}
-    <div class="container h-100">
-      <div class="row align-items-center h-100">
-        <div class="card-body">
-          <h3 class=texto-gris-eit text-center"> Búsqueda de equipos</h3>
-          <hr>
-          <div class="card-body">
-            <table class="table table-striped">
-              <caption>Resultados</caption>
-              <thead>
+    <div class="table-responsive">
+      <div class="table-wrapper-scroll-y" style="position: relative; overflow: auto">
+        <table class="table" id="inner-div" style="max-width: 1050px;">
+              <thead class="text-white" style="background-color #4d4d4d;":>
                 <tr>
                   <th scope="col">Código</th>
                   <th scope="col">Marca</th>
@@ -18,4 +13,18 @@
                   <th scope="col">Stock</th>
                 </tr>
               </thead>
+              <tbody>
+                {% for i in range(4)%}
+                <tr>
+                  <td>{{loop.index}}</td>
+                  <td>owo</td>
+                  <td>owo</td>
+                  <td>owo</td>
+                  <td>owo</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+          
 {%endblock%}
