@@ -5,6 +5,7 @@
               <thead class="text-white" style="background:#4D4D4D;">
                 <tr>
                   <th scope="col">Código</th>
+                  <th scope="col">Etiquetas</th>
                   <th scope="col">Marca</th>
                   <th scope="col">Modelo</th>
                   <th scope="col">Descripción</th>
@@ -16,6 +17,7 @@
                 {%for equipo in equipos%}
                     <tr>
                         <td>{{equipo["codigo"]}}</td>
+                        <td>{{equipo["etiqueta"]}}</td>
                         <td>{{equipo["marca"]}}</td>
                         <td>{{equipo["modelo"]}}</td>
                         <td>{{equipo["descripcion"]}}</td>
