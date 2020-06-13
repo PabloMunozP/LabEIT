@@ -9,11 +9,11 @@ def redirect_url(default='index'): # Redireccionamiento desde donde vino la requ
            request.referrer or \
            url_for(default)
 
-@mod.route("/solicitudes_prestamos",methods=["GET"])
+#@mod.route("/solicitudes_prestamos",methods=["GET"])
 def principal():
     return render_template('busqueda-solicitudes/busqueda.html')
 
-'''@mod.route("/solicitudes_prestamos",methods=["GET"])
+@mod.route("/solicitudes_prestamos",methods=["GET"])
 def ver_equipos():
     if "usuario" not in session.keys():
         return redirect("/")
@@ -22,4 +22,4 @@ def ver_equipos():
           """
     cursor.execute(query)
     equipos=cursor.fetchall()
-    return render_template("/busqueda-solicitudes/ver_equipos.html",equipos=equipos)'''
+    return render_template("/busqueda-solicitudes/busqueda.html",equipos=equipos)
