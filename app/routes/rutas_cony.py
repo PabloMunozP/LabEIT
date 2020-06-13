@@ -30,9 +30,9 @@ def ver_equipos():
             COUNT(Equipo_diferenciado.activo) AS total_equipos
         FROM
             Equipo, Etiqueta, Etiqueta_equipo
+            LEFT JOIN Equipo_diferenciado ON Equipo_diferenciado.codigo_equipo = Equipo.codigo
         WHERE
             Equipo.codigo = Etiqueta_equipo.id_equipo AND Etiqueta.codigo = Etiqueta_equipo.id_etiqueta
-            LEFT JOIN Equipo_diferenciado ON Equipo_diferenciado.codigo_equipo = Equipo.codigo
         GROUP BY Equipo.codigo
           """
     cursor.execute(query)
