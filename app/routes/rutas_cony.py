@@ -15,8 +15,8 @@ def principal():
 
 @mod.route("/solicitudes_prestamos",methods=["GET"])
 def ver_equipos():
-    if "equipo" not in session.keys():
-        return redirect("/")
+    #if "equipo" not in session.keys():
+    #    return redirect("/")
     query="""
         SELECT Equipo.codigo AS codigo, Equipo.marca AS marca, Equipo.modelo AS modelo, Equipo.descripcion AS descripcion, Equipo.stock AS stock FROM Equipo
           """
