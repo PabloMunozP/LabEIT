@@ -3,17 +3,19 @@
 <hr style="margin-left: 50px;margin-right: 50px;">
   <div class="container-fluid">
     <h3 class="texto-gris-eit text-center">Búsqueda de equipos</h3>
-    <form action="/solicitudes_prestamos/buscar" method="POST">
-        <div class="form-group">
-            <input type="int", class="form-control" name="busqueda" placeholder="Buscar...">
-        </div>
-        <button class="btn btn-success btn-block">
-            Buscar
-        </button>
-    </form>
     <div class="row mt-4">
         <div class="col-md-12">
             <button type="button" class="btn btn-info float-right">Descargar planilla</button>
+        </div>
+        <div class="col-md-12">
+          <form action="/solicitudes_prestamos/buscar" method="POST">
+              <div class="form-group">
+                  <input type="int", class="form-control" name="busqueda" placeholder="Buscar...">
+              </div>
+              <button class="btn btn-success btn-block">
+                  Buscar
+              </button>
+          </form>
         </div>
    </div>
   </div>
