@@ -49,6 +49,7 @@ def buscar_equipo():
         return redirect('/')
     if request.method == 'POST':
         busqueda_entrada = request.form.get('busqueda')
+        print(busqueda_entrada)
         # Query para mostrar resultados de busqueda
         query = '''
             SELECT
