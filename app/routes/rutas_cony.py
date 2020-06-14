@@ -69,5 +69,5 @@ def buscar_equipo():
                 Equipo.id = Etiqueta_equipo.id_equipo AND Etiqueta.id = Etiqueta_equipo.id_etiqueta AND (Equipo.modelo LIKE '%s' OR Equipo.marca LIKE '%s' OR Equipo.codigo LIKE '%s')
             GROUP BY Equipo.codigo'''
         cursor.execute(query,(busqueda_entrada))
-        resultados = cursor.fetchall()
-        return render_template("/busqueda-solicitudes/busqueda.html",equipos=resultados)
+        equipos = cursor.fetchall()
+        return render_template("/busqueda-solicitudes/busqueda.html",equipos=equipos)
