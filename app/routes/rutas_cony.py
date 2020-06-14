@@ -70,4 +70,4 @@ def buscar_equipo():
             GROUP BY Equipo.codigo'''
         cursor.execute(query,(busqueda_entrada))
         resultados = cursor.fetchall()
-        return render_template('busqueda.html',equipos=resultados)
+        return render_template("/busqueda-solicitudes/busqueda.html",equipos=resultados)
