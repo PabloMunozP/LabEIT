@@ -48,7 +48,7 @@ def buscar_equipo():
     if 'usuario' not in session:
         return redirect('/')
     if request.method == 'POST':
-        busqueda = request.form.get('busqueda')
+        busqueda = request.form.to_dict()
         # Query para mostrar resultados de busqueda
         query = '''
             SELECT
@@ -66,9 +66,9 @@ def buscar_equipo():
                 LEFT JOIN Equipo_diferenciado ON Equipo_diferenciado.codigo_equipo = Equipo.codigo,
                 Etiqueta, Etiqueta_equipo
             WHERE
-                Equipo.id = Etiqueta_equipo.id_equipo AND Etiqueta.id = Etiqueta_equipo.id_etiqueta AND (Equipo.modelo=%s OR Equipo.marca=%s OR Equipo.codigo=%s)
+                Equipo.id = Etiqueta_equipo.id_equipo AND Etiqueta.id = Etiqueta_equipo.id_etiqueta AND (Equipo.modelo LIKE %s OR Equipo.marca LIKE %s OR Equipo.codigo LIKE %s)
 
             GROUP BY Equipo.codigo'''
-        cursor.execute(query,(busqueda))
+        cursor.execute(query,(busqueda['busqueda']))
         resultados = cursor.fetchall()
         return render_template('busqueda.html',equipos=resultados)
