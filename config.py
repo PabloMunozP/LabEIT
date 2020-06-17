@@ -1,8 +1,9 @@
+import os,mysql.connector
+
 # Statement for enabling the development environment
 DEBUG = True
 
 # Define the application directory
-import os,mysql.connector
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 
 # ----------------------- Conexión a base de datos MySQL ------------------------------------------------------------
@@ -15,7 +16,7 @@ db = mysql.connector.connect(user="sql10342433",
 cursor = db.cursor(dictionary=True,buffered=True)
 cursor.execute("SET NAMES utf8mb4;")
 
-# -----------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Configuraciones de archivos
 UPLOAD_FOLDER = 'static/upload_folder'
