@@ -7,19 +7,21 @@
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
-      <div class="modal-body">
-        <p>La solicitud de préstamo será marcada automáticamente como <strong>rechazada</strong> y el usuario solicitante será notificado.</p>
+      <form  action="/rechazar_solicitud/{{datos_detalle_solicitud["id"]}}" method="post">
+        <div class="modal-body">
+          <p>La solicitud de préstamo será marcada automáticamente como <strong>rechazada</strong> y el usuario solicitante será notificado.</p>
 
-        <div class="form-group">
-          <label>Motivo del rechazo:</label>
-          <textarea required class="form-control" id="exampleFormControlTextarea1" rows="3" style="min-height:100px;max-height:300px;"></textarea>
+          <div class="form-group">
+            <label>Motivo del rechazo:</label>
+            <textarea required class="form-control" name="razon_rechazo" rows="3" maxlength="300" style="min-height:100px;max-height:300px;"></textarea>
+          </div>
+
         </div>
-
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-        <button type="button" class="btn btn-danger">Rechazar</button>
-      </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+          <button type="submit" class="btn btn-danger">Rechazar</button>
+        </div>
+      </form>
     </div>
   </div>
 </div>

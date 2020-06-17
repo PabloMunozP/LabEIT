@@ -1,0 +1,33 @@
+<div class="modal fade" id="formulario_retiro_equipo" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header bg-gris-eit">
+        <h5 class="modal-title text-white"><i class="fas fa-question-circle mr-2"></i>Confirmación de retiro de equipo</h5>
+        <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close" style="outline:none;">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <form action="/entregar_equipo/{{datos_detalle_solicitud["id"]}}" method="post">
+        <div class="modal-body">
+          <input type="text" hidden name="id_encabezado_solicitud" value="{{datos_encabezado_solicitud["id"]}}">
+          <input type="text" hidden name="codigo_equipo" value="{{datos_equipo["codigo"]}}">
+            <p>Equipo a retirar: <strong>{{datos_equipo["marca"]}} {{datos_equipo["modelo"]}}</strong></p>
+            <p>Código de laboratorio: <strong>{{datos_equipo["codigo"]}}</strong></p>
+            <p>Código identificador del equipo: <strong>{{datos_detalle_solicitud["codigo_sufijo_equipo"]}}</strong></p>
+            <p>Cantidad de días máximo de préstamo: <strong>{{datos_equipo["dias_max_prestamo"]}}</strong></p>
+            <hr>
+            <p><i class="fas fa-info-circle mr-1"></i>Por defecto, el préstamo será registrado por la cantidad máxima de días definidas por el equipo.<br> En caso de necesitar otra cantidad, ingrésela a continuación:</p>
+
+            <div class="form-group">
+              <input type="number" min="1" required class="form-control" id="input_cantidad_dias_prestamo" name="cantidad_dias_prestamo_admin">
+              <small class="form-text text-muted">* Omita este campo en caso de utilizar la cantidad de días definida por el equipo.</small>
+            </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+          <button type="submit" class="btn btn-success" data-dismiss="modal">Confirmar entrega</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

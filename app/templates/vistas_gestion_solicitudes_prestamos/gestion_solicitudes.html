@@ -3,6 +3,46 @@
 
 	<section id="tabs" class="project-tab mt-2">
             <div class="container-fluid">
+
+							{% with msgs = get_flashed_messages() %}
+			          {% if msgs %}
+			            {% for msg in msgs %}
+			              {% if msg == "solicitud-no-encontrada"%}
+			                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+			                  <i class="fas fa-exclamation-triangle mr-2"></i>La solicitud de préstamo no se encuentra registrada. Esto puede deberse a una eliminación reciente.
+			                  <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+			                  <span aria-hidden="true">&times;</span>
+			                  </button>
+			                </div>
+			              {%endif%}
+										{% if msg == "equipo-prestado"%}
+											<div class="alert alert-danger alert-dismissible fade show" role="alert">
+												<i class="fas fa-times-circle mr-2"></i>El equipo a prestar ya no se encuentra disponible.
+												<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+												<span aria-hidden="true">&times;</span>
+												</button>
+											</div>
+										{%endif%}
+										{% if msg == "equipo-no-existente"%}
+											<div class="alert alert-danger alert-dismissible fade show" role="alert">
+												<i class="fas fa-times-circle mr-2"></i>El equipo a prestar fue eliminado recientemente.
+												<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+												<span aria-hidden="true">&times;</span>
+												</button>
+											</div>
+										{%endif%}
+										{% if msg == "detalle-eliminado" %}
+										<div class="alert alert-success mt-2 alert-dismissible fade show" role="alert">
+												<i class="fas fa-check-circle mr-2"></i>La solicitud de préstamo ha sido eliminada correctamente.
+												<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+														<span aria-hidden="true">&times;</span>
+												</button>
+										</div>
+										{% endif %}
+			            {%endfor%}
+			          {%endif%}
+			        {%endwith%}
+
                 <div class="row">
                     <div class="col-md-12">
                         <nav>

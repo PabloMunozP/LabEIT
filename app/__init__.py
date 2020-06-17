@@ -1,11 +1,26 @@
 from flask import Flask,Blueprint,render_template,request,redirect,url_for,flash,session,jsonify
 from werkzeug.utils import secure_filename
-import mysql.connector
+from config import db,cursor
 import bcrypt
 import time
 from datetime import datetime,timedelta
 import os
 import json,requests
+#from flask_apscheduler import APScheduler
+
+# ============= Configuraciones para funciones con timer ======================
+#def verificar_fechas_vencimiento_solicitudes():
+    # Función para verificar la fecha de vencimiento de una solicitud, una vez aprobada
+    #print("verificar_fechas_vencimiento_solicitudes")
+
+#def verificar_sanciones_usuarios():
+    #print("verificar_sanciones_usuarios")
+
+#sched = APScheduler()
+#sched.add_job(id="verificacion_vencimiento_solicitudes",func=verificar_fechas_vencimiento_solicitudes,trigger='interval',seconds=10)
+#sched.add_job(id="verificacion_sanciones_usuarios",func=verificar_sanciones_usuarios,trigger='interval',seconds=20)
+#sched.start()
+# ============================================================================
 
 # Define the WSGI application object
 app = Flask(__name__)
