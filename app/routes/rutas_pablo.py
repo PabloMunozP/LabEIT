@@ -17,16 +17,37 @@ def principal():
 
 @mod.route("/ver_usuario",methods=['GET'])
 def ver_usuarios():
+<<<<<<< Updated upstream
     query= """ SELECT Usuario.nombres as nombres, Usuario.apellidos as apellidos, Usuario.rut as rut, Credencial.nombre as credencial FROM Usuario, Credencial WHERE Usuario.id_credencial=Credencial.id"""
     cursor=db.cursor()
+=======
+    if "usuario" not in session.keys():
+        return redirect("/")
+    if session["usuario"]["id_credencial"] != 3:
+        return redirect("/")
+
+    query= """
+            SELECT Usuario.nombres AS nombres, Usuario.apellidos AS apellidos, Usuario.rut AS rut, Credencial.nombre AS credencial, Usuario.email as correo, Usuario.region as region, Usuario.comuna as comuna, Usuario.direccion as direccion
+                FROM Usuario,Credencial
+                    WHERE Usuario.id_credencial= Credencial.id
+            """
+>>>>>>> Stashed changes
     cursor.execute(query)
     usuarios=cursor.fetchall()
     return render_template("/pablo/ver_usuarios.html",usuarios=usuarios)
 
-@mod.route("/anadir_usuario",methods=["GET","POST"])
+@mod.route("/gestion_usuarios/anadir_usuario",methods=["POST"])
 def añadir_usuario():
+<<<<<<< Updated upstream
     if request.method=='GET':
         return render_template("/pablo/añadir_usuario.html")
+=======
+    if "usuario" not in session.keys():
+        return redirect("/")
+    if session["usuario"]["id_credencial"] != 3:
+        return redirect("/")
+
+>>>>>>> Stashed changes
     elif request.method=='POST':
         #Creacion del usuario
         datos_usuario=request.form.to_dict()#obtener datos del usuario en un diccionario
@@ -82,6 +103,7 @@ def añadir_usuario():
         except Exception as e:
             print(e)
             flash("correo-recuperacion-fallido") # Notificación de fallo al enviar el correo
+<<<<<<< Updated upstream
         return render_template("/pablo/ver_usuario.html")
     
 @mod.route("/editar_usuario/<string:rut>",methods=["GET","POST"])
@@ -107,3 +129,56 @@ def editar(rut=None):
             cursor=db.cursor()
             cursor.execute(query(datos_usuario['credencial'],datos_usuario['correo'],datos_usuario['nombres'],datos_usuario['apellidos'],datos_usuario['celular'],datos_usuario['region'],datos_usuario['comuna'],datos_usuario['direccion'],rut))
             return render_template("/pablo/ver_usuario.html",msg='Actualizado con exito')
+=======
+        flash('agregar-correcto')
+        return redirect("/gestion_usuarios")
+
+@mod.route("/gestion_usuarios/editar_usuario",methods=["POST"])
+def editar():
+    if "usuario" not in session.keys():
+        return redirect("/")
+    if session["usuario"]["id_credencial"] != 3:
+        return redirect("/")
+
+    if request.method=='POST':
+        datos_usuario=request.form.to_dict()
+        
+        query=''' UPDATE Usuario SET id_credencial = %s, email=%s, nombres =%s, apellidos= %s, region = %s, comuna = %s, direccion = %s
+                    WHERE rut= %s'''
+        cursor.execute(query,(datos_usuario['credencial'],datos_usuario['correo'],datos_usuario['nombres'],datos_usuario['apellidos'],datos_usuario['region'],datos_usuario['comuna'],datos_usuario['direccion'],datos_usuario['rut']))
+        flash('editado-correcto')
+
+        return redirect("/gestion_usuarios")
+
+@mod.route("/gestion_usuarios/eliminar_usuario", methods=["POST"])
+def eliminar():
+    if "usuario" not in session.keys():
+        return redirect("/")
+    if session["usuario"]["id_credencial"] != 3:
+        return redirect("/")
+
+    if request.method=='POST':   
+        rut=request.form['rut']
+        query=''' DELETE FROM Usuario WHERE rut= %s'''
+        
+        cursor.execute(query,(rut,))
+        flash('eliminar-correcto')
+        return redirect("/gestion_usuarios")
+
+@mod.route("/gestion_usuarios/ver_usuario",methods=["GET"])
+def ver_usuario_unico():
+    if "usuario" not in session.keys():
+        return redirect("/")
+    if session["usuario"]["id_credencial"] != 3:
+        return redirect("/")
+    
+    if request.method=='GET':
+        rut=request.args.get('rut')
+        print(rut)
+        query=''' Select Usuario.nombres as nombres, Usuario.apellidos as apellidos, Credencial.nombre as credencial,
+            Usuario.email as correo, Usuario.region as region, Usuario.comuna as comuna, 
+            Usuario.direccion as direccion, Usuario.celular as celular FROM Usuario,Credencial WHERE Credencial.id=Usuario.id_credencial AND Usuario.rut=%s '''
+        cursor.execute(query,(rut,))
+        usuario=cursor.fetchone()
+        return render_template("/pablo/ver_usuario_unico.html",usuario=usuario)
+>>>>>>> Stashed changes

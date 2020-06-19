@@ -6,6 +6,7 @@
                 <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar"></button>
                 <span aria-hidden="true">&times; </span>
                 </button> 
+<<<<<<< Updated upstream
             </div>
             <form action="/gestion_usuarios/anadir_usuario" method="POST">
                 <div class="modal-body">
@@ -92,11 +93,49 @@
                             
                     </form>
                 </div>
+=======
+>>>>>>> Stashed changes
             </div>
+            <form action="/gestion_usuarios/anadir_usuario" method="POST">
+                <div class="modal-body">
+                    <div>
+                        <label for="Nombres">Nombres:</label>
+                        <input type="text" id="nombres" name="nombres" class="form-control" required>
+                    </div>
+                    <div>
+                        <label for="apellidos">Apellidos:</label>
+                        <input type="text" name="apellidos" id="apellidos" class="form-control" required>
+                    </div>
+                    <div>
+                        <label for="rut">Rut:</label>
+                        <input type="text" name="rut" id="rut" class="form-control" required>
+                    </div>
+                    <div>
+                        <label for="correo">Correo:</label>
+                        <input type="email" name="correo" id="correo" class="form-control" required>
+                    </div>
+                    <div>
+                        <label for="crendencial">Crendencial:</label>
+                        <select name="credencial" id="credencial" class="form-control">
+                            <option selected value="1">Alumno</option>
+                            <option value="2">Profesor</option>
+                            <option value="3">Administrador</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit"  class="btn btn-primary" > Guardar cambios</button>
+                </div>
+            </form>
         </div>
+<<<<<<< Updated upstream
 =======
  
 
 
 >>>>>>> Stashed changes
 
+=======
+    </div>
+</div>   
+>>>>>>> Stashed changes

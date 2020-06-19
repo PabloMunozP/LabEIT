@@ -1,4 +1,8 @@
+<<<<<<< Updated upstream
 {%extends '/pablo/base.html' %}
+=======
+{%extends 'layout_in.html' %}
+>>>>>>> Stashed changes
 
 {%block title%}LabEIT - Gestion Usuarios{% endblock %}
 
@@ -63,6 +67,9 @@
 =======
                                 <th scope="col">Tipo de credencial</th>
                                 <th scope="colgroup" >Acciones</th>
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
                             </tr>
                         </thead>
@@ -92,6 +99,16 @@
                                     <td>
                                        <button type="button" data-target=" #editar_{{usuario['rut']}}" class= "btn btn-primary" data-toggle="modal"> Editar <i class="far fa-edit"></i> </button>
                                        {% include 'pablo/editar_usuario.html' %}
+<<<<<<< Updated upstream
+=======
+                                    </td>
+                                    <td>
+                                        <a class="btn btn-info"  href="/gestion_usuarios/ver_usuario?rut={{usuario['rut']}}" target="_blank"> Ver más <i class="fas fa-search-plus"></i></a>
+                                    </td>
+                                    <td>
+                                        <button type="button" data-target="#eliminar_{{usuario['rut']}}" class="btn btn-danger" data-toggle="modal">Eliminar <i class="fas fa-trash-alt" ></i></button>
+                                        {% include 'pablo/eliminar_usuario.html' %}
+>>>>>>> Stashed changes
                                     </td>
                                     <td>
                                         <a class="btn btn-info"  href="/gestion_usuarios/ver_usuario?rut={{usuario['rut']}}" target="_blank"> Ver más <i class="fas fa-search-plus"></i></a>
@@ -110,7 +127,12 @@
         </div>
     </div>
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 {%endblock%}
+=======
+
+{%endblock%}
+>>>>>>> Stashed changes
 =======
 
 {%endblock%}
