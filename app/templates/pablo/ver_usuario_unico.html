@@ -1,0 +1,29 @@
+{%extends 'layout_in.html' %}
+
+{%block title%}LabEIT- Añadir Usuario{% endblock %}
+
+{% block body %}
+        <div class="container-fluid">
+            <div class="row align-items-center h-100">
+                <div class="card-body">
+                    <h3 class="texto-gris-eit text-center">Perfil de {{usuario['nombres']}} {{usuario['apellidos']}} </h3>
+                    <hr>
+                    <div class="tab">
+                        <button class="tablinks" onclick="openTab(event,'Perfil')"  id="OpenPerfil"> Perfil </button>
+                        <button class="tablinks" onclick="openTab(event,'Solicitudes')" > Solicitudes </button>
+                        <button class="tablinks" onclick="openTab(event,'Cursos')" > Cursos </button>
+                    </div>
+                    <div id="Perfil" class="tabcontent">
+                        <h3>Aca iria el Perfil</h3>
+                        
+                    </div>
+                    <div id="Solicitudes" class="tabcontent">
+                        <h3>Aca irian las Solicitudes</h3>
+                    </div>
+                    <div id="Cursos" class="tabcontent">
+                        <h3>Aca irian los Cursos</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+{% endblock %}
