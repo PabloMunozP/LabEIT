@@ -1,30 +1,49 @@
-{%extends 'layout_in.html' %}
+<div id="agregar_usuario" class="modal fade in" tabindex="-1" role="dialog"  aria-hidden="true" data-keyboard="true" data-backdrop="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-gris-eit">
+                <h5 class="modal-title text-white" id="editar_informacion_label"><i class="fas fa-user-edit mr-2"></i>Agregar Usuario </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar"></button>
+                <span aria-hidden="true">&times; </span>
+                </button> 
+            </div>
+            <form action="/gestion_usuarios/anadir_usuario" method="POST">
+                <div class="modal-body">
+                    <div>
+                        <label for="Nombres">Nombres:</label>
+                        <input type="text" id="nombres" name="nombres" class="form-control" required>
+                    </div>
+                    <div>
+                        <label for="apellidos">Apellidos:</label>
+                        <input type="text" name="apellidos" id="apellidos" class="form-control" required>
+                    </div>
+                    <div>
+                        <label for="rut">Rut:</label>
+                        <input type="text" name="rut" id="rut" class="form-control" required>
+                    </div>
+                    <div>
+                        <label for="correo">Correo:</label>
+                        <input type="email" name="correo" id="correo" class="form-control" required>
+                    </div>
+                    <div>
+                        <label for="crendencial">Crendencial:</label>
+                        <select name="credencial" id="credencial" class="form-control">
+                            <option selected value="1">Alumno</option>
+                            <option value="2">Profesor</option>
+                            <option value="3">Administrador</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit"  class="btn btn-primary" > Guardar cambios</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>      
 
-{%block title%}LabEIT- Añadir Usuario{% endblock %}
 
-{% block body %}
-        <div class="container h-100">
-            <div class="row align-items-center h-100">
-                <div class="card-body">
-                    <h1 class="texto-gris-eit text-center">Añadir Usuario </h1>
-                    <hr>
-                    <div class="col-md-12 mt-2 mx-auto">
-                        {% with msgs = get_flashed_messages() %}
-                          {% if msgs %}
-                            {% for msg in msgs %}
-                              {% if msg == "usuario_existe"%}
-                                <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                                  <i class="fas fa-times-circle mr-2">El usuario que intentas añadir ya existe.</i>
-                                  <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                  <span aria-hidden="true">&times;</span>
-                                  </button>
-                                </div>
-                              {%endif%}
-                            {%endfor%}
-                          {%endif%}
-                        {%endwith%}
-                      </div>
-
+<<<<<<< Updated upstream
                     <form action="/anadir_usuario" method="POST">
                         <div class="form-row">
                             <div class="form-group col-md-3">
@@ -75,5 +94,9 @@
                 </div>
             </div>
         </div>
+=======
+ 
 
-{% endblock %}
+
+>>>>>>> Stashed changes
+

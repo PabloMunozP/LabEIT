@@ -60,3 +60,123 @@
   width: 100%;
 	vertical-align: middle;
 }
+<<<<<<< Updated upstream
+=======
+
+.body-profile {
+  background-color: #f5f5f5;
+}
+
+.section-red-card{
+  border: 0px;
+  color: white;
+  background-color: #4D4D4D;
+  margin-top: 0px;
+  margin-bottom: 50px;
+  padding: 5px;
+  padding-left: 30px;
+}
+
+.section-black-card{
+  border: 0px;
+  color: white;
+  background-color: #434343;
+  margin-top: 50px;
+  margin-bottom: 50px;
+  padding: 5px;
+  padding-left: 30px;
+}
+
+.row-profile{
+  margin-left: 0px;
+  margin-right: 0px;
+}
+
+.profile-subtext{
+  margin-top: 10px;
+  margin-left: 10px;
+}
+/* TABS DE GESTIÓN DE SOLICITUDES DE PRÉSTAMOS */
+.project-tab #tabs{
+    background: #007b5e;
+    color: #eee;
+}
+.project-tab #tabs h6.section-title{
+    color: #eee;
+}
+.project-tab #tabs .nav-tabs .nav-item.show .nav-link, .nav-tabs .nav-link.active {
+    color: inherit;
+    border-bottom: 3px solid #0db26b !important;
+    font-weight: bold;
+}
+.project-tab .nav-link {
+		color: inherit;
+		background-color: transparent; /* Use this instead */
+    color: #4D4D4D;
+}
+.project-tab .nav-link:hover {
+		background: inherit;
+}
+.project-tab .nav-link:hover {
+    border: none;
+}
+.project-tab thead{
+    background: #f3f3f3;
+    color: #333;
+}
+.project-tab a{
+    text-decoration: none;
+    color: #333;
+    font-weight: 600;
+}
+#profile-pic{
+  border-radius: 50%;
+  width: 200px;
+  height: 200px;
+  border: 2px solid #51D2B7;
+  background-size: cover;
+}
+#inner-div{
+  margin: 0 auto;
+}
+#inner-table{
+  border: 0px;
+  border-top: 0px
+}
+
+/* Style the tab */
+.tab {
+  overflow: hidden;
+  border: 1px solid #ccc;
+  background-color: #f1f1f1;
+}
+
+/* Style the buttons that are used to open the tab content */
+.tab button {
+  background-color: inherit;
+  float: left;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  padding: 14px 16px;
+  transition: 0.3s;
+}
+
+/* Change background color of buttons on hover */
+.tab button:hover {
+  background-color: #ddd;
+}
+
+/* Create an active/current tablink class */
+.tab button.active {
+  background-color: #ccc;
+}
+
+/* Style the tab content */
+.tabcontent {
+  display: none;
+  padding: 6px 12px;
+  border: 1px solid #ccc;
+  border-top: none;
+}
+>>>>>>> Stashed changes
