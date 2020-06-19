@@ -24,7 +24,7 @@ def ver_usuarios():
         return redirect("/")
 
     query= """
-            SELECT Usuario.nombres AS nombres, Usuario.apellidos AS apellidos, Usuario.rut AS rut, Credencial.nombre AS credencial
+            SELECT Usuario.nombres AS nombres, Usuario.apellidos AS apellidos, Usuario.rut AS rut, Credencial.nombre AS credencial, Usuario.email as correo, Usuario.region as region, Usuario.comuna as comuna, Usuario.direccion as direccion
                 FROM Usuario,Credencial
                     WHERE Usuario.id_credencial= Credencial.id
             """
@@ -33,16 +33,14 @@ def ver_usuarios():
 
     return render_template("/pablo/ver_usuarios.html",usuarios=usuarios)
 
-@mod.route("/anadir_usuario",methods=["GET","POST"])
+@mod.route("/gestion_usuarios/anadir_usuario",methods=["POST"])
 def añadir_usuario():
     if "usuario" not in session.keys():
         return redirect("/")
     if session["usuario"]["id_credencial"] != 3:
         return redirect("/")
 
-    if request.method=='GET':
-        return render_template("/pablo/añadir_usuario.html")
-    elif request.method=='POST':
+    if request.method=='POST':
         #Creacion del usuario
         datos_usuario=request.form.to_dict()#obtener datos del usuario en un diccionario
         query = ''' INSERT INTO Usuario(rut, id_credencial, email, nombres, apellidos)
@@ -96,31 +94,54 @@ def añadir_usuario():
         except Exception as e:
             print(e)
             flash("correo-recuperacion-fallido") # Notificación de fallo al enviar el correo
-        return render_template("/pablo/ver_usuario.html")
+        flash('agregar-correcto')
+        return redirect("/gestion_usuarios")
 
-@mod.route("/editar_usuario/<string:rut>",methods=["GET","POST"])
-def editar(rut=None):
+@mod.route("/gestion_usuarios/editar_usuario",methods=["POST"])
+def editar():
     if "usuario" not in session.keys():
         return redirect("/")
     if session["usuario"]["id_credencial"] != 3:
         return redirect("/")
 
-    if request.method =='GET' :
-        if rut:
-            query='''SELECT * FROM Usuario WHERE rut= %s'''
-            cursor.execute(query, (rut,))
-            resultado = cursor.fetchall()
-            if(resultado==[]):
-                return render_template("/pablo/editar_usuario.html",msg='No existe ese alumno')
-            elif(resultado[0][0]==rut):
-                credencial= 'Alumno' if resultado[0][1]== 1 else 'Profesor' if resultado[0][1] == 2 else 'Administrador' if resultado[0][1] == 3 else None
-                return render_template("/pablo/editar_usuario.html",datos=resultado[0],credencial=credencial)
-        else:
-            return render.template("/pablo/editar_usuario.html",msg='Error en el rut')
-    elif request.method=='POST':
+    if request.method=='POST':
         datos_usuario=request.form.to_dict()
-        if rut:
-            query=''' UPDATE Usuario SET credencial = %s, email=%s, nombres =%s, apellidos= %s, celular = %s, region = %s, comuna = %s, direccion = %s
-                     WHERE rut= %s'''
-            cursor.execute(query,(datos_usuario['credencial'],datos_usuario['correo'],datos_usuario['nombres'],datos_usuario['apellidos'],datos_usuario['celular'],datos_usuario['region'],datos_usuario['comuna'],datos_usuario['direccion'],rut))
-            return render_template("/pablo/ver_usuario.html",msg='Actualizado con exito')
+        
+        query=''' UPDATE Usuario SET id_credencial = %s, email=%s, nombres =%s, apellidos= %s, region = %s, comuna = %s, direccion = %s
+                    WHERE rut= %s'''
+        cursor.execute(query,(datos_usuario['credencial'],datos_usuario['correo'],datos_usuario['nombres'],datos_usuario['apellidos'],datos_usuario['region'],datos_usuario['comuna'],datos_usuario['direccion'],datos_usuario['rut']))
+        flash('editado-correcto')
+
+        return redirect("/gestion_usuarios")
+
+@mod.route("/gestion_usuarios/eliminar_usuario", methods=["POST"])
+def eliminar():
+    if "usuario" not in session.keys():
+        return redirect("/")
+    if session["usuario"]["id_credencial"] != 3:
+        return redirect("/")
+
+    if request.method=='POST':   
+        rut=request.form['rut']
+        query=''' DELETE FROM Usuario WHERE rut= %s'''
+        
+        cursor.execute(query,(rut,))
+        flash('eliminar-correcto')
+        return redirect("/gestion_usuarios")
+
+@mod.route("/gestion_usuarios/ver_usuario",methods=["GET"])
+def ver_usuario_unico():
+    if "usuario" not in session.keys():
+        return redirect("/")
+    if session["usuario"]["id_credencial"] != 3:
+        return redirect("/")
+    
+    if request.method=='GET':
+        rut=request.args.get('rut')
+        print(rut)
+        query=''' Select Usuario.nombres as nombres, Usuario.apellidos as apellidos, Credencial.nombre as credencial,
+            Usuario.email as correo, Usuario.region as region, Usuario.comuna as comuna, 
+            Usuario.direccion as direccion, Usuario.celular as celular FROM Usuario,Credencial WHERE Credencial.id=Usuario.id_credencial AND Usuario.rut=%s '''
+        cursor.execute(query,(rut,))
+        usuario=cursor.fetchone()
+        return render_template("/pablo/ver_usuario_unico.html",usuario=usuario)
