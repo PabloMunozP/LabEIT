@@ -1,5 +1,7 @@
 {% extends "layout_in.html"%}
-    {%block body%}
+{%block body%}
+<div class="col-md-12">
+  
 
     <div class="row mt-3">
     	<div class="col-md-12">
@@ -55,9 +57,7 @@
 
 
     <div class="table-responsive">
-    	<div class="table-wrapper-scroll-y" style="position: relative;
-    							max-height: 450px;
-    							overflow:auto;">
+    	<div class="table-wrapper-scroll-y" style="position: relative; overflow:auto;">
     		<table class="table table-hover">
     		  <thead class="text-white" style="background:#4D4D4D;">
     		    <tr>
@@ -71,18 +71,18 @@
     		  </thead>
     		  <tbody>
     				  {% for elemento in lista_equipo %}
-    					<tr>
+    					<tr id="row{{loop.index}}"> 
     						<td> {{elemento.codigo}}</td>
     						<td> {{elemento.modelo}}</td>
-    						<td>  {{elemento.marca}} </td>
-    						<td> 0 / {{elemento.disponibles}}</td>
+    						<td> {{elemento.marca}} </td>
+    						<td> {{elemento.dias_max_prestamo}} / {{elemento.disponibles}}</td>
     						<td>
     							<span class="btn-group">
     								<a href="gestion_solicitudes_prestamos/detalle_solicitud/{{loop.index}}">
     									<button type="button" title="Ver detalles de equipo" data-toggle="modal" class="btn btn-info"><i class="fas fa-search-plus"></i></button>
     								</a>
-
-                    <button type="button" data-target="#editar_equipo{{elemento.codigo}}" title="Editar equipo" class="btn btn-primary" data-toggle="modal"><i class="fas fa-edit"></i></button>
+                    <!-- aca implementar script Onclick -->
+                    <button type="button" onclick="cargar_datos_equipo_modal('{{elemento.codigo}}','{{elemento.descripcion}}')" data-target="#editar_equipo" title="Editar equipo" class="btn btn-primary" data-toggle="modal"><i class="fas fa-edit"></i></button>
 
                     <button type="button" title="Eliminar equipo" data-toggle="modal" data-target="#eliminar_equipo{{elemento.codigo}}" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
 
@@ -110,6 +110,14 @@
   </center>
 
 
-
-{% include "vistas_gestion_inventario/agregar.html" %}
+</div>
+<script>
+  function cargar_datos_equipo_modal(codigo, descripcion){
+    console.log(codigo);
+    console.log(descripcion);
+    document.getElementById("modal-title").innerHTML = '<i class="fas fa-edit"></i> Editar equipo ' + codigo ;
+  }
+</script>
+{% include "vistas_gestion_inventario/modals.html" %}
+{% include "vistas_gestion_inventario/modals/editar_equipo.html" %}
 {% endblock %}

@@ -63,6 +63,7 @@ def consultar_lista_equipos_detalle(codigo_equipo, ask_print = False):
     return equipos_detalle
 
  # ** Importante CONFIGURAR EQUIPO** #
+
 def editar_equipo_general(informacion_a_actualizar):
         query = ('''
             UPDATE Equipo
