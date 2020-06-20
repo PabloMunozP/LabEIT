@@ -8,32 +8,44 @@
         <form id="editar_form" action="" method="POST">
         <div class="modal-body">
   
-          <label for="nombres"> Código</label>
-          <input class="form-control" type="text" name="codigo" id="codigo" value="">
+          <label for="codigo"> Código</label>
+          <input class="form-control" type="text" name="codigo" value="" id="editar-equipo-codigo">
   
-          <label for="apellidos"> Modelo</label>
-          <input class="form-control" type="text" name="modelo" id="modelo" value="">
+          <label for="modelo"> Modelo</label>
+          <input class="form-control" type="text" name="modelo" value="" id="editar-equipo-modelo">
   
-          <label for="apellidos"> Marca</label>
-          <input class="form-control" type="text" name="marca" id="marca" value="">
+          <label for="marca"> Marca</label>
+          <input class="form-control" type="text" name="marca"  value="" id="editar-equipo-marca">
   
-          <label for="comunas"> Descripción</label>
-          <input class="form-control" type="text" name="descripcion" id="descripcion" value="">
+          <label for="descripcion"> Descripción</label>
+          <input class="form-control" type="text" name="descripcion" value="" id="editar-equipo-descripcion">
   
-          <label for="apellidos"> Días de prestamo</label>
-          <input class="form-control" type="text" name="dias_max_prestamo" id="dias_max_prestamo" value="">
+          <label for="dias_max_prestamo"> Días de prestamo</label>
+          <input type="text" class="form-control" name="dias_max_prestamo" value="" id="editar-equipo-dias">
   
-          <label for="apellidos"> Adquiridos</label>
-          <input class="form-control" type="text" name="adquiridos" id="adquiridos" value="">
+          <label for="adquiridos"> Adquiridos</label>
+          <input class="form-control" type="text" name="adquiridos" value="" id="editar-equipo-adquiridos">
   
   
         </div>
         <div class="modal-footer">
-                <button type="button" id="boton_cerrar" class="btn btn-secondary" data-dismiss="modal" onclick="Cargar_informacion()">Cancelar</button>
-                <button type="button" id="boton_cerrar" class="btn btn-secondary" data-dismiss="modal" onclick="Cargar_informacion()" hidden>Cancelar</button>
+                <button type="button" id="boton_cerrar" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
                 <button type="summit" id="boton_guardar" class="btn btn-info" type="hidden"> Guardar cambios</button>
         </div>
     </div>
   </div>
   </div>
+
+  <script>
+    function cargar_datos_equipo_modal(codigo, modelo, marca, descripcion, dias_max_prestamo){
+      document.getElementById("modal-title").innerHTML = '<i class="fas fa-edit"></i> Editar equipo ' + codigo ;
+      $("#editar-equipo-codigo").attr("value", codigo);
+      $("#editar-equipo-modelo").attr("value", modelo);
+      $("#editar-equipo-marca").attr("value", marca);
+      $("#editar-equipo-descripcion").attr("value", descripcion);
+      $("#editar-equipo-dias").attr("value", dias_max_prestamo);
+    }
+  </script>
+
+  
   
