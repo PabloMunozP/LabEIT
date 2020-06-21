@@ -19,7 +19,7 @@ def principal():
 
 # Consulta una lista con los equipos
 # Es usada en la vista general de todos los equipos
-def consultar_lista_equipos_general(ask_print = False):
+def consultar_lista_equipos_general():
     query = ('''
         SELECT
             Equipo.id,
@@ -28,6 +28,8 @@ def consultar_lista_equipos_general(ask_print = False):
             Equipo.marca,
             Equipo.descripcion,
             Equipo.dias_max_prestamo,
+            Equipo.cantidad_circuito,
+            Equipo.imagen,
             COUNT(CASE WHEN Equipo_diferenciado.activo = 1 THEN 1 ELSE NULL END) AS disponibles,
             COUNT(Equipo_diferenciado.activo) AS total_equipos
         FROM
@@ -36,18 +38,19 @@ def consultar_lista_equipos_general(ask_print = False):
         GROUP BY Equipo.codigo
     ''')
     cursor.execute(query)
+    
     equipos = cursor.fetchall()
-    if ask_print == True:
-        print('################')
-        for i in range(len(equipos)):
-            print(i, equipos[i])
-        print('################')
+    for element in equipos:
+        if element['cantidad_circuito'] is not None:
+            element['disponibles'] = element['cantidad_circuito']
+        print(element)
+    
     return equipos
 
 # Consulta una una lista de equipos especificos
 # Es usada en la vista de equipos asociados
 # Ejemplo: Solo ARDUINO UNO
-def consultar_lista_equipos_detalle(codigo_equipo, ask_print = False):
+def consultar_lista_equipos_detalle(codigo_equipo):
     query = ('''
         SELECT *
         FROM Equipo_diferenciado
@@ -86,7 +89,7 @@ def editar_equipo_general(informacion_a_actualizar):
         db.commit()
         return informacion_a_actualizar
 
-# Agrega un tipo de equipo con sus datos generales
+ # Agrega un tipo de equipo con sus datos generales
 def insertar_lista_equipos_general(valores_a_insertar):
     query = ('''
         INSERT INTO Equipo (codigo, modelo, marca, descripcion, dias_max_prestamo, adquiridos)
@@ -122,14 +125,17 @@ def insertar_lista_equipos_detalle(codigo_equipo, valores_a_insertar):
 # ** Importante VISTA PRINCIPAL GESTION INVENTARIO ** #
 @mod.route("/gestion_inventario_admin")
 def gestion_inventario_admin():
-    equipos = consultar_lista_equipos_general(True)
-    return render_template('vistas_gestion_inventario/gestion_inventario.html', lista_equipo = equipos)
+    if 'usuario' not in session or session["usuario"]["id_credencial"] != 3:
+        return redirect('/')
+    else:
+        equipos = consultar_lista_equipos_general()
+        return render_template('vistas_gestion_inventario/gestion_inventario.html', lista_equipo = equipos)
 
 
 # ** Importante VISTA GESTION INVENTARIO DIFERENCIADO ** #
 @mod.route("/gestion_inventario_admin/<string:codigo_equipo>")
 def gestion_inventario_admin_equipo(codigo_equipo):
-    equipos = consultar_lista_equipos_detalle(codigo_equipo,True)
+    equipos = consultar_lista_equipos_detalle(codigo_equipo)
     return render_template('vistas_gestion_inventario/similares_tabla.html', equipos_detalle = equipos) #Cambiar render por el que corresponda
 
 # ** VALIDA FORMULARIO DE PRUEBA INGRESAR EQUIPO ** #
@@ -156,8 +162,10 @@ def funcion_editar_equipo_form(codigo_equipo):
         flash("El equipo se actualizo")
         equipos = consultar_lista_equipos_general(True)
         return render_template('vistas_gestion_inventario/gestion_inventario.html', lista_equipo= equipos)
-# Importante FUNCION() ENCARGADA DE INGRESAR LOS VALORES DEL FORMULARIO "AGREGAR" EN VISTA GESTION INVENTARIO DIFERENCIAD0 ** #
 
+
+
+# Importante FUNCION() ENCARGADA DE INGRESAR LOS VALORES DEL FORMULARIO "AGREGAR" EN VISTA GESTION INVENTARIO DIFERENCIAD0 ** #
 @mod.route("/gestion_inventario_admin/validar_add/form/<string:codigo_equipo>", methods = ['POST'])
 def validar_form_añadir_equipo_espeficio(codigo_equipo):
     if request.method == 'POST':

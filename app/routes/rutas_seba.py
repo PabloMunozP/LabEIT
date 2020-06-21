@@ -80,7 +80,7 @@ def iniciar_sesion():
         SELECT *
             FROM Sanciones
                 WHERE rut_alumno = %s
-                AND activo = 1
+                AND activa = 1
     """
     cursor.execute(sql_query,(session["usuario"]["rut"],))
     sancion_usuario = cursor.fetchone()
