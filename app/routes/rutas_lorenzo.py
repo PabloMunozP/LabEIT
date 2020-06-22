@@ -8,7 +8,3 @@ def redirect_url(default='index'): # Redireccionamiento desde donde vino la requ
     return request.args.get('next') or \
            request.referrer or \
            url_for(default)
-
-@mod.route("/lorenzo",methods=["GET"])
-def principal():
-    return "OK"
