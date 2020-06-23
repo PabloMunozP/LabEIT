@@ -83,26 +83,41 @@ def funcion_añadir_equipo_form():
 # **** VISTA_PRINCIPAL/MODAL "EDITAR EQUIPO" **** #
 
 def editar_equipo_general(informacion_a_actualizar):
-        query = ('''
-            UPDATE Equipo
-            SET codigo = %s,
-                modelo = %s,
-                marca = %s,
-                descripcion = %s,
-                dias_max_prestamo = %s,
-                adquiridos = %s
-            Where Equipo.codigo = codigo_equipo
-        ''')
-        cursor.execute(query,(
-            informacion_a_actualizar['codigo'],
-            informacion_a_actualizar['modelo'],
-            informacion_a_actualizar['marca'],
-            informacion_a_actualizar['descripcion'],
-            informacion_a_actualizar['dias_max_prestamo'],
-            informacion_a_actualizar['adquiridos']
-            ))
-        db.commit()
+        if 'multi_componente' not in informacion_a_actualizar:
+            print('este equipo no posee el atributo multi componente')
+            query = ('''
+                UPDATE Equipo
+                SET codigo = %s,
+                    modelo = %s,
+                    marca = %s,
+                    imagen = %s,
+                    descripcion = %s,
+                    dias_max_prestamo = %s,
+                    cantidad_circuito = NULL
+                Where Equipo.codigo = %s
+            ''')
+            cursor.execute(query,(
+                informacion_a_actualizar['codigo'],
+                informacion_a_actualizar['modelo'],
+                informacion_a_actualizar['marca'],
+                informacion_a_actualizar['imagen'],
+                informacion_a_actualizar['descripcion'],
+                informacion_a_actualizar['dias_max_prestamo'],
+                informacion_a_actualizar['codigo_original']
+                ))
+            db.commit()
+        else:
+            print('este equipo posee el atributo multi componente y su cantidad es:', informacion_a_actualizar['cantidad_componentes'])
         return informacion_a_actualizar
+
+
+@mod.route('/gestion_inventario_admin/actualizar_informacion', methods = ['POST'])
+def funcion_editar_equipo_form():
+    if request.method == 'POST':
+        informacion_a_actualizar = request.form.to_dict()
+        print('Información a actualizar:', informacion_a_actualizar)
+        editar_equipo_general(informacion_a_actualizar)
+        return redirect("/gestion_inventario_admin")
 
 
 
@@ -174,15 +189,6 @@ def form_añadir_equipo_espeficio(codigo_equipo):
     return render_template('pruebas/form_inventario.html',codigo_equipo = codigo_equipo)
 
 
-
-@mod.route('/gestion_inventario_admin/actualizar_informacion/<string:codigo_equipo>', methods = ['POST'])
-def funcion_editar_equipo_form(codigo_equipo):
-    if request.method == 'POST':
-        informacion_a_actualizar = request.form.to_dict()
-        insertar_lista_equipos_general(informacion_a_actualizar)
-        flash("El equipo se actualizo")
-        equipos = consultar_lista_equipos_general(True)
-        return render_template('vistas_gestion_inventario/gestion_inventario.html', lista_equipo= equipos)
 
 
 

@@ -5,10 +5,11 @@
         <div class="modal-header bg-verde-eit">
           <h5 id="modal-title" class="modal-title text-white" id="editar_informacion_label"><i class="fas fa-edit"></i> Editar equipo</h5>
         </div>
-        <form id="editar_form" action="" method="POST">
-        
+        <form id="editar_form" action="/gestion_inventario_admin/actualizar_informacion" method="POST">
+          
           <div class="modal-body">
-  
+            <input class="form-control" type="text" name="codigo_original" value="" id="editar-equipo-hidden-id" hidden> 
+
             <label for="editar-equipo-codigo">Código</label>
             <input class="form-control" type="text" name="codigo" value="" id="editar-equipo-codigo">
     
@@ -48,6 +49,7 @@
   <script>
     function cargar_datos_equipo_modal(codigo, modelo, marca, descripcion, dias_max_prestamo, imagen_url){
       document.getElementById("modal-title").innerHTML = '<i class="fas fa-edit"></i> Editar equipo ' + codigo ;
+      $("#editar-equipo-hidden-id").attr("value", codigo);
       $("#editar-equipo-codigo").attr("value", codigo);
       $("#editar-equipo-modelo").attr("value", modelo);
       $("#editar-equipo-marca").attr("value", marca);
