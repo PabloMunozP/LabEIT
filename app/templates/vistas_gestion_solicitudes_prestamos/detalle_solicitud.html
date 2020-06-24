@@ -5,6 +5,7 @@
 	{% include "/vistas_gestion_solicitudes_prestamos/modals/confirmacion_rechazo.html" %}
 	{% include "/vistas_gestion_solicitudes_prestamos/modals/confirmacion_eliminacion.html" %}
 	{% include "/vistas_gestion_solicitudes_prestamos/modals/confirmacion_cancelacion.html" %}
+	{% include "/vistas_gestion_solicitudes_prestamos/modals/confirmacion_devolucion.html" %}
 	{% include "/vistas_gestion_solicitudes_prestamos/modals/formulario_retiro_equipo.html" %}
 	{% include "/vistas_gestion_solicitudes_prestamos/modals/formulario_modificar_solicitud.html" %}
 
@@ -76,6 +77,14 @@
 						</button>
 				</div>
 				{% endif %}
+				{% if msg == "retiro-correcto" %}
+				<div class="alert alert-success mt-2 alert-dismissible fade show" role="alert">
+						<i class="fas fa-check-circle mr-2"></i>El equipo ha sido marcado como retirado correctamente.
+						<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+								<span aria-hidden="true">&times;</span>
+						</button>
+				</div>
+				{% endif %}
 				{%endfor%}
 			{%endif%}
 		{%endwith%}
@@ -142,7 +151,7 @@
 					</div>
 				</div>
 
-				{% if datos_detalle_solicitud["estado"] != 0 and datos_detalle_solicitud["estado"] != 1 and datos_detalle_solicitud["estado"] != 5 %}
+				{% if datos_detalle_solicitud["fecha_inicio"] and datos_detalle_solicitud["fecha_termino"] %}
 					<div class="form-group row">
 						<label class="col-md-4 col-form-label texto-gris-eit">
 							<strong>Fecha de inicio:</strong>
@@ -159,6 +168,19 @@
 							<p class="form-control-plaintext
 								 text-break">
 								 {{datos_detalle_solicitud["fecha_termino"]}}
+							</p>
+						</div>
+					</div>
+				{% endif %}
+
+				{% if datos_detalle_solicitud["fecha_devolucion"] %}
+					<div class="form-group row">
+						<label class="col-md-4 col-form-label texto-gris-eit">
+							<strong>Fecha de devolución:</strong>
+						</label>
+						<div class="col-md-3">
+							<p class="form-control-plaintext text-break">
+								{{datos_detalle_solicitud["fecha_devolucion"]}}
 							</p>
 						</div>
 					</div>
@@ -345,6 +367,8 @@
 						<button type="button" class="btn btn-warning mr-1" data-toggle="modal" data-target="#editar_solicitud_prestamo"><i class="fas fa-edit mr-1"></i>Modificar solicitud</button>
 						<button type="button" class="btn btn-danger mr-1" data-toggle="modal" data-target="#confirmacion_cancelacion_solicitud"><i class="fas fa-times-circle mr-1"></i>Cancelar solicitud</button>
 						<button type="button" class="btn btn-info" data-toggle="modal" data-target="#formulario_retiro_equipo"><i class="fas fa-clipboard-check mr-1"></i>Marcar como entregado</button>
+					{% elif datos_detalle_solicitud["estado"] == 2 %}
+						<button type="button" class="btn btn-info" data-toggle="modal" data-target="#confirmacion_devolucion_equipo">Registrar devolución</button>
 					{% elif datos_detalle_solicitud["estado"] == 5 %}
 						<button type="button" class="btn btn-danger mr-1" data-toggle="modal" data-target="#confirmacion_eliminacion_solicitud"><i class="fas fa-minus-circle mr-1"></i>Eliminar solicitud</button>
 					{% endif %}

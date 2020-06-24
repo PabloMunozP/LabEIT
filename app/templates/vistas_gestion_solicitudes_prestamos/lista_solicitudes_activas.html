@@ -63,7 +63,8 @@
 			      <th scope="col">RUT de alumno solicitante</th>
 			      <th scope="col">Equipo solicitado</th>
 			      <th scope="col" class="text-center">Estado</th>
-						<th scope="col">Fecha de registro</th>
+						<th scope="col">Fecha de inicio</th>
+						<th scope="col">Fecha de término</th>
 						<th scope="col">Acciones</th>
 			    </tr>
 			  </thead>
@@ -90,7 +91,20 @@
 								<td class="text-center"><span class="badge badge-secondary">{{detalle_solicitud["nombre_estado"]}}</span></td>
 							{% endif %}
 
-							<td>{{detalle_solicitud["fecha_registro"]}}</td>
+							<td>
+								{% if detalle_solicitud["fecha_inicio"] %}
+									{{detalle_solicitud["fecha_inicio"]}}
+								{% endif %}
+
+							</td>
+
+							<td>
+								{% if detalle_solicitud["fecha_termino"] %}
+									{{detalle_solicitud["fecha_termino"]}}
+								{% endif %}
+
+							</td>
+
 							<td>
 								<span class="btn-group">
 									<a href="gestion_solicitudes_prestamos/detalle_solicitud/{{detalle_solicitud["id"]}}">

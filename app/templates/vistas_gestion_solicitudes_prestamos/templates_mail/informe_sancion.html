@@ -150,7 +150,7 @@
         <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px;">
           <tr>
             <td align="left" bgcolor="#ffffff" style="padding: 36px 24px 0; font-family: 'Source Sans Pro', Helvetica, Arial, sans-serif; border-top: 3px solid #d4dadf;">
-              <h2 style="margin: 0; font-size: 26px; font-weight: 700; letter-spacing: -1px; line-height: 42px;">¡Hola, %nombre_usuario%!</h2>
+              <h2 style="margin: 0; font-size: 26px; font-weight: 700; letter-spacing: -1px; line-height: 42px;">Hola, %nombre_usuario%</h2>
             </td>
           </tr>
         </table>
@@ -176,22 +176,22 @@
           <!-- start copy -->
           <tr>
             <td align="left" bgcolor="#ffffff" style="padding: 24px; font-family: 'Source Sans Pro', Helvetica, Arial, sans-serif; font-size: 16px; line-height: 24px;">
-              <p style="margin: 0;">Hemos revisado tu solicitud de préstamo con los siguientes datos:</p>
+              <p style="margin: 0;">Has recibido una sanción por no devolver el siguiente equipo a tiempo:</p>
               <br>
               <p style="margin: 0;"><li><strong>ID de solicitud:</strong> %id_solicitud%</li></p>
               <p style="margin: 2;"><li><strong>ID de detalle de solicitud:</strong> %id_detalle%</li></p>
-              <p style="margin: 2;"><li><strong>Equipo solicitado:</strong> %equipo_solicitado%</li></p>
+              <p style="margin: 2;"><li><strong>Equipo prestado:</strong> %equipo_prestado%</li></p>
               <p style="margin: 2;"><li><strong>Código del equipo prestado:</strong> %codigo_equipo%-%codigo_sufijo%</li></p>
-							<p style="margin: 2;"><li><strong>Fecha de registro de solicitud:</strong> %fecha_registro%</li></p>
-              <p style="margin: 2;"><li><strong>Fecha de revisión de solicitud:</strong> %fecha_revision_solicitud%</li></p>
+              <p style="margin: 2;"><li><strong>Fecha de inicio del préstamo:</strong> %fecha_inicio_prestamo%</li></p>
+              <p style="margin: 2;"><li><strong>Fecha de término del préstamo:</strong> %fecha_termino_prestamo%</li></p>
             </td>
           </tr>
           <!-- end copy -->
 
           <tr>
             <td align="left" bgcolor="#ffffff" style="padding: 24px; font-family: 'Source Sans Pro', Helvetica, Arial, sans-serif; font-size: 16px; line-height: 24px;">
-							<p style="margin-top: -45px;">Tu solicitud ha sido marcada como <strong style="color:#5cb85c;">aprobada</strong>.</p>
-							<p style="margin: 0;">Recuerda que deberás retirar el equipo solicitado en el laboratorio durante el horario de atención establecido (<strong>9:00 AM - 18:00 PM</strong>) a más tardar el día <strong>%fecha_vencimiento_solicitud%</strong>, de lo contrario tu solicitud será anulada automáticamente.</p>
+              <p style="margin-top: -15px;">Debido a esto, no podrás realizar solicitudes de préstamo por un periodo de <strong>%dias_sancion%</strong> día(s).</p>
+              <p style="margin: 2;">Para evitar futuras sanciones, recuerda realizar tus devoluciones antes del plazo máximo. En caso de que necesites más tiempo, puedes realizar la renovación desde la misma plataforma.</p>
               <p style="margin: 2;">Si tienes dudas o problemas, recuerda que puedes contactarnos vía correo electrónico (<a href="mailto:labeit@mail.udp.cl?subject=Duda/Problema-LabEIT">labeit@mail.udp.cl</a>) o acercándote al laboratorio.</p>
             </td>
           </tr>

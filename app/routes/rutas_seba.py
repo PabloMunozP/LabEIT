@@ -8,7 +8,7 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from jinja2 import Environment
 from uuid import uuid4 # Token
-from datetime import datetime
+from datetime import datetime,timedelta
 
 mod = Blueprint("rutas_seba",__name__)
 
@@ -17,17 +17,26 @@ def redirect_url(default='index'): # Redireccionamiento desde donde vino la requ
            request.referrer or \
            url_for(default)
 
-@mod.route("/crear",methods=["GET"])
-def crear_usuario():
-    pass_ = "labeit2020"
-    hashpass = bcrypt.hashpw(pass_.encode(encoding="UTF-8"), bcrypt.gensalt())
-    sql_query = """
-        INSERT INTO Usuario (rut,nombres,apellidos,contraseña)
-            VALUES (%s,%s,%s,%s)
-    """
-    cursor.execute(sql_query,("19889608K","Sebastián Ignacio","Toro Severino",hashpass.decode("UTF-8")))
+def enviar_correo_notificacion(archivo,str_para,str_asunto,correo_usuario): # Envío de correo (notificaciones de solicitudes de préstamo)
+    # Se crea el mensaje
+    correo = MIMEText(archivo,"html")
+    correo.set_charset("utf-8")
+    correo["From"] = "labeit.udp@gmail.com"
+    correo["To"] = correo_usuario
+    correo["Subject"] = str_asunto
 
-    return redirect(redirect_url())
+    try:
+        server = smtplib.SMTP("smtp.gmail.com",587)
+        server.starttls()
+        server.login("labeit.udp@gmail.com","LabEIT_UDP_2020")
+        str_correo = correo.as_string()
+        server.sendmail("labeit.udp@gmail.com",correo_usuario,str_correo)
+        server.close()
+        flash("correo-exito") # Notificación de éxito al enviar el correo
+
+    except Exception as e:
+        print(e)
+        flash("correo-fallido") # Notificación de fallo al enviar el correo
 
 # Vista principal de la plataforma.
 # En caso de estar autenticado, redirecciona dentro del sistema.
@@ -82,7 +91,7 @@ def iniciar_sesion():
         SELECT *
             FROM Sanciones
                 WHERE rut_alumno = %s
-                AND activo = 1
+                AND activa = 1
     """
     cursor.execute(sql_query,(session["usuario"]["rut"],))
     sancion_usuario = cursor.fetchone()
@@ -125,7 +134,7 @@ def enviar_recuperacion_password():
 
     # Se abre el template HTML correspondiente al restablecimiento de contraseña
     direccion_template = os.path.normpath(os.path.join(os.getcwd(), "app/templates/vistas_exteriores/recuperacion_password_mail.html"))
-    html_restablecimiento = open(direccion_template,encoding="utf-8").read()
+    archivo_html = open(direccion_template,encoding="utf-8").read()
 
     # Se crea el token único para restablecimiento de contraseña
     token = str(uuid4())
@@ -138,12 +147,12 @@ def enviar_recuperacion_password():
     cursor.execute(sql_query,(datos_usuario["rut"],))
 
     # Se reemplazan los datos del usuario en el template a enviar vía correo
-    html_restablecimiento = html_restablecimiento.replace("%nombre_usuario%",datos_usuario["nombres"])
-    html_restablecimiento = html_restablecimiento.replace("%codigo_restablecimiento%",str(random.randint(0,1000)))
-    html_restablecimiento = html_restablecimiento.replace("%token_restablecimiento%",token)
+    archivo_html = archivo_html.replace("%nombre_usuario%",datos_usuario["nombres"])
+    archivo_html = archivo_html.replace("%codigo_restablecimiento%",str(random.randint(0,1000)))
+    archivo_html = archivo_html.replace("%token_restablecimiento%",token)
 
     # Se crea el mensaje
-    correo = MIMEText(html_restablecimiento,"html")
+    correo = MIMEText(archivo_html,"html")
     correo.set_charset("utf-8")
     correo["From"] = "labeit.udp@gmail.com"
     correo["To"] = datos_usuario["email"]
@@ -485,45 +494,26 @@ def rechazar_solicitud(id_detalle):
     cursor.execute(sql_query,(datos_solicitud_rechazada["rut_alumno"],)) # Modificar por el rut del solicitante
     datos_usuario = cursor.fetchone()
 
-    # Se abre el template HTML correspondiente al rechazo de solicitud
     direccion_template = os.path.normpath(os.path.join(os.getcwd(), "app/templates/vistas_gestion_solicitudes_prestamos/templates_mail/rechazo_solicitud.html"))
-    html_restablecimiento = open(direccion_template,encoding="utf-8").read()
+    archivo_html = open(direccion_template,encoding="utf-8").read()
 
     # Se reemplazan los datos correspondientes en el archivo html
-    html_restablecimiento = html_restablecimiento.replace("%id_solicitud%",str(datos_solicitud_rechazada["id_solicitud"]))
-    html_restablecimiento = html_restablecimiento.replace("%id_detalle%",id_detalle)
-    html_restablecimiento = html_restablecimiento.replace("%nombre_usuario%",datos_usuario["nombres"])
-    html_restablecimiento = html_restablecimiento.replace("%equipo_solicitado%",datos_solicitud_rechazada["marca"]+" "+datos_solicitud_rechazada["modelo"])
-    html_restablecimiento = html_restablecimiento.replace("%fecha_registro%",str(datos_solicitud_rechazada["fecha_registro"]))
+    archivo_html = archivo_html.replace("%id_solicitud%",str(datos_solicitud_rechazada["id_solicitud"]))
+    archivo_html = archivo_html.replace("%id_detalle%",id_detalle)
+    archivo_html = archivo_html.replace("%nombre_usuario%",datos_usuario["nombres"])
+    archivo_html = archivo_html.replace("%equipo_solicitado%",datos_solicitud_rechazada["marca"]+" "+datos_solicitud_rechazada["modelo"])
+    archivo_html = archivo_html.replace("%fecha_registro%",str(datos_solicitud_rechazada["fecha_registro"]))
 
     fecha_revision_solicitud = str(fecha_revision_solicitud.date())+" "+str(fecha_revision_solicitud.hour)+":"+str(fecha_revision_solicitud.minute)
-    html_restablecimiento = html_restablecimiento.replace("%fecha_revision_solicitud%",fecha_revision_solicitud)
+    archivo_html = archivo_html.replace("%fecha_revision_solicitud%",fecha_revision_solicitud)
 
     razon_rechazo = razon_rechazo.strip()
     if len(razon_rechazo) == 0:
         razon_rechazo = "** No se ha adjuntado un motivo de rechazo de solicitud. **"
 
-    html_restablecimiento = html_restablecimiento.replace("%razon_rechazo%",razon_rechazo)
+    archivo_html = archivo_html.replace("%razon_rechazo%",razon_rechazo)
 
-    # Se crea el mensaje
-    correo = MIMEText(html_restablecimiento,"html")
-    correo.set_charset("utf-8")
-    correo["From"] = "labeit.udp@gmail.com"
-    correo["To"] = datos_usuario["email"]
-    correo["Subject"] = "Rechazo de solicitud de préstamo"
-
-    try:
-        server = smtplib.SMTP("smtp.gmail.com",587)
-        server.starttls()
-        server.login("labeit.udp@gmail.com","LabEIT_UDP_2020")
-        str_correo = correo.as_string()
-        server.sendmail("labeit.udp@gmail.com",datos_usuario["email"],str_correo)
-        server.close()
-        flash("correo-exito") # Notificación de éxito al enviar el correo
-
-    except Exception as e:
-        print(e)
-        flash("correo-fallido") # Notificación de fallo al enviar el correo
+    enviar_correo_notificacion(archivo_html,datos_usuario["email"],"Rechazo de solicitud de préstamo",datos_usuario["email"])
 
     flash("solicitud-rechazada-correctamente")
     return redirect(redirect_url())
@@ -602,44 +592,25 @@ def aprobar_solicitud(id_detalle):
     cursor.execute(sql_query,(datos_encabezado_solicitud["rut_alumno"],)) # Modificar por el rut del solicitante
     datos_usuario = cursor.fetchone()
 
-    # Se abre el template HTML correspondiente al rechazo de solicitud
     direccion_template = os.path.normpath(os.path.join(os.getcwd(), "app/templates/vistas_gestion_solicitudes_prestamos/templates_mail/aprobacion_solicitud.html"))
-    html_restablecimiento = open(direccion_template,encoding="utf-8").read()
+    archivo_html = open(direccion_template,encoding="utf-8").read()
 
     # Se reemplazan los datos correspondientes en el archivo html
-    html_restablecimiento = html_restablecimiento.replace("%id_solicitud%",str(datos_encabezado_solicitud["id"]))
-    html_restablecimiento = html_restablecimiento.replace("%id_detalle%",id_detalle)
-    html_restablecimiento = html_restablecimiento.replace("%nombre_usuario%",datos_usuario["nombres"])
-    html_restablecimiento = html_restablecimiento.replace("%equipo_solicitado%",datos_equipo["marca"]+" "+datos_equipo["modelo"])
-    html_restablecimiento = html_restablecimiento.replace("%codigo_equipo%",datos_formulario["codigo_equipo"])
-    html_restablecimiento = html_restablecimiento.replace("%codigo_sufijo%",datos_formulario["codigo_sufijo_prestado"])
-    html_restablecimiento = html_restablecimiento.replace("%fecha_registro%",str(datos_encabezado_solicitud["fecha_registro"]))
+    archivo_html = archivo_html.replace("%id_solicitud%",str(datos_encabezado_solicitud["id"]))
+    archivo_html = archivo_html.replace("%id_detalle%",id_detalle)
+    archivo_html = archivo_html.replace("%nombre_usuario%",datos_usuario["nombres"])
+    archivo_html = archivo_html.replace("%equipo_solicitado%",datos_equipo["marca"]+" "+datos_equipo["modelo"])
+    archivo_html = archivo_html.replace("%codigo_equipo%",datos_formulario["codigo_equipo"])
+    archivo_html = archivo_html.replace("%codigo_sufijo%",datos_formulario["codigo_sufijo_prestado"])
+    archivo_html = archivo_html.replace("%fecha_registro%",str(datos_encabezado_solicitud["fecha_registro"]))
 
     fecha_vencimiento = datetime.strptime(datos_formulario["fecha_vencimiento_solicitud"],"%Y-%m-%d").strftime("%d-%m-%Y")
-    html_restablecimiento = html_restablecimiento.replace("%fecha_vencimiento_solicitud%",str(fecha_vencimiento))
+    archivo_html = archivo_html.replace("%fecha_vencimiento_solicitud%",str(fecha_vencimiento))
 
     fecha_revision_solicitud = str(fecha_revision_solicitud.date())+" "+str(fecha_revision_solicitud.hour)+":"+str(fecha_revision_solicitud.minute)
-    html_restablecimiento = html_restablecimiento.replace("%fecha_revision_solicitud%",fecha_revision_solicitud)
+    archivo_html = archivo_html.replace("%fecha_revision_solicitud%",fecha_revision_solicitud)
 
-    # Se crea el mensaje
-    correo = MIMEText(html_restablecimiento,"html")
-    correo.set_charset("utf-8")
-    correo["From"] = "labeit.udp@gmail.com"
-    correo["To"] = datos_usuario["email"]
-    correo["Subject"] = "Aprobación de solicitud de préstamo"
-
-    try:
-        server = smtplib.SMTP("smtp.gmail.com",587)
-        server.starttls()
-        server.login("labeit.udp@gmail.com","LabEIT_UDP_2020")
-        str_correo = correo.as_string()
-        server.sendmail("labeit.udp@gmail.com",datos_usuario["email"],str_correo)
-        server.close()
-        flash("correo-exito") # Notificación de éxito al enviar el correo
-
-    except Exception as e:
-        print(e)
-        flash("correo-fallido") # Notificación de fallo al enviar el correo
+    enviar_correo_notificacion(archivo_html,datos_usuario["email"],"Aprobación de solicitud de préstamo",datos_usuario["email"])
 
     flash("solicitud-aprobada-correctamente")
     return redirect(redirect_url())
@@ -738,20 +709,19 @@ def cancelar_solicitud(id_detalle):
     cursor.execute(sql_query,(datos_formulario["codigo_equipo"],))
     datos_equipo = cursor.fetchone()
 
-    # Se abre el template HTML correspondiente al rechazo de solicitud
     direccion_template = os.path.normpath(os.path.join(os.getcwd(), "app/templates/vistas_gestion_solicitudes_prestamos/templates_mail/cancelacion_solicitud.html"))
-    html_restablecimiento = open(direccion_template,encoding="utf-8").read()
+    archivo_html = open(direccion_template,encoding="utf-8").read()
 
     # Se reemplazan los datos correspondientes en el archivo html
-    html_restablecimiento = html_restablecimiento.replace("%id_solicitud%",str(datos_encabezado_solicitud["id"]))
-    html_restablecimiento = html_restablecimiento.replace("%id_detalle%",id_detalle)
-    html_restablecimiento = html_restablecimiento.replace("%nombre_usuario%",datos_usuario["nombres"])
-    html_restablecimiento = html_restablecimiento.replace("%equipo_solicitado%",datos_equipo["marca"]+" "+datos_equipo["modelo"])
-    html_restablecimiento = html_restablecimiento.replace("%codigo_equipo%",datos_formulario["codigo_equipo"])
-    html_restablecimiento = html_restablecimiento.replace("%codigo_sufijo%",datos_formulario["codigo_sufijo_equipo"])
-    html_restablecimiento = html_restablecimiento.replace("%fecha_registro%",str(datos_encabezado_solicitud["fecha_registro"]))
+    archivo_html = archivo_html.replace("%id_solicitud%",str(datos_encabezado_solicitud["id"]))
+    archivo_html = archivo_html.replace("%id_detalle%",id_detalle)
+    archivo_html = archivo_html.replace("%nombre_usuario%",datos_usuario["nombres"])
+    archivo_html = archivo_html.replace("%equipo_solicitado%",datos_equipo["marca"]+" "+datos_equipo["modelo"])
+    archivo_html = archivo_html.replace("%codigo_equipo%",datos_formulario["codigo_equipo"])
+    archivo_html = archivo_html.replace("%codigo_sufijo%",datos_formulario["codigo_sufijo_equipo"])
+    archivo_html = archivo_html.replace("%fecha_registro%",str(datos_encabezado_solicitud["fecha_registro"]))
 
-    html_restablecimiento = html_restablecimiento.replace("%fecha_cancelacion_solicitud%",str(fecha_cancelacion_solicitud))
+    archivo_html = archivo_html.replace("%fecha_cancelacion_solicitud%",str(fecha_cancelacion_solicitud))
 
     razon_cancelacion = datos_formulario["razon_cancelacion"]
     razon_cancelacion = razon_cancelacion.strip()
@@ -759,27 +729,139 @@ def cancelar_solicitud(id_detalle):
     if len(razon_cancelacion) == 0:
         razon_cancelacion = "** No se ha adjuntado una razón de cancelación de solicitud. **"
 
-    html_restablecimiento = html_restablecimiento.replace("%razon_cancelacion%",razon_cancelacion)
+    archivo_html = archivo_html.replace("%razon_cancelacion%",razon_cancelacion)
 
-    # Se crea el mensaje
-    correo = MIMEText(html_restablecimiento,"html")
-    correo.set_charset("utf-8")
-    correo["From"] = "labeit.udp@gmail.com"
-    correo["To"] = datos_usuario["email"]
-    correo["Subject"] = "Cancelación de solicitud de préstamo"
-
-    try:
-        server = smtplib.SMTP("smtp.gmail.com",587)
-        server.starttls()
-        server.login("labeit.udp@gmail.com","LabEIT_UDP_2020")
-        str_correo = correo.as_string()
-        server.sendmail("labeit.udp@gmail.com",datos_usuario["email"],str_correo)
-        server.close()
-        flash("correo-exito") # Notificación de éxito al enviar el correo
-
-    except Exception as e:
-        print(e)
-        flash("correo-fallido") # Notificación de fallo al enviar el correo
+    enviar_correo_notificacion(archivo_html,datos_usuario["email"],"Cancelación de solicitud de préstamo",datos_usuario["email"])
 
     flash("solicitud-cancelada")
+    return redirect(redirect_url())
+
+@mod.route("/entregar_equipo/<string:id_detalle>",methods=["POST"])
+def entregar_equipo(id_detalle):
+    # Se entrega el equipo al usuario solicitante, cambiando el estado de la solicitud
+    # y agregando las fechas de inicio y término correspondientes al préstamo
+    datos_formulario = request.form.to_dict()
+    fecha_inicio_prestamo = datetime.now().date()
+
+    # Fecha en la que se marcó el retiro del equipo
+    fecha_retiro = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    # Se comprueba si el administrador especificó otra fecha
+    # En caso de que no se haya especificado, se calcula la fecha según la cantidad de días especificada por el equipo
+    if len(datos_formulario["fecha_termino_prestamo"]) == 0:
+        fecha_termino_prestamo = fecha_inicio_prestamo + timedelta(days=int(datos_formulario["dias_max_prestamo"]))
+        dia_habil = fecha_termino_prestamo.weekday() # Entrega día de la semana en formato 0-4: Lunes-Viernes / 5-6: Sábado-Domingo
+
+        if dia_habil >= 5: # Si el día de la fecha de término es un fin de semana se debe recalcular
+            if dia_habil == 6:
+                delta = 1
+            else:
+                delta = 2
+            # Se calcula la fecha de término como el Lunes inmediatamente siguiente al fin de semana
+            fecha_termino_prestamo = fecha_termino_prestamo + timedelta(days=delta)
+    else:
+        fecha_termino_prestamo = datos_formulario["fecha_termino_prestamo"]
+
+
+    # Se actualizan los datos del detalle de la solicitud
+    sql_query = """
+        UPDATE Detalle_solicitud
+            SET fecha_inicio = %s,fecha_termino = %s,estado = 2
+                WHERE id = %s
+    """
+    cursor.execute(sql_query,(fecha_inicio_prestamo,fecha_termino_prestamo,id_detalle))
+
+    # Se envía un nuevo correo al usuario con las indicaciones correspondientes
+    sql_query = """
+        SELECT Detalle_solicitud.*,Solicitud.rut_alumno,Solicitud.fecha_registro as fecha_registro_encabezado,Equipo.marca,Equipo.modelo,Equipo.codigo AS codigo_equipo
+            FROM Solicitud,Detalle_solicitud,Equipo
+                WHERE Detalle_solicitud.id_solicitud = Solicitud.id
+                AND Detalle_solicitud.id_equipo = Equipo.id
+                AND Detalle_solicitud.id = %s
+    """
+    cursor.execute(sql_query,(id_detalle,))
+    datos_generales_solicitud = cursor.fetchone() # Info de solicitud + detalle + equipo
+
+    # Se obtienen los datos del usuario
+    sql_query = """
+        SELECT nombres,email
+            FROM Usuario
+                WHERE rut = %s
+    """
+    cursor.execute(sql_query,(datos_generales_solicitud["rut_alumno"],))
+    datos_usuario = cursor.fetchone()
+
+    direccion_template = os.path.normpath(os.path.join(os.getcwd(), "app/templates/vistas_gestion_solicitudes_prestamos/templates_mail/indicaciones_retiro_equipo.html"))
+    archivo_html = open(direccion_template,encoding="utf-8").read()
+
+    # Se reemplazan los datos correspondientes en el archivo html
+    archivo_html = archivo_html.replace("%id_solicitud%",str(datos_formulario["id_encabezado_solicitud"]))
+    archivo_html = archivo_html.replace("%id_detalle%",id_detalle)
+    archivo_html = archivo_html.replace("%nombre_usuario%",datos_usuario["nombres"])
+    archivo_html = archivo_html.replace("%equipo_prestado%",datos_generales_solicitud["marca"]+" "+datos_generales_solicitud["modelo"])
+    archivo_html = archivo_html.replace("%codigo_equipo%",datos_generales_solicitud["codigo_equipo"])
+    archivo_html = archivo_html.replace("%codigo_sufijo%",datos_generales_solicitud["codigo_sufijo_equipo"])
+    archivo_html = archivo_html.replace("%fecha_registro%",str(datos_generales_solicitud["fecha_registro_encabezado"]))
+    archivo_html = archivo_html.replace("%fecha_retiro_equipo%",str(fecha_retiro))
+
+    # Fechas de inicio y término de préstamo
+    fecha_inicio_prestamo = str(datetime.strptime(str(fecha_inicio_prestamo),"%Y-%m-%d").strftime("%d-%m-%Y"))
+    fecha_termino_prestamo = str(datetime.strptime(str(fecha_termino_prestamo),"%Y-%m-%d").strftime("%d-%m-%Y"))
+    archivo_html = archivo_html.replace("%fecha_inicio_prestamo%",fecha_inicio_prestamo)
+    archivo_html = archivo_html.replace("%fecha_termino_prestamo%",fecha_termino_prestamo)
+
+    enviar_correo_notificacion(archivo_html,datos_usuario["email"],"Comprobante de retiro de equipo",datos_usuario["email"])
+
+    flash("retiro-correcto")
+    return redirect(redirect_url())
+
+@mod.route("/devolucion_equipo/<string:id_detalle>",methods=["POST"])
+def devolucion_equipo(id_detalle):
+
+    datos_formulario = request.form.to_dict()
+
+    if len(datos_formulario["fecha_devolucion_equipo"]) == 0:
+        fecha_devolucion_equipo = datetime.now().replace(microsecond=0)
+    else:
+        fecha_devolucion_equipo = datos_formulario["fecha_devolucion_equipo"]
+
+    # Se modifica el detalle de solicitud
+    sql_query = """
+        UPDATE Detalle_solicitud
+            SET codigo_sufijo_equipo = NULL,estado = 4,fecha_devolucion = %s
+                WHERE id = %s
+    """
+    cursor.execute(sql_query,(fecha_devolucion_equipo,id_detalle))
+
+    # Se le envía el comprobante de devolución al usuario vía correo electrónico
+    sql_query = """
+        SELECT Detalle_solicitud.*,Solicitud.rut_alumno,Solicitud.fecha_registro as fecha_registro_encabezado,Equipo.marca,Equipo.modelo,Equipo.codigo AS codigo_equipo
+            FROM Solicitud,Detalle_solicitud,Equipo
+                WHERE Detalle_solicitud.id_solicitud = Solicitud.id
+                AND Detalle_solicitud.id_equipo = Equipo.id
+                AND Detalle_solicitud.id = %s
+    """
+    cursor.execute(sql_query,(id_detalle,))
+    datos_generales_solicitud = cursor.fetchone() # Info de solicitud + detalle + equipo
+
+    # Se obtienen los datos del usuario
+    sql_query = """
+        SELECT nombres,email
+            FROM Usuario
+                WHERE rut = %s
+    """
+    cursor.execute(sql_query,(datos_generales_solicitud["rut_alumno"],))
+    datos_usuario = cursor.fetchone()
+
+    direccion_template = os.path.normpath(os.path.join(os.getcwd(), "app/templates/vistas_gestion_solicitudes_prestamos/templates_mail/comprobante_devolucion.html"))
+    archivo_html = open(direccion_template,encoding="utf-8").read()
+
+    archivo_html = archivo_html.replace("%id_solicitud%",str(datos_formulario["id_encabezado_solicitud"]))
+    archivo_html = archivo_html.replace("%id_detalle%",id_detalle)
+    archivo_html = archivo_html.replace("%equipo_devuelto%",datos_generales_solicitud["marca"]+" "+datos_generales_solicitud["modelo"])
+    archivo_html = archivo_html.replace("%codigo_equipo%",datos_generales_solicitud["codigo_equipo"])
+    archivo_html = archivo_html.replace("%codigo_sufijo%",datos_generales_solicitud["codigo_sufijo_equipo"])
+    archivo_html = archivo_html.replace("%fecha_devolucion_equipo%",str(fecha_devolucion_equipo))
+
+    enviar_correo_notificacion(archivo_html,datos_usuario["email"],"Comprobante de devolución de equipo",datos_usuario["email"])
     return redirect(redirect_url())
