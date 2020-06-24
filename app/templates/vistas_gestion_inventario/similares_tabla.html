@@ -1,0 +1,55 @@
+{% extends "layout_in.html"%}
+    {%block body%}
+    <div class="row mt-3">
+    	<div class="col-md-12">
+    		<h5 class="texto-gris-eit">  Gestión de equipo Arduino Uno</h5>
+    	</div>
+    </div>
+    <hr>
+
+<button type="button" data-target="#agregar_equipo_similar" class="btn btn-info" data-toggle="modal">Agregar equipo similar</button>
+<button type="button" data-target="#agregar_equipo_similar" class="btn btn-success" data-toggle="modal">Ver más</button>
+
+<div class="mx-auto" style="height: 30px;">
+</div>
+
+
+<div class="table-responsive">
+    <div class="table-wrapper-scroll-y" style="position: relative;
+                max-height: 450px;
+                overflow:auto;">
+      <table class="table table-hover">
+        <thead class="text-white" style="background:#4D4D4D;">
+          <tr>
+            <th scope="col">Código</th>
+            <th scope="col">Estado</th>
+            <th scope="col">Gestionar</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for elemento in equipos_detalle %}
+            <tr>
+              <td>{{elemento.codigo_equipo}}-{{elemento.codigo_sufijo}} </td>
+                {% if elemento.activo == 1 %}
+                <td ><span class="badge badge-success">Activo</span></td>
+                {% elif elemento.activo == 0 %}
+                <td ><span class="badge badge-danger">No disponible</span></td>
+                {% endif %}
+              <td>
+                <span class="btn-group">
+
+                  <button type="button" data-target="#editar_equipo_similar{{elemento.codigo_sufijo}}" title="Editar equipo" class="btn btn-primary" data-toggle="modal"><i class="fas fa-edit"></i></button>
+
+                  <button type="button" title="Eliminar equipo"  data-target="#eliminar_equipo_similar{{elemento.codigo_sufijo}}" data-toggle="modal" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
+
+
+                </span>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+{% endblock %}

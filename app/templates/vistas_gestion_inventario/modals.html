@@ -1,0 +1,153 @@
+<!-- Modal -->
+<div id="agregar_equipo" class="modal fade in" tabindex="-1" role="dialog" aria-labelledby="editar_informacion_label" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header bg-verde-eit">
+        <h5 class="modal-title text-white" id="editar_informacion_label"><i class="fas fa-plus-circle"></i> Agregar Equipo</h5>
+    </div>
+          <form id="editar_form" action="/validar_form_add_inventario" method="POST">
+          <div class="modal-body">
+
+              <label for="nombres"> Código</label>
+              <input class="form-control" type="text" name="codigo" id="codigo" onchange="validar_informacion_perfil()" value="">
+
+              <label for="apellidos"> Modelo</label>
+              <input class="form-control" type="text" name="modelo" id="modelo" onchange="validar_informacion_perfil()" value="">
+
+              <label for="apellidos"> Marca</label>
+              <input class="form-control" type="text" name="marca" id="marca" onchange="validar_informacion_perfil()" value="">
+
+              <label for="comunas"> Descripción</label>
+              <input class="form-control" type="text" name="descripcion" id="descripcion" onchange="validar_informacion_perfil()" value="">
+
+              <label for="apellidos"> Días de prestamo</label>
+              <input class="form-control" type="text" name="dias_maximo_prestamo" id="dias_maximo_prestamo" onchange="validar_informacion_perfil()" value="">
+
+              <label for="apellidos"> Adquiridos</label>
+              <input class="form-control" type="text" name="adquiridos" id="adquiridos" onchange="validar_informacion_perfil()" value="">
+
+
+
+
+      </div>
+      <div class="modal-footer">
+              <button type="button" id="boton_cerrar" class="btn btn-secondary" data-dismiss="modal" onclick="Cargar_informacion()">Cancelar</button>
+              <button type="button" id="boton_cerrar" class="btn btn-secondary" data-dismiss="modal" onclick="Cargar_informacion()" hidden>Cancelar</button>
+              <button type="summit" id="boton_guardar" class="btn btn-info"> Guardar cambios</button>
+      </div>
+    </form>
+  </div>
+</div>
+</div>
+
+{% for elemento in lista_equipo %}
+
+
+
+<div id="eliminar_equipo{{elemento.codigo}}" class="modal fade in" tabindex="-1" role="dialog" aria-labelledby="editar_informacion_label" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header bg-verde-eit">
+        <h5 class="modal-title text-white" id="editar_informacion_label"><i class="fas fa-trash"></i>Eliminar equipo</h5>
+    </div>
+      <div class="modal-body">
+      ¿Realmente deseas eliminar {{elemento.modelo}} {{elemento.marca}}?
+      </div>
+      <div class="modal-footer">
+              <button type="button" id="boton_cerrar"  class="btn btn-primary" data-dismiss="modal" onclick="Cargar_informacion()">Cancelar</button>
+              <button type="button" id="boton_cerrar"  class="btn btn-primary" data-dismiss="modal" onclick="Cargar_informacion()" hidden>Cancelar</button>
+              <button type="summit" id="boton_guardar" class="btn btn-danger" disabled="disabled"> Eliminar</button>
+      </div>
+  </div>
+</div>
+</div>
+
+{% endfor %}
+
+
+<!-- Modal -->
+<div id="agregar_equipo_similar" class="modal fade in" tabindex="-1" role="dialog" aria-labelledby="editar_informacion_label" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header bg-verde-eit">
+        <h5 class="modal-title text-white" id="editar_informacion_label"><i class="fas fa-plus-circle"></i> Agregar Equipo</h5>
+    </div>
+          <form id="editar_form" action="/gestion_inventario_admin/validar_add/" method="POST">
+          <div class="modal-body">
+
+              <label for="nombres"> Código prefijo </label>
+              <input class="form-control" type="text" name="codigo_sufijo" id="codigo" onchange="validar_informacion_perfil()" value="">
+              <label for="nombres"> Fecha de compra</label>
+              <input class="form-control" input type="date" name="fecha_compra">
+              <label for="exampleSelect1">Estado</label>
+    <select class="form-control" id="exampleSelect1" input type="text" name="activo">
+      <option>Activo</option>
+      <option>Inactivo</option>
+
+    </select>
+
+
+
+      </div>
+      <div class="modal-footer">
+              <button type="button" id="boton_cerrar" class="btn btn-secondary" data-dismiss="modal" onclick="Cargar_informacion()">Cancelar</button>
+              <button type="button" id="boton_cerrar" class="btn btn-secondary" data-dismiss="modal" onclick="Cargar_informacion()" hidden>Cancelar</button>
+              <button type="summit" id="boton_guardar" class="btn btn-info"> Guardar cambios</button>
+      </div>
+    </form>
+  </div>
+</div>
+</div>
+
+{% for elemento in equipos_detalle %}
+
+<div id="editar_equipo_similar{{elemento.codigo_sufijo}}" class="modal fade in" tabindex="-1" role="dialog" aria-labelledby="editar_informacion_label" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header bg-verde-eit">
+        <h5 class="modal-title text-white" id="editar_informacion_label"><i class="fas fa-edit"></i> Editar equipo {{elemento.codigo_equipo}}-{{elemento.codigo_sufijo}}</h5>
+    </div>
+      <div class="modal-body">
+
+        <label for="nombres"> Código prefijo </label>
+        <input class="form-control" type="text" name="codigo_sufijo" id="codigo" onchange="validar_informacion_perfil()" value="">
+        <label for="nombres"> Fecha de compra</label>
+        <input class="form-control" input type="date" name="fecha_compra">
+        <label for="exampleSelect1">Estado</label>
+<select class="form-control" id="exampleSelect1" input type="text" name="activo">
+<option>Activo</option>
+<option>Inactivo</option>
+
+</select>
+
+      </div>
+      <div class="modal-footer">
+              <button type="button" id="boton_cerrar" class="btn btn-secondary" data-dismiss="modal" onclick="Cargar_informacion()">Cancelar</button>
+              <button type="button" id="boton_cerrar" class="btn btn-secondary" data-dismiss="modal" onclick="Cargar_informacion()" hidden>Cancelar</button>
+              <button type="summit" id="boton_guardar" class="btn btn-info" disabled="disabled"> Guardar cambios</button>
+      </div>
+  </div>
+</div>
+</div>
+
+
+
+<div id="eliminar_equipo_similar{{elemento.codigo_sufijo}}" class="modal fade in" tabindex="-1" role="dialog" aria-labelledby="editar_informacion_label" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header bg-verde-eit">
+        <h5 class="modal-title text-white" id="editar_informacion_label"><i class="fas fa-trash"></i>Eliminar equipo</h5>
+    </div>
+      <div class="modal-body">
+      ¿Realmente deseas eliminar {{elemento.codigo_equipo}}-{{elemento.codigo_sufijo}}?
+      </div>
+      <div class="modal-footer">
+              <button type="button" id="boton_cerrar"  class="btn btn-primary" data-dismiss="modal" onclick="Cargar_informacion()">Cancelar</button>
+              <button type="button" id="boton_cerrar"  class="btn btn-primary" data-dismiss="modal" onclick="Cargar_informacion()" hidden>Cancelar</button>
+              <button type="summit" id="boton_guardar" class="btn btn-danger" disabled="disabled"> Eliminar</button>
+      </div>
+  </div>
+</div>
+</div>
+
+{% endfor %}
