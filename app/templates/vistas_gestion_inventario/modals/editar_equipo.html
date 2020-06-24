@@ -49,13 +49,13 @@
   <script>
     function cargar_datos_equipo_modal(codigo, modelo, marca, descripcion, dias_max_prestamo, imagen_url, multi_componente, total_equipos ){
       document.getElementById("modal-title").innerHTML = '<i class="fas fa-edit"></i> Editar equipo ' + codigo ;
-      $("#editar-equipo-hidden-id").attr("value", codigo);
-      $("#editar-equipo-codigo").attr("value", codigo);
-      $("#editar-equipo-modelo").attr("value", modelo);
-      $("#editar-equipo-marca").attr("value", marca);
-      $("#editar-equipo-descripcion").attr("value", descripcion);
-      $("#editar-equipo-dias").attr("value", dias_max_prestamo);
-      $("#editar-equipo-imagen").attr("value", imagen_url);
+      $("#editar-equipo-hidden-id").val(codigo);
+      $("#editar-equipo-codigo").val(codigo);
+      $("#editar-equipo-modelo").val(modelo);
+      $("#editar-equipo-marca").val(marca);
+      $("#editar-equipo-descripcion").val( descripcion);
+      $("#editar-equipo-dias").val(dias_max_prestamo);
+      $("#editar-equipo-imagen").val(imagen_url);
       $("#editar-es-circuito").prop('checked', multi_componente).change();
       if(multi_componente == true){
         $('#editar-cantidad-circuito').attr("value", total_equipos);

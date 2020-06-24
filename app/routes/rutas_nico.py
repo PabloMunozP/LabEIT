@@ -89,18 +89,23 @@ def editar_equipo_general(informacion_a_actualizar):
         if 'multi_componente' not in informacion_a_actualizar:
             print('este equipo no posee el atributo multi componente')
             query = ('''
-                UPDATE Equipo
-                SET codigo = %s,
-                    modelo = %s,
-                    marca = %s,
-                    imagen = %s,
-                    descripcion = %s,
-                    dias_max_prestamo = %s,
-                    cantidad_circuito = NULL
-                Where Equipo.codigo = %s
+                UPDATE Equipo, Equipo_diferenciado
+                SET Equipo_diferenciado.codigo_equipo = %s,
+                    Equipo.codigo = %s,
+                    Equipo.modelo = %s,
+                    Equipo.marca = %s,
+                    Equipo.imagen = %s,
+                    Equipo.descripcion = %s,
+                    Equipo.dias_max_prestamo = %s,
+                    Equipo.cantidad_circuito = NULL
+                WHERE
+                    Equipo_diferenciado.codigo_equipo = Equipo.codigo
+                    AND Equipo.codigo = %s
+                    
             ''')
             
             cursor.execute(query,(
+                informacion_a_actualizar['codigo'],
                 informacion_a_actualizar['codigo'],
                 informacion_a_actualizar['modelo'],
                 informacion_a_actualizar['marca'],
