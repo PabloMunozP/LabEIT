@@ -29,6 +29,9 @@ def consultar_lista_equipos_general():
             Equipo.descripcion,
             Equipo.dias_max_prestamo,
             Equipo.imagen,
+            CASE    WHEN Equipo.cantidad_circuito IS NOT NULL THEN 'true'
+                    ELSE 'false'
+                    END AS multi_componente,
             CASE    WHEN Equipo.cantidad_circuito IS NOT NULL THEN Equipo.cantidad_circuito
                     ELSE COUNT(CASE WHEN Equipo_diferenciado.activo = 1 THEN 1 ELSE NULL END) 
                     END AS disponibles,
@@ -76,8 +79,8 @@ def funcion_añadir_equipo_form():
         informacion_a_insertar = request.form.to_dict()
         insertar_lista_equipos_general(informacion_a_insertar)
         flash("El equipo fue agregado correctamente")
-        equipos = consultar_lista_equipos_general(True)
-        return render_template('vistas_gestion_inventario/gestion_inventario.html', lista_equipo= equipos)
+        equipos = consultar_lista_equipos_general()
+        return redirect('/gestion_inventario_admins')
 
 
 # **** VISTA_PRINCIPAL/MODAL "EDITAR EQUIPO" **** #
@@ -96,6 +99,7 @@ def editar_equipo_general(informacion_a_actualizar):
                     cantidad_circuito = NULL
                 Where Equipo.codigo = %s
             ''')
+            
             cursor.execute(query,(
                 informacion_a_actualizar['codigo'],
                 informacion_a_actualizar['modelo'],
@@ -108,6 +112,31 @@ def editar_equipo_general(informacion_a_actualizar):
             db.commit()
         else:
             print('este equipo posee el atributo multi componente y su cantidad es:', informacion_a_actualizar['cantidad_componentes'])
+            query = ('''
+                UPDATE Equipo
+                SET codigo = %s,
+                    modelo = %s,
+                    marca = %s,
+                    imagen = %s,
+                    descripcion = %s,
+                    dias_max_prestamo = %s,
+                    cantidad_circuito = %s
+                Where Equipo.codigo = %s
+            ''')
+            
+            cursor.execute(query,(
+                informacion_a_actualizar['codigo'],
+                informacion_a_actualizar['modelo'],
+                informacion_a_actualizar['marca'],
+                informacion_a_actualizar['imagen'],
+                informacion_a_actualizar['descripcion'],
+                informacion_a_actualizar['dias_max_prestamo'],
+                informacion_a_actualizar['cantidad_componentes'],
+                informacion_a_actualizar['codigo_original']
+                ))
+            db.commit()
+            
+            
         return informacion_a_actualizar
 
 
@@ -152,10 +181,6 @@ def consultar_lista_equipos_detalle(codigo_equipo):
     )
     cursor.execute(query,(codigo_equipo,))
     equipos_detalle = cursor.fetchall()
-    if ask_print == True:
-        print('################')
-        print(equipos_detalle)
-        print('################')
     return equipos_detalle
 
  
