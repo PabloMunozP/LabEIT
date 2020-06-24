@@ -8,25 +8,26 @@
                   <th scope="col">Etiquetas</th>
                   <th scope="col">Marca</th>
                   <th scope="col">Modelo</th>
-                  <th scope="col">Descripción</th>
-                  <th scope="col">Disponibles</th>
-                  <th scope="col">Solicitar</th>
+                  <th scope="col">Cantidad</th>
+                  <th scope="col">Días máx. disponibles</th>
+                  <th scope="col">Eliminar</th>
                 </tr>
               </thead>
               <tbody>
-                {%for equipo in equipos%}
+                {%for equipo in carro%}
                     <tr>
                         <td>{{equipo["codigo"]}}</td>
                         <td>{{equipo["etiqueta"]}}</td>
                         <td>{{equipo["marca"]}}</td>
                         <td>{{equipo["modelo"]}}</td>
-                        <td>{{equipo["descripcion"]}}</td>
-                        <td>{{equipo["disponibles"]}}</td>
+                        <input type="number" value="500" min="0" max="{{equipo[adquiridos]}}" step="1"/>
+                        <td>{{equipo["dias_max_prestamo"]}}</td>
                         <td> <input type="checkbox" aria-label="Checkbox">
                 </tr>
                 {%endfor%}
               </tbody>
             </table>
-            <button type="button" class="btn btn-success">Agregar al carro</button>
+            <!--aqui faltan las opciones para detalles de solicitud -->
+            <button type="button" class="btn btn-success">Confirmar</button>
           </div>
         </div>
