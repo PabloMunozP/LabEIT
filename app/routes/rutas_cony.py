@@ -67,7 +67,7 @@ def buscar_equipo():
                 LEFT JOIN Equipo_diferenciado ON Equipo_diferenciado.codigo_equipo = Equipo.codigo,
                 Etiqueta, Etiqueta_equipo
             WHERE
-                Equipo.id = Etiqueta_equipo.id_equipo AND Etiqueta.id = Etiqueta_equipo.id_etiqueta AND (Equipo.modelo LIKE '%s' OR Equipo.marca LIKE '%s' OR Equipo.codigo LIKE '%s')
+                Equipo.id = Etiqueta_equipo.id_equipo AND Etiqueta.id = Etiqueta_equipo.id_etiqueta AND (Equipo.codigo LIKE '%s')
             GROUP BY Equipo.codigo'''
         cursor.execute(query,(busqueda_entrada))
         equipos = cursor.fetchall()
