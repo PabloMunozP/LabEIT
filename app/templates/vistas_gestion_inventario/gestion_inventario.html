@@ -1,7 +1,7 @@
 {% extends "layout_in.html"%}
 {%block body%}
 <div class="col-md-12">
-  
+
 
     <div class="row mt-3">
     	<div class="col-md-12">
@@ -72,7 +72,7 @@
     		  </thead>
     		  <tbody>
     				  {% for elemento in lista_equipo %}
-    					<tr id="row{{loop.index}}"> 
+    					<tr id="row{{loop.index}}">
     						<td> {{elemento.codigo}}</td>
     						<td> {{elemento.modelo}}</td>
                 <td> {{elemento.marca}} </td>
@@ -80,7 +80,7 @@
     						<td>  {{elemento.disponibles}}</td>
     						<td>
     							<span class="btn-group">
-    								<a href="gestion_solicitudes_prestamos/detalle_solicitud/{{loop.index}}">
+    								<a href="gestion_inventario_admin/detalles_equipo/{{elemento.codigo}}">
     									<button type="button" title="Ver detalles de equipo" data-toggle="modal" class="btn btn-info"><i class="fas fa-search-plus"></i></button>
     								</a>
                     <!-- aca implementar script Onclick -->

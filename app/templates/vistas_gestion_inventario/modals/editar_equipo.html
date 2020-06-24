@@ -6,36 +6,43 @@
           <h5 id="modal-title" class="modal-title text-white" id="editar_informacion_label"><i class="fas fa-edit"></i> Editar equipo</h5>
         </div>
         <form id="editar_form" action="/gestion_inventario_admin/actualizar_informacion" method="POST">
-          
+
           <div class="modal-body">
-            <input class="form-control" type="text" name="codigo_original" value="" id="editar-equipo-hidden-id" hidden> 
+            <input class="form-control" type="text" name="codigo_original" value="" id="editar-equipo-hidden-id" hidden>
 
             <label for="editar-equipo-codigo">Código</label>
             <input class="form-control" type="text" name="codigo" value="" id="editar-equipo-codigo">
-    
+
             <label for="editar-equipo-modelo">Modelo</label>
             <input class="form-control" type="text" name="modelo" value="" id="editar-equipo-modelo">
-    
+
             <label for="editar-equipo-marca">Marca</label>
             <input class="form-control" type="text" name="marca"  value="" id="editar-equipo-marca">
-    
+
             <label for="editar-equipo-descripcion">Descripción</label>
             <input class="form-control" type="text" name="descripcion" value="" id="editar-equipo-descripcion">
 
             <label for="editar-equipo-imagen">Imagen</label>
             <input class="form-control" type="text" name="imagen" value="" id="editar-equipo-imagen">
-    
+
             <label for="dias_max_prestamo">Días de prestamo</label>
             <input type="text" class="form-control" name="dias_max_prestamo" value="" id="editar-equipo-dias">
-    
-            <label for="editar-es-circuito">Multi componente</label>
-            <input class="form-control" type="checkbox" name="multi_componente" value="XD" id="editar-es-circuito">
+
+
+
+          <div class="form-check">
+          <hr style="border:2px;">
+            <input class="form-check-input" type="checkbox" name="multi_componente" value="XD" id="editar-es-circuito">
+            <label class="form-check-label" for="editar-es-circuito">Multi componente</label>
+          <hr style="border:2px;">
+          </div>
+
 
             <label for="editar-cantidad-circuito">Cantidad de componentes</label>
             <input class="form-control" type="text" name="cantidad_componentes" value="" id="editar-cantidad-circuito">
 
 
-          
+
           </div>
           <div class="modal-footer">
             <button type="button" id="boton_cerrar" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
@@ -61,22 +68,19 @@
         $('#editar-cantidad-circuito').attr("value", total_equipos);
       }
       else{
-        $('#editar-cantidad-circuito').attr("value", null); 
+        $('#editar-cantidad-circuito').attr("value", null);
       }
       console.log('Multi componente:' + multi_componente)
     }
     $(document).ready(function()
     {
       $('#editar-es-circuito').change(function(){
-        if (this.checked) { 
+        if (this.checked) {
           $('#editar-cantidad-circuito').prop( "disabled", false );
         }
-        else { 
+        else {
           $('#editar-cantidad-circuito').prop( "disabled", true );
         }
       });
     });
   </script>
-
-  
-  

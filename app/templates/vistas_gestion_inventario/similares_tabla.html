@@ -8,6 +8,7 @@
     <hr>
 
 <button type="button" data-target="#agregar_equipo_similar" class="btn btn-info" data-toggle="modal">Agregar equipo similar</button>
+<button type="button" data-target="#agregar_equipo_similar" class="btn btn-success" data-toggle="modal">Ver más</button>
 
 <div class="mx-auto" style="height: 30px;">
 </div>
@@ -36,9 +37,6 @@
                 {% endif %}
               <td>
                 <span class="btn-group">
-                  <a href="gestion_solicitudes_prestamos/detalle_solicitud/{{loop.index}}">
-                    <button type="button" title="Ver detalles de equipo" data-toggle="modal" class="btn btn-info"><i class="fas fa-search-plus"></i></button>
-                  </a>
 
                   <button type="button" data-target="#editar_equipo_similar{{elemento.codigo_sufijo}}" title="Editar equipo" class="btn btn-primary" data-toggle="modal"><i class="fas fa-edit"></i></button>
 
@@ -54,5 +52,4 @@
     </div>
   </div>
 
-{% include "vistas_gestion_inventario/agregar.html" %}
 {% endblock %}

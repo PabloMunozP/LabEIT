@@ -33,7 +33,7 @@ def consultar_lista_equipos_general():
                     ELSE 'false'
                     END AS multi_componente,
             CASE    WHEN Equipo.cantidad_circuito IS NOT NULL THEN Equipo.cantidad_circuito
-                    ELSE COUNT(CASE WHEN Equipo_diferenciado.activo = 1 THEN 1 ELSE NULL END) 
+                    ELSE COUNT(CASE WHEN Equipo_diferenciado.activo = 1 THEN 1 ELSE NULL END)
                     END AS disponibles,
             CASE    WHEN Equipo.cantidad_circuito IS NOT NULL THEN Equipo.cantidad_circuito
                     ELSE COUNT(Equipo_diferenciado.activo)
@@ -46,6 +46,18 @@ def consultar_lista_equipos_general():
     cursor.execute(query)
     equipos = cursor.fetchall()
     return equipos
+
+def consultar_equipo_unico(codigo):
+    query = ('''
+        SELECT *
+        FROM Equipo
+        WHERE Equipo.codigo = %s
+    '''
+    )
+    cursor.execute(query,(codigo,))
+    equipo_detalle = cursor.fetchall()
+    return equipo_detalle
+
 
 @mod.route("/gestion_inventario_admin")
 def gestion_inventario_admin():
@@ -101,9 +113,9 @@ def editar_equipo_general(informacion_a_actualizar):
                 WHERE
                     Equipo_diferenciado.codigo_equipo = Equipo.codigo
                     AND Equipo.codigo = %s
-                    
+
             ''')
-            
+
             cursor.execute(query,(
                 informacion_a_actualizar['codigo'],
                 informacion_a_actualizar['codigo'],
@@ -128,7 +140,7 @@ def editar_equipo_general(informacion_a_actualizar):
                     cantidad_circuito = %s
                 Where Equipo.codigo = %s
             ''')
-            
+
             cursor.execute(query,(
                 informacion_a_actualizar['codigo'],
                 informacion_a_actualizar['modelo'],
@@ -140,8 +152,8 @@ def editar_equipo_general(informacion_a_actualizar):
                 informacion_a_actualizar['codigo_original']
                 ))
             db.commit()
-            
-            
+
+
         return informacion_a_actualizar
 
 
@@ -155,6 +167,11 @@ def funcion_editar_equipo_form():
 
 
 
+@mod.route("/gestion_inventario_admin/detalles_equipo/<string:codigo_equipo>",methods=["GET"])
+def detalle_info_equipo(codigo_equipo):
+    equipos = consultar_lista_equipos_detalle(codigo_equipo)
+    equipo = consultar_equipo_unico(codigo_equipo)
+    return render_template("/vistas_gestion_inventario/detalles_equipo.html", equipo_detalle=equipo, equipos_detalle = equipos)
 
 #*********************************************************************************************#
 
@@ -188,7 +205,7 @@ def consultar_lista_equipos_detalle(codigo_equipo):
     equipos_detalle = cursor.fetchall()
     return equipos_detalle
 
- 
+
  # Agrega un tipo de equipo con sus datos generales
 
 
@@ -217,8 +234,3 @@ def gestion_inventario_admin_equipo(codigo_equipo):
 @mod.route("/gestion_inventario_admin/form/<string:codigo_equipo>")
 def form_añadir_equipo_espeficio(codigo_equipo):
     return render_template('pruebas/form_inventario.html',codigo_equipo = codigo_equipo)
-
-
-
-
-
