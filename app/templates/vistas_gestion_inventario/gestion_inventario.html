@@ -61,6 +61,7 @@
     		  <thead class="text-white" style="background:#4D4D4D;">
     		    <tr>
     		      <th scope="col">Código</th>
+              <th scope="col">Nombre</th>
     		      <th scope="col">Modelo</th>
               <th scope="col">Marca</th>
               <th scope="col">Días</th>
@@ -75,6 +76,7 @@
     				  {% for elemento in lista_equipo %}
     					<tr id="row{{loop.index}}">
     						<td> {{elemento.codigo}}</td>
+                <td> {{elemento.nombre}}</td>
     						<td> {{elemento.modelo}}</td>
                 <td> {{elemento.marca}} </td>
                 <td>  {{elemento.dias_max_prestamo}} </td>

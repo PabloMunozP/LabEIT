@@ -31,6 +31,7 @@ def consultar_lista_equipos_general():
         FROM (SELECT
                 Equipo.id AS equipo_id,
                 Equipo.codigo,
+                Equipo.nombre,
                 Equipo.modelo,
                 Equipo.marca,
                 Equipo.descripcion,
@@ -75,11 +76,12 @@ def gestion_inventario_admin():
 
 def insertar_lista_equipos_general(valores_a_insertar):
     query = ('''
-        INSERT INTO Equipo (codigo, modelo, marca, descripcion, dias_max_prestamo)
-        VALUES (%s, %s, %s, %s ,%s);
+        INSERT INTO Equipo (codigo, nombre, modelo, marca, descripcion, dias_max_prestamo)
+        VALUES (%s, %s, %s, %s, %s ,%s);
     ''')
     cursor.execute(query,(
         valores_a_insertar['codigo'],
+        valores_a_insertar['nombre'],
         valores_a_insertar['modelo'],
         valores_a_insertar['marca'],
         valores_a_insertar['descripcion'],
@@ -107,6 +109,7 @@ def editar_equipo_general(informacion_a_actualizar):  # Query UPDATE
                 LEFT JOIN Equipo_diferenciado ON Equipo_diferenciado.codigo_equipo = Equipo.codigo
                 SET Equipo_diferenciado.codigo_equipo = %s,
                     Equipo.codigo = %s,
+                    Equipo.nombre = %s,
                     Equipo.modelo = %s,
                     Equipo.marca = %s,
                     Equipo.imagen = %s,
@@ -121,6 +124,7 @@ def editar_equipo_general(informacion_a_actualizar):  # Query UPDATE
             cursor.execute(query,(
                 informacion_a_actualizar['codigo'],
                 informacion_a_actualizar['codigo'],
+                informacion_a_actualizar['nombre'],
                 informacion_a_actualizar['modelo'],
                 informacion_a_actualizar['marca'],
                 informacion_a_actualizar['imagen'],
@@ -134,6 +138,7 @@ def editar_equipo_general(informacion_a_actualizar):  # Query UPDATE
             query = ('''
                 UPDATE Equipo
                 SET codigo = %s,
+                    nombre = %s,
                     modelo = %s,
                     marca = %s,
                     imagen = %s,
@@ -145,6 +150,7 @@ def editar_equipo_general(informacion_a_actualizar):  # Query UPDATE
 
             cursor.execute(query,(
                 informacion_a_actualizar['codigo'],
+                informacion_a_actualizar['nombre'],
                 informacion_a_actualizar['modelo'],
                 informacion_a_actualizar['marca'],
                 informacion_a_actualizar['imagen'],
