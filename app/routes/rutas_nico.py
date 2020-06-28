@@ -47,18 +47,6 @@ def consultar_lista_equipos_general():
     equipos = cursor.fetchall()
     return equipos
 
-def consultar_equipo_unico(codigo):
-    query = ('''
-        SELECT *
-        FROM Equipo
-        WHERE Equipo.codigo = %s
-    '''
-    )
-    cursor.execute(query,(codigo,))
-    equipo_detalle = cursor.fetchall()
-    return equipo_detalle
-
-
 @mod.route("/gestion_inventario_admin")
 def gestion_inventario_admin():
     if 'usuario' not in session or session["usuario"]["id_credencial"] != 3:
@@ -97,7 +85,7 @@ def funcion_añadir_equipo_form():
 
 # **** VISTA_PRINCIPAL/MODAL "EDITAR EQUIPO" **** #
 
-def editar_equipo_general(informacion_a_actualizar):
+def editar_equipo_general(informacion_a_actualizar):  # Query UPDATE
         if 'multi_componente' not in informacion_a_actualizar:
             print('este equipo no posee el atributo multi componente')
             query = ('''
@@ -157,23 +145,48 @@ def editar_equipo_general(informacion_a_actualizar):
         return informacion_a_actualizar
 
 
-@mod.route('/gestion_inventario_admin/actualizar_informacion', methods = ['POST'])
-def funcion_editar_equipo_form():
+@mod.route('/gestion_inventario_admin/actualizar_informacion', methods = ['POST']) # Función de actualizar
+def funcion_editar_equipo():
     if request.method == 'POST':
         informacion_a_actualizar = request.form.to_dict()
         print('Información a actualizar:', informacion_a_actualizar)
         editar_equipo_general(informacion_a_actualizar)
         return redirect("/gestion_inventario_admin")
 
+# **** VISTA_PRINCIPAL/MODAL "BORRAR EQUIPO" **** #
+
+def eliminar_equipo_general(equipo):
+    return 'xD'
 
 
-@mod.route("/gestion_inventario_admin/detalles_equipo/<string:codigo_equipo>",methods=["GET"])
+
+@mod.route("/gestion_inventario_admin/delete",methods=["POST"])
+def funcion_eliminar_equipo():
+    if request.method == 'POST':
+        equipo_a_eliminar = request.form.to_dict()
+        
+        return equipo_a_eliminar
+
+
+
+#*********************************************************************************************#
+
+def consultar_equipo_unico(codigo):
+    query = ('''
+        SELECT *
+        FROM Equipo
+        WHERE Equipo.codigo = %s
+    '''
+    )
+    cursor.execute(query,(codigo,))
+    equipo_detalle = cursor.fetchall()
+    return equipo_detalle
+
+@mod.route("/gestion_inventario_admin/detalles_equipo/<string:codigo_equipo>",methods=["GET"]) 
 def detalle_info_equipo(codigo_equipo):
     equipos = consultar_lista_equipos_detalle(codigo_equipo)
     equipo = consultar_equipo_unico(codigo_equipo)
     return render_template("/vistas_gestion_inventario/detalles_equipo.html", equipo_detalle=equipo, equipos_detalle = equipos)
-
-#*********************************************************************************************#
 
 
 # Importante FUNCION() ENCARGADA DE INGRESAR LOS VALORES DEL FORMULARIO "AGREGAR" EN VISTA GESTION INVENTARIO DIFERENCIAD0 ** #

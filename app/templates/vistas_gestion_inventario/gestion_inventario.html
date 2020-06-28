@@ -83,7 +83,7 @@
                     <!-- aca implementar script Onclick -->
                     <button type="button" onclick="cargar_datos_equipo_modal('{{elemento.codigo}}','{{elemento.modelo}}', '{{elemento.marca}}', '{{elemento.descripcion}}','{{elemento.dias_max_prestamo}}','{{elemento.imagen}}',{{elemento.multi_componente}},'{{elemento.total_equipos}}')" data-target="#editar_equipo" title="Editar equipo" class="btn btn-primary" data-toggle="modal"><i class="fas fa-edit"></i></button>
 
-                <!--    <button type="button" title="Eliminar equipo" data-toggle="modal" data-target="#eliminar_equipo{{elemento.codigo}}" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button> -->
+                    <button type="button" onclick="cargar_codigo_delete_equipo_modal('{{elemento.codigo}}')" title="Eliminar equipo" data-toggle="modal" data-target="#eliminar_equipo" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
 
                     <a class="btn btn-primary" href="/gestion_inventario_admin/{{elemento.codigo}}" title="Ver equipos similares" role="button"><i class="fas fa-clipboard-list"></i> </a>
 
@@ -114,4 +114,5 @@
 
 {% include "vistas_gestion_inventario/modals/editar_equipo.html" %}
 {% include "vistas_gestion_inventario/modals/agregar_equipo.html" %}
+{% include "vistas_gestion_inventario/modals/eliminar_equipo.html" %}
 {% endblock %}
