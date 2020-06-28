@@ -144,6 +144,33 @@ def editar_equipo_general(informacion_a_actualizar):  # Query UPDATE
 
         return informacion_a_actualizar
 
+def editar_equipo_especifico(informacion_a_actualizar,codigo):
+            query = ('''
+                UPDATE Equipo_diferenciado
+                SET Equipo_diferenciado.codigo_sufijo = %s,
+                    Equipo_diferenciado.fecha_compra = %s,
+                    Equipo_diferenciado.activo = %s,
+                WHERE
+                    Equipo_diferenciado.codigo_equipo = Equipo.codigo
+                    AND Equipo_diferenciado.codigo_sufijo = %s
+            ''')
+
+            cursor.execute(query,(
+                informacion_a_actualizar['codigo_sufijo'],
+                informacion_a_actualizar['fecha_compra'],
+                informacion_a_actualizar['activo'],
+                ))
+            db.commit()
+            return informacion_a_actualizar
+
+
+@mod.route('/gestion_inventario_admin/<string:codigo_equipo>/actualizar_informacion', methods = ['POST'])
+def funcion_editar_equipo_diferenciado_form(codigo_equipo):
+    if request.method == 'POST':
+        informacion_a_actualizar = request.form.to_dict()
+        print('Información a actualizar:', informacion_a_actualizar)
+        funcion_editar_equipo_diferenciado_form(informacion_a_actualizar,codigo_equipo)
+        return redirect("/gestion_inventario_admin/+codigo_equipo")
 
 @mod.route('/gestion_inventario_admin/actualizar_informacion', methods = ['POST']) # Función de actualizar
 def funcion_editar_equipo():
@@ -253,11 +280,12 @@ def insertar_lista_equipos_detalle(codigo_equipo, valores_a_insertar):
     return 'OK'
 
 # ** Importante VISTA GESTION INVENTARIO DIFERENCIADO ** #
-@mod.route("/gestion_inventario_admin/<string:codigo_equipo>")
+@mod.route("/gestion_inventario_admin/lista_equipo_diferenciado/<string:codigo_equipo>")
 def gestion_inventario_admin_equipo(codigo_equipo):
     equipos = consultar_lista_equipos_detalle(codigo_equipo)
     equipo = consultar_equipo_unico(codigo_equipo)
-    return render_template('vistas_gestion_inventario/similares_tabla.html',equipo_detalle=equipo, equipos_detalle = equipos) #Cambiar render por el que corresponda
+    return render_template('vistas_gestion_inventario/similares_tabla.html',
+    equipo_detalle=equipo, equipos_detalle = equipos, equipo_padre = codigo_equipo) #Cambiar render por el que corresponda
 
 # ** VALIDA FORMULARIO DE PRUEBA INGRESAR EQUIPO ** #
 # ** BORRAR ANTES DE PRODUCCION ** #
