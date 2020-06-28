@@ -87,10 +87,11 @@
 					</div>
 					<div class="col-md-4 text-right">
 						<label class="col-form-label">
-            {% if elemento.imagen =="None" %}
+            {% if elemento.imagen ==None %}
 						<img src="https://static.thenounproject.com/png/340719-200.png" style="max-width:80%;" class="img-fluid">
             {% else %}
-          	<img src="https://static.thenounproject.com/png/340719-200.png" style="max-width:80%;" class="img-fluid">
+						{{elemento.imagen}}
+          	<img src="{{elemento.imagen}}" style="max-width:80%;" class="img-fluid">
             {% endif %}
 
 

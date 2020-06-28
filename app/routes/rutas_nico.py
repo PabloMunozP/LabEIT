@@ -177,16 +177,16 @@ def detalle_info_equipo(codigo_equipo):
 
 
 # Importante FUNCION() ENCARGADA DE INGRESAR LOS VALORES DEL FORMULARIO "AGREGAR" EN VISTA GESTION INVENTARIO DIFERENCIAD0 ** #
-@mod.route("/gestion_inventario_admin/validar_add/form/<string:codigo_equipo>", methods = ['POST'])
+@mod.route("/gestion_inventario_admin/validar_add/<string:codigo_equipo>", methods = ['POST'])
 def validar_form_añadir_equipo_espeficio(codigo_equipo):
     if request.method == 'POST':
         print(codigo_equipo)
         informacion_a_insertar = request.form.to_dict()
         dateTimeObj = datetime.now()
-        informacion_a_insertar['fecha_compra'] = dateTimeObj # cambiar despues
         insertar_lista_equipos_detalle(codigo_equipo, informacion_a_insertar)
+        print(informacion_a_insertar)
         flash("El equipo fue agregado correctamente")
-        return redirect("/gestion_inventario_admin/form/"+codigo_equipo) #Cambiar a redirect VISTA GESTION INVENTARIO DIFERENCIAD0
+        return redirect("/gestion_inventario_admin/"+codigo_equipo) #Cambiar a redirect VISTA GESTION INVENTARIO DIFERENCIAD0
                                                                          # mantener " + codigo_equipo"
 
 
@@ -206,6 +206,22 @@ def consultar_lista_equipos_detalle(codigo_equipo):
     return equipos_detalle
 
 
+def consultar_lista_equipos_busqueda(codigo):
+    query = ('''
+        SELECT *
+            FROM Equipo
+            GROUP BY Equipo.codigo
+            WHERE Equipo.codigo = %s
+    ''')
+    cursor.execute(query,(codigo,))
+    equipos = cursor.fetchall()
+    return equipos
+
+@mod.route("/gestion_inventario_admin/search", methods = ['POST'])
+def busqueda_equipo():
+        informacion_a_buscar = request.form.to_dict()
+        equipos = consultar_lista_equipos_busqueda(informacion_a_buscar)
+        return render_template('vistas_gestion_inventario/gestion_inventario.html', lista_equipo = equipos)
  # Agrega un tipo de equipo con sus datos generales
 
 
@@ -227,10 +243,8 @@ def insertar_lista_equipos_detalle(codigo_equipo, valores_a_insertar):
 @mod.route("/gestion_inventario_admin/<string:codigo_equipo>")
 def gestion_inventario_admin_equipo(codigo_equipo):
     equipos = consultar_lista_equipos_detalle(codigo_equipo)
-    return render_template('vistas_gestion_inventario/similares_tabla.html', equipos_detalle = equipos) #Cambiar render por el que corresponda
+    equipo = consultar_equipo_unico(codigo_equipo)
+    return render_template('vistas_gestion_inventario/similares_tabla.html',equipo_detalle=equipo, equipos_detalle = equipos) #Cambiar render por el que corresponda
 
 # ** VALIDA FORMULARIO DE PRUEBA INGRESAR EQUIPO ** #
 # ** BORRAR ANTES DE PRODUCCION ** #
-@mod.route("/gestion_inventario_admin/form/<string:codigo_equipo>")
-def form_añadir_equipo_espeficio(codigo_equipo):
-    return render_template('pruebas/form_inventario.html',codigo_equipo = codigo_equipo)

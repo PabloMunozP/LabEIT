@@ -10,15 +10,12 @@
     </div>
     <hr>
 
-
-
-    <form action="redirect.php" method="POST">
-  <div class="form-group">
-    <label for="exampleInputEmail1">  Buscar por código, marca o modelo</label>
+  <form id="busqueda_form" action="/gestion_inventario_admin/search" method="POST">
+    <label>  Buscar por código, marca o modelo</label>
     <div class="container">
      <div class="row">
 <div class="col-sm-6" >
-    <input type="text" class="form-control" aria-describedby="emailHelp" name="search1">
+    <input class="form-control" input type="text" class="form-control" name="value" id="value">
  </div>
   <div class="col-sm-6">
     <button type="submit" title="Buscar" class="btn btn-primary"> <i class="fas fa-search"></i></button>
@@ -86,7 +83,7 @@
                     <!-- aca implementar script Onclick -->
                     <button type="button" onclick="cargar_datos_equipo_modal('{{elemento.codigo}}','{{elemento.modelo}}', '{{elemento.marca}}', '{{elemento.descripcion}}','{{elemento.dias_max_prestamo}}','{{elemento.imagen}}',{{elemento.multi_componente}},'{{elemento.total_equipos}}')" data-target="#editar_equipo" title="Editar equipo" class="btn btn-primary" data-toggle="modal"><i class="fas fa-edit"></i></button>
 
-                    <button type="button" title="Eliminar equipo" data-toggle="modal" data-target="#eliminar_equipo{{elemento.codigo}}" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
+                <!--    <button type="button" title="Eliminar equipo" data-toggle="modal" data-target="#eliminar_equipo{{elemento.codigo}}" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button> -->
 
                     <a class="btn btn-primary" href="/gestion_inventario_admin/{{elemento.codigo}}" title="Ver equipos similares" role="button"><i class="fas fa-clipboard-list"></i> </a>
 
@@ -114,6 +111,7 @@
 
 </div>
 
-{% include "vistas_gestion_inventario/modals.html" %}
+
 {% include "vistas_gestion_inventario/modals/editar_equipo.html" %}
+{% include "vistas_gestion_inventario/modals/agregar_equipo.html" %}
 {% endblock %}
