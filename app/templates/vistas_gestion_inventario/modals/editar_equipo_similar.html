@@ -1,0 +1,41 @@
+<!-- Modal editar equipo-->
+<div id="editar_equipo_similar" class="modal fade in" tabindex="-1" role="dialog" aria-labelledby="editar_informacion_label" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header bg-verde-eit">
+          <h5 id="modal-title" class="modal-title text-white" id="editar_informacion_label"><i class="fas fa-edit"></i> Editar equipo</h5>
+        </div>
+        <form id="editar_form" action="/gestion_inventario_admin/{{}}/actualizar_informacion" method="POST">
+
+          <div class="modal-body">
+            <input class="form-control" type="text" name="codigo_original" value="" id="editar-equipo-hidden-id_principal" hidden>
+            <input class="form-control" type="text" name="codigo_sufijo" value="" id="editar-equipo-hidden-id_sufijo" hidden>
+            <label for="nombres"> Código prefijo </label>
+            <input class="form-control" type="text" name="codigo_sufijo" id="codigo" onchange="validar_informacion_perfil()" value="">
+            <label for="nombres"> Fecha de compra</label>
+            <input class="form-control" input type="text" placeholder="DD/MM/AAAA" name="fecha_compra">
+            <label for="exampleSelect1">Estado</label>
+            <select class="form-control" id="exampleSelect1" input type="text" name="activo">
+             <option value="1">Activo</option>
+             <option value="0">Inactivo</option>
+
+          </div>
+          <div class="modal-footer">
+            <button type="button" id="boton_cerrar" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+            <button type="summit" id="boton_guardar" class="btn btn-info" type="hidden"> Guardar cambios</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+
+  <script>
+    function cargar_datos_equipo_dif_modal(codigo_equipo, codigo_sufijo, fecha_compra, activo){
+      document.getElementById("modal-title").innerHTML = '<i class="fas fa-edit"></i> Editar equipo ' + codigo_equipo + codigo_sufijo ;
+      $("#editar_equipo_hidden_id_principal").val(codigo_equipo);
+      $("#editar_equipo-hidden_id_sufijo").val(codigo_sufijo);
+      $("#editar_equipo_codigo_sufijo").val(codigo_sufijo);
+      $("#editar_equipo_fecha_compra").val(fecha_compra);
+      $("#editar_equipo_activo").val(activo);
+  </script>
