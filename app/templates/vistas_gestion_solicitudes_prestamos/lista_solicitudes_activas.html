@@ -9,7 +9,7 @@
 		<div class="table-wrapper-scroll-y" style="position: relative;
 								max-height: 450px;
 								overflow:auto;">
-			<table class="table" style="background:#ECF0F1;">
+			<table class="table">
 			  <thead class="text-white" style="background:#4D4D4D;">
 			    <tr>
 			      <th scope="col">ID</th>
@@ -21,7 +21,7 @@
 			  </thead>
 			  <tbody>
 					{% for detalle_solicitud in lista_solicitudes_por_revisar %}
-						<tr>
+						<tr style="background:#ECF0F1;">
 							<td>{{detalle_solicitud["id"]}}</td>
 							<td>{{detalle_solicitud["rut_alumno"]|formato_rut}}</td>
 							<td>{{detalle_solicitud["marca"]}} {{detalle_solicitud["modelo"]}}</td>
@@ -56,20 +56,21 @@
 		<div class="table-wrapper-scroll-y" style="position: relative;
 								max-height: 450px;
 								overflow:auto;">
-			<table class="table" style="background:#ECF0F1;">
+			<table class="table">
 			  <thead class="text-white" style="background:#4D4D4D;">
 			    <tr>
 			      <th scope="col">ID</th>
 			      <th scope="col">RUT de alumno solicitante</th>
 			      <th scope="col">Equipo solicitado</th>
 			      <th scope="col" class="text-center">Estado</th>
-						<th scope="col">Fecha de registro</th>
+						<th scope="col">Fecha de inicio</th>
+						<th scope="col">Fecha de término</th>
 						<th scope="col">Acciones</th>
 			    </tr>
 			  </thead>
 			  <tbody>
 					{% for detalle_solicitud in lista_solicitudes_activas %}
-						<tr>
+						<tr style="background:#ECF0F1;">
 							<td>{{detalle_solicitud["id"]}}</td>
 							<td>{{detalle_solicitud["rut_alumno"]|formato_rut}}</td>
 							<td>{{detalle_solicitud["marca"]}} {{detalle_solicitud["modelo"]}}</td>
@@ -90,7 +91,20 @@
 								<td class="text-center"><span class="badge badge-secondary">{{detalle_solicitud["nombre_estado"]}}</span></td>
 							{% endif %}
 
-							<td>{{detalle_solicitud["fecha_registro"]}}</td>
+							<td>
+								{% if detalle_solicitud["fecha_inicio"] %}
+									{{detalle_solicitud["fecha_inicio"]}}
+								{% endif %}
+
+							</td>
+
+							<td>
+								{% if detalle_solicitud["fecha_termino"] %}
+									{{detalle_solicitud["fecha_termino"]}}
+								{% endif %}
+
+							</td>
+
 							<td>
 								<span class="btn-group">
 									<a href="gestion_solicitudes_prestamos/detalle_solicitud/{{detalle_solicitud["id"]}}">

@@ -1,0 +1,111 @@
+{% extends "layout_in.html"%}
+{%block body%}
+<div class="col-md-12">
+
+
+    <div class="row mt-3">
+    	<div class="col-md-12">
+    		<h5 class="texto-gris-eit">  Gestión de equipos</h5>
+    	</div>
+    </div>
+    <hr>
+
+  <form id="busqueda_form" action="/gestion_inventario_admin/search" method="POST">
+    <label>  Buscar por código, marca o modelo</label>
+    <div class="container">
+     <div class="row">
+<div class="col-sm-6" >
+    <input class="form-control" input type="text" class="form-control" name="codigo" id="codigo">
+ </div>
+  <div class="col-sm-6">
+    <button type="submit" title="Buscar" class="btn btn-primary"> <i class="fas fa-search"></i></button>
+</div>
+</div>
+</div>
+  </form>
+
+
+  <form action="redirect.php" method="POST">
+  <div class="form-group">
+    <label for="exampleInputEmail2">  Buscar por tag</label>
+    <div class="container">
+     <div class="row">
+    <div class="col-sm-6">
+    <input type="text" class="form-control" aria-describedby="emailHelp" maxlength="4" name="search2">
+    </div>
+    <div class="col-sm-6">
+    <button type="submit" title="Buscar" class="btn btn-primary"><i class="fas fa-search"></i></button>
+  </div>
+  </div>
+  </div>
+</form>
+<div class="mx-auto" style="height: 30px;">
+</div>
+
+</div>
+
+
+<button type="button" data-target="#agregar_equipo" class="btn btn-info" data-toggle="modal">Agregar equipo</button>
+
+    <a href="">
+      <button type="button" title="Descargar planilla" class="btn btn-success">Descargar planilla</button>
+    </a>
+
+    <div class="mx-auto" style="height: 30px;">
+    </div>
+
+
+    <div class="table-responsive">
+    	<div class="table-wrapper-scroll-y" style="position: relative; overflow:auto;">
+    		<table class="table table-hover">
+    		  <thead class="text-white" style="background:#4D4D4D;">
+    		    <tr>
+    		      <th scope="col">Código</th>
+    		      <th scope="col">Modelo</th>
+              <th scope="col">Marca</th>
+              <th scope="col">Días</th>
+              <th scope="col">Prestados</th>
+              <th scope="col">Funcional</th>
+              <th scope="col">Total</th>
+    					<th scope="col">Gestión</th>
+
+    		    </tr>
+    		  </thead>
+    		  <tbody>
+    				  {% for elemento in lista_equipo %}
+    					<tr id="row{{loop.index}}">
+    						<td> {{elemento.codigo}}</td>
+    						<td> {{elemento.modelo}}</td>
+                <td> {{elemento.marca}} </td>
+                <td>  {{elemento.dias_max_prestamo}} </td>
+                <td>  {{elemento.en_prestamo}} </td>
+                <td>  {{elemento.disponibles}}</td>
+                <td>  {{elemento.total_equipos}}</td>
+    						<td>
+    							<span class="btn-group">
+    								<a href="gestion_inventario_admin/detalles_equipo/{{elemento.codigo}}">
+    									<button type="button" title="Ver detalles de equipo" data-toggle="modal" class="btn btn-info"><i class="fas fa-search-plus"></i></button>
+    								</a>
+
+                    <button type="button" onclick="cargar_datos_equipo_modal('{{elemento.codigo}}','{{elemento.modelo}}', '{{elemento.marca}}', '{{elemento.descripcion}}','{{elemento.dias_max_prestamo}}','{{elemento.imagen}}',{{elemento.multi_componente}},'{{elemento.total_equipos}}')" data-target="#editar_equipo" title="Editar equipo" class="btn btn-primary" data-toggle="modal"><i class="fas fa-edit"></i></button>
+
+                    <button type="button" onclick="cargar_codigo_delete_equipo_modal('{{elemento.codigo}}')" title="Eliminar equipo" data-toggle="modal" data-target="#eliminar_equipo" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
+
+                    <a class="btn btn-primary" href="/gestion_inventario_admin/lista_equipo_diferenciado/{{elemento.codigo}}" title="Ver equipos similares" role="button"><i class="fas fa-clipboard-list"></i> </a>
+
+    							</span>
+    						</td>
+    					</tr>
+    				{% endfor %}
+    		  </tbody>
+    		</table>
+    	</div>
+    </div>
+
+
+
+
+{% include "vistas_gestion_inventario/modals/editar_equipo.html" %}
+{% include "vistas_gestion_inventario/modals/agregar_equipo.html" %}
+{% include "vistas_gestion_inventario/modals/eliminar_equipo.html" %}
+{% endblock %}

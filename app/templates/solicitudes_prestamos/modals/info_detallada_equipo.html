@@ -1,0 +1,93 @@
+<div class="modal fade" id="info_detallada_equipo_{{equipo["id"]}}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header bg-gris-eit">
+        <h5 class="modal-title text-white"><i class="fas fa-file-invoice mr-2"></i>Información detallada del equipo</h5>
+        <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close" style="outline:none;">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <form class="formulario-agregar-equipo-carro" method="post">
+        <input hidden type="text" name="id_equipo" value="{{equipo["id"]}}">
+
+        <div class="modal-body">
+
+					<div class="form-group row">
+				    <label class="col-md-2 col-form-label"><strong>Marca:</strong></label>
+				    <div class="col-md-4">
+							<p class="form-control-plaintext text-break">
+								{{equipo["marca"]}}
+							</p>
+				    </div>
+
+						<label class="col-md-2 col-form-label"><strong>Modelo:</strong></label>
+				    <div class="col-md-4">
+							<p class="form-control-plaintext text-break">
+								{{equipo["modelo"]}}
+							</p>
+				    </div>
+				  </div>
+
+					<div class="form-group row">
+				    <label class="col-md-4 col-form-label"><strong>Días de préstamo establecidos:</strong></label>
+				    <div class="col-md-2">
+							<p class="form-control-plaintext text-break">
+								{{equipo["dias_max_prestamo"]}}
+							</p>
+				    </div>
+
+						<label class="col-md-4 col-form-label"><strong>Cantidad de unidades:</strong></label>
+				    <div class="col-md-2">
+							<p class="form-control-plaintext text-break">
+								{{equipo["cantidad_disponible"]}}/{{equipo["cantidad_total"]}}
+							</p>
+				    </div>
+				  </div>
+
+					{% if equipo["imagen"] %}
+					<div class="form-group row">
+				    <label class="col-md-2 col-form-label"><strong>Descripción:</strong></label>
+				  </div>
+						<div class="form-group row">
+							<div class="col-md-8">
+								<p class="text-justify">
+									{{equipo["descripcion"]|nl2br}}
+								</p>
+							</div>
+              {% if equipo["imagen"] != "None" %}
+                <div class="col-md-4">
+                  <img style="max-width:80%;" class="img-fluid" src="{{equipo["imagen"]}}">
+                </div>
+              {% endif %}
+						</div>
+					{% else %}
+					<div class="form-group row">
+				    <label class="col-md-2 col-form-label"><strong>Descripción:</strong></label>
+				    <div class="col-md-10">
+							<p class="form-control-plaintext text-justify">
+								{{equipo["descripcion"]|nl2br}}
+							</p>
+				    </div>
+				  </div>
+					{% endif %}
+
+					<hr>
+
+					<div class="form-group row">
+				    <label class="col-md-8 col-form-label"><i class="fas fa-info-circle mr-2"></i>Selecciona la cantidad de unidades que deseas pedir:</label>
+
+						<div class="col-md-4">
+							<input type="number" min="1" max="5" class="form-control" value="1" name="cantidad_unidades_solicitadas">
+						</div>
+				  </div>
+
+
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+          <button type="submit" class="btn btn-success submit-agregar-pedido"><i class="fas fa-cart-plus mr-2"></i>Agregar al carro</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

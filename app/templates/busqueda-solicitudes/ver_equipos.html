@@ -1,0 +1,32 @@
+
+    <div class="table-responsive">
+      <div class="table-wrapper-scroll-y" style="position: relative; overflow: auto">
+        <table class="table" id="inner-div" style="max-width: 1050px;">
+              <thead class="text-white" style="background:#4D4D4D;">
+                <tr>
+                  <th scope="col">Código</th>
+                  <th scope="col">Etiquetas</th>
+                  <th scope="col">Marca</th>
+                  <th scope="col">Modelo</th>
+                  <th scope="col">Descripción</th>
+                  <th scope="col">Disponibles</th>
+                  <th scope="col">Solicitar</th>
+                </tr>
+              </thead>
+              <tbody>
+                {%for equipo in equipos%}
+                    <tr>
+                        <td>{{equipo["codigo"]}}</td>
+                        <td>{{equipo["etiqueta"]}}</td>
+                        <td>{{equipo["marca"]}}</td>
+                        <td>{{equipo["modelo"]}}</td>
+                        <td>{{equipo["descripcion"]}}</td>
+                        <td>{{equipo["disponibles"]}}</td>
+                        <td> <input type="checkbox" aria-label="Checkbox">
+                </tr>
+                {%endfor%}
+              </tbody>
+            </table>
+            <button type="button" class="btn btn-success">Agregar al carro</button>
+          </div>
+        </div>

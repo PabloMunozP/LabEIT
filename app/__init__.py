@@ -5,20 +5,105 @@ import bcrypt
 import time
 from datetime import datetime,timedelta
 import os
-import json,requests
-#from flask_apscheduler import APScheduler
+import json,requests,smtplib
+from flask_apscheduler import APScheduler
+from email import encoders
+from email.mime.base import MIMEBase
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+
+def enviar_correo_notificacion(archivo,str_para,str_asunto,correo_usuario): # Envío de correo (notificaciones de solicitudes de préstamo)
+    # Se crea el mensaje
+    correo = MIMEText(archivo,"html")
+    correo.set_charset("utf-8")
+    correo["From"] = "labeit.udp@gmail.com"
+    correo["To"] = correo_usuario
+    correo["Subject"] = str_asunto
+
+    try:
+        server = smtplib.SMTP("smtp.gmail.com",587)
+        server.starttls()
+        server.login("labeit.udp@gmail.com","LabEIT_UDP_2020")
+        str_correo = correo.as_string()
+        server.sendmail("labeit.udp@gmail.com",correo_usuario,str_correo)
+        server.close()
+
+    except Exception as e:
+        print(e)
 
 # ============= Configuraciones para funciones con timer ======================
 #def verificar_fechas_vencimiento_solicitudes():
     # Función para verificar la fecha de vencimiento de una solicitud, una vez aprobada
     #print("verificar_fechas_vencimiento_solicitudes")
 
-#def verificar_sanciones_usuarios():
-    #print("verificar_sanciones_usuarios")
+def revisar_atrasos_prestamos():
+    # Se revisan los préstamos que presenten atrasos para realizar las sanciones.
+    # En caso de presentar anteriormente un atraso activo, se suma a la sanción.
+    sql_query = """
+        SELECT Detalle_solicitud.*,Solicitud.rut_alumno,Equipo.marca,Equipo.modelo,Equipo.codigo AS codigo_equipo
+            FROM Detalle_solicitud,Solicitud,Equipo
+                WHERE Solicitud.id = Detalle_solicitud.id_solicitud
+                AND Detalle_solicitud.id_equipo = Equipo.id
+                AND Detalle_solicitud.estado = 2
+    """
+    cursor.execute(sql_query)
+    lista_prestamos = cursor.fetchall()
+
+    fecha_actual = datetime.now().date()
+
+    for prestamo in lista_prestamos:
+        delta_dias = fecha_actual - prestamo["fecha_termino"]
+
+        # Si existe uno o más días de atraso según la fecha de término, se registra la sanción.
+        if delta_dias.days >= 1:
+            # Se obtienen los datos del usuario registrado en el préstamo
+            sql_query = """
+                SELECT Usuario.nombres,Usuario.email,Usuario.rut
+                    FROM Usuario,Solicitud
+                        WHERE Solicitud.rut_alumno = Usuario.rut
+                        AND Solicitud.id = %s
+            """
+            cursor.execute(sql_query,(prestamo["id_solicitud"],))
+            datos_usuario = cursor.fetchone()
+
+            # Se registra la sanción
+            sql_query = """
+                INSERT INTO Sanciones (rut_alumno,cantidad_dias,fecha_inicio,activa)
+                    VALUES (%s,%s,%s,%s)
+            """
+
+            dias_sancion = 2*delta_dias.days
+            cursor.execute(sql_query,(prestamo["rut_alumno"],dias_sancion,str(datetime.now()),1))
+
+            # Se modifica el estado del detalle de solicitud correspondiente
+            sql_query = """
+                UPDATE Detalle_solicitud
+                    SET estado = 3,fecha_sancion = %s
+                        WHERE id = %s
+            """
+            cursor.execute(sql_query,(prestamo["id"],datetime.now().date()))
+
+            # Se notifica al usuario vía correo electrónico sobre la sanción
+            # Se abre el template HTML correspondiente al rechazo de solicitud
+            direccion_template = os.path.normpath(os.path.join(os.getcwd(), "app/templates/vistas_gestion_solicitudes_prestamos/templates_mail/informe_sancion.html"))
+            archivo_html = open(direccion_template,encoding="utf-8").read()
+
+            # Se reemplazan los datos correspondientes en el archivo html
+            archivo_html = archivo_html.replace("%id_solicitud%",str(prestamo["id_solicitud"]))
+            archivo_html = archivo_html.replace("%id_detalle%",str(prestamo["id"]))
+            archivo_html = archivo_html.replace("%equipo_prestado%",prestamo["marca"]+" "+prestamo["modelo"])
+            archivo_html = archivo_html.replace("%codigo_equipo%",str(prestamo["codigo_equipo"]))
+            archivo_html = archivo_html.replace("%codigo_sufijo%",str(prestamo["codigo_sufijo_equipo"]))
+            archivo_html = archivo_html.replace("%fecha_inicio_prestamo%",str(prestamo["fecha_inicio"]))
+            archivo_html = archivo_html.replace("%fecha_termino_prestamo%",str(prestamo["fecha_termino"]))
+            archivo_html = archivo_html.replace("%dias_sancion%",str(dias_sancion))
+
+            enviar_correo_notificacion(archivo_html,datos_usuario["email"],"Alerta de sanción",datos_usuario["email"])
+
+    # Se revisan las solicitudes que ya presentaban atrasos ...
 
 #sched = APScheduler()
-#sched.add_job(id="verificacion_vencimiento_solicitudes",func=verificar_fechas_vencimiento_solicitudes,trigger='interval',seconds=10)
-#sched.add_job(id="verificacion_sanciones_usuarios",func=verificar_sanciones_usuarios,trigger='interval',seconds=20)
+#sched.add_job(id="revisar_atrasos_prestamos",func=revisar_atrasos_prestamos,trigger='interval',seconds=30)
 #sched.start()
 # ============================================================================
 
@@ -32,6 +117,7 @@ from app.routes.rutas_victor import mod
 from app.routes.rutas_nico import mod
 from app.routes.rutas_lorenzo import mod
 from app.routes.rutas_cony import mod
+
 app.register_blueprint(routes.rutas_seba.mod)
 app.register_blueprint(routes.rutas_pablo.mod)
 app.register_blueprint(routes.rutas_victor.mod)
