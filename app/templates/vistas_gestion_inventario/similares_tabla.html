@@ -42,7 +42,7 @@
 <button type="button" onclick="cargar_datos_equipo_dif_modal('{{elemento.codigo_equipo}}','{{elemento.codigo_sufijo}}', '{{elemento.fecha_compra}}', '{{elemento.activo}}')" data-target="#editar_equipo_similar" title="Editar equipo" class="btn btn-primary" data-toggle="modal"><i class="fas fa-edit"></i></button>
 
 
-            <!--           <button type="button" title="Eliminar equipo"  data-target="#eliminar_equipo_similar" data-toggle="modal" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button> -->
+<button type="button" onclick="cargar_codigo_delete_equipo_diferenciado_modal('{{elemento.codigo_equipo}}','{{elemento.codigo_sufijo}}')" title="Eliminar equipo"  data-target="#eliminar_equipo_similar" data-toggle="modal" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
 
 
                 </span>
@@ -53,6 +53,8 @@
       </table>
     </div>
   </div>
+
+{% include "vistas_gestion_inventario/modals/eliminar_equipo_similar.html" %}
 {% include "vistas_gestion_inventario/modals/agregar_equipo_similar.html" %}
 {% include "vistas_gestion_inventario/modals/editar_equipo_similar.html" %}
 

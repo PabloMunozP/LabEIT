@@ -9,15 +9,19 @@
           <div class="modal-body">
             <input class="form-control" type="text" name="codigo_equipo" value="" id="editar_equipo_hidden_id_equipo" hidden>
             <input class="form-control" type="text" name="codigo_sufijo_original" value="" id="editar_equipo_hidden_id_sufijo" hidden>
-            <label for="nombres"> Código prefijo </label>
+
+            <label for="editar_equipo_codigo_sufijo"> Código prefijo </label>
             <input class="form-control" type="text" name="codigo_sufijo" id="editar_equipo_codigo_sufijo" onchange="validar_informacion_perfil()" value="">
-            <label for="nombres"> Fecha de compra</label>
+
+            <label for="editar_equipo_fecha_compra"> Fecha de compra</label>
             <input class="form-control" input type="text" placeholder="DD/MM/AAAA" id="editar_equipo_fecha_compra"name="fecha_compra">
-            <label for="exampleSelect1">Estado</label>
+
+            <label for="editar_equipo_activo">Estado</label>
             <select class="form-control" id="editar_equipo_activo"input type="text" name="activo">
              <option value="1">Activo</option>
              <option value="0">Inactivo</option>
             </select>
+
           </div>
           <div class="modal-footer">
             <button type="button" id="boton_cerrar" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
@@ -30,10 +34,11 @@
 
   <script>
     function cargar_datos_equipo_dif_modal(codigo_equipo, codigo_sufijo, fecha_compra, activo){
-      document.getElementById("modal-title").innerHTML = '<i class="fas fa-edit"></i> Editar equipo ' + codigo_equipo + codigo_sufijo ;
+      document.getElementById("modal-title").innerHTML = '<i class="fas fa-edit"></i> Editar equipo ' + codigo_equipo + "-" + codigo_sufijo ;
+      $("#editar_equipo_hidden_id_equipo").val(codigo_equipo);
+      $("#editar_equipo_hidden_id_sufijo").val(codigo_sufijo);
       $("#editar_equipo_codigo_sufijo").val(codigo_sufijo);
       $("#editar_equipo_fecha_compra").val(fecha_compra);
       $("#editar_equipo_activo").val(activo);
-      $("#editar_equipo_hidden_id_equipo").val(codigo_equipo);
-      $("#editar_equipo_hidden_id_sufijo").val(codigo_sufijo_original);
+}
   </script>

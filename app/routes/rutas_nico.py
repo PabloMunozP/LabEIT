@@ -22,7 +22,7 @@ def consultar_lista_equipos_general():
     # actualizar la query papra definir equipos_disponibles y total_equipos
     query = ('''
         SELECT *,
-            
+
             CASE    WHEN Detalle_solicitud.cantidad IS NOT NULL THEN Detalle_solicitud.cantidad
                     ELSE COUNT(CASE WHEN Detalle_solicitud.estado = 2 THEN 1
                                     WHEN Detalle_solicitud.estado = 3 THEN 1
@@ -52,10 +52,10 @@ def consultar_lista_equipos_general():
         LEFT JOIN Detalle_solicitud ON inventario_general.equipo_id = Detalle_solicitud.id_equipo
         GROUP BY inventario_general.equipo_id
             ''')
-            #                 
+            #
             # CASE WHEN Detalle_solicitud.estado = 2 THEN 1
             #                         WHEN Detalle_solicitud.estado = 3 THEN 1
-            #                         ELSE NULL END) 
+            #                         ELSE NULL END)
     cursor.execute(query)
     equipos = cursor.fetchall()
     for element in equipos:
@@ -163,7 +163,7 @@ def editar_equipo_especifico(informacion_a_actualizar):
                 SET Equipo_diferenciado.codigo_sufijo = %s,
                     Equipo_diferenciado.fecha_compra = %s,
                     Equipo_diferenciado.activo = %s
-                WHERE Equipo_diferenciado.codigo_sufijo_original = %s
+                WHERE Equipo_diferenciado.codigo_sufijo = %s
                 AND Equipo_diferenciado.codigo_equipo = %s
             ''')
 
@@ -185,7 +185,7 @@ def funcion_editar_equipo_diferenciado_form():
         informacion_a_actualizar = request.form.to_dict()
         print('Información a actualizar:', informacion_a_actualizar)
         editar_equipo_especifico(informacion_a_actualizar)
-        return redirect("/gestion_inventario_admin/lista_equipo_diferenciado/+codigo_equipo")
+        return redirect("/gestion_inventario_admin/lista_equipo_diferenciado/")
 
 #Actualizar información del equipo
 
@@ -217,6 +217,38 @@ def funcion_eliminar_equipo():
     if request.method == 'POST':
         equipo_a_eliminar = request.form.to_dict()
         eliminar_equipo_general(equipo_a_eliminar)
+        #dejar comentario en flash
+        return redirect("/gestion_inventario_admin")
+
+
+
+
+#*********************************************************************************************#
+
+# **** VISTA_PRINCIPAL/MODAL "BORRAR EQUIPO DIFERENCIADO" **** #
+
+def eliminar_equipo_vista_diferenciado(equipo):
+    query = ('''
+        DELETE Equipo_diferenciado
+        FROM Equipo_diferenciado
+        WHERE Equipo_diferenciado.codigo_equipo = %s
+        AND Equipo_diferenciado.codigo_sufijo = %s
+    ''')
+    cursor.execute(query,(
+    equipo['codigo_equipo'],
+    equipo['codigo_sufijo']
+    ))
+    db.commit()
+    return 'ok'
+
+#Ruta eliminar equipo
+
+@mod.route("/gestion_inventario_admin/lista_equipo_diferenciado/delete",methods=["POST"])
+def funcion_eliminar_equipo_diferenciado():
+    if request.method == 'POST':
+        equipo_a_eliminar = request.form.to_dict()
+        print(equipo_a_eliminar)
+        eliminar_equipo_vista_diferenciado(equipo_a_eliminar)
         #dejar comentario en flash
         return redirect("/gestion_inventario_admin")
 
