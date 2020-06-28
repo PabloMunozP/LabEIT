@@ -75,27 +75,26 @@ def gestion_inventario_admin():
 
 def insertar_lista_equipos_general(valores_a_insertar):
     query = ('''
-        INSERT INTO Equipo (codigo, modelo, marca, descripcion, dias_max_prestamo, adquiridos)
-        VALUES (%s, %s, %s, %s ,%s, %s);
+        INSERT INTO Equipo (codigo, modelo, marca, descripcion, dias_max_prestamo)
+        VALUES (%s, %s, %s, %s ,%s);
     ''')
     cursor.execute(query,(
         valores_a_insertar['codigo'],
         valores_a_insertar['modelo'],
         valores_a_insertar['marca'],
         valores_a_insertar['descripcion'],
-        valores_a_insertar['dias_maximo_prestamo'],
-        valores_a_insertar['adquiridos']))
+        valores_a_insertar['dias_maximo_prestamo']))
     db.commit()
     return 'OK'
 
-@mod.route("/validar_form_add_inventario", methods = ['POST'])
+@mod.route("/gestion_inventario_admin/insert", methods = ['POST'])
 def funcion_añadir_equipo_form():
     if request.method == 'POST':
         informacion_a_insertar = request.form.to_dict()
         insertar_lista_equipos_general(informacion_a_insertar)
         flash("El equipo fue agregado correctamente")
         equipos = consultar_lista_equipos_general()
-        return redirect('/gestion_inventario_admins')
+        return redirect('/gestion_inventario_admin')
 
 
 # **** VISTA_PRINCIPAL/MODAL "EDITAR EQUIPO" **** #

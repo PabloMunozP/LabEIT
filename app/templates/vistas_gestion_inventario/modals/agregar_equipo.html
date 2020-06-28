@@ -4,7 +4,7 @@
       <div class="modal-header bg-verde-eit">
         <h5 class="modal-title text-white" id="editar_informacion_label"><i class="fas fa-plus-circle"></i> Agregar Equipo</h5>
     </div>
-          <form id="editar_form" action="/validar_form_add_inventario" method="POST">
+          <form action="/gestion_inventario_admin/insert" method="POST">
           <div class="modal-body">
 
               <label for="nombres"> Código</label>
@@ -22,8 +22,6 @@
               <label for="apellidos"> Días de prestamo</label>
               <input class="form-control" type="text" name="dias_maximo_prestamo" id="dias_maximo_prestamo" onchange="validar_informacion_perfil()" value="">
 
-              <label for="apellidos"> Adquiridos</label>
-              <input class="form-control" type="text" name="adquiridos" id="adquiridos" onchange="validar_informacion_perfil()" value="">
 
 
 
