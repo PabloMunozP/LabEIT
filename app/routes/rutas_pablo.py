@@ -106,12 +106,12 @@ def editar():
 
     if request.method=='POST':
         datos_usuario=request.form.to_dict()
-        
+        #query para actualizar datos del usuario
         query=''' UPDATE Usuario SET id_credencial = %s, email=%s, nombres =%s, apellidos= %s, region = %s, comuna = %s, direccion = %s
                     WHERE rut= %s'''
         cursor.execute(query,(datos_usuario['credencial'],datos_usuario['correo'],datos_usuario['nombres'],datos_usuario['apellidos'],datos_usuario['region'],datos_usuario['comuna'],datos_usuario['direccion'],datos_usuario['rut']))
         flash('editado-correcto')
-
+        #se redirige de vuelta a la pagina principal de gestion usuarios
         return redirect("/gestion_usuarios")
 
 @mod.route("/gestion_usuarios/eliminar_usuario", methods=["POST"])
