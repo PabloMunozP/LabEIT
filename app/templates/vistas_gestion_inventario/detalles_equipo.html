@@ -1,11 +1,7 @@
 {% extends "layout_in.html" %}
 	{% block body %}
-  {% for elemento in equipo_detalle %}
-  {{equipo_detalle.codigo}}
 
 
-
-    {{equipo_detalle.marca}}
 	<div class="container-fluid mt-2">
 			<div class="card-header border-0 rounded-0" style="background:#0db26b;">
 				<h5 class="card-title my-auto text-white"><i class="fas fa-laptop mr-2"></i>Detalles equipo</h5>
@@ -18,7 +14,7 @@
 					</label>
 					<div class="col-md-2">
 						<p class="form-control-plaintext text-break">
-							  {{elemento.id}}
+							  {{equipo_descripcion.id}}
 						</p>
 					</div>
 					<label class="col-md-4 col-form-label texto-gris-eit">
@@ -27,7 +23,7 @@
 					<div class="col-md-2">
 						<p class="form-control-plaintext
 							 text-break">
-             {{elemento.codigo}}
+             {{equipo_descripcion.codigo}}
 						</p>
 					</div>
 				</div>
@@ -40,7 +36,7 @@
 					</label>
 					<div class="col-md-4">
 						<p class="form-control-plaintext text-break">
-						 {{elemento.marca}}
+						 {{equipo_descripcion.marca}}
 						</p>
 					</div>
 					<label class="col-md-2 col-form-label texto-gris-eit">
@@ -49,7 +45,7 @@
 					<div class="col-md-4">
 						<p class="form-control-plaintext
 							 text-break">
-							  {{elemento.modelo}}
+							  {{equipo_descripcion.modelo}}
 						</p>
 					</div>
 				</div>
@@ -60,7 +56,7 @@
 					</label>
 					<div class="col-md-4">
 						<p class="form-control-plaintext text-break">
-							 {{elemento.disponibles}}
+
 						</p>
 					</div>
 					<label class="col-md-4 col-form-label texto-gris-eit">
@@ -69,7 +65,7 @@
 					<div class="col-md-2">
 						<p class="form-control-plaintext
 							 text-break">
-							  {{elemento.dias_max_prestamo}}
+							  {{equipo_descripcion.dias_max_prestamo}}
 						</p>
 					</div>
 				</div>
@@ -82,16 +78,15 @@
 					</label>
 					<div class="col-md-6">
 						<p class="form-control-plaintext text-break">
-							 {{elemento.descripcion}}
+							 {{equipo_descripcion.descripcion}}
 						</p>
 					</div>
 					<div class="col-md-4 text-right">
 						<label class="col-form-label">
-            {% if elemento.imagen ==None %}
+            {% if equipo_descripcion.imagen == None or equipo_descripcion.imagen=="None" %}
 						<img src="https://static.thenounproject.com/png/340719-200.png" style="max-width:80%;" class="img-fluid">
             {% else %}
-						{{elemento.imagen}}
-          	<img src="{{elemento.imagen}}" style="max-width:80%;" class="img-fluid">
+          	<img src="{{equipo_descripcion.imagen}}" style="max-width:80%;" class="img-fluid">
             {% endif %}
 
 
@@ -102,7 +97,6 @@
 			</div>
 		</div>
 
-  {% endfor %}
     <div class="row mt-3">
     	<div class="col-md-12">
     		<h5 class="texto-gris-eit">Lista de solicitudes de préstamos activas</h5>

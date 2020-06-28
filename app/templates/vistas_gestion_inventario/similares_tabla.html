@@ -1,23 +1,23 @@
 {% extends "layout_in.html"%}
     {%block body%}
 
-    {% for elementos in equipo_detalle %}
+
     <div class="row mt-3">
     	<div class="col-md-12">
-    		<h5 class="texto-gris-eit">  Gestión de equipo {{elementos.marca}} {{elementos.modelo}}</h5>
+    		<h5 class="texto-gris-eit">  Gestión de equipo {{equipos_descripcion.marca}} {{equipos_descripcion.modelo}}</h5>
     	</div>
     </div>
     <hr>
 
+
 <button type="button" data-target="#agregar_equipo_similar" class="btn btn-info" data-toggle="modal">Agregar equipo similar</button>
 
-<a href="/gestion_inventario_admin/detalles_equipo/{{elementos.codigo}}">
+<a href="/gestion_inventario_admin/detalles_equipo/{{equipos_descripcion.codigo}}">
   <button type="button" title="Descargar planilla" class="btn btn-success">Ver más</button>
 </a>
 <div class="mx-auto" style="height: 30px;">
 </div>
 
-        {% endfor %}
 <div class="table-responsive">
     <div class="table-wrapper-scroll-y" style="position: relative;
                 max-height: 450px;
@@ -41,8 +41,8 @@
                 {% endif %}
               <td>
                 <span class="btn-group">
+<button type="button" onclick="cargar_datos_equipo_dif_modal('{{elemento.codigo_equipo}}','{{elemento.codigo_sufijo}}', '{{elemento.fecha_compra}}', '{{elemento.activo}}')" data-target="#editar_equipo_similar" title="Editar equipo" class="btn btn-primary" data-toggle="modal"><i class="fas fa-edit"></i></button>
 
-          <!--        <button type="button" data-target="#editar_equipo_similar" title="Editar equipo" class="btn btn-primary" data-toggle="modal"><i class="fas fa-edit"></i></button> -->
 
             <!--           <button type="button" title="Eliminar equipo"  data-target="#eliminar_equipo_similar" data-toggle="modal" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button> -->
 

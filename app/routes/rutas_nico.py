@@ -164,7 +164,7 @@ def editar_equipo_especifico(informacion_a_actualizar,codigo):
             return informacion_a_actualizar
 
 
-@mod.route('/gestion_inventario_admin/<string:codigo_equipo>/actualizar_informacion', methods = ['POST'])
+@mod.route('/gestion_inventario_admin/lista_equipo_diferenciado/actualizar_informacion', methods = ['POST'])
 def funcion_editar_equipo_diferenciado_form(codigo_equipo):
     if request.method == 'POST':
         informacion_a_actualizar = request.form.to_dict()
@@ -191,14 +191,14 @@ def eliminar_equipo_general(equipo):
 def funcion_eliminar_equipo():
     if request.method == 'POST':
         equipo_a_eliminar = request.form.to_dict()
-        
+
         return equipo_a_eliminar
 
 
 
 #*********************************************************************************************#
 
-def consultar_equipo_unico(codigo):
+def consultar_equipo_descripcion(codigo):
     query = ('''
         SELECT *
         FROM Equipo
@@ -206,14 +206,14 @@ def consultar_equipo_unico(codigo):
     '''
     )
     cursor.execute(query,(codigo,))
-    equipo_detalle = cursor.fetchall()
+    equipo_detalle = cursor.fetchone()
     return equipo_detalle
 
-@mod.route("/gestion_inventario_admin/detalles_equipo/<string:codigo_equipo>",methods=["GET"]) 
+@mod.route("/gestion_inventario_admin/detalles_equipo/<string:codigo_equipo>",methods=["GET"])
 def detalle_info_equipo(codigo_equipo):
     equipos = consultar_lista_equipos_detalle(codigo_equipo)
-    equipo = consultar_equipo_unico(codigo_equipo)
-    return render_template("/vistas_gestion_inventario/detalles_equipo.html", equipo_detalle=equipo, equipos_detalle = equipos)
+    equipo_descripcion = consultar_equipo_descripcion(codigo_equipo)
+    return render_template("/vistas_gestion_inventario/detalles_equipo.html", equipo_descripcion=equipo_descripcion, equipos_detalle = equipos)
 
 
 # Importante FUNCION() ENCARGADA DE INGRESAR LOS VALORES DEL FORMULARIO "AGREGAR" EN VISTA GESTION INVENTARIO DIFERENCIAD0 ** #
@@ -226,7 +226,7 @@ def validar_form_añadir_equipo_espeficio(codigo_equipo):
         insertar_lista_equipos_detalle(codigo_equipo, informacion_a_insertar)
         print(informacion_a_insertar)
         flash("El equipo fue agregado correctamente")
-        return redirect("/gestion_inventario_admin/"+codigo_equipo) #Cambiar a redirect VISTA GESTION INVENTARIO DIFERENCIAD0
+        return redirect("/gestion_inventario_admin/lista_equipo_diferenciado/"+codigo_equipo) #Cambiar a redirect VISTA GESTION INVENTARIO DIFERENCIAD0
                                                                          # mantener " + codigo_equipo"
 
 
@@ -283,9 +283,9 @@ def insertar_lista_equipos_detalle(codigo_equipo, valores_a_insertar):
 @mod.route("/gestion_inventario_admin/lista_equipo_diferenciado/<string:codigo_equipo>")
 def gestion_inventario_admin_equipo(codigo_equipo):
     equipos = consultar_lista_equipos_detalle(codigo_equipo)
-    equipo = consultar_equipo_unico(codigo_equipo)
+    equipos_descripcion = consultar_equipo_descripcion(codigo_equipo)
     return render_template('vistas_gestion_inventario/similares_tabla.html',
-    equipo_detalle=equipo, equipos_detalle = equipos, equipo_padre = codigo_equipo) #Cambiar render por el que corresponda
+    equipos_descripcion=equipos_descripcion, equipos_detalle = equipos, equipo_padre = codigo_equipo) #Cambiar render por el que corresponda
 
 # ** VALIDA FORMULARIO DE PRUEBA INGRESAR EQUIPO ** #
 # ** BORRAR ANTES DE PRODUCCION ** #
