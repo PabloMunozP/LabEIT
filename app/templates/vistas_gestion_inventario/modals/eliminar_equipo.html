@@ -1,0 +1,31 @@
+
+
+
+
+
+
+<div id="eliminar_equipo" class="modal fade in" tabindex="-1" role="dialog" aria-labelledby="editar_informacion_label" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header bg-verde-eit">
+        <h5 class="modal-title text-white" id="editar_informacion_label"><i class="fas fa-trash"></i>Eliminar equipo</h5>
+      </div>
+      <form action="/gestion_inventario_admin/delete" id="form_confirmar_eliminar_equipo" method="POST">
+        <div class="modal-body">
+          ¿Realmente deseas eliminar este equipo?
+          <input class="form-control" type="text" name="codigo" value="" id="form_eliminar_equipo_codigo" hidden>
+        </div>
+        <div class="modal-footer">
+          <button type="button" id="boton_cerrar"  class="btn btn-primary" data-dismiss="modal">Cancelar</button>
+          <button type="summit" id="boton_guardar" class="btn btn-danger">Confirmar</button>
+        </div>
+      </form>
+  </div>
+</div>
+</div>
+
+<script>
+  function cargar_codigo_delete_equipo_modal(codigo){
+    $("#form_eliminar_equipo_codigo").val(codigo);
+  }
+</script>
