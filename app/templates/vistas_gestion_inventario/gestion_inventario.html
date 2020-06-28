@@ -62,7 +62,9 @@
     		      <th scope="col">Modelo</th>
               <th scope="col">Marca</th>
               <th scope="col">Días</th>
-    		      <th scope="col">Total</th>
+              <th scope="col">Prestados</th>
+              <th scope="col">Funcional</th>
+              <th scope="col">Total</th>
     					<th scope="col">Gestión</th>
 
     		    </tr>
@@ -74,7 +76,9 @@
     						<td> {{elemento.modelo}}</td>
                 <td> {{elemento.marca}} </td>
                 <td>  {{elemento.dias_max_prestamo}} </td>
-    						<td>  {{elemento.disponibles}}</td>
+                <td>  {{elemento.en_prestamo}} </td>
+                <td>  {{elemento.disponibles}}</td>
+                <td>  {{elemento.total_equipos}}</td>
     						<td>
     							<span class="btn-group">
     								<a href="gestion_inventario_admin/detalles_equipo/{{elemento.codigo}}">

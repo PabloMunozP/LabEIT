@@ -21,30 +21,45 @@ def consultar_lista_equipos_general():
     # Nota importante:
     # actualizar la query papra definir equipos_disponibles y total_equipos
     query = ('''
-        SELECT
-            Equipo.id,
-            Equipo.codigo,
-            Equipo.modelo,
-            Equipo.marca,
-            Equipo.descripcion,
-            Equipo.dias_max_prestamo,
-            Equipo.imagen,
-            CASE    WHEN Equipo.cantidad_circuito IS NOT NULL THEN 'true'
-                    ELSE 'false'
-                    END AS multi_componente,
-            CASE    WHEN Equipo.cantidad_circuito IS NOT NULL THEN Equipo.cantidad_circuito
-                    ELSE COUNT(CASE WHEN Equipo_diferenciado.activo = 1 THEN 1 ELSE NULL END)
-                    END AS disponibles,
-            CASE    WHEN Equipo.cantidad_circuito IS NOT NULL THEN Equipo.cantidad_circuito
-                    ELSE COUNT(Equipo_diferenciado.activo)
-                    END AS total_equipos
-            FROM
-                Equipo
-                LEFT JOIN Equipo_diferenciado ON Equipo_diferenciado.codigo_equipo = Equipo.codigo
-            GROUP BY Equipo.codigo
-    ''')
+        SELECT *,
+            
+            CASE    WHEN Detalle_solicitud.cantidad IS NOT NULL THEN Detalle_solicitud.cantidad
+                    ELSE COUNT(CASE WHEN Detalle_solicitud.estado = 2 THEN 1
+                                    WHEN Detalle_solicitud.estado = 3 THEN 1
+                                    ELSE NULL END)
+                    END AS en_prestamo
+        FROM (SELECT
+                Equipo.id AS equipo_id,
+                Equipo.codigo,
+                Equipo.modelo,
+                Equipo.marca,
+                Equipo.descripcion,
+                Equipo.dias_max_prestamo,
+                Equipo.imagen,
+                CASE    WHEN Equipo.cantidad_circuito IS NOT NULL THEN 'true'
+                        ELSE 'false'
+                        END AS multi_componente,
+                CASE    WHEN Equipo.cantidad_circuito IS NOT NULL THEN Equipo.cantidad_circuito
+                        ELSE COUNT(CASE WHEN Equipo_diferenciado.activo = 1 THEN 1 ELSE NULL END)
+                        END AS disponibles,
+                CASE    WHEN Equipo.cantidad_circuito IS NOT NULL THEN Equipo.cantidad_circuito
+                        ELSE COUNT(Equipo_diferenciado.activo)
+                        END AS total_equipos
+                FROM Equipo
+                    LEFT JOIN Equipo_diferenciado ON  Equipo.codigo = Equipo_diferenciado.codigo_equipo
+                GROUP BY Equipo.id) AS inventario_general
+
+        LEFT JOIN Detalle_solicitud ON inventario_general.equipo_id = Detalle_solicitud.id_equipo
+        GROUP BY inventario_general.equipo_id
+            ''')
+            #                 
+            # CASE WHEN Detalle_solicitud.estado = 2 THEN 1
+            #                         WHEN Detalle_solicitud.estado = 3 THEN 1
+            #                         ELSE NULL END) 
     cursor.execute(query)
     equipos = cursor.fetchall()
+    for element in equipos:
+        print(element)
     return equipos
 
 @mod.route("/gestion_inventario_admin")
