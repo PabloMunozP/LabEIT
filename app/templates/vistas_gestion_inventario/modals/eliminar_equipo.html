@@ -10,10 +10,10 @@
       <div class="modal-header bg-verde-eit">
         <h5 class="modal-title text-white" id="editar_informacion_label"><i class="fas fa-trash"></i>Eliminar equipo</h5>
       </div>
-      <form action="/gestion_inventario_admin/delete" id="form_confirmar_eliminar_equipo">
+      <form action="/gestion_inventario_admin/delete" id="form_confirmar_eliminar_equipo" method="POST">
         <div class="modal-body">
           ¿Realmente deseas eliminar este equipo?
-          <input class="form-control" type="text" name="codigo" value="" id="form_eliminar_equipo_codigo" disabled hidden>
+          <input class="form-control" type="text" name="codigo" value="" id="form_eliminar_equipo_codigo" hidden>
         </div>
         <div class="modal-footer">
           <button type="button" id="boton_cerrar"  class="btn btn-primary" data-dismiss="modal">Cancelar</button>
