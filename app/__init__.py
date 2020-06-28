@@ -117,6 +117,7 @@ from app.routes.rutas_victor import mod
 from app.routes.rutas_nico import mod
 from app.routes.rutas_lorenzo import mod
 from app.routes.rutas_cony import mod
+
 app.register_blueprint(routes.rutas_seba.mod)
 app.register_blueprint(routes.rutas_pablo.mod)
 app.register_blueprint(routes.rutas_victor.mod)

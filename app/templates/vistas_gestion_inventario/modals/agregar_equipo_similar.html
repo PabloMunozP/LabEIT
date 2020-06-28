@@ -1,0 +1,31 @@
+<div id="agregar_equipo_similar" class="modal fade in" tabindex="-1" role="dialog" aria-labelledby="editar_informacion_label" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header bg-verde-eit">
+        <h5 class="modal-title text-white" id="editar_informacion_label"><i class="fas fa-plus-circle"></i> Agregar Equipo</h5>
+      </div>
+          <form id="editar_form" action="/gestion_inventario_admin/lista_equipo_diferenciado/validar_add/{{equipos_descripcion.codigo}}" method="POST">
+          <div class="modal-body">
+
+              <label for="nombres"> Código prefijo </label>
+                <input class="form-control" type="text" name="codigo_sufijo" id="codigo">
+              <label for="nombres"> Fecha de compra</label>
+                <input class="form-control" input type="text" placeholder="DD/MM/AAAA" name="fecha_compra">
+              <label for="exampleSelect1">Estado</label>
+              <select class="form-control" id="exampleSelect1" input type="text" name="activo">
+                <option value="1">Activo</option>
+                <option value="0">Inactivo</option>
+
+             </select>
+
+
+
+      </div>
+      <div class="modal-footer">
+              <button type="button" id="boton_cerrar" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+              <button type="summit" id="boton_guardar" class="btn btn-info"> Guardar cambios</button>
+      </div>
+    </form>
+  </div>
+</div>
+</div>

@@ -122,7 +122,7 @@ def configurar_perfil():
         return redirect('/')
     if request.method == 'POST':
         informacion_a_actualizar = request.form.to_dict()
-        print(informacion_a_actualizar)
+        #print(informacion_a_actualizar)
         query = ('''
             UPDATE Usuario
             SET nombres = %s,
