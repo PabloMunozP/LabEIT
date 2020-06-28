@@ -157,35 +157,39 @@ def editar_equipo_general(informacion_a_actualizar):  # Query UPDATE
             db.commit()
         return informacion_a_actualizar
 
-def editar_equipo_especifico(informacion_a_actualizar,codigo):
+def editar_equipo_especifico(informacion_a_actualizar):
             query = ('''
                 UPDATE Equipo_diferenciado
                 SET Equipo_diferenciado.codigo_sufijo = %s,
                     Equipo_diferenciado.fecha_compra = %s,
-                    Equipo_diferenciado.activo = %s,
-                WHERE
-                    Equipo_diferenciado.codigo_equipo = Equipo.codigo
-                    AND Equipo_diferenciado.codigo_sufijo = %s
+                    Equipo_diferenciado.activo = %s
+                WHERE Equipo_diferenciado.codigo_sufijo_original = %s
+                AND Equipo_diferenciado.codigo_equipo = %s
             ''')
 
             cursor.execute(query,(
                 informacion_a_actualizar['codigo_sufijo'],
                 informacion_a_actualizar['fecha_compra'],
                 informacion_a_actualizar['activo'],
+                informacion_a_actualizar['codigo_sufijo_original'],
+                informacion_a_actualizar['codigo_equipo']
                 ))
             db.commit()
             return informacion_a_actualizar
 
+#Actualizar informacion equipo diferenciado
 
 @mod.route('/gestion_inventario_admin/lista_equipo_diferenciado/actualizar_informacion', methods = ['POST'])
-def funcion_editar_equipo_diferenciado_form(codigo_equipo):
+def funcion_editar_equipo_diferenciado_form():
     if request.method == 'POST':
         informacion_a_actualizar = request.form.to_dict()
         print('Información a actualizar:', informacion_a_actualizar)
-        funcion_editar_equipo_diferenciado_form(informacion_a_actualizar,codigo_equipo)
-        return redirect("/gestion_inventario_admin/+codigo_equipo")
+        editar_equipo_especifico(informacion_a_actualizar)
+        return redirect("/gestion_inventario_admin/lista_equipo_diferenciado/+codigo_equipo")
 
-@mod.route('/gestion_inventario_admin/actualizar_informacion', methods = ['POST']) # Función de actualizar
+#Actualizar información del equipo
+
+@mod.route('/gestion_inventario_admin/actualizar_informacion', methods = ['POST'])
 def funcion_editar_equipo():
     if request.method == 'POST':
         informacion_a_actualizar = request.form.to_dict()
@@ -206,7 +210,7 @@ def eliminar_equipo_general(equipo):
     db.commit()
     return 'ok'
 
-
+#Ruta eliminar equipo
 
 @mod.route("/gestion_inventario_admin/delete",methods=["POST"])
 def funcion_eliminar_equipo():
@@ -220,7 +224,7 @@ def funcion_eliminar_equipo():
 
 
 #*********************************************************************************************#
-
+#Informacion de equipo unico para listado de equipo_diferenciado
 def consultar_equipo_descripcion(codigo):
     query = ('''
         SELECT *
@@ -232,43 +236,39 @@ def consultar_equipo_descripcion(codigo):
     equipo_detalle = cursor.fetchone()
     return equipo_detalle
 
+#Vista más informacion equipo , sin tabla solicitudes definida
 @mod.route("/gestion_inventario_admin/detalles_equipo/<string:codigo_equipo>",methods=["GET"])
 def detalle_info_equipo(codigo_equipo):
     equipos = consultar_lista_equipos_detalle(codigo_equipo)
     equipo_descripcion = consultar_equipo_descripcion(codigo_equipo)
-    return render_template("/vistas_gestion_inventario/detalles_equipo.html", equipo_descripcion=equipo_descripcion, equipos_detalle = equipos)
+    return render_template("/vistas_gestion_inventario/detalles_equipo.html",
+    equipo_descripcion=equipo_descripcion, equipos_detalle = equipos)
 
 
 # Importante FUNCION() ENCARGADA DE INGRESAR LOS VALORES DEL FORMULARIO "AGREGAR" EN VISTA GESTION INVENTARIO DIFERENCIAD0 ** #
-@mod.route("/gestion_inventario_admin/validar_add/<string:codigo_equipo>", methods = ['POST'])
+@mod.route("/gestion_inventario_admin/lista_equipo_diferenciado/validar_add/<string:codigo_equipo>", methods = ['POST'])
 def validar_form_añadir_equipo_espeficio(codigo_equipo):
     if request.method == 'POST':
-        print(codigo_equipo)
         informacion_a_insertar = request.form.to_dict()
-        dateTimeObj = datetime.now()
         insertar_lista_equipos_detalle(codigo_equipo, informacion_a_insertar)
-        print(informacion_a_insertar)
-        flash("El equipo fue agregado correctamente")
-        return redirect("/gestion_inventario_admin/lista_equipo_diferenciado/"+codigo_equipo) #Cambiar a redirect VISTA GESTION INVENTARIO DIFERENCIAD0
-                                                                         # mantener " + codigo_equipo"
+        return redirect("/gestion_inventario_admin/lista_equipo_diferenciado/"+codigo_equipo)
 
 
 
 # Consulta una  lista de equipos especificos
-# Es usada en la vista de equipos asociados
-# Ejemplo: Solo ARDUINO UNO
 def consultar_lista_equipos_detalle(codigo_equipo):
     query = ('''
         SELECT *
         FROM Equipo_diferenciado
         WHERE Equipo_diferenciado.codigo_equipo = %s
+        ORDER BY Equipo_diferenciado.codigo_equipo
     '''
     )
     cursor.execute(query,(codigo_equipo,))
     equipos_detalle = cursor.fetchall()
     return equipos_detalle
 
-
+#Se buscan los productos similares al codigo ingresado.
 def consultar_lista_equipos_busqueda(codigo):
     query = ('''
         SELECT *
@@ -280,15 +280,14 @@ def consultar_lista_equipos_busqueda(codigo):
     equipos = cursor.fetchall()
     return equipos
 
+# Busqueda sin implementar, tipo de form invalido
 @mod.route("/gestion_inventario_admin/search", methods = ['POST'])
 def busqueda_equipo():
         informacion_a_buscar = request.form.to_dict()
         equipos = consultar_lista_equipos_busqueda(informacion_a_buscar)
         return render_template('vistas_gestion_inventario/gestion_inventario.html', lista_equipo = equipos)
- # Agrega un tipo de equipo con sus datos generales
 
-
-# Agrega un equipo a partir de la relacion que que tenga DIF
+# Agrega un equipo a partir de la relacion que tenga DIF
 def insertar_lista_equipos_detalle(codigo_equipo, valores_a_insertar):
     query = ('''
         INSERT INTO Equipo_diferenciado (codigo_equipo, codigo_sufijo, fecha_compra, activo)
@@ -309,6 +308,3 @@ def gestion_inventario_admin_equipo(codigo_equipo):
     equipos_descripcion = consultar_equipo_descripcion(codigo_equipo)
     return render_template('vistas_gestion_inventario/similares_tabla.html',
     equipos_descripcion=equipos_descripcion, equipos_detalle = equipos, equipo_padre = codigo_equipo) #Cambiar render por el que corresponda
-
-# ** VALIDA FORMULARIO DE PRUEBA INGRESAR EQUIPO ** #
-# ** BORRAR ANTES DE PRODUCCION ** #

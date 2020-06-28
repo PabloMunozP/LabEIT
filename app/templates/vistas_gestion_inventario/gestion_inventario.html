@@ -42,6 +42,8 @@
 <div class="mx-auto" style="height: 30px;">
 </div>
 
+</div>
+
 
 <button type="button" data-target="#agregar_equipo" class="btn btn-info" data-toggle="modal">Agregar equipo</button>
 
@@ -84,7 +86,7 @@
     								<a href="gestion_inventario_admin/detalles_equipo/{{elemento.codigo}}">
     									<button type="button" title="Ver detalles de equipo" data-toggle="modal" class="btn btn-info"><i class="fas fa-search-plus"></i></button>
     								</a>
-                    <!-- aca implementar script Onclick -->
+
                     <button type="button" onclick="cargar_datos_equipo_modal('{{elemento.codigo}}','{{elemento.modelo}}', '{{elemento.marca}}', '{{elemento.descripcion}}','{{elemento.dias_max_prestamo}}','{{elemento.imagen}}',{{elemento.multi_componente}},'{{elemento.total_equipos}}')" data-target="#editar_equipo" title="Editar equipo" class="btn btn-primary" data-toggle="modal"><i class="fas fa-edit"></i></button>
 
                     <button type="button" onclick="cargar_codigo_delete_equipo_modal('{{elemento.codigo}}')" title="Eliminar equipo" data-toggle="modal" data-target="#eliminar_equipo" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
@@ -100,20 +102,7 @@
     	</div>
     </div>
 
-    <center>
-    <nav aria-label="Page navigation example">
-      <ul class="pagination">
-        <li class="page-item"><a class="page-link" href="#">Previous</a></li>
-        <li class="page-item"><a class="page-link" href="#">1</a></li>
-        <li class="page-item"><a class="page-link" href="#">2</a></li>
-        <li class="page-item"><a class="page-link" href="#">3</a></li>
-        <li class="page-item"><a class="page-link" href="#">Next</a></li>
-      </ul>
-    </nav>
-  </center>
 
-
-</div>
 
 
 {% include "vistas_gestion_inventario/modals/editar_equipo.html" %}
