@@ -249,7 +249,7 @@ def funcion_eliminar_equipo_diferenciado():
         print(equipo_a_eliminar)
         eliminar_equipo_vista_diferenciado(equipo_a_eliminar)
         #dejar comentario en flash
-        return redirect("/gestion_inventario_admin/"+informacion_a_actualizar["codigo_equipo"])
+        return redirect("/gestion_inventario_admin/lista_equipo_diferenciado/"+equipo_a_eliminar["codigo_equipo"])
 
 
 
