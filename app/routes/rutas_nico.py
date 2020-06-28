@@ -185,7 +185,7 @@ def funcion_editar_equipo_diferenciado_form():
         informacion_a_actualizar = request.form.to_dict()
         print('Información a actualizar:', informacion_a_actualizar)
         editar_equipo_especifico(informacion_a_actualizar)
-        return redirect("/gestion_inventario_admin/lista_equipo_diferenciado/")
+        return redirect("/gestion_inventario_admin/lista_equipo_diferenciado/"+informacion_a_actualizar["codigo_equipo"])
 
 #Actualizar información del equipo
 
@@ -250,7 +250,7 @@ def funcion_eliminar_equipo_diferenciado():
         print(equipo_a_eliminar)
         eliminar_equipo_vista_diferenciado(equipo_a_eliminar)
         #dejar comentario en flash
-        return redirect("/gestion_inventario_admin")
+        return redirect("/gestion_inventario_admin/"+informacion_a_actualizar["codigo_equipo"])
 
 
 
@@ -301,22 +301,22 @@ def consultar_lista_equipos_detalle(codigo_equipo):
     return equipos_detalle
 
 #Se buscan los productos similares al codigo ingresado.
-def consultar_lista_equipos_busqueda(codigo):
+def consultar_search():
     query = ('''
         SELECT *
-            FROM Equipo
-            GROUP BY Equipo.codigo
-            WHERE Equipo.codigo = %s
-    ''')
+        FROM Equipo
+        WHERE Equipo.codigo = %s
+    '''
+    )
     cursor.execute(query,(codigo,))
-    equipos = cursor.fetchall()
-    return equipos
+    equipo_detalle = cursor.fetchone()
+    return equipo_detalle
 
 # Busqueda sin implementar, tipo de form invalido
 @mod.route("/gestion_inventario_admin/search", methods = ['POST'])
 def busqueda_equipo():
         informacion_a_buscar = request.form.to_dict()
-        equipos = consultar_lista_equipos_busqueda(informacion_a_buscar)
+        equipos = consultar_search(informacion_a_buscar)
         return render_template('vistas_gestion_inventario/gestion_inventario.html', lista_equipo = equipos)
 
 # Agrega un equipo a partir de la relacion que tenga DIF
