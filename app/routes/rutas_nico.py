@@ -89,7 +89,8 @@ def editar_equipo_general(informacion_a_actualizar):  # Query UPDATE
         if 'multi_componente' not in informacion_a_actualizar:
             print('este equipo no posee el atributo multi componente')
             query = ('''
-                UPDATE Equipo, Equipo_diferenciado
+                UPDATE Equipo
+                LEFT JOIN Equipo_diferenciado ON Equipo_diferenciado.codigo_equipo = Equipo.codigo
                 SET Equipo_diferenciado.codigo_equipo = %s,
                     Equipo.codigo = %s,
                     Equipo.modelo = %s,
@@ -99,8 +100,7 @@ def editar_equipo_general(informacion_a_actualizar):  # Query UPDATE
                     Equipo.dias_max_prestamo = %s,
                     Equipo.cantidad_circuito = NULL
                 WHERE
-                    Equipo_diferenciado.codigo_equipo = Equipo.codigo
-                    AND Equipo.codigo = %s
+                    Equipo.codigo = %s
 
             ''')
 
@@ -140,8 +140,6 @@ def editar_equipo_general(informacion_a_actualizar):  # Query UPDATE
                 informacion_a_actualizar['codigo_original']
                 ))
             db.commit()
-
-
         return informacion_a_actualizar
 
 def editar_equipo_especifico(informacion_a_actualizar,codigo):
@@ -183,7 +181,15 @@ def funcion_editar_equipo():
 # **** VISTA_PRINCIPAL/MODAL "BORRAR EQUIPO" **** #
 
 def eliminar_equipo_general(equipo):
-    return 'xD'
+    query = ('''
+        DELETE Equipo, Equipo_diferenciado
+        FROM Equipo
+        LEFT JOIN Equipo_diferenciado ON Equipo_diferenciado.codigo_equipo = Equipo.codigo
+        WHERE Equipo.codigo = %s
+    ''')
+    cursor.execute(query,(equipo['codigo'],))
+    db.commit()
+    return 'ok'
 
 
 
@@ -191,8 +197,9 @@ def eliminar_equipo_general(equipo):
 def funcion_eliminar_equipo():
     if request.method == 'POST':
         equipo_a_eliminar = request.form.to_dict()
-        
-        return equipo_a_eliminar
+        eliminar_equipo_general(equipo_a_eliminar)
+        #dejar comentario en flash
+        return redirect("/gestion_inventario_admin")
 
 
 
