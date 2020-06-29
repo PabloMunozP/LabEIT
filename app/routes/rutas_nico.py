@@ -276,17 +276,27 @@ def consultar_equipo_descripcion(codigo):
 # Consulta una  lista de equipos especificos
 def consultar_lista_equipos_detalle(codigo_equipo):
     query = ('''
-        SELECT 
+        SELECT
             Equipo_diferenciado.codigo_equipo,
             Equipo_diferenciado.codigo_sufijo,
+            Equipo_diferenciado.activo,
             Equipo.id AS equipo_id,
             Detalle_solicitud.id AS detalle_sol_id,
             Detalle_solicitud.codigo_sufijo_equipo,
-            Detalle_solicitud.estado
+            Detalle_solicitud.estado,
+            Estado_detalle_solicitud.nombre,
+            Solicitud.rut_alumno,
+            Detalle_solicitud.fecha_inicio,
+            Detalle_solicitud.fecha_termino,
+            Detalle_solicitud.fecha_vencimiento
         FROM Equipo_diferenciado
-        LEFT JOIN Equipo ON Equipo.codigo = Equipo_diferenciado.codigo_equipo 
-        LEFT JOIN Detalle_solicitud ON Detalle_solicitud.id_equipo = Equipo.id AND Detalle_solicitud.codigo_sufijo_equipo = Equipo_diferenciado.codigo_sufijo
+        LEFT JOIN Equipo ON Equipo.codigo = Equipo_diferenciado.codigo_equipo
+        LEFT JOIN Detalle_solicitud ON Detalle_solicitud.id_equipo = Equipo.id
+            AND Detalle_solicitud.codigo_sufijo_equipo = Equipo_diferenciado.codigo_sufijo
+        LEFT JOIN Solicitud ON Solicitud.id=Detalle_solicitud.id_solicitud
+        LEFT JOIN Estado_detalle_solicitud ON Estado_detalle_solicitud.id=Detalle_solicitud.estado
         WHERE Equipo_diferenciado.codigo_equipo = %s
+            AND Detalle_solicitud.estado IN (1,2,3)
     '''
     )
     cursor.execute(query,(codigo_equipo,))
