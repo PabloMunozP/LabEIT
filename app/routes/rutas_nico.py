@@ -273,6 +273,35 @@ def consultar_equipo_descripcion(codigo):
     equipo_detalle = cursor.fetchone()
     return equipo_detalle
 
+# Consulta una  lista de equipos especificos
+def consultar_lista_equipos_detalle(codigo_equipo):
+    query = ('''
+        SELECT 
+            Equipo_diferenciado.codigo_equipo,
+            Equipo_diferenciado.codigo_sufijo,
+            Equipo.id AS equipo_id,
+            Detalle_solicitud.id AS detalle_sol_id,
+            Detalle_solicitud.codigo_sufijo_equipo,
+            Detalle_solicitud.estado
+        FROM Equipo_diferenciado
+        LEFT JOIN Equipo ON Equipo.codigo = Equipo_diferenciado.codigo_equipo 
+        LEFT JOIN Detalle_solicitud ON Detalle_solicitud.id_equipo = Equipo.id AND Detalle_solicitud.codigo_sufijo_equipo = Equipo_diferenciado.codigo_sufijo
+        WHERE Equipo_diferenciado.codigo_equipo = %s
+    '''
+    )
+    cursor.execute(query,(codigo_equipo,))
+    equipos_detalle = cursor.fetchall()
+    return equipos_detalle
+
+# funcion para pronbar la consulta
+@mod.route("/prueba/detalles_equipo/<string:codigo_equipo>",methods=["GET"])
+def lista_detalle_info_equipo(codigo_equipo):
+    equipos = consultar_lista_equipos_detalle(codigo_equipo)
+    for i in equipos:
+        print(i)
+    return 'XD'
+
+
 #Vista más informacion equipo , sin tabla solicitudes definida
 @mod.route("/gestion_inventario_admin/detalles_equipo/<string:codigo_equipo>",methods=["GET"])
 def detalle_info_equipo(codigo_equipo):
@@ -292,18 +321,7 @@ def validar_form_añadir_equipo_espeficio(codigo_equipo):
 
 
 
-# Consulta una  lista de equipos especificos
-def consultar_lista_equipos_detalle(codigo_equipo):
-    query = ('''
-        SELECT *
-        FROM Equipo_diferenciado
-        WHERE Equipo_diferenciado.codigo_equipo = %s
-        ORDER BY Equipo_diferenciado.codigo_equipo
-    '''
-    )
-    cursor.execute(query,(codigo_equipo,))
-    equipos_detalle = cursor.fetchall()
-    return equipos_detalle
+
 
 #Se buscan los productos similares al codigo ingresado.
 def consultar_search():
