@@ -274,7 +274,7 @@ def consultar_equipo_descripcion(codigo):
     return equipo_detalle
 
 # Consulta una  lista de equipos especificos
-def consultar_lista_equipos_detalle(codigo_equipo):
+def consultar_lista_equipos_detalle_estado(codigo_equipo):
     query = ('''
         SELECT
             Equipo_diferenciado.codigo_equipo,
@@ -305,8 +305,8 @@ def consultar_lista_equipos_detalle(codigo_equipo):
 
 # funcion para pronbar la consulta
 @mod.route("/prueba/detalles_equipo/<string:codigo_equipo>",methods=["GET"])
-def lista_detalle_info_equipo(codigo_equipo):
-    equipos = consultar_lista_equipos_detalle(codigo_equipo)
+def lista_detalle_info_equipo_estado(codigo_equipo):
+    equipos = consultar_lista_equipos_detalle_estado(codigo_equipo)
     for i in equipos:
         print(i)
     return 'XD'
@@ -315,7 +315,7 @@ def lista_detalle_info_equipo(codigo_equipo):
 #Vista más informacion equipo , sin tabla solicitudes definida
 @mod.route("/gestion_inventario_admin/detalles_equipo/<string:codigo_equipo>",methods=["GET"])
 def detalle_info_equipo(codigo_equipo):
-    equipos = consultar_lista_equipos_detalle(codigo_equipo)
+    equipos = consultar_lista_equipos_detalle_estado(codigo_equipo)
     equipo_descripcion = consultar_equipo_descripcion(codigo_equipo)
     return render_template("/vistas_gestion_inventario/detalles_equipo.html",
     equipo_descripcion=equipo_descripcion, equipos_detalle = equipos)
@@ -365,6 +365,18 @@ def insertar_lista_equipos_detalle(codigo_equipo, valores_a_insertar):
         valores_a_insertar['activo']))
     db.commit()
     return 'OK'
+
+
+def consultar_lista_equipos_detalle(codigo_equipo):
+    query = ('''
+        SELECT *
+        FROM Equipo_diferenciado
+        WHERE Equipo_diferenciado.codigo_equipo = %s
+    '''
+    )
+    cursor.execute(query,(codigo_equipo,))
+    equipos_detalle = cursor.fetchall()
+    return equipos_detalle
 
 # ** Importante VISTA GESTION INVENTARIO DIFERENCIADO ** #
 @mod.route("/gestion_inventario_admin/lista_equipo_diferenciado/<string:codigo_equipo>")
