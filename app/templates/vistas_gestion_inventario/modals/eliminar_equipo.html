@@ -1,23 +1,20 @@
-
-
-
-
-
-
-<div id="eliminar_equipo" class="modal fade in" tabindex="-1" role="dialog" aria-labelledby="editar_informacion_label" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+<div class="modal fade" id="eliminar_equipo" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
-      <div class="modal-header bg-verde-eit">
-        <h5 class="modal-title text-white" id="editar_informacion_label"><i class="fas fa-trash"></i>Eliminar equipo</h5>
+      <div class="modal-header bg-gris-eit">
+        <h5 class="modal-title text-white" id="editar_informacion_label"><i class="fas fa-question-circle mr-2"></i>Confirmación de eliminación de equipo</h5>
+        <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close" style="outline:none;">
+          <span aria-hidden="true">&times;</span>
+        </button>
       </div>
       <form action="/gestion_inventario_admin/delete" id="form_confirmar_eliminar_equipo" method="POST">
         <div class="modal-body">
-          ¿Realmente deseas eliminar este equipo?
+          <p>Al eliminar el equipo, los registros asociados serán eliminados automáticamente.</p>
           <input class="form-control" type="text" name="codigo" value="" id="form_eliminar_equipo_codigo" hidden>
         </div>
         <div class="modal-footer">
-          <button type="button" id="boton_cerrar"  class="btn btn-primary" data-dismiss="modal">Cancelar</button>
-          <button type="summit" id="boton_guardar" class="btn btn-danger">Confirmar</button>
+          <button type="button" id="boton_cerrar"  class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+          <button type="summit" id="boton_guardar" class="btn btn-success">Confirmar</button>
         </div>
       </form>
   </div>

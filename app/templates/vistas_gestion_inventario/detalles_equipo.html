@@ -3,7 +3,7 @@
 
 <div class="container-fluid mt-2">
 			<div class="card-header border-0 rounded-0" style="background:#0db26b;">
-				<h5 class="card-title my-auto text-white"><i class="fas fa-laptop mr-2"></i>Detalles equipo</h5>
+				<h5 class="card-title my-auto text-white"><i class="fas fa-laptop mr-2"></i>Información detallada del equipo</h5>
 			</div>
 			<div class="card-body rounded-0" style="background:#ECF0F1;">
 
@@ -96,69 +96,69 @@
 				</div>
 
 			</div>
-		</div>
+
+			<div class="card-header mt-2" style="background:#0db26b;">
+				<h5 class="card-title text-white my-auto">Lista de solicitudes de préstamos activas</h5>
+			</div>
 
 
+				<div class="table-responsive mt-2">
+					<div class="table-wrapper-scroll-y" style="position: relative;
+											max-height: 450px;
+											overflow:auto;">
+						<table class="table">
+						  <thead class="text-white" style="background:#4D4D4D;">
+						    <tr>
+						      <th scope="col">Sufijo</th>
+						      <th scope="col">RUT solicitante</th>
+						      <th scope="col" class="text-center">Estado</th>
+									<th scope="col">Fecha de inicio</th>
+									<th scope="col">Fecha de término</th>
+									<th scope="col">Fecha de vencimiento</th>
+						    </tr>
+						  </thead>
+						  <tbody>
+								{% for solicitud in equipos_detalle %}
+									<tr style="background:#ECF0F1;">
+										<td>{{solicitud.codigo_sufijo_equipo}}</td>
+										<td>{{solicitud.rut_alumno|formato_rut}}</td>
 
-<div class="card-header mt-2" style="background:#0db26b;">
-	<h5 class="card-title text-white my-auto">Lista de solicitudes de préstamos activas</h5>
+										{% if solicitud.estado == 0 %}
+											<td class="text-center"><span class="badge badge-primary">{{solicitud.nombre}}</span></td>
+										{% elif solicitud.estado == 1 %}
+											<td class="text-center"><span class="badge badge-info">{{solicitud.nombre}}</span></td>
+										{% elif solicitud.estado == 2 %}
+											<td class="text-center"><span class="badge badge-success">{{solicitud.nombre}}</span></td>
+										{% elif solicitud.estado == 3 %}
+											<td class="text-center"><span class="badge badge-danger">{{solicitud.nombre}}</span></td>
+										{% elif solicitud.estado == 4 %}
+											<td class="text-center"><span class="badge badge-success">{{solicitud.nombre}}</span></td>
+										{% elif solicitud.estado == 5 %}
+											<td class="text-center"><span class="badge badge-danger">{{solicitud.nombre}}</span></td>
+										{% elif solicitud.estado == 6 %}
+											<td class="text-center"><span class="badge badge-secondary">{{solicitud.nombre}}</span></td>
+										{% endif %}
+
+										<td>
+												{{solicitud.fecha_inicio}}
+
+										</td>
+
+										<td>
+			                  {{solicitud.fecha_termino}}
+										</td>
+										<td>
+												{{solicitud.fecha_vencimiento}}
+										</td>
+									</tr>
+								{% endfor %}
+						  </tbody>
+						</table>
+					</div>
+				</div>
+
 </div>
 
-
-	<div class="table-responsive mt-2">
-		<div class="table-wrapper-scroll-y" style="position: relative;
-								max-height: 450px;
-								overflow:auto;">
-			<table class="table">
-			  <thead class="text-white" style="background:#4D4D4D;">
-			    <tr>
-			      <th scope="col">Sufijo</th>
-			      <th scope="col">RUT solicitante</th>
-			      <th scope="col" class="text-center">Estado</th>
-						<th scope="col">Fecha de inicio</th>
-						<th scope="col">Fecha de término</th>
-						<th scope="col">Fecha de vencimiento</th>
-			    </tr>
-			  </thead>
-			  <tbody>
-					{% for solicitud in equipos_detalle %}
-						<tr style="background:#ECF0F1;">
-							<td>{{solicitud.codigo_sufijo_equipo}}</td>
-							<td>{{solicitud.rut_alumno|formato_rut}}</td>
-
-							{% if solicitud.estado == 0 %}
-								<td class="text-center"><span class="badge badge-primary">{{solicitud.nombre}}</span></td>
-							{% elif solicitud.estado == 1 %}
-								<td class="text-center"><span class="badge badge-info">{{solicitud.nombre}}</span></td>
-							{% elif solicitud.estado == 2 %}
-								<td class="text-center"><span class="badge badge-success">{{solicitud.nombre}}</span></td>
-							{% elif solicitud.estado == 3 %}
-								<td class="text-center"><span class="badge badge-danger">{{solicitud.nombre}}</span></td>
-							{% elif solicitud.estado == 4 %}
-								<td class="text-center"><span class="badge badge-success">{{solicitud.nombre}}</span></td>
-							{% elif solicitud.estado == 5 %}
-								<td class="text-center"><span class="badge badge-danger">{{solicitud.nombre}}</span></td>
-							{% elif solicitud.estado == 6 %}
-								<td class="text-center"><span class="badge badge-secondary">{{solicitud.nombre}}</span></td>
-							{% endif %}
-
-							<td>
-									{{solicitud.fecha_inicio}}
-
-							</td>
-
-							<td>
-                  {{solicitud.fecha_termino}}
-							</td>
-							<td>
-									{{solicitud.fecha_vencimiento}}
-							</td>
-						</tr>
-					{% endfor %}
-			  </tbody>
-			</table>
-		</div>
-	</div>
 
 
 {% endblock %}

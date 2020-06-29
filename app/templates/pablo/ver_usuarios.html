@@ -8,7 +8,7 @@
           {% for msg in msgs %}
             {% if msg == "editado-correcto"%}
               <div class="alert alert-success alert-dismissible fade show" role="alert">
-                <i class="fas fa-check mr-2">Se ha modificado correctamente.</i>
+                <i class="fas fa-check-circle mr-2"></i>Se ha modificado correctamente.
                 <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
                 </button>
@@ -16,7 +16,7 @@
             {%endif%}
             {% if msg == "agregar-correcto"%}
               <div class="alert alert-success alert-dismissible fade show" role="alert">
-                <i class="fas fa-check mr-2">Se ha agregado correctamente.</i>
+                <i class="fas fa-check-circle mr-2"></i>Se ha agregado correctamente.
                 <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
                 </button>
@@ -24,7 +24,7 @@
             {%endif%}
             {% if msg == "eliminar-correcto"%}
               <div class="alert alert-success alert-dismissible fade show" role="alert">
-                <i class="fas fa-check mr-2">Se ha eliminado correctamente.</i>
+                <i class="fas fa-check-circle mr-2"></i>Se ha eliminado correctamente.
                 <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
                 </button>
@@ -41,9 +41,9 @@
 
       <div class="row float-right mt-2 mb-2">
           <div class="col-md-12">
-              <button type="button" data-target=" #agregar_usuario" class= "btn btn-success" data-toggle="modal"><i class="fas fa-user-plus mr-1"></i>Agregar nuevo usuario</button>
+              <button type="button" data-target=" #agregar_usuario" class= "btn btn-success" data-toggle="modal"><i class="fas fa-user-plus mr-2"></i>Agregar nuevo usuario</button>
                {% include 'pablo/añadir_usuario.html' %}
-               <button type="button" data-target=" #agregar_masivo" class= "btn btn-success" data-toggle="modal"><i class="fas fa-file-csv mr-1"></i>Carga masiva</button>
+               <button type="button" data-target=" #agregar_masivo" class= "btn btn-info" data-toggle="modal"><i class="fas fa-file-csv mr-2"></i>Carga masiva</button>
           </div>
       </div>
 

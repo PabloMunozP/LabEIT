@@ -1,37 +1,52 @@
 <!-- Modal editar equipo-->
-<div id="editar_equipo" class="modal fade in" tabindex="-1" role="dialog" aria-labelledby="editar_informacion_label" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+<div class="modal fade" id="editar_equipo" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
       <div class="modal-content">
-        <div class="modal-header bg-verde-eit">
+        <div class="modal-header bg-gris-eit">
           <h5 id="modal-title" class="modal-title text-white" id="editar_informacion_label"><i class="fas fa-edit"></i> Editar equipo</h5>
+          <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close" style="outline:none;">
+            <span aria-hidden="true">&times;</span>
+          </button>
         </div>
         <form id="editar_form" action="/gestion_inventario_admin/actualizar_informacion" method="POST">
 
           <div class="modal-body">
             <input class="form-control" type="text" name="codigo_original" value="" id="editar-equipo-hidden-id" hidden>
 
-            <label for="editar-equipo-codigo">Código</label>
-            <input class="form-control" type="text" name="codigo" value="" id="editar-equipo-codigo">
+            <div class="form-group">
+              <label for="editar-equipo-codigo">Código</label>
+              <input class="form-control" type="text" name="codigo" value="" id="editar-equipo-codigo">
+            </div>
 
-            <label for="editar-equipo-modelo">Nombre</label>
-            <input class="form-control" type="text" name="nombre" value="" id="editar-equipo-nombre">
+            <div class="form-group">
+              <label for="editar-equipo-modelo">Nombre</label>
+              <input class="form-control" type="text" name="nombre" value="" id="editar-equipo-nombre">
+            </div>
 
-            <label for="editar-equipo-modelo">Modelo</label>
-            <input class="form-control" type="text" name="modelo" value="" id="editar-equipo-modelo">
+            <div class="form-group">
+              <label for="editar-equipo-marca">Marca</label>
+              <input class="form-control" type="text" name="marca"  value="" id="editar-equipo-marca">
+            </div>
 
-            <label for="editar-equipo-marca">Marca</label>
-            <input class="form-control" type="text" name="marca"  value="" id="editar-equipo-marca">
+            <div class="form-group">
+              <label for="editar-equipo-modelo">Modelo</label>
+              <input class="form-control" type="text" name="modelo" value="" id="editar-equipo-modelo">
+            </div>
 
-            <label for="editar-equipo-descripcion">Descripción</label>
-            <input class="form-control" type="text" name="descripcion" value="" id="editar-equipo-descripcion">
+            <div class="form-group">
+              <label for="editar-equipo-descripcion">Descripción</label>
+              <textarea class="form-control" id="editar-equipo-descripcion" name="descripcion" rows="3" style="min-height:100px;max-height:300px;"></textarea>
+            </div>
 
-            <label for="editar-equipo-imagen">Imagen</label>
-            <input class="form-control" type="text" name="imagen" value="" id="editar-equipo-imagen">
+            <div class="form-group">
+              <label for="editar-equipo-imagen">URL de imagen</label>
+              <input class="form-control" type="text" name="imagen" value="" id="editar-equipo-imagen">
+            </div>
 
-            <label for="dias_max_prestamo">Días de prestamo</label>
-            <input type="text" class="form-control" name="dias_max_prestamo" value="" id="editar-equipo-dias">
-
-
+            <div class="form-group">
+              <label for="dias_max_prestamo">Días de prestamo</label>
+              <input type="number" min="1" class="form-control" name="dias_max_prestamo" value="" id="editar-equipo-dias">
+            </div>
 
           <div class="form-check">
           <hr style="border:2px;">
@@ -40,11 +55,10 @@
           <hr style="border:2px;">
           </div>
 
-
+          <div class="form-group">
             <label for="editar-cantidad-circuito">Cantidad de componentes</label>
-            <input class="form-control" type="text" name="cantidad_componentes" value="" id="editar-cantidad-circuito">
-
-
+            <input class="form-control" type="number" min="1" name="cantidad_componentes" value="" id="editar-cantidad-circuito">
+          </div>
 
           </div>
           <div class="modal-footer">
