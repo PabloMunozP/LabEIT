@@ -52,6 +52,7 @@
 					<table class="table">
 					  <thead class="text-white" style="background:#4D4D4D;">
 					    <tr>
+								<th scope="col">Nombre</th>
 					      <th scope="col">Marca</th>
 					      <th scope="col">Modelo</th>
 					      <th scope="col" class="text-center">Cantidad disponible</th>
@@ -61,6 +62,7 @@
 					  <tbody>
 							{% for equipo in lista_equipos %}
 								<tr style="background:#ECF0F1;">
+										<td>{{equipo["nombre"]}}</td>
 										<td>{{equipo["marca"]}}</td>
 										<td>{{equipo["modelo"]}}</td>
 										<td class="text-center">{{equipo["cantidad_disponible"]}}/{{equipo["cantidad_total"]}}</td>
@@ -93,6 +95,7 @@
 					<table class="table">
 						<thead class="text-white" style="background:#4D4D4D;">
 							<tr>
+								<th scope="col">Nombre</th>
 								<th scope="col">Marca</th>
 								<th scope="col">Modelo</th>
 								<th scope="col" class="text-center">Unidades</th>
@@ -102,12 +105,12 @@
 						<tbody>
 							{% for equipo in lista_carro %}
 								<tr style="background:#ECF0F1;">
+									<td>{{equipo["nombre"]}}</td>
 									<td>{{equipo["marca"]}}</td>
 									<td>{{equipo["modelo"]}}</td>
 									<td class="text-center">{{equipo["cantidad_pedidos"]}}</td>
 									<td class="text-center">
 										<span class="btn-group">
-											<button type="button" title="Modificar cantidad" class="btn btn-sm btn-warning boton-editar-pedido-carro mr-1"><i class="fas fa-edit"></i></button>
 											<button type="button" onclick="eliminar_del_carro({{equipo}})" title="Eliminar equipo del carro" class="btn btn-sm btn-danger boton-eliminar-pedido-carro"><i class="fas fa-times-circle"></i></button>
 										</span>
 									</td>

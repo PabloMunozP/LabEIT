@@ -297,19 +297,20 @@ def gestion_solicitudes_prestamos():
 
     # Se obtiene el listado de detalles de solicitudes por revisar
     sql_query = """
-        SELECT Detalle_solicitud.*,Equipo.marca,Equipo.modelo,Usuario.rut AS rut_alumno,Solicitud.fecha_registro
+        SELECT Detalle_solicitud.*,Equipo.nombre,Equipo.marca,Equipo.modelo,Usuario.rut AS rut_alumno,Solicitud.fecha_registro
             FROM Detalle_solicitud,Equipo,Solicitud,Usuario
                 WHERE Solicitud.id = Detalle_solicitud.id_solicitud
                 AND Detalle_solicitud.id_equipo = Equipo.id
                 AND Solicitud.rut_alumno = Usuario.rut
                 AND Detalle_solicitud.estado = 0
+                ORDER BY Solicitud.fecha_registro DESC
     """
     cursor.execute(sql_query)
     lista_solicitudes_por_revisar = cursor.fetchall()
 
     # Se obtiene el listado de detalles de solicitudes activas
     sql_query = """
-        SELECT Detalle_solicitud.*,Equipo.marca,Equipo.modelo,Usuario.rut AS rut_alumno,Solicitud.fecha_registro,Estado_detalle_solicitud.nombre AS nombre_estado
+        SELECT Detalle_solicitud.*,Equipo.nombre,Equipo.marca,Equipo.modelo,Usuario.rut AS rut_alumno,Solicitud.fecha_registro,Estado_detalle_solicitud.nombre AS nombre_estado
             FROM Detalle_solicitud,Equipo,Solicitud,Usuario,Estado_detalle_solicitud
                 WHERE Solicitud.id = Detalle_solicitud.id_solicitud
                 AND Estado_detalle_solicitud.id = Detalle_solicitud.estado
@@ -317,13 +318,14 @@ def gestion_solicitudes_prestamos():
                 AND Solicitud.rut_alumno = Usuario.rut
                 AND Detalle_solicitud.estado != 0
                 AND Detalle_solicitud.estado < 5
+                ORDER BY Solicitud.fecha_registro DESC
     """
     cursor.execute(sql_query)
     lista_solicitudes_activas = cursor.fetchall()
 
     # Se obtiene la lista de solicitudes pertenecientes al historial
     sql_query = """
-        SELECT Detalle_solicitud.*,Equipo.marca,Equipo.modelo,Usuario.rut AS rut_alumno,Solicitud.fecha_registro,Estado_detalle_solicitud.nombre AS nombre_estado
+        SELECT Detalle_solicitud.*,Equipo.nombre,Equipo.marca,Equipo.modelo,Usuario.rut AS rut_alumno,Solicitud.fecha_registro,Estado_detalle_solicitud.nombre AS nombre_estado
             FROM Detalle_solicitud,Equipo,Solicitud,Usuario,Estado_detalle_solicitud
                 WHERE Solicitud.id = Detalle_solicitud.id_solicitud
                 AND Estado_detalle_solicitud.id = Detalle_solicitud.estado
@@ -331,6 +333,7 @@ def gestion_solicitudes_prestamos():
                 AND Solicitud.rut_alumno = Usuario.rut
                 AND Detalle_solicitud.estado != 0
                 AND Detalle_solicitud.estado >= 5
+                ORDER BY Solicitud.fecha_registro DESC
     """
     cursor.execute(sql_query)
     lista_historial_solicitudes = cursor.fetchall()

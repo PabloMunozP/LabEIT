@@ -114,7 +114,7 @@ def agregar_al_carro():
     lista_carro = []
     for pedido in session["carro_pedidos"]:
         sql_query = """
-            SELECT id,marca,modelo,codigo
+            SELECT id,nombre,marca,modelo,codigo
                 FROM Equipo
                     WHERE id = %s
         """
@@ -152,7 +152,7 @@ def eliminar_del_carro():
     lista_carro = []
     for pedido in session["carro_pedidos"]:
         sql_query = """
-            SELECT id,marca,modelo,codigo
+            SELECT id,nombre,marca,modelo,codigo
                 FROM Equipo
                     WHERE id = %s
         """
