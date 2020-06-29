@@ -61,6 +61,7 @@
     		  <thead class="text-white" style="background:#4D4D4D;">
     		    <tr>
     		      <th scope="col">Código</th>
+              <th scope="col">Nombre</th>
     		      <th scope="col">Modelo</th>
               <th scope="col">Marca</th>
               <th scope="col">Días</th>
@@ -75,6 +76,7 @@
     				  {% for elemento in lista_equipo %}
     					<tr id="row{{loop.index}}">
     						<td> {{elemento.codigo}}</td>
+                <td> {{elemento.nombre}}</td>
     						<td> {{elemento.modelo}}</td>
                 <td> {{elemento.marca}} </td>
                 <td>  {{elemento.dias_max_prestamo}} </td>
@@ -87,7 +89,7 @@
     									<button type="button" title="Ver detalles de equipo" data-toggle="modal" class="btn btn-info"><i class="fas fa-search-plus"></i></button>
     								</a>
 
-                    <button type="button" onclick="cargar_datos_equipo_modal('{{elemento.codigo}}','{{elemento.modelo}}', '{{elemento.marca}}', '{{elemento.descripcion}}','{{elemento.dias_max_prestamo}}','{{elemento.imagen}}',{{elemento.multi_componente}},'{{elemento.total_equipos}}')" data-target="#editar_equipo" title="Editar equipo" class="btn btn-primary" data-toggle="modal"><i class="fas fa-edit"></i></button>
+                    <button type="button" onclick="cargar_datos_equipo_modal('{{elemento.codigo}}','{{elemento.nombre}}','{{elemento.modelo}}', '{{elemento.marca}}', '{{elemento.descripcion}}','{{elemento.dias_max_prestamo}}','{{elemento.imagen}}',{{elemento.multi_componente}},'{{elemento.total_equipos}}')" data-target="#editar_equipo" title="Editar equipo" class="btn btn-primary" data-toggle="modal"><i class="fas fa-edit"></i></button>
 
                     <button type="button" onclick="cargar_codigo_delete_equipo_modal('{{elemento.codigo}}')" title="Eliminar equipo" data-toggle="modal" data-target="#eliminar_equipo" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
 

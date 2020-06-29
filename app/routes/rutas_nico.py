@@ -31,6 +31,7 @@ def consultar_lista_equipos_general():
         FROM (SELECT
                 Equipo.id AS equipo_id,
                 Equipo.codigo,
+                Equipo.nombre,
                 Equipo.modelo,
                 Equipo.marca,
                 Equipo.descripcion,
@@ -75,11 +76,12 @@ def gestion_inventario_admin():
 
 def insertar_lista_equipos_general(valores_a_insertar):
     query = ('''
-        INSERT INTO Equipo (codigo, modelo, marca, descripcion, dias_max_prestamo)
-        VALUES (%s, %s, %s, %s ,%s);
+        INSERT INTO Equipo (codigo, nombre, modelo, marca, descripcion, dias_max_prestamo)
+        VALUES (%s, %s, %s, %s, %s ,%s);
     ''')
     cursor.execute(query,(
         valores_a_insertar['codigo'],
+        valores_a_insertar['nombre'],
         valores_a_insertar['modelo'],
         valores_a_insertar['marca'],
         valores_a_insertar['descripcion'],
@@ -107,6 +109,7 @@ def editar_equipo_general(informacion_a_actualizar):  # Query UPDATE
                 LEFT JOIN Equipo_diferenciado ON Equipo_diferenciado.codigo_equipo = Equipo.codigo
                 SET Equipo_diferenciado.codigo_equipo = %s,
                     Equipo.codigo = %s,
+                    Equipo.nombre = %s,
                     Equipo.modelo = %s,
                     Equipo.marca = %s,
                     Equipo.imagen = %s,
@@ -121,6 +124,7 @@ def editar_equipo_general(informacion_a_actualizar):  # Query UPDATE
             cursor.execute(query,(
                 informacion_a_actualizar['codigo'],
                 informacion_a_actualizar['codigo'],
+                informacion_a_actualizar['nombre'],
                 informacion_a_actualizar['modelo'],
                 informacion_a_actualizar['marca'],
                 informacion_a_actualizar['imagen'],
@@ -134,6 +138,7 @@ def editar_equipo_general(informacion_a_actualizar):  # Query UPDATE
             query = ('''
                 UPDATE Equipo
                 SET codigo = %s,
+                    nombre = %s,
                     modelo = %s,
                     marca = %s,
                     imagen = %s,
@@ -145,6 +150,7 @@ def editar_equipo_general(informacion_a_actualizar):  # Query UPDATE
 
             cursor.execute(query,(
                 informacion_a_actualizar['codigo'],
+                informacion_a_actualizar['nombre'],
                 informacion_a_actualizar['modelo'],
                 informacion_a_actualizar['marca'],
                 informacion_a_actualizar['imagen'],
@@ -267,6 +273,45 @@ def consultar_equipo_descripcion(codigo):
     equipo_detalle = cursor.fetchone()
     return equipo_detalle
 
+# Consulta una  lista de equipos especificos
+def consultar_lista_equipos_detalle(codigo_equipo):
+    query = ('''
+        SELECT
+            Equipo_diferenciado.codigo_equipo,
+            Equipo_diferenciado.codigo_sufijo,
+            Equipo_diferenciado.activo,
+            Equipo.id AS equipo_id,
+            Detalle_solicitud.id AS detalle_sol_id,
+            Detalle_solicitud.codigo_sufijo_equipo,
+            Detalle_solicitud.estado,
+            Estado_detalle_solicitud.nombre,
+            Solicitud.rut_alumno,
+            Detalle_solicitud.fecha_inicio,
+            Detalle_solicitud.fecha_termino,
+            Detalle_solicitud.fecha_vencimiento
+        FROM Equipo_diferenciado
+        LEFT JOIN Equipo ON Equipo.codigo = Equipo_diferenciado.codigo_equipo
+        LEFT JOIN Detalle_solicitud ON Detalle_solicitud.id_equipo = Equipo.id
+            AND Detalle_solicitud.codigo_sufijo_equipo = Equipo_diferenciado.codigo_sufijo
+        LEFT JOIN Solicitud ON Solicitud.id=Detalle_solicitud.id_solicitud
+        LEFT JOIN Estado_detalle_solicitud ON Estado_detalle_solicitud.id=Detalle_solicitud.estado
+        WHERE Equipo_diferenciado.codigo_equipo = %s
+            AND Detalle_solicitud.estado IN (1,2,3)
+    '''
+    )
+    cursor.execute(query,(codigo_equipo,))
+    equipos_detalle = cursor.fetchall()
+    return equipos_detalle
+
+# funcion para pronbar la consulta
+@mod.route("/prueba/detalles_equipo/<string:codigo_equipo>",methods=["GET"])
+def lista_detalle_info_equipo(codigo_equipo):
+    equipos = consultar_lista_equipos_detalle(codigo_equipo)
+    for i in equipos:
+        print(i)
+    return 'XD'
+
+
 #Vista más informacion equipo , sin tabla solicitudes definida
 @mod.route("/gestion_inventario_admin/detalles_equipo/<string:codigo_equipo>",methods=["GET"])
 def detalle_info_equipo(codigo_equipo):
@@ -286,18 +331,7 @@ def validar_form_añadir_equipo_espeficio(codigo_equipo):
 
 
 
-# Consulta una  lista de equipos especificos
-def consultar_lista_equipos_detalle(codigo_equipo):
-    query = ('''
-        SELECT *
-        FROM Equipo_diferenciado
-        WHERE Equipo_diferenciado.codigo_equipo = %s
-        ORDER BY Equipo_diferenciado.codigo_equipo
-    '''
-    )
-    cursor.execute(query,(codigo_equipo,))
-    equipos_detalle = cursor.fetchall()
-    return equipos_detalle
+
 
 #Se buscan los productos similares al codigo ingresado.
 def consultar_search():

@@ -1,8 +1,7 @@
-{% extends "layout_in.html" %}
-	{% block body %}
+{% extends "layout_in.html"%}
+{%block body%}
 
-
-	<div class="container-fluid mt-2">
+<div class="container-fluid mt-2">
 			<div class="card-header border-0 rounded-0" style="background:#0db26b;">
 				<h5 class="card-title my-auto text-white"><i class="fas fa-laptop mr-2"></i>Detalles equipo</h5>
 			</div>
@@ -50,13 +49,15 @@
 					</div>
 				</div>
 
+
+
 				<div class="form-group row">
 					<label class="col-md-2 col-form-label texto-gris-eit">
 						<strong>Stock:</strong>
 					</label>
 					<div class="col-md-4">
 						<p class="form-control-plaintext text-break">
-
+							X/X
 						</p>
 					</div>
 					<label class="col-md-4 col-form-label texto-gris-eit">
@@ -97,59 +98,67 @@
 			</div>
 		</div>
 
-    <div class="row mt-3">
-    	<div class="col-md-12">
-    		<h5 class="texto-gris-eit">Lista de solicitudes de préstamos activas</h5>
-    	</div>
-    </div>
-    <hr>
 
-    <div class="table-responsive">
-    	<div class="table-wrapper-scroll-y" style="position: relative;
-    							max-height: 450px;
-    							overflow:auto;">
-    		<table class="table table-hover">
-    		  <thead class="text-white" style="background:#4D4D4D;">
-    		    <tr>
-    		      <th scope="col">ID</th>
-    		      <th scope="col">RUT de alumno solicitante</th>
-    		      <th scope="col">Equipo solicitado</th>
-    		      <th scope="col">Estado de solicitud</th>
-    					<th scope="col">Fecha de registro</th>
-    					<th scope="col">Acciones</th>
-    		    </tr>
-    		  </thead>
-    		  <tbody>
-    				{% for elemento in equipos_detalle %}
-    					<tr>
-    						<td>{{loop.index}}</td>
-    						<td>19.889.608-K</td>
-    						<td>Raspberry Pi</td>
-    						{% set random_num = range(1,4) | random %}
 
-    						{% if random_num == 1 %}
-    							<td class="text-center"><span class="badge badge-success">En curso</span></td>
-    						{% elif random_num == 2 %}
-    							<td class="text-center"><span class="badge badge-danger">Con atraso de N días</span></td>
-    						{% elif random_num == 3 %}
-    							<td class="text-center"><span class="badge badge-warning">Por retirar</span></td>
-    						{% else %}
+<div class="card-header mt-2" style="background:#0db26b;">
+	<h5 class="card-title text-white my-auto">Lista de solicitudes de préstamos activas</h5>
+</div>
 
-    						{% endif %}
-    						<td>09-06-2020 - 01:45</td>
-    						<td>
-    							<span class="btn-group">
-    								<a href="gestion_solicitudes_prestamos/detalle_solicitud/{{loop.index}}">
-    									<button type="button" title="Ver detalle de solicitud" class="btn btn-sm btn-secondary mr-1"><i class="fas fa-search-plus"></i></button>
-    								</a>
-    								<button type="button" title="Eliminar solicitud" class="btn btn-sm btn-danger"><i class="fas fa-minus-circle"></i></button>
-    							</span>
-    						</td>
-    					</tr>
-    				{% endfor %}
-    		  </tbody>
-    		</table>
-    	</div>
-    </div>
 
-    {% endblock %}
+	<div class="table-responsive mt-2">
+		<div class="table-wrapper-scroll-y" style="position: relative;
+								max-height: 450px;
+								overflow:auto;">
+			<table class="table">
+			  <thead class="text-white" style="background:#4D4D4D;">
+			    <tr>
+			      <th scope="col">Sufijo</th>
+			      <th scope="col">RUT solicitante</th>
+			      <th scope="col" class="text-center">Estado</th>
+						<th scope="col">Fecha de inicio</th>
+						<th scope="col">Fecha de término</th>
+						<th scope="col">Fecha de vencimiento</th>
+			    </tr>
+			  </thead>
+			  <tbody>
+					{% for solicitud in equipos_detalle %}
+						<tr style="background:#ECF0F1;">
+							<td>{{solicitud.codigo_sufijo_equipo}}</td>
+							<td>{{solicitud.rut_alumno|formato_rut}}</td>
+
+							{% if solicitud.estado == 0 %}
+								<td class="text-center"><span class="badge badge-primary">{{solicitud.nombre}}</span></td>
+							{% elif solicitud.estado == 1 %}
+								<td class="text-center"><span class="badge badge-info">{{solicitud.nombre}}</span></td>
+							{% elif solicitud.estado == 2 %}
+								<td class="text-center"><span class="badge badge-success">{{solicitud.nombre}}</span></td>
+							{% elif solicitud.estado == 3 %}
+								<td class="text-center"><span class="badge badge-danger">{{solicitud.nombre}}</span></td>
+							{% elif solicitud.estado == 4 %}
+								<td class="text-center"><span class="badge badge-success">{{solicitud.nombre}}</span></td>
+							{% elif solicitud.estado == 5 %}
+								<td class="text-center"><span class="badge badge-danger">{{solicitud.nombre}}</span></td>
+							{% elif solicitud.estado == 6 %}
+								<td class="text-center"><span class="badge badge-secondary">{{solicitud.nombre}}</span></td>
+							{% endif %}
+
+							<td>
+									{{solicitud.fecha_inicio}}
+
+							</td>
+
+							<td>
+                  {{solicitud.fecha_termino}}
+							</td>
+							<td>
+									{{solicitud.fecha_vencimiento}}
+							</td>
+						</tr>
+					{% endfor %}
+			  </tbody>
+			</table>
+		</div>
+	</div>
+
+
+{% endblock %}
