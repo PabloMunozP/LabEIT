@@ -13,6 +13,9 @@
             <label for="editar-equipo-codigo">Código</label>
             <input class="form-control" type="text" name="codigo" value="" id="editar-equipo-codigo">
 
+            <label for="editar-equipo-modelo">Nombre</label>
+            <input class="form-control" type="text" name="nombre" value="" id="editar-equipo-nombre">
+
             <label for="editar-equipo-modelo">Modelo</label>
             <input class="form-control" type="text" name="modelo" value="" id="editar-equipo-modelo">
 
@@ -54,10 +57,11 @@
   </div>
 
   <script>
-    function cargar_datos_equipo_modal(codigo, modelo, marca, descripcion, dias_max_prestamo, imagen_url, multi_componente, total_equipos ){
+    function cargar_datos_equipo_modal(codigo, nombre, modelo, marca, descripcion, dias_max_prestamo, imagen_url, multi_componente, total_equipos ){
       document.getElementById("modal-title").innerHTML = '<i class="fas fa-edit"></i> Editar equipo ' + codigo ;
       $("#editar-equipo-hidden-id").val(codigo);
       $("#editar-equipo-codigo").val(codigo);
+      $("#editar-equipo-nombre").val(nombre);
       $("#editar-equipo-modelo").val(modelo);
       $("#editar-equipo-marca").val(marca);
       $("#editar-equipo-descripcion").val( descripcion);
