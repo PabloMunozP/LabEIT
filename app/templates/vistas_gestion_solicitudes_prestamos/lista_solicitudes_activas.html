@@ -24,7 +24,7 @@
 						<tr style="background:#ECF0F1;">
 							<td>{{detalle_solicitud["id"]}}</td>
 							<td>{{detalle_solicitud["rut_alumno"]|formato_rut}}</td>
-							<td>{{detalle_solicitud["marca"]}} {{detalle_solicitud["modelo"]}}</td>
+							<td>{{detalle_solicitud["nombre"]}} {{detalle_solicitud["marca"]}} {{detalle_solicitud["modelo"]}}</td>
 							<td>{{detalle_solicitud["fecha_registro"]}}</td>
 							<td>
 								<span class="btn-group">
@@ -73,7 +73,7 @@
 						<tr style="background:#ECF0F1;">
 							<td>{{detalle_solicitud["id"]}}</td>
 							<td>{{detalle_solicitud["rut_alumno"]|formato_rut}}</td>
-							<td>{{detalle_solicitud["marca"]}} {{detalle_solicitud["modelo"]}}</td>
+							<td>{{detalle_solicitud["nombre"]}} {{detalle_solicitud["marca"]}} {{detalle_solicitud["modelo"]}}</td>
 
 							{% if detalle_solicitud["estado"] == 0 %}
 								<td class="text-center"><span class="badge badge-primary">{{detalle_solicitud["nombre_estado"]}}</span></td>

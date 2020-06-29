@@ -292,6 +292,15 @@
 
 				<div class="form-group row">
 					<label class="col-md-2 col-form-label texto-gris-eit">
+						<strong>Nombre:</strong>
+					</label>
+					<div class="col-md-4">
+						<p class="form-control-plaintext
+							 text-break">
+							 {{datos_equipo["nombre"]}}
+						</p>
+					</div>
+					<label class="col-md-2 col-form-label texto-gris-eit">
 						<strong>Marca:</strong>
 					</label>
 					<div class="col-md-4">
@@ -299,6 +308,10 @@
 							{{datos_equipo["marca"]}}
 						</p>
 					</div>
+				</div>
+
+				<div class="form-group row">
+
 					<label class="col-md-2 col-form-label texto-gris-eit">
 						<strong>Modelo:</strong>
 					</label>
@@ -308,9 +321,6 @@
 							 {{datos_equipo["modelo"]}}
 						</p>
 					</div>
-				</div>
-
-				<div class="form-group row">
 					<label class="col-md-2 col-form-label texto-gris-eit">
 						<strong>Stock:</strong>
 					</label>
@@ -319,6 +329,9 @@
 							<strong>{{datos_equipo["cantidad_disponible"]}}</strong> / <strong>{{datos_equipo["cantidad_total"]}}</strong> unidad(es) en el laboratorio.
 						</p>
 					</div>
+				</div>
+
+				<div class="form-group row">
 					<label class="col-md-4 col-form-label texto-gris-eit">
 						<strong>Cantidad de días permitidos:</strong>
 					</label>
@@ -360,11 +373,9 @@
 			<div class="card-footer rounded-0 text-right" style="background:#ECF0F1;">
 				<span class="btn-group flex-wrap">
 					{% if datos_detalle_solicitud["estado"] == 0 %}
-						<button type="button" class="btn btn-warning mr-1" data-toggle="modal" data-target="#editar_solicitud_prestamo"><i class="fas fa-edit mr-1"></i>Modificar solicitud</button>
 						<button type="button" class="btn btn-danger mr-1" data-toggle="modal" data-target="#confirmacion_rechazo_solicitud"><i class="fas fa-times-circle mr-1"></i>Rechazar solicitud</button>
 						<button type="button" class="btn btn-success" data-toggle="modal" data-target="#confirmacion_aprobacion_solicitud"><i class="fas fa-clipboard-check mr-1"></i>Aprobar solicitud</button>
 					{% elif datos_detalle_solicitud["estado"] == 1 %}
-						<button type="button" class="btn btn-warning mr-1" data-toggle="modal" data-target="#editar_solicitud_prestamo"><i class="fas fa-edit mr-1"></i>Modificar solicitud</button>
 						<button type="button" class="btn btn-danger mr-1" data-toggle="modal" data-target="#confirmacion_cancelacion_solicitud"><i class="fas fa-times-circle mr-1"></i>Cancelar solicitud</button>
 						<button type="button" class="btn btn-info" data-toggle="modal" data-target="#formulario_retiro_equipo"><i class="fas fa-clipboard-check mr-1"></i>Marcar como entregado</button>
 					{% elif datos_detalle_solicitud["estado"] == 2 %}
