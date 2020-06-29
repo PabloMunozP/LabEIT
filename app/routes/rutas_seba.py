@@ -405,12 +405,20 @@ def detalle_solicitud(id_detalle_solicitud):
         SELECT count(*) AS cantidad_total
             FROM Equipo_diferenciado
                 WHERE codigo_equipo = %s
-                AND activo = 1
     """
     cursor.execute(sql_query,(datos_equipo["codigo"],))
     datos_equipo["cantidad_total"] = cursor.fetchone()["cantidad_total"]
 
-    datos_equipo["cantidad_disponible"] = datos_equipo["cantidad_total"]-datos_equipo["cantidad_prestados"]
+    sql_query = """
+        SELECT count(*) AS cantidad_funcionales
+            FROM Equipo_diferenciado
+                WHERE codigo_equipo = %s
+                AND activo = 1
+    """
+    cursor.execute(sql_query,(datos_equipo["codigo"],))
+    datos_equipo["cantidad_funcionales"] = cursor.fetchone()["cantidad_funcionales"]
+
+    datos_equipo["cantidad_disponible"] = datos_equipo["cantidad_funcionales"]-datos_equipo["cantidad_prestados"]
 
     # Se obtiene la lista de equipos y usuarios para opción de modificar solicitud
     sql_query = """

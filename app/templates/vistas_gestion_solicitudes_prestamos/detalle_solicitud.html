@@ -326,12 +326,26 @@
 					</label>
 					<div class="col-md-4">
 						<p class="form-control-plaintext text-break">
-							<strong>{{datos_equipo["cantidad_disponible"]}}</strong> / <strong>{{datos_equipo["cantidad_total"]}}</strong> unidad(es) en el laboratorio.
+							{% if datos_equipo["cantidad_total"] > 1 or datos_equipo["cantidad_total"] == 0 %}
+								<strong>{{datos_equipo["cantidad_total"]}}</strong> unidades en el laboratorio.
+							{% else %}
+								<strong>{{datos_equipo["cantidad_total"]}}</strong> unidad en el laboratorio.
+							{% endif %}
+							<br><strong>{{datos_equipo["cantidad_funcionales"]}}</strong> unidades funcionales.
 						</p>
 					</div>
 				</div>
 
 				<div class="form-group row">
+					<label class="col-md-4 col-form-label texto-gris-eit">
+						<strong>Unidades disponibles para préstamos:</strong>
+					</label>
+					<div class="col-md-2">
+						<p class="form-control-plaintext
+							 text-break">
+							 <strong>{{datos_equipo["cantidad_disponible"]}}</strong>
+						</p>
+					</div>
 					<label class="col-md-4 col-form-label texto-gris-eit">
 						<strong>Cantidad de días permitidos:</strong>
 					</label>
