@@ -24,8 +24,7 @@ def consultar_lista_equipos_general():
         SELECT *,
 
             CASE    WHEN Detalle_solicitud.cantidad IS NOT NULL THEN Detalle_solicitud.cantidad
-                    ELSE COUNT(CASE WHEN Detalle_solicitud.estado = 2 THEN 1
-                                    WHEN Detalle_solicitud.estado = 3 THEN 1
+                    ELSE COUNT(CASE WHEN Detalle_solicitud.estado IN (1, 2, 3) THEN 1
                                     ELSE NULL END)
                     END AS en_prestamo
         FROM (SELECT
