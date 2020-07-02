@@ -471,7 +471,7 @@ def rechazar_solicitud(id_detalle):
 
     # Razón de rechazo de solicitud
     razon_rechazo = request.form.to_dict()["razon_rechazo"]
-    razon_rechazo = razon_rechazo.replace("\n", "<br />") # Se modifica con new line de HTML para insertar en template
+    razon_rechazo = razon_rechazo.replace("\n", "<br>") # Se modifica con new line de HTML para insertar en template
 
     # Se obtienen los datos al equipo y detalle de solicitud para notificar al usuario vía correo
     sql_query = """
@@ -739,6 +739,7 @@ def cancelar_solicitud(id_detalle):
 
     razon_cancelacion = datos_formulario["razon_cancelacion"]
     razon_cancelacion = razon_cancelacion.strip()
+    razon_cancelacion = razon_cancelacion.replace("\n", "<br>")
 
     if len(razon_cancelacion) == 0:
         razon_cancelacion = "** No se ha adjuntado una razón de cancelación de solicitud. **"
