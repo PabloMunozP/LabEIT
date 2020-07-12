@@ -89,10 +89,7 @@
 
 <script>
   // init
-  const myArray = {{lista_equipo | tojson }};
-  let current_page = 1;
-  let rows = 10;
-  const pagination = $("#paginationNavBarElements");
+  
   
   function buildTable(data, row_per_page, page){ // funcion para armar la tabla
     var table = document.getElementById('myTableBody');
@@ -100,7 +97,7 @@
     page--;
     let loop_start = row_per_page * page;
     let paginatedItems = data.slice(loop_start,loop_start+row_per_page);
-    console.log(paginatedItems);
+    //console.log(paginatedItems);
     for (let element of paginatedItems){
       var row =`<tr style="background:#ECF0F1;">
                     <td> ${element.codigo} </td>
@@ -132,6 +129,7 @@
     var node = document.createElement("LI"); // Crea el nodo LI 
       node.setAttribute('class', 'page-item'); // Agrega las clases al nodo LI
       node.setAttribute('id','nodeNum'+number); // Agrega una id al nodo
+      node.setAttribute('onclick','selectPage('+number+')'); // Agrega una id al nodo
     var spanNode = document.createElement("SPAN"); spanNode.setAttribute('class','page-link') // Crea un nodo Span
     var textnode = document.createTextNode(String(number)); // Agrega un Text node
     spanNode.appendChild(textnode); // span + text
@@ -142,33 +140,35 @@
   function buildPagination(items, rows_per_page){  // Crea la paginacion
     var paginas = document.getElementById('paginationNavBarElements'); // Obtiene la paginacion por ID de elemento
     paginas.innerHTML = ''; // Limpia el elemento
-    var node = document.createElement("LI"); node.setAttribute('class', 'page-item disabled');// Crea el nodo LI // Agrega las clases al nodo LI
-    var spanNode = document.createElement("SPAN"); spanNode.setAttribute('class','page-link') // Crea un nodo Span
-    var textnode = document.createTextNode("Anterior"); // Agrega un Text node
-    spanNode.appendChild(textnode); // span + text
-    node.appendChild(spanNode); // nodo + span
-    paginas.appendChild(node); // agrega el nodo al HTML
+    //var node = document.createElement("LI"); 
+      //node.setAttribute('class', 'page-item disabled');// Crea el nodo LI // Agrega las clases al nodo LI
+      //node.setAttribute('id','paginacionAnterior'); // Le otorga una id a la paginación 
+    //var spanNode = document.createElement("SPAN"); spanNode.setAttribute('class','page-link') // Crea un nodo Span
+    //var textnode = document.createTextNode("Anterior"); // Agrega un Text node
+    //spanNode.appendChild(textnode); // span + text
+    //node.appendChild(spanNode); // nodo + span
+    //paginas.appendChild(node); // agrega el nodo al HTML
 
     let page_count = Math.ceil(items.length / rows_per_page);
     for(let i = 1; i < page_count + 1; i++){
-      console.log(i);
+      //console.log(i);
       paginas.appendChild(buildPaginationNumberNode(i));
     }
-    
-    var node = document.createElement("LI");
-    if(page_count > 1){
-      node.setAttribute('class', 'page-item');// Crea el nodo LI // Agrega las clases al nodo LI
-    } else {
-      node.setAttribute('class', 'page-item disabled');// Crea el nodo LI // Agrega las clases al nodo LI
-    }
-    var spanNode = document.createElement("SPAN"); spanNode.setAttribute('class','page-link') // Crea un nodo Span
-    var textnode = document.createTextNode("Siguiente"); // Agrega un Text node
-    spanNode.appendChild(textnode); // span + text
-    node.appendChild(spanNode); // nodo + span
-    paginas.appendChild(node); // agrega el nodo al HTML
+    //var node = document.createElement("LI");
+    //if(page_count > 1){
+    //  node.setAttribute('class', 'page-item');// Crea el nodo LI // Agrega las clases al nodo LI
+    //} else {
+    //  node.setAttribute('class', 'page-item disabled');// Crea el nodo LI // Agrega las clases al nodo LI
+    //}
+    //  node.setAttribute('id','paginacionSiguiente'); // Le otorga una id a la paginación 
+    //var spanNode = document.createElement("SPAN"); spanNode.setAttribute('class','page-link') // Crea un nodo Span
+    //var textnode = document.createTextNode("Siguiente"); // Agrega un Text node
+    //spanNode.appendChild(textnode); // span + text
+    //node.appendChild(spanNode); // nodo + span
+    //paginas.appendChild(node); // agrega el nodo al HTML
   }
-  // funcion para filtrar la tabla
-  function searchTable(value, data){
+  
+  function searchTable(value, data){ // funcion para armar nueva tabla
     var filteredData = [];
     for (let element of data){
       value = value.toLowerCase();
@@ -178,21 +178,41 @@
         filteredData.push(element);
       }
     }
-
-    return filteredData
+    return filteredData; // retorna una tabla filtrada;
   }
   
+  function selectPage(nextPage){ // cambia la pagina seleccionada
+    try{
+      document.getElementById("nodeNum"+String(current_page)).setAttribute('class', 'page-item'); // habilita la ultima página
+    } catch (error){
+    }
+    try{
+      document.getElementById("nodeNum"+String(nextPage)).setAttribute('class', 'page-item'); // desabilita la pagina actual
+    } catch (error){
+    }
+    buildTable(filteredTable, rows, nextPage);
+    current_page = nextPage;
+  }
+  
+
+  const myArray = {{lista_equipo | tojson }};
+  var filteredTable = myArray;
+  var current_page = 1;
+  let rows = 5;
+  const pagination = $("#paginationNavBarElements");
+
+  $( document ).ready(function() {
+    buildTable(filteredTable, rows, current_page);
+    buildPagination(filteredTable, rows);
+  });
   $("#search-input").on("keyup",function(){
     var value = $(this).val()
-    console.log("value:",value);
-    var data = searchTable(value, myArray);
-    buildTable(data, rows, 1);
-  })
-  $( document ).ready(function() {
-    buildTable(myArray, rows, current_page);
-    buildPagination(myArray, rows);
+    //console.log("value:",value);
+    filteredTable = searchTable(value, myArray);
+    buildPagination(filteredTable,rows);
+    buildTable(filteredTable, rows, current_page);
+    selectPage(1);
   });
-
 </script>
 
 
