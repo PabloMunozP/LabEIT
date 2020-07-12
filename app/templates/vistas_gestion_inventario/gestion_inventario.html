@@ -30,20 +30,26 @@
     <h5 class="card-title text-white my-auto">Gestión de inventario</h5>
     <p class="text-white my-auto"><i class="fas fa-info-circle mr-2"></i>A continuación encontrará la lista de equipos registrados en el laboratorio, junto a su detalle.</p>
   </div>
-
-  <div class="row float-right mt-2 mb-2">
+  <div class="row" style="display: flex; justify-content: flex-end">
+    <div class="mt-2 mb-2">
       <div class="col-md-12">
         <button type="button" data-target="#agregar_equipo" class="btn btn-success" data-toggle="modal"><i class="fas fa-plus-circle mr-2"></i>Agregar equipo</button>
         <button type="button" title="Descargar planilla" class="btn btn-info"><i class="fas fa-file-excel mr-2"></i>Descargar planilla</button>
-      </div>
+      </div>  
+    </div>
   </div>
+</div>
 
-
+<div class="col-sm-4 active-pink-3 active-pink-4 mb-4">
+  <label>Código </label>
+  <input id="search-input" class="form-control" type="text" placeholder="Search" aria-label="Codigo">
 </div>
 
 
 
-<div class="container-fluid">
+
+<div>
+  <div class="container-fluid">
     <div class="table-responsive">
     	<div class="table-wrapper-scroll-y" style="position: relative; overflow:auto;">
     		<table class="table table-hover">
@@ -58,41 +64,156 @@
               <th scope="col" class="text-center">Funcional</th>
               <th scope="col" class="text-center">Total</th>
     					<th scope="col" class="text-center">Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="myTableBody">
 
-    		    </tr>
-    		  </thead>
-    		  <tbody>
-    				  {% for elemento in lista_equipo %}
-    					<tr id="row{{loop.index}}" style="background:#ECF0F1;">
-    						<td> {{elemento.codigo}}</td>
-                <td> {{elemento.nombre}}</td>
-    						<td> {{elemento.modelo}}</td>
-                <td> {{elemento.marca}} </td>
-                <td class="text-center">  {{elemento.dias_max_prestamo}} </td>
-                <td class="text-center">  {{elemento.en_prestamo}} </td>
-                <td class="text-center">  {{elemento.disponibles}}</td>
-                <td class="text-center">  {{elemento.total_equipos}}</td>
-    						<td class="text-center">
-                  <span class="btn-group">
-                    <a href="gestion_inventario_admin/detalles_equipo/{{elemento.codigo}}">
-                      <button href="gestion_inventario_admin/detalles_equipo/{{elemento.codigo}}" type="button" title="Ver detalles de equipo" data-toggle="modal" class="btn btn-sm btn-info mr-1"><i class="fas fa-search-plus"></i></button>
-                    </a>
-  									<button type="button" onclick="cargar_datos_equipo_modal('{{elemento.codigo}}','{{elemento.nombre}}','{{elemento.modelo}}', '{{elemento.marca}}', '{{elemento.descripcion}}','{{elemento.dias_max_prestamo}}','{{elemento.imagen}}',{{elemento.multi_componente}},'{{elemento.total_equipos}}')" data-target="#editar_equipo" title="Editar equipo" class="btn btn-sm btn-warning mr-1" data-toggle="modal"><i class="fas fa-edit"></i></button>
-                    <button type="button" onclick="cargar_codigo_delete_equipo_modal('{{elemento.codigo}}')" title="Eliminar equipo" data-toggle="modal" data-target="#eliminar_equipo" class="btn btn-sm btn-danger mr-1"><i class="fas fa-trash"></i></button>
-                    <a href="/gestion_inventario_admin/lista_equipo_diferenciado/{{elemento.codigo}}">
-                      <button type="button" class="btn btn-sm btn-secondary" title="Ver unidades registradas"><i class="fas fa-clipboard-list"></i></button>
-                    </a>
-                  </span>
-    						</td>
-    					</tr>
-    				{% endfor %}
-    		  </tbody>
-    		</table>
+          </tbody>
+        </table>
     	</div>
     </div>
-
+  </div>       
 </div>
 
+
+<div>
+  <div class="container-fluid">
+    <nav aria-label="...">
+      <ul class="pagination" id="paginationNavBarElements">
+        <li class="page-item disabled">
+        </li>
+      </ul>
+    </nav>
+  </div>
+</div>
+
+<script>
+  // init
+  
+  
+  function buildTable(data, row_per_page, page){ // funcion para armar la tabla
+    var table = document.getElementById('myTableBody');
+    table.innerHTML = '';
+    page--;
+    let loop_start = row_per_page * page;
+    let paginatedItems = data.slice(loop_start,loop_start+row_per_page);
+    //console.log(paginatedItems);
+    for (let element of paginatedItems){
+      var row =`<tr style="background:#ECF0F1;">
+                    <td> ${element.codigo} </td>
+                    <td> ${element.nombre} </td>
+                    <td> ${element.modelo} </td>
+                    <td> ${element.marca} </td>
+                    <td class="text-center">  ${element.dias_max_prestamo} </td>
+                    <td class="text-center">  ${element.en_prestamo} </td>
+                    <td class="text-center">  ${element.disponibles}</td>
+                    <td class="text-center">  ${element.total_equipos}</td>
+                    <td class="text-center">
+                      <span class="btn-group">
+                        <a href="gestion_inventario_admin/detalles_equipo/${element.codigo}">
+                          <button href="gestion_inventario_admin/detalles_equipo/${element.codigo}" type="button" title="Ver detalles de equipo" data-toggle="modal" class="btn btn-sm btn-info mr-1"><i class="fas fa-search-plus"></i></button>
+                        </a>
+                        <button type="button" onclick="cargar_datos_equipo_modal('${element.codigo}','${element.nombre}','${element.modelo}', '${element.marca}', '${element.descripcion}','${element.dias_max_prestamo}','${element.imagen}',${element.multi_componente},'${element.total_equipos}')" data-target="#editar_equipo" title="Editar equipo" class="btn btn-sm btn-warning mr-1" data-toggle="modal"><i class="fas fa-edit"></i></button>
+                        <button type="button" onclick="cargar_codigo_delete_equipo_modal('${element.codigo}')" title="Eliminar equipo" data-toggle="modal" data-target="#eliminar_equipo" class="btn btn-sm btn-danger mr-1"><i class="fas fa-trash"></i></button>
+                        <a href="/gestion_inventario_admin/lista_equipo_diferenciado/${element.codigo}">
+                          <button type="button" class="btn btn-sm btn-secondary" title="Ver unidades registradas"><i class="fas fa-clipboard-list"></i></button>
+                        </a>
+                      </span>
+                    </td>
+                  </tr>`
+      table.innerHTML += row;
+    }
+  }
+  
+  function buildPaginationNumberNode(number){ // Crea un nodo en la paginacion con numero
+    var node = document.createElement("LI"); // Crea el nodo LI 
+      node.setAttribute('class', 'page-item'); // Agrega las clases al nodo LI
+      node.setAttribute('id','nodeNum'+number); // Agrega una id al nodo
+      node.setAttribute('onclick','selectPage('+number+')'); // Agrega una id al nodo
+    var spanNode = document.createElement("SPAN"); spanNode.setAttribute('class','page-link') // Crea un nodo Span
+    var textnode = document.createTextNode(String(number)); // Agrega un Text node
+    spanNode.appendChild(textnode); // span + text
+    node.appendChild(spanNode); // nodo + span
+    return node; // retorna el nodo + span + text
+  }
+  
+  function buildPagination(items, rows_per_page){  // Crea la paginacion
+    var paginas = document.getElementById('paginationNavBarElements'); // Obtiene la paginacion por ID de elemento
+    paginas.innerHTML = ''; // Limpia el elemento
+    //var node = document.createElement("LI"); 
+      //node.setAttribute('class', 'page-item disabled');// Crea el nodo LI // Agrega las clases al nodo LI
+      //node.setAttribute('id','paginacionAnterior'); // Le otorga una id a la paginación 
+    //var spanNode = document.createElement("SPAN"); spanNode.setAttribute('class','page-link') // Crea un nodo Span
+    //var textnode = document.createTextNode("Anterior"); // Agrega un Text node
+    //spanNode.appendChild(textnode); // span + text
+    //node.appendChild(spanNode); // nodo + span
+    //paginas.appendChild(node); // agrega el nodo al HTML
+
+    let page_count = Math.ceil(items.length / rows_per_page);
+    for(let i = 1; i < page_count + 1; i++){
+      //console.log(i);
+      paginas.appendChild(buildPaginationNumberNode(i));
+    }
+    //var node = document.createElement("LI");
+    //if(page_count > 1){
+    //  node.setAttribute('class', 'page-item');// Crea el nodo LI // Agrega las clases al nodo LI
+    //} else {
+    //  node.setAttribute('class', 'page-item disabled');// Crea el nodo LI // Agrega las clases al nodo LI
+    //}
+    //  node.setAttribute('id','paginacionSiguiente'); // Le otorga una id a la paginación 
+    //var spanNode = document.createElement("SPAN"); spanNode.setAttribute('class','page-link') // Crea un nodo Span
+    //var textnode = document.createTextNode("Siguiente"); // Agrega un Text node
+    //spanNode.appendChild(textnode); // span + text
+    //node.appendChild(spanNode); // nodo + span
+    //paginas.appendChild(node); // agrega el nodo al HTML
+  }
+  
+  function searchTable(value, data){ // funcion para armar nueva tabla
+    var filteredData = [];
+    for (let element of data){
+      value = value.toLowerCase();
+      var codigo = element.codigo.toLowerCase();
+      //ódigo	Nombre	Modelo	Marca
+      if (codigo.includes(value)){
+        filteredData.push(element);
+      }
+    }
+    return filteredData; // retorna una tabla filtrada;
+  }
+  
+  function selectPage(nextPage){ // cambia la pagina seleccionada
+    try{
+      document.getElementById("nodeNum"+String(current_page)).setAttribute('class', 'page-item'); // habilita la ultima página
+    } catch (error){
+    }
+    try{
+      document.getElementById("nodeNum"+String(nextPage)).setAttribute('class', 'page-item'); // desabilita la pagina actual
+    } catch (error){
+    }
+    buildTable(filteredTable, rows, nextPage);
+    current_page = nextPage;
+  }
+  
+
+  const myArray = {{lista_equipo | tojson }};
+  var filteredTable = myArray;
+  var current_page = 1;
+  let rows = 5;
+  const pagination = $("#paginationNavBarElements");
+
+  $( document ).ready(function() {
+    buildTable(filteredTable, rows, current_page);
+    buildPagination(filteredTable, rows);
+  });
+  $("#search-input").on("keyup",function(){
+    var value = $(this).val()
+    //console.log("value:",value);
+    filteredTable = searchTable(value, myArray);
+    buildPagination(filteredTable,rows);
+    buildTable(filteredTable, rows, current_page);
+    selectPage(1);
+  });
+</script>
 
 
 

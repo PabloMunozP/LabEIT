@@ -22,10 +22,8 @@ def consultar_lista_equipos_general():
     # actualizar la query papra definir equipos_disponibles y total_equipos
     query = ('''
         SELECT *,
-
             CASE    WHEN Detalle_solicitud.cantidad IS NOT NULL THEN Detalle_solicitud.cantidad
-                    ELSE COUNT(CASE WHEN Detalle_solicitud.estado IN (1, 2, 3) THEN 1
-                                    ELSE NULL END)
+                    ELSE COUNT(CASE WHEN Detalle_solicitud.estado IN (1, 2, 3) THEN 1 ELSE NULL END)
                     END AS en_prestamo
         FROM (SELECT
                 Equipo.id AS equipo_id,
@@ -48,8 +46,7 @@ def consultar_lista_equipos_general():
                 FROM Equipo
                     LEFT JOIN Equipo_diferenciado ON  Equipo.codigo = Equipo_diferenciado.codigo_equipo
                 GROUP BY Equipo.id) AS inventario_general
-
-        LEFT JOIN Detalle_solicitud ON inventario_general.equipo_id = Detalle_solicitud.id_equipo
+            LEFT JOIN Detalle_solicitud ON inventario_general.equipo_id = Detalle_solicitud.id_equipo
         GROUP BY inventario_general.equipo_id
             ''')
             #
@@ -58,8 +55,8 @@ def consultar_lista_equipos_general():
             #                         ELSE NULL END)
     cursor.execute(query)
     equipos = cursor.fetchall()
-    for element in equipos:
-        print(element)
+    # for element in equipos:
+    #     print(element)
     return equipos
 
 @mod.route("/gestion_inventario_admin")
@@ -102,7 +99,7 @@ def funcion_añadir_equipo_form():
 
 def editar_equipo_general(informacion_a_actualizar):  # Query UPDATE
         if 'multi_componente' not in informacion_a_actualizar:
-            print('este equipo no posee el atributo multi componente')
+            # print('este equipo no posee el atributo multi componente')
             query = ('''
                 UPDATE Equipo
                 LEFT JOIN Equipo_diferenciado ON Equipo_diferenciado.codigo_equipo = Equipo.codigo
@@ -133,7 +130,7 @@ def editar_equipo_general(informacion_a_actualizar):  # Query UPDATE
                 ))
             db.commit()
         else:
-            print('este equipo posee el atributo multi componente y su cantidad es:', informacion_a_actualizar['cantidad_componentes'])
+            # print('este equipo posee el atributo multi componente y su cantidad es:', informacion_a_actualizar['cantidad_componentes'])
             query = ('''
                 UPDATE Equipo
                 SET codigo = %s,
@@ -187,7 +184,7 @@ def editar_equipo_especifico(informacion_a_actualizar):
 def funcion_editar_equipo_diferenciado_form():
     if request.method == 'POST':
         informacion_a_actualizar = request.form.to_dict()
-        print('Información a actualizar:', informacion_a_actualizar)
+        # print('Información a actualizar:', informacion_a_actualizar)
         editar_equipo_especifico(informacion_a_actualizar)
         return redirect("/gestion_inventario_admin/lista_equipo_diferenciado/"+informacion_a_actualizar["codigo_equipo"])
 
@@ -197,7 +194,7 @@ def funcion_editar_equipo_diferenciado_form():
 def funcion_editar_equipo():
     if request.method == 'POST':
         informacion_a_actualizar = request.form.to_dict()
-        print('Información a actualizar:', informacion_a_actualizar)
+        # print('Información a actualizar:', informacion_a_actualizar)
         editar_equipo_general(informacion_a_actualizar)
         return redirect("/gestion_inventario_admin")
 
@@ -251,7 +248,7 @@ def eliminar_equipo_vista_diferenciado(equipo):
 def funcion_eliminar_equipo_diferenciado():
     if request.method == 'POST':
         equipo_a_eliminar = request.form.to_dict()
-        print(equipo_a_eliminar)
+        # print(equipo_a_eliminar)
         eliminar_equipo_vista_diferenciado(equipo_a_eliminar)
         #dejar comentario en flash
         return redirect("/gestion_inventario_admin/lista_equipo_diferenciado/"+equipo_a_eliminar["codigo_equipo"])
@@ -302,7 +299,7 @@ def consultar_lista_equipos_detalle_estado(codigo_equipo):
     equipos_detalle = cursor.fetchall()
     return equipos_detalle
 
-# funcion para pronbar la consulta
+# funcion para probar la consulta
 @mod.route("/prueba/detalles_equipo/<string:codigo_equipo>",methods=["GET"])
 def lista_detalle_info_equipo_estado(codigo_equipo):
     equipos = consultar_lista_equipos_detalle_estado(codigo_equipo)
