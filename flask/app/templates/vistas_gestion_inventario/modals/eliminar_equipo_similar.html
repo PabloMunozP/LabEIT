@@ -1,0 +1,27 @@
+<div class="modal fade" id="eliminar_equipo_similar" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header bg-gris-eit">
+        <h5 class="modal-title text-white" id="editar_informacion_label"><i class="fas fa-question-circle mr-2"></i>Confirmación de eliminación de unidad</h5>
+      </div>
+      <form action="/gestion_inventario_admin/lista_equipo_diferenciado/delete" id="form_confirmar_eliminar_equipo" method="POST">
+        <div class="modal-body">
+          <p>Al eliminar la unidad, otros registros podrían verse afectados.</p>
+          <input class="form-control" type="text" name="codigo_equipo" value="" id="form_eliminar_equipo_codigo_equipo" hidden>
+          <input class="form-control" type="text" name="codigo_sufijo" value="" id="form_eliminar_equipo_codigo_sufijo" hidden>
+        </div>
+        <div class="modal-footer">
+          <button type="button" id="boton_cerrar"  class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+          <button type="summit" id="boton_guardar" class="btn btn-success">Confirmar</button>
+        </div>
+      </form>
+  </div>
+</div>
+</div>
+
+<script>
+  function cargar_codigo_delete_equipo_diferenciado_modal(codigo_equipo,codigo_sufijo){
+    $("#form_eliminar_equipo_codigo_equipo").val(codigo_equipo);
+    $("#form_eliminar_equipo_codigo_sufijo").val(codigo_sufijo);
+  }
+</script>

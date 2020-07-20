@@ -1,0 +1,46 @@
+<div class="modal fade" id="editar_solicitud_prestamo" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header bg-gris-eit">
+        <h5 class="modal-title text-white"><i class="fas fa-edit mr-2"></i>Modificar solicitud de préstamo</h5>
+        <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+				<p class="texto-gris-eit"><i class="fas fa-info-circle mr-1"></i>A continuación podrá modificar el equipo solicitado y el usuario solicitante.</p>
+
+        <form>
+          <div class="form-group">
+            <label class="col-form-label">Usuario solicitante:</label>
+						<select required class="form-control" size="3" id="lista_usuarios">
+							{% for usuario in lista_usuarios %}
+								{% if datos_alumno["rut"] == usuario["rut"] %}
+									<option selected value="{{usuario["rut"]}}">{{usuario["nombres"]}} {{usuario["apellidos"]}}</option>
+								{% else %}
+									<option value="{{usuario["rut"]}}">{{usuario["nombres"]}} {{usuario["apellidos"]}}</option>
+								{% endif %}
+							{% endfor %}
+				    </select>
+          </div>
+					<div class="form-group">
+            <label class="col-form-label">Equipo a solicitar:</label>
+						<select required class="form-control" size="3" id="lista_equipos">
+							{% for equipo in lista_equipos %}
+								{% if datos_equipo["id"] == equipo["id"] %}
+									<option selected value="{{equipo["id"]}}">{{equipo["marca"]}} {{equipo["modelo"]}}</option>
+								{% else %}
+									<option value="{{equipo["id"]}}">{{equipo["marca"]}} {{equipo["modelo"]}}</option>
+								{% endif %}
+							{% endfor %}
+				    </select>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+        <button type="button" class="btn btn-info">Guardar cambios</button>
+      </div>
+    </div>
+  </div>
+</div>
