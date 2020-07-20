@@ -1,0 +1,104 @@
+<!-- Modal editar equipo-->
+<div class="modal fade" id="editar_equipo" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header bg-gris-eit">
+          <h5 id="modal-title" class="modal-title text-white" id="editar_informacion_label"><i class="fas fa-edit"></i> Editar equipo</h5>
+          <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close" style="outline:none;">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <form id="editar_form" action="/gestion_inventario_admin/actualizar_informacion" method="POST">
+
+          <div class="modal-body">
+            <input class="form-control" type="text" name="codigo_original" value="" id="editar-equipo-hidden-id" hidden>
+
+            <div class="form-group">
+              <label for="editar-equipo-codigo">Código</label>
+              <input class="form-control" type="text" name="codigo" value="" id="editar-equipo-codigo">
+            </div>
+
+            <div class="form-group">
+              <label for="editar-equipo-modelo">Nombre</label>
+              <input class="form-control" type="text" name="nombre" value="" id="editar-equipo-nombre">
+            </div>
+
+            <div class="form-group">
+              <label for="editar-equipo-marca">Marca</label>
+              <input class="form-control" type="text" name="marca"  value="" id="editar-equipo-marca">
+            </div>
+
+            <div class="form-group">
+              <label for="editar-equipo-modelo">Modelo</label>
+              <input class="form-control" type="text" name="modelo" value="" id="editar-equipo-modelo">
+            </div>
+
+            <div class="form-group">
+              <label for="editar-equipo-descripcion">Descripción</label>
+              <textarea class="form-control" id="editar-equipo-descripcion" name="descripcion" rows="3" style="min-height:100px;max-height:300px;"></textarea>
+            </div>
+
+            <div class="form-group">
+              <label for="editar-equipo-imagen">URL de imagen</label>
+              <input class="form-control" type="text" name="imagen" value="" id="editar-equipo-imagen">
+            </div>
+
+            <div class="form-group">
+              <label for="dias_max_prestamo">Días de prestamo</label>
+              <input type="number" min="1" class="form-control" name="dias_max_prestamo" value="" id="editar-equipo-dias">
+            </div>
+
+          <div class="form-check">
+          <hr style="border:2px;">
+            <input class="form-check-input" type="checkbox" name="multi_componente" value="XD" id="editar-es-circuito">
+            <label class="form-check-label" for="editar-es-circuito">Multi componente</label>
+          <hr style="border:2px;">
+          </div>
+
+          <div class="form-group">
+            <label for="editar-cantidad-circuito">Cantidad de componentes</label>
+            <input class="form-control" type="number" min="1" name="cantidad_componentes" value="" id="editar-cantidad-circuito">
+          </div>
+
+          </div>
+          <div class="modal-footer">
+            <button type="button" id="boton_cerrar" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+            <button type="summit" id="boton_guardar" class="btn btn-info" type="hidden"> Guardar cambios</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function cargar_datos_equipo_modal(codigo, nombre, modelo, marca, descripcion, dias_max_prestamo, imagen_url, multi_componente, total_equipos ){
+      document.getElementById("modal-title").innerHTML = '<i class="fas fa-edit"></i> Editar equipo ' + codigo ;
+      $("#editar-equipo-hidden-id").val(codigo);
+      $("#editar-equipo-codigo").val(codigo);
+      $("#editar-equipo-nombre").val(nombre);
+      $("#editar-equipo-modelo").val(modelo);
+      $("#editar-equipo-marca").val(marca);
+      $("#editar-equipo-descripcion").val( descripcion);
+      $("#editar-equipo-dias").val(dias_max_prestamo);
+      $("#editar-equipo-imagen").val(imagen_url);
+      $("#editar-es-circuito").prop('checked', multi_componente).change();
+      if(multi_componente == true){
+        $('#editar-cantidad-circuito').attr("value", total_equipos);
+      }
+      else{
+        $('#editar-cantidad-circuito').attr("value", null);
+      }
+      console.log('Multi componente:' + multi_componente)
+    }
+    $(document).ready(function()
+    {
+      $('#editar-es-circuito').change(function(){
+        if (this.checked) {
+          $('#editar-cantidad-circuito').prop( "disabled", false );
+        }
+        else {
+          $('#editar-cantidad-circuito').prop( "disabled", true );
+        }
+      });
+    });
+  </script>

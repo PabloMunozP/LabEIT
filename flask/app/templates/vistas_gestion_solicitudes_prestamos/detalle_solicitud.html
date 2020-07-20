@@ -1,0 +1,408 @@
+{% extends "layout_in.html" %}
+	{% block body %}
+
+	{% include "/vistas_gestion_solicitudes_prestamos/modals/confirmacion_aprobacion.html" %}
+	{% include "/vistas_gestion_solicitudes_prestamos/modals/confirmacion_rechazo.html" %}
+	{% include "/vistas_gestion_solicitudes_prestamos/modals/confirmacion_eliminacion.html" %}
+	{% include "/vistas_gestion_solicitudes_prestamos/modals/confirmacion_cancelacion.html" %}
+	{% include "/vistas_gestion_solicitudes_prestamos/modals/confirmacion_devolucion.html" %}
+	{% include "/vistas_gestion_solicitudes_prestamos/modals/formulario_retiro_equipo.html" %}
+	{% include "/vistas_gestion_solicitudes_prestamos/modals/formulario_modificar_solicitud.html" %}
+
+	<div class="container-fluid mt-2">
+
+		<nav aria-label="breadcrumb">
+		  <ol class="breadcrumb">
+		    <li class="breadcrumb-item"><a href="/gestion_solicitudes_prestamos">Gestión de solicitudes de préstamos</a></li>
+		    <li class="breadcrumb-item active" aria-current="page">Detalle de solicitud <span class="badge badge-info">{{datos_detalle_solicitud["id"]}}</span></li>
+		  </ol>
+		</nav>
+
+		{% with msgs = get_flashed_messages() %}
+			{% if msgs %}
+				{% for msg in msgs %}
+				{% if msg == "equipo-prestado"%}
+					<div class="alert alert-danger alert-dismissible fade show" role="alert">
+						<i class="fas fa-times-circle mr-2"></i>El equipo a prestar ya no se encuentra disponible.
+						<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+						</button>
+					</div>
+				{%endif%}
+				{% if msg == "equipo-no-existente"%}
+					<div class="alert alert-danger alert-dismissible fade show" role="alert">
+						<i class="fas fa-times-circle mr-2"></i>El equipo a prestar fue eliminado recientemente.
+						<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+						</button>
+					</div>
+				{%endif%}
+				{% if msg == "correo-fallido"%}
+					<div class="alert alert-danger alert-dismissible fade show" role="alert">
+						<i class="fas fa-times-circle mr-2"></i>Se ha producido un error interno al intentar notificar por correo al usuario.
+						<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+						</button>
+					</div>
+				{%endif%}
+				{% if msg == "correo-exito" %}
+				<div class="alert alert-success mt-2 alert-dismissible fade show" role="alert">
+						<i class="fas fa-check-circle mr-2"></i>El usuario ha sido notificado correctamente en su correo electrónico.
+						<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+								<span aria-hidden="true">&times;</span>
+						</button>
+				</div>
+				{% endif %}
+				{% if msg == "solicitud-rechazada-correctamente" %}
+				<div class="alert alert-success mt-2 alert-dismissible fade show" role="alert">
+						<i class="fas fa-check-circle mr-2"></i>La solicitud de préstamo ha sido rechazada correctamente.
+						<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+								<span aria-hidden="true">&times;</span>
+						</button>
+				</div>
+				{% endif %}
+				{% if msg == "solicitud-aprobada-correctamente" %}
+				<div class="alert alert-success mt-2 alert-dismissible fade show" role="alert">
+						<i class="fas fa-check-circle mr-2"></i>La solicitud de préstamo ha sido aprobada correctamente.
+						<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+								<span aria-hidden="true">&times;</span>
+						</button>
+				</div>
+				{% endif %}
+				{% if msg == "solicitud-cancelada" %}
+				<div class="alert alert-success mt-2 alert-dismissible fade show" role="alert">
+						<i class="fas fa-check-circle mr-2"></i>La solicitud de préstamo ha sido cancelada correctamente.
+						<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+								<span aria-hidden="true">&times;</span>
+						</button>
+				</div>
+				{% endif %}
+				{% if msg == "retiro-correcto" %}
+				<div class="alert alert-success mt-2 alert-dismissible fade show" role="alert">
+						<i class="fas fa-check-circle mr-2"></i>El equipo ha sido marcado como retirado correctamente.
+						<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+								<span aria-hidden="true">&times;</span>
+						</button>
+				</div>
+				{% endif %}
+				{%endfor%}
+			{%endif%}
+		{%endwith%}
+
+		<div class="card border-1 rounded-0" style="border-color:#0db26b;">
+			<div class="card-header border-0 rounded-0" style="background:#0db26b;">
+				<h5 class="card-title my-auto text-white"><i class="fas fa-file-invoice mr-2"></i>Información de la solicitud de préstamo</h5>
+			</div>
+			<div class="card-body rounded-0" style="background:#ECF0F1;">
+
+				<div class="form-group row">
+					<label class="col-md-4 col-form-label texto-gris-eit">
+						<strong>ID de solicitud:</strong>
+					</label>
+					<div class="col-md-2">
+						<p class="form-control-plaintext text-break">
+							{{datos_encabezado_solicitud["id"]}}
+						</p>
+					</div>
+					<label class="col-md-4 col-form-label texto-gris-eit">
+						<strong>ID de detalle de solicitud:</strong>
+					</label>
+					<div class="col-md-2">
+						<p class="form-control-plaintext
+							 text-break">
+							 {{datos_detalle_solicitud["id"]}}
+						</p>
+					</div>
+				</div>
+
+				<div class="form-group row">
+					<label class="col-md-4 col-form-label texto-gris-eit">
+						<strong>Estado:</strong>
+					</label>
+					<div class="col-md-2">
+						<p class="form-control-plaintext text-break">
+							{% if datos_detalle_solicitud["estado"] == 0 %}
+								<span class="badge badge-primary">{{datos_detalle_solicitud["nombre_estado"]}}</span>
+							{% elif datos_detalle_solicitud["estado"] == 1 %}
+								<span class="badge badge-info">{{datos_detalle_solicitud["nombre_estado"]}}</span>
+							{% elif datos_detalle_solicitud["estado"] == 2 %}
+								<span class="badge badge-success">{{datos_detalle_solicitud["nombre_estado"]}}</span>
+							{% elif datos_detalle_solicitud["estado"] == 3 %}
+								<span class="badge badge-danger">{{datos_detalle_solicitud["nombre_estado"]}}</span>
+							{% elif datos_detalle_solicitud["estado"] == 4 %}
+								<span class="badge badge-success">{{datos_detalle_solicitud["nombre_estado"]}}</span>
+							{% elif datos_detalle_solicitud["estado"] == 5 %}
+								<span class="badge badge-danger">{{datos_detalle_solicitud["nombre_estado"]}}</span>
+							{% elif datos_detalle_solicitud["estado"] == 6 %}
+								<span class="badge badge-secondary">{{datos_detalle_solicitud["nombre_estado"]}}</span>
+							{% elif datos_detalle_solicitud["estado"] == 7 %}
+								<span class="badge badge-danger">{{datos_detalle_solicitud["nombre_estado"]}}</span>
+							{% endif %}
+						</p>
+					</div>
+					<label class="col-md-4 col-form-label texto-gris-eit">
+						<strong>Fecha de registro:</strong>
+					</label>
+					<div class="col-md-2">
+						<p class="form-control-plaintext
+							 text-break">
+							 {{datos_encabezado_solicitud["fecha_registro"]}}
+						</p>
+					</div>
+				</div>
+
+				{% if datos_detalle_solicitud["fecha_inicio"] and datos_detalle_solicitud["fecha_termino"] %}
+					<div class="form-group row">
+						<label class="col-md-4 col-form-label texto-gris-eit">
+							<strong>Fecha de inicio:</strong>
+						</label>
+						<div class="col-md-2">
+							<p class="form-control-plaintext text-break">
+								{{datos_detalle_solicitud["fecha_inicio"]}}
+							</p>
+						</div>
+						<label class="col-md-4 col-form-label texto-gris-eit">
+							<strong>Fecha de término:</strong>
+						</label>
+						<div class="col-md-2">
+							<p class="form-control-plaintext
+								 text-break">
+								 {{datos_detalle_solicitud["fecha_termino"]}}
+							</p>
+						</div>
+					</div>
+				{% endif %}
+
+				{% if datos_detalle_solicitud["fecha_devolucion"] %}
+					<div class="form-group row">
+						<label class="col-md-4 col-form-label texto-gris-eit">
+							<strong>Fecha de devolución:</strong>
+						</label>
+						<div class="col-md-3">
+							<p class="form-control-plaintext text-break">
+								{{datos_detalle_solicitud["fecha_devolucion"]}}
+							</p>
+						</div>
+					</div>
+				{% endif %}
+
+			</div>
+
+			<div class="card-header border-0 rounded-0" style="background:#0db26b;">
+				<h5 class="card-title my-auto text-white"><i class="fas fa-user mr-2"></i>Información del solicitante</h5>
+			</div>
+			<div class="card-body rounded-0" style="background:#ECF0F1;">
+				<div class="form-group row">
+					<label class="col-md-4 col-form-label texto-gris-eit">
+						<strong>RUT de alumno solicitante:</strong>
+					</label>
+					<div class="col-md-2">
+						<p class="form-control-plaintext text-break">
+							<a href="/usuarios_registrados/{{datos_alumno["rut"]}}" title="Ver perfil del usuario" style="text-decoration:none;">{{datos_alumno["rut"]|formato_rut}}</a>
+						</p>
+					</div>
+					<label class="col-md-2 col-form-label texto-gris-eit">
+						<strong>Nombre:</strong>
+					</label>
+					<div class="col-md-4">
+						<p class="form-control-plaintext
+							 text-break">
+							 {{datos_alumno["nombres"]}} {{datos_alumno["apellidos"]}}
+						</p>
+					</div>
+				</div>
+				<div class="form-group row">
+					<label class="col-md-4 col-form-label texto-gris-eit">
+						<strong>Correo electrónico:</strong>
+					</label>
+					<div class="col-md-8">
+						<p class="form-control-plaintext text-break">
+							<a href="mailto:{{datos_alumno["email"]}}?subject=feedback">{{datos_alumno["email"]}}</a>
+						</p>
+					</div>
+				</div>
+
+				{% if datos_profesor %}
+					<hr>
+					<div class="form-group row">
+						<label class="col-md-4 col-form-label texto-gris-eit">
+							<strong>RUT de profesor solicitante:</strong>
+						</label>
+						<div class="col-md-2">
+							<p class="form-control-plaintext text-break">
+								----
+							</p>
+						</div>
+						<label class="col-md-2 col-form-label texto-gris-eit">
+							<strong>Nombre:</strong>
+						</label>
+						<div class="col-md-4">
+							<p class="form-control-plaintext
+								 text-break">
+								 ----
+							</p>
+						</div>
+					</div>
+
+					<div class="form-group row">
+						<label class="col-md-4 col-form-label texto-gris-eit">
+							<strong>Correo electrónico:</strong>
+						</label>
+						<div class="col-md-8">
+							<p class="form-control-plaintext text-break">
+								<a href="mailto:correo.profesor@mail.udp.cl?subject=feedback">correo.profesor@mail.udp.cl</a>
+							</p>
+						</div>
+					</div>
+
+				{% endif %}
+
+
+			</div>
+
+			<div class="card-header border-0 rounded-0" style="background:#0db26b;">
+				<h5 class="card-title my-auto text-white"><i class="fas fa-laptop mr-2"></i>Equipo solicitado</h5>
+			</div>
+			<div class="card-body rounded-0" style="background:#ECF0F1;">
+
+				<div class="form-group row">
+					<label class="col-md-4 col-form-label texto-gris-eit">
+						<strong>ID de equipo:</strong>
+					</label>
+					<div class="col-md-2">
+						<p class="form-control-plaintext text-break">
+							{{datos_equipo["id"]}}
+						</p>
+					</div>
+					<label class="col-md-4 col-form-label texto-gris-eit">
+						<strong>Código de laboratorio:</strong>
+					</label>
+					<div class="col-md-2">
+						<p class="form-control-plaintext
+							 text-break">
+							 {{datos_equipo["codigo"]}}
+							 {% if datos_detalle_solicitud["codigo_sufijo_equipo"] %}
+							 	- {{datos_detalle_solicitud["codigo_sufijo_equipo"]}}
+							 {% endif %}
+						</p>
+					</div>
+				</div>
+
+				<hr>
+
+				<div class="form-group row">
+					<label class="col-md-2 col-form-label texto-gris-eit">
+						<strong>Nombre:</strong>
+					</label>
+					<div class="col-md-4">
+						<p class="form-control-plaintext
+							 text-break">
+							 {{datos_equipo["nombre"]}}
+						</p>
+					</div>
+					<label class="col-md-2 col-form-label texto-gris-eit">
+						<strong>Marca:</strong>
+					</label>
+					<div class="col-md-4">
+						<p class="form-control-plaintext text-break">
+							{{datos_equipo["marca"]}}
+						</p>
+					</div>
+				</div>
+
+				<div class="form-group row">
+
+					<label class="col-md-2 col-form-label texto-gris-eit">
+						<strong>Modelo:</strong>
+					</label>
+					<div class="col-md-4">
+						<p class="form-control-plaintext
+							 text-break">
+							 {{datos_equipo["modelo"]}}
+						</p>
+					</div>
+					<label class="col-md-2 col-form-label texto-gris-eit">
+						<strong>Stock:</strong>
+					</label>
+					<div class="col-md-4">
+						<p class="form-control-plaintext text-break">
+							{% if datos_equipo["cantidad_total"] > 1 or datos_equipo["cantidad_total"] == 0 %}
+								<strong>{{datos_equipo["cantidad_total"]}}</strong> unidades en total.
+							{% else %}
+								<strong>{{datos_equipo["cantidad_total"]}}</strong> unidad en total.
+							{% endif %}
+							<br><strong>{{datos_equipo["cantidad_funcionales"]}}</strong> unidades funcionales.
+						</p>
+					</div>
+				</div>
+
+				<div class="form-group row">
+					<label class="col-md-4 col-form-label texto-gris-eit">
+						<strong>Unidades disponibles para préstamos:</strong>
+					</label>
+					<div class="col-md-2">
+						<p class="form-control-plaintext
+							 text-break">
+							 <strong>{{datos_equipo["cantidad_disponible"]}}</strong>
+						</p>
+					</div>
+					<label class="col-md-4 col-form-label texto-gris-eit">
+						<strong>Cantidad de días permitidos:</strong>
+					</label>
+					<div class="col-md-2">
+						<p class="form-control-plaintext
+							 text-break">
+							 {{datos_equipo["dias_max_prestamo"]}} día(s)
+						</p>
+					</div>
+				</div>
+
+				<hr>
+
+				<div class="form-group row">
+					<label class="col-md-2 col-form-label texto-gris-eit">
+						<strong>Descripción:</strong>
+					</label>
+					{% if datos_equipo["imagen"] %}
+						<div class="col-md-6">
+							<p class="form-control-plaintext text-break">
+								{{datos_equipo["descripcion"]}}
+							</p>
+						</div>
+						<div class="col-md-4 text-right">
+							<label class="col-form-label">
+							<img src="{{datos_equipo["imagen"]}}" style="max-width:80%;" class="img-fluid">
+							</label>
+						</div>
+					{% else %}
+						<div class="col-md-10">
+							<p class="form-control-plaintext text-break">
+								{{datos_equipo["descripcion"]}}
+							</p>
+						</div>
+					{% endif %}
+				</div>
+
+			</div>
+			<div class="card-footer rounded-0 text-right" style="background:#ECF0F1;">
+				<span class="btn-group flex-wrap">
+					{% if datos_detalle_solicitud["estado"] == 0 %}
+						<button type="button" class="btn btn-danger mr-1" data-toggle="modal" data-target="#confirmacion_rechazo_solicitud"><i class="fas fa-times-circle mr-1"></i>Rechazar solicitud</button>
+						<button type="button" class="btn btn-success" data-toggle="modal" data-target="#confirmacion_aprobacion_solicitud"><i class="fas fa-clipboard-check mr-1"></i>Aprobar solicitud</button>
+					{% elif datos_detalle_solicitud["estado"] == 1 %}
+						<button type="button" class="btn btn-danger mr-1" data-toggle="modal" data-target="#confirmacion_cancelacion_solicitud"><i class="fas fa-times-circle mr-1"></i>Cancelar solicitud</button>
+						<button type="button" class="btn btn-info" data-toggle="modal" data-target="#formulario_retiro_equipo"><i class="fas fa-clipboard-check mr-1"></i>Marcar como entregado</button>
+					{% elif datos_detalle_solicitud["estado"] == 2 %}
+						<button type="button" class="btn btn-info" data-toggle="modal" data-target="#confirmacion_devolucion_equipo">Registrar devolución</button>
+					{% elif datos_detalle_solicitud["estado"] == 5 %}
+						<button type="button" class="btn btn-danger mr-1" data-toggle="modal" data-target="#confirmacion_eliminacion_solicitud"><i class="fas fa-minus-circle mr-1"></i>Eliminar solicitud</button>
+					{% endif %}
+				</span>
+			</div>
+
+		</div>
+
+
+	</div>
+
+	{% endblock %}
