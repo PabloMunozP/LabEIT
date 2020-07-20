@@ -85,6 +85,9 @@ def iniciar_sesion():
     session["usuario"] = {} # Creación de sesión para usuario
     for atributo in datos_usuario_registrado.keys():
         session["usuario"][str(atributo)] = datos_usuario_registrado[str(atributo)]
+    # Se crea una variable para almacenar si el sidebar está minimizado o no (0/1)
+    # Por default, el sidebar se encuentra desplegado
+    session["sidebar_minimizado"] = 0
 
     # Se verifica si el usuario presenta sanciones
     sql_query = """
@@ -297,7 +300,7 @@ def gestion_solicitudes_prestamos():
 
     # Se obtiene el listado de detalles de solicitudes por revisar
     sql_query = """
-        SELECT Detalle_solicitud.*,Equipo.nombre,Equipo.marca,Equipo.modelo,Usuario.rut AS rut_alumno,Solicitud.fecha_registro
+        SELECT Detalle_solicitud.*,Equipo.nombre,Equipo.marca,Equipo.modelo,Usuario.rut AS rut_alumno,Usuario.nombres AS nombres_usuario,Usuario.apellidos AS apellidos_usuario,Solicitud.fecha_registro
             FROM Detalle_solicitud,Equipo,Solicitud,Usuario
                 WHERE Solicitud.id = Detalle_solicitud.id_solicitud
                 AND Detalle_solicitud.id_equipo = Equipo.id
@@ -310,7 +313,7 @@ def gestion_solicitudes_prestamos():
 
     # Se obtiene el listado de detalles de solicitudes activas
     sql_query = """
-        SELECT Detalle_solicitud.*,Equipo.nombre,Equipo.marca,Equipo.modelo,Usuario.rut AS rut_alumno,Solicitud.fecha_registro,Estado_detalle_solicitud.nombre AS nombre_estado
+        SELECT Detalle_solicitud.*,Equipo.nombre,Equipo.marca,Equipo.modelo,Usuario.rut AS rut_alumno,Usuario.nombres AS nombres_usuario,Usuario.apellidos AS apellidos_usuario,Solicitud.fecha_registro,Estado_detalle_solicitud.nombre AS nombre_estado
             FROM Detalle_solicitud,Equipo,Solicitud,Usuario,Estado_detalle_solicitud
                 WHERE Solicitud.id = Detalle_solicitud.id_solicitud
                 AND Estado_detalle_solicitud.id = Detalle_solicitud.estado
@@ -325,7 +328,7 @@ def gestion_solicitudes_prestamos():
 
     # Se obtiene la lista de solicitudes pertenecientes al historial
     sql_query = """
-        SELECT Detalle_solicitud.*,Equipo.nombre,Equipo.marca,Equipo.modelo,Usuario.rut AS rut_alumno,Solicitud.fecha_registro,Estado_detalle_solicitud.nombre AS nombre_estado
+        SELECT Detalle_solicitud.*,Equipo.nombre,Equipo.marca,Equipo.modelo,Usuario.rut AS rut_alumno,Usuario.nombres AS nombres_usuario,Usuario.apellidos AS apellidos_usuario,Solicitud.fecha_registro,Estado_detalle_solicitud.nombre AS nombre_estado
             FROM Detalle_solicitud,Equipo,Solicitud,Usuario,Estado_detalle_solicitud
                 WHERE Solicitud.id = Detalle_solicitud.id_solicitud
                 AND Estado_detalle_solicitud.id = Detalle_solicitud.estado
@@ -359,6 +362,12 @@ def detalle_solicitud(id_detalle_solicitud):
     """
     cursor.execute(sql_query,(id_detalle_solicitud,))
     datos_detalle_solicitud = cursor.fetchone()
+
+    # Si ya no existe el detalle, se redirecciona y notifica al administrador
+    if datos_detalle_solicitud is None:
+        flash("solicitud-no-encontrada") # El registro fue eliminado
+        return redirect("/gestion_solicitudes_prestamos")
+
 
     # Se obtiene la información general de la solicitud
     sql_query = """
@@ -756,10 +765,10 @@ def entregar_equipo(id_detalle):
     # Se entrega el equipo al usuario solicitante, cambiando el estado de la solicitud
     # y agregando las fechas de inicio y término correspondientes al préstamo
     datos_formulario = request.form.to_dict()
-    fecha_inicio_prestamo = datetime.now().date()
 
     # Fecha en la que se marcó el retiro del equipo
     fecha_retiro = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    fecha_inicio_prestamo = datetime.strptime(fecha_retiro,"%Y-%m-%d %H:%M:%S")
 
     # Se comprueba si el administrador especificó otra fecha
     # En caso de que no se haya especificado, se calcula la fecha según la cantidad de días especificada por el equipo
@@ -775,13 +784,15 @@ def entregar_equipo(id_detalle):
             # Se calcula la fecha de término como el Lunes inmediatamente siguiente al fin de semana
             fecha_termino_prestamo = fecha_termino_prestamo + timedelta(days=delta)
     else:
-        fecha_termino_prestamo = datos_formulario["fecha_termino_prestamo"]
+        fecha_termino_prestamo = datetime.strptime(datos_formulario["fecha_termino_prestamo"],"%Y-%m-%d")
 
+    # Se agrega la hora a la fecha de término, por default (18:00 PM)
+    fecha_termino_prestamo = fecha_termino_prestamo.replace(hour=18,minute=0,second=0)
 
     # Se actualizan los datos del detalle de la solicitud
     sql_query = """
         UPDATE Detalle_solicitud
-            SET fecha_inicio = %s,fecha_termino = %s,estado = 2
+            SET fecha_inicio = %s,fecha_termino = %s,estado = 2,fecha_vencimiento = NULL
                 WHERE id = %s
     """
     cursor.execute(sql_query,(fecha_inicio_prestamo,fecha_termino_prestamo,id_detalle))
@@ -820,8 +831,8 @@ def entregar_equipo(id_detalle):
     archivo_html = archivo_html.replace("%fecha_retiro_equipo%",str(fecha_retiro))
 
     # Fechas de inicio y término de préstamo
-    fecha_inicio_prestamo = str(datetime.strptime(str(fecha_inicio_prestamo),"%Y-%m-%d").strftime("%d-%m-%Y"))
-    fecha_termino_prestamo = str(datetime.strptime(str(fecha_termino_prestamo),"%Y-%m-%d").strftime("%d-%m-%Y"))
+    fecha_inicio_prestamo = str(datetime.strptime(str(fecha_inicio_prestamo),"%Y-%m-%d %H:%M:%S").strftime("%d-%m-%Y %H:%M:%S"))
+    fecha_termino_prestamo = str(datetime.strptime(str(fecha_termino_prestamo),"%Y-%m-%d %H:%M:%S").strftime("%d-%m-%Y %H:%M:%S"))
     archivo_html = archivo_html.replace("%fecha_inicio_prestamo%",fecha_inicio_prestamo)
     archivo_html = archivo_html.replace("%fecha_termino_prestamo%",fecha_termino_prestamo)
 
@@ -840,15 +851,7 @@ def devolucion_equipo(id_detalle):
     else:
         fecha_devolucion_equipo = datos_formulario["fecha_devolucion_equipo"]
 
-    # Se modifica el detalle de solicitud
-    sql_query = """
-        UPDATE Detalle_solicitud
-            SET codigo_sufijo_equipo = NULL,estado = 4,fecha_devolucion = %s
-                WHERE id = %s
-    """
-    cursor.execute(sql_query,(fecha_devolucion_equipo,id_detalle))
-
-    # Se le envía el comprobante de devolución al usuario vía correo electrónico
+    # Se obtienen los datos de la solicitud para notificación vía correo electrónico
     sql_query = """
         SELECT Detalle_solicitud.*,Solicitud.rut_alumno,Solicitud.fecha_registro as fecha_registro_encabezado,Equipo.marca,Equipo.modelo,Equipo.codigo AS codigo_equipo
             FROM Solicitud,Detalle_solicitud,Equipo
@@ -858,6 +861,14 @@ def devolucion_equipo(id_detalle):
     """
     cursor.execute(sql_query,(id_detalle,))
     datos_generales_solicitud = cursor.fetchone() # Info de solicitud + detalle + equipo
+
+    # Se modifica el detalle de solicitud
+    sql_query = """
+        UPDATE Detalle_solicitud
+            SET codigo_sufijo_equipo = NULL,estado = 4,fecha_devolucion = %s
+                WHERE id = %s
+    """
+    cursor.execute(sql_query,(fecha_devolucion_equipo,id_detalle))
 
     # Se obtienen los datos del usuario
     sql_query = """
@@ -879,4 +890,47 @@ def devolucion_equipo(id_detalle):
     archivo_html = archivo_html.replace("%fecha_devolucion_equipo%",str(fecha_devolucion_equipo))
 
     enviar_correo_notificacion(archivo_html,datos_usuario["email"],"Comprobante de devolución de equipo",datos_usuario["email"])
+    flash("equipo-devuelto")
+    return redirect(redirect_url())
+
+@mod.route("/finalizar_solicitud/<string:id_detalle>",methods=["GET"])
+def finalizar_solicitud(id_detalle):
+    if "usuario" not in session.keys():
+        return redirect("/")
+    if session["usuario"]["id_credencial"] != 3: # El usuario debe ser un administrador (Credencial = 3)
+        return redirect("/")
+
+    # Se actualiza el estado del detalle de solicitud a Finalizada.
+    sql_query = """
+        UPDATE Detalle_solicitud
+            SET estado = 6
+                WHERE id = %s
+    """
+    cursor.execute(sql_query,(id_detalle,))
+
+    flash("detalle-finalizado")
+    return redirect(redirect_url())
+
+# ======== Maximizar/Minimizar Sidebar =============
+@mod.route("/maximizar_minimizar_sidebar",methods=["POST"])
+def maximizar_minimizar_sidebar():
+    if "sidebar_minimizado" not in session.keys():
+        session["sidebar_minimizado"] = 0
+
+    session["sidebar_minimizado"] = int(not bool(session["sidebar_minimizado"]))
+    print(session["sidebar_minimizado"])
+
+    resp = jsonify(success=True)
+    return resp
+
+# ======== EXPORTACIONES DE SOLICITUDES ============
+@mod.route("/exportar_solicitudes/<string:id_exportacion>",methods=["GET"])
+def exportar_solicitudes(id_exportacion):
+    # El ID de exportación corresponde a la lista que se va a exportar
+    # 1: Solicitudes entrantes
+    # 2: Préstamos activos
+    # 3: Historial de solicitudes
+
+    print(id_exportacion)
+
     return redirect(redirect_url())
