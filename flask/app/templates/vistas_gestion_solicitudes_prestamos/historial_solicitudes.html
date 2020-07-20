@@ -5,15 +5,32 @@
 </div>
 
 {% if lista_historial_solicitudes %}
+<div class="row mt-2">
+	<div class="col-md-6">
+		<div class="input-group">
+		<div class="input-group-prepend">
+			<div class="input-group-text"><i class="fas fa-search"></i></div>
+		</div>
+		<input type="text" class="form-control" id="filtro_busqueda_historial_solicitudes" placeholder="Buscar por RUT de solicitante, equipo solicitado, IDs, etc.">
+	</div>
+	</div>
+	<div class="col-md-6 my-auto text-right">
+		<a href="/exportar_solicitudes/3">
+			<button type="button" title="Exportar historial de solicitudes" class="btn btn-sm btn-secondary"><i class="fas fa-file-excel mr-2"></i>Exportar registros</button>
+		</a>
+	</div>
+</div>
 	<div class="table-responsive mt-2">
 		<div class="table-wrapper-scroll-y" style="position: relative;
 								max-height: 450px;
 								overflow:auto;">
-			<table class="table">
+			<table class="table" id="tabla_historial_solicitudes">
 				<thead class="text-white" style="background:#4D4D4D;">
 					<tr>
-						<th scope="col">ID</th>
+						<th title="ID de solicitud" scope="col">IDS</th>
+						<th title="ID de detalle de solicitud" scope="col">IDD</th>
 						<th scope="col">RUT de alumno solicitante</th>
+						<th scope="col">Nombre del solicitante</th>
 						<th scope="col">Equipo solicitado</th>
 						<th scope="col" class="text-center">Estado</th>
 						<th scope="col">Fecha de registro</th>
@@ -23,8 +40,10 @@
 				<tbody>
 					{% for detalle_solicitud in lista_historial_solicitudes %}
 						<tr style="background:#ECF0F1;">
+							<td>{{detalle_solicitud["id_solicitud"]}}</td>
 							<td>{{detalle_solicitud["id"]}}</td>
 							<td>{{detalle_solicitud["rut_alumno"]|formato_rut}}</td>
+							<td>{{detalle_solicitud["nombres_usuario"]}} {{detalle_solicitud["apellidos_usuario"]}}</td>
 							<td>{{detalle_solicitud["nombre"]}} {{detalle_solicitud["marca"]}} {{detalle_solicitud["modelo"]}}</td>
 
 							{% if detalle_solicitud["estado"] == 0 %}
@@ -51,7 +70,7 @@
 									<a href="gestion_solicitudes_prestamos/detalle_solicitud/{{detalle_solicitud["id"]}}">
 										<button type="button" title="Ver detalle de solicitud" class="btn btn-sm btn-secondary mr-1"><i class="fas fa-search-plus"></i></button>
 									</a>
-									<button type="button" title="Eliminar solicitud" class="btn btn-sm btn-danger"><i class="fas fa-minus-circle"></i></button>
+									<button type="submit" title="Eliminar solicitud" onclick="agregar_action_form_eliminar_solicitud({{detalle_solicitud["id"]}})" class="btn btn-sm btn-danger" data-toggle="modal" data-target="#confirmacion_eliminacion_solicitud_entrante"><i class="fas fa-minus-circle"></i></button>
 								</span>
 							</td>
 						</tr>
@@ -65,3 +84,13 @@
 		<i class="fas fa-exclamation-triangle mr-2"></i>El historial de solicitudes de préstamos se encuentra vacío.
 	</div>
 {% endif %}
+
+<script type="text/javascript">
+	$(function() { // Filtro de historial de solicitudes
+	  $("#filtro_busqueda_historial_solicitudes").on("keyup", function() {
+	    var value = $(this).val().toLowerCase();
+	    $("#tabla_historial_solicitudes > tbody > tr").filter(function() {      $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+	    });
+	  });
+	});
+</script>
