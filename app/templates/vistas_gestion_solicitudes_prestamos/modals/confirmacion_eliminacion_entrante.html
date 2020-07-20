@@ -1,4 +1,4 @@
-<div class="modal fade" id="confirmacion_eliminacion_solicitud" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal fade" id="confirmacion_eliminacion_solicitud_entrante" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header bg-gris-eit">
@@ -7,7 +7,7 @@
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
-      <form  action="/eliminar_solicitud/{{datos_detalle_solicitud["id"]}}" method="post">
+      <form method="post" id="formulario_confirmacion_eliminacion_solicitud">
         <div class="modal-body">
           <p>La solicitud de préstamo será eliminada del sistema y se perderán todos los datos asociados a esta.</p>
           <p>Adicionalmente, las estadísticas de uso podrían verse afectadas.</p>

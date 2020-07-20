@@ -26,6 +26,7 @@
             <div class="form-group">
               <label class="col-form-label">Seleccione la fecha de vencimiento de la solicitud:</label>
               <input type="date" required class="form-control" id="fecha_vencimiento_solicitud" name="fecha_vencimiento_solicitud">
+              <small class="form-text text-muted">El sistema eliminará automáticamente las solicitudes de préstamos de equipos que no hayan sido retirados al cumplirse la fecha de vencimiento.</small>
             </div>
           {% else %}
             <div class="alert alert-warning alert-dismissible fade show text-center mt-2" role="alert">

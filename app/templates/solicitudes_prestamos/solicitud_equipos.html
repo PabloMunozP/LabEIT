@@ -49,7 +49,7 @@
 				<div class="table-wrapper-scroll-y" style="position: relative;
 										max-height: 350px;
 										overflow:auto;">
-					<table class="table">
+					<table class="table" id="tabla_equipos_solicitud">
 					  <thead class="text-white" style="background:#4D4D4D;">
 					    <tr>
 								<th scope="col">Nombre</th>
@@ -137,6 +137,15 @@
 	</div>
 
 	<script type="text/javascript">
+
+		$(function() { // Filtro de búsqueda para lista de equipos
+		  $("#filtro_busqueda_solicitud_equipos").on("keyup", function() {
+		    var value = $(this).val().toLowerCase();
+		    $("#tabla_equipos_solicitud > tbody > tr").filter(function() {      $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+		    });
+		  });
+		});
+
 		$(document).ready( () =>{
 				// AJAX para agregar pedido al carro de pedidos
 				$(".formulario-agregar-equipo-carro").on("submit",function(event){

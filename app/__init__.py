@@ -51,59 +51,83 @@ def revisar_atrasos_prestamos():
 
     fecha_actual = datetime.now().date()
 
-    for prestamo in lista_prestamos:
-        delta_dias = fecha_actual - prestamo["fecha_termino"]
+    #for prestamo in lista_prestamos:
 
-        # Si existe uno o más días de atraso según la fecha de término, se registra la sanción.
-        if delta_dias.days >= 1:
-            # Se obtienen los datos del usuario registrado en el préstamo
-            sql_query = """
-                SELECT Usuario.nombres,Usuario.email,Usuario.rut
-                    FROM Usuario,Solicitud
-                        WHERE Solicitud.rut_alumno = Usuario.rut
-                        AND Solicitud.id = %s
-            """
-            cursor.execute(sql_query,(prestamo["id_solicitud"],))
-            datos_usuario = cursor.fetchone()
 
-            # Se registra la sanción
-            sql_query = """
-                INSERT INTO Sanciones (rut_alumno,cantidad_dias,fecha_inicio,activa)
-                    VALUES (%s,%s,%s,%s)
-            """
-
-            dias_sancion = 2*delta_dias.days
-            cursor.execute(sql_query,(prestamo["rut_alumno"],dias_sancion,str(datetime.now()),1))
-
-            # Se modifica el estado del detalle de solicitud correspondiente
-            sql_query = """
-                UPDATE Detalle_solicitud
-                    SET estado = 3,fecha_sancion = %s
-                        WHERE id = %s
-            """
-            cursor.execute(sql_query,(prestamo["id"],datetime.now().date()))
 
             # Se notifica al usuario vía correo electrónico sobre la sanción
-            # Se abre el template HTML correspondiente al rechazo de solicitud
-            direccion_template = os.path.normpath(os.path.join(os.getcwd(), "app/templates/vistas_gestion_solicitudes_prestamos/templates_mail/informe_sancion.html"))
-            archivo_html = open(direccion_template,encoding="utf-8").read()
+            #direccion_template = os.path.normpath(os.path.join(os.getcwd(), "app/templates/vistas_gestion_solicitudes_prestamos/templates_mail/informe_sancion.html"))
+            #archivo_html = open(direccion_template,encoding="utf-8").read()
 
             # Se reemplazan los datos correspondientes en el archivo html
-            archivo_html = archivo_html.replace("%id_solicitud%",str(prestamo["id_solicitud"]))
-            archivo_html = archivo_html.replace("%id_detalle%",str(prestamo["id"]))
-            archivo_html = archivo_html.replace("%equipo_prestado%",prestamo["marca"]+" "+prestamo["modelo"])
-            archivo_html = archivo_html.replace("%codigo_equipo%",str(prestamo["codigo_equipo"]))
-            archivo_html = archivo_html.replace("%codigo_sufijo%",str(prestamo["codigo_sufijo_equipo"]))
-            archivo_html = archivo_html.replace("%fecha_inicio_prestamo%",str(prestamo["fecha_inicio"]))
-            archivo_html = archivo_html.replace("%fecha_termino_prestamo%",str(prestamo["fecha_termino"]))
-            archivo_html = archivo_html.replace("%dias_sancion%",str(dias_sancion))
+            #archivo_html = archivo_html.replace("%id_solicitud%",str(prestamo["id_solicitud"]))
+            #archivo_html = archivo_html.replace("%id_detalle%",str(prestamo["id"]))
+            #archivo_html = archivo_html.replace("%equipo_prestado%",prestamo["marca"]+" "+prestamo["modelo"])
+            #archivo_html = archivo_html.replace("%codigo_equipo%",str(prestamo["codigo_equipo"]))
+            #archivo_html = archivo_html.replace("%codigo_sufijo%",str(prestamo["codigo_sufijo_equipo"]))
+            #archivo_html = archivo_html.replace("%fecha_inicio_prestamo%",str(prestamo["fecha_inicio"]))
+            #archivo_html = archivo_html.replace("%fecha_termino_prestamo%",str(prestamo["fecha_termino"]))
+            #archivo_html = archivo_html.replace("%dias_sancion%",str(dias_sancion))
 
-            enviar_correo_notificacion(archivo_html,datos_usuario["email"],"Alerta de sanción",datos_usuario["email"])
+            #enviar_correo_notificacion(archivo_html,datos_usuario["email"],"Alerta de sanción",datos_usuario["email"])
 
     # Se revisan las solicitudes que ya presentaban atrasos ...
 
+
+def revisar_solicitudes_vencidas():
+    # Se revisan las solicitudes que han sido aprobadas, pero que no se han retirado a tiempo.
+    # En caso de que se cumpla la fecha de vencimiento de la solicitud, se elimina automáticamente.
+
+    # Se obtiene la fecha actual según la aplicación
+    fecha_actual = datetime.now().date()
+
+    sql_query = """
+        SELECT id,id_solicitud,fecha_vencimiento
+            FROM Detalle_solicitud
+                WHERE estado = 1
+                AND fecha_vencimiento <= %s
+    """
+    cursor.execute(sql_query,(fecha_actual,))
+    lista_detalles_solicitud = cursor.fetchall()
+
+    for detalle_solicitud in lista_detalles_solicitud:
+        # Se comprueba si se debe eliminar el encabezado de la solicitud,
+        # en caso de que la solicitud sólo tenga un detalle.
+        eliminar_encabezado = False
+
+        sql_query = """
+            SELECT COUNT(*) AS cantidad_detalles
+                FROM Detalle_solicitud
+                    WHERE id_solicitud = %s
+        """
+        cursor.execute(sql_query,(detalle_solicitud["id_solicitud"],))
+        cantidad_detalles = cursor.fetchone()["cantidad_detalles"]
+
+        if cantidad_detalles == 1:
+            # Si la cantidad de detalles es 1, significa que sólo está el detalle vencido
+            # Por lo tanto, además de eliminar el detalle de solicitud, se elimina el encabezado
+            eliminar_encabezado = True
+
+        # Se elimina el detalle de solicitud vencido
+        sql_query = """
+            DELETE FROM
+                Detalle_solicitud
+                    WHERE id = %s
+        """
+        cursor.execute(sql_query,(detalle_solicitud["id"],))
+
+        # Se elimina el encabezado, según las condiciones
+        if eliminar_encabezado:
+            sql_query = """
+                DELETE FROM
+                    Solicitud
+                        WHERE id = %s
+            """
+            cursor.execute(sql_query,(detalle_solicitud["id_solicitud"],))
+
 #sched = APScheduler()
-#sched.add_job(id="revisar_atrasos_prestamos",func=revisar_atrasos_prestamos,trigger='interval',seconds=30)
+#sched.add_job(id="revisar_atrasos_prestamos",func=revisar_atrasos_prestamos,trigger='interval',seconds=10)
+#sched.add_job(id="revisar_solicitudes_vencidas",func=revisar_solicitudes_vencidas,trigger='interval',seconds=60)
 #sched.start()
 # ============================================================================
 
