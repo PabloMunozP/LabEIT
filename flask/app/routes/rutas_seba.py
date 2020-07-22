@@ -1,4 +1,4 @@
-from flask import Flask,Blueprint,render_template,request,redirect,url_for,flash,session,jsonify
+from flask import Flask,Blueprint,render_template,request,redirect,url_for,flash,session,jsonify,send_file
 from config import db,cursor
 import os,time,bcrypt,random
 import smtplib
@@ -9,6 +9,7 @@ from email.mime.multipart import MIMEMultipart
 from jinja2 import Environment
 from uuid import uuid4 # Token
 from datetime import datetime,timedelta
+from openpyxl import Workbook
 
 mod = Blueprint("rutas_seba",__name__)
 
@@ -884,6 +885,7 @@ def devolucion_equipo(id_detalle):
 
     archivo_html = archivo_html.replace("%id_solicitud%",str(datos_formulario["id_encabezado_solicitud"]))
     archivo_html = archivo_html.replace("%id_detalle%",id_detalle)
+    archivo_html = archivo_html.replace("%nombre_usuario%",datos_usuario["nombres"])
     archivo_html = archivo_html.replace("%equipo_devuelto%",datos_generales_solicitud["marca"]+" "+datos_generales_solicitud["modelo"])
     archivo_html = archivo_html.replace("%codigo_equipo%",datos_generales_solicitud["codigo_equipo"])
     archivo_html = archivo_html.replace("%codigo_sufijo%",datos_generales_solicitud["codigo_sufijo_equipo"])
@@ -924,13 +926,80 @@ def maximizar_minimizar_sidebar():
     return resp
 
 # ======== EXPORTACIONES DE SOLICITUDES ============
-@mod.route("/exportar_solicitudes/<string:id_exportacion>",methods=["GET"])
+@mod.route("/exportar_solicitudes/<int:id_exportacion>",methods=["GET"])
 def exportar_solicitudes(id_exportacion):
     # El ID de exportación corresponde a la lista que se va a exportar
     # 1: Solicitudes entrantes
     # 2: Préstamos activos
     # 3: Historial de solicitudes
 
-    print(id_exportacion)
+    # Se ejecuta la consulta SQL según el ID de exportación
 
-    return redirect(redirect_url())
+    if id_exportacion == 2:
+        sql_query = """
+            SELECT Solicitud.fecha_registro,Detalle_solicitud.*,
+            Usuario.rut AS rut_solicitante,Usuario.email,Usuario.nombres,Usuario.apellidos,
+            Equipo.codigo,Equipo.nombre AS nombre_equipo,Equipo.modelo AS modelo_equipo,Equipo.marca AS marca_equipo,
+            Estado_detalle_solicitud.nombre AS nombre_estado
+                FROM Solicitud,Detalle_solicitud,Usuario,Equipo,Estado_detalle_solicitud
+                    WHERE Solicitud.id = Detalle_solicitud.id_solicitud
+                    AND Solicitud.rut_alumno = Usuario.rut
+                    AND Detalle_solicitud.id_equipo = Equipo.id
+                    AND Detalle_solicitud.estado = Estado_detalle_solicitud.id
+                    AND Detalle_solicitud.estado >= 1
+                    AND Detalle_solicitud.estado <= 6
+        """
+        cursor.execute(sql_query)
+        lista_detalles = cursor.fetchall()
+
+    wb = Workbook() # Instancia de libro Excel
+    ws = wb.active # Hoja activa para escribir
+
+    if id_exportacion == 1:
+        ws.title = "Lista de solicitudes de préstamos por revisar"
+    elif id_exportacion == 2:
+        ws.title = "Lista de solicitudes de préstamos activas"
+    else:
+        ws.title = "Historial de solicitudes de préstamos"
+
+    # Columnas de la tabla
+    lista_columnas = ["ID solicitud","IDD","RUT del solicitante","Nombres","Apellidos","Nombre de equipo","Marca","Modelo","Estado de solicitud","Fecha de inicio","Fecha de término","Fecha de registro"]
+    lista_keys = ["id_solicitud","id","rut_solicitante","nombres","apellidos","nombre_equipo","marca_equipo","modelo_equipo","nombre_estado","fecha_inicio","fecha_termino","fecha_registro"]
+
+    # Información de la consulta
+    ws.merge_cells("A1:B1")
+    celda = ws.cell(row=1,column=1)
+    celda.value = "Fecha de consulta"
+
+    celda = ws.cell(row=1,column=3)
+    celda.value = str(datetime.now().replace(microsecond=0))
+
+    for i in range(len(lista_columnas)):
+        celda = ws.cell(row=3,column=i+1)
+        celda.value = lista_columnas[i]
+
+    # Se agregan los registros
+    index_row = 4
+    index_column = 1
+    for detalle in lista_detalles:
+        for key in lista_keys:
+            celda = ws.cell(row=index_row,column=index_column)
+            celda.value = detalle[key]
+            index_column += 1
+        index_column = 1
+        index_row += 1
+
+    direccion_archivo = os.path.normpath(os.path.join(os.getcwd(), "app/static/files/exportacion_solicitudes.xlsx"))
+    wb.save(direccion_archivo)
+
+    return send_file(direccion_archivo,as_attachment=True)
+
+# ========= ESTADÍSTICAS GENERALES ===================
+@mod.route("/estadisticas_generales",methods=["GET"])
+def estadisticas_generales():
+    if "usuario" not in session.keys():
+        return redirect("/")
+    if session["usuario"]["id_credencial"] != 3: # El usuario debe ser un administrador (Credencial = 3)
+        return redirect("/")
+
+    return render_template("/estadisticas/estadisticas_generales.html")
