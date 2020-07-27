@@ -34,15 +34,8 @@ def consultar_lista_equipos_general():
                 Equipo.descripcion,
                 Equipo.dias_max_prestamo,
                 Equipo.imagen,
-                CASE    WHEN Equipo.cantidad_circuito IS NOT NULL THEN 'true'
-                        ELSE 'false'
-                        END AS multi_componente,
-                CASE    WHEN Equipo.cantidad_circuito IS NOT NULL THEN Equipo.cantidad_circuito
-                        ELSE COUNT(CASE WHEN Equipo_diferenciado.activo = 1 THEN 1 ELSE NULL END)
-                        END AS disponibles,
-                CASE    WHEN Equipo.cantidad_circuito IS NOT NULL THEN Equipo.cantidad_circuito
-                        ELSE COUNT(Equipo_diferenciado.activo)
-                        END AS total_equipos
+                COUNT(CASE WHEN Equipo_diferenciado.activo = 1 THEN 1 ELSE NULL END) AS disponibles,
+                COUNT(Equipo_diferenciado.activo) AS total_equipos
                 FROM Equipo
                     LEFT JOIN Equipo_diferenciado ON  Equipo.codigo = Equipo_diferenciado.codigo_equipo
                 GROUP BY Equipo.id) AS inventario_general
@@ -58,6 +51,13 @@ def consultar_lista_equipos_general():
     # for element in equipos:
     #     print(element)
     return equipos
+
+@mod.route("/debug_query")
+def debug_query():
+    equipos = consultar_lista_equipos_general()
+    print(equipos)
+    return 'xD'
+
 
 @mod.route("/gestion_inventario_admin")
 def gestion_inventario_admin():
