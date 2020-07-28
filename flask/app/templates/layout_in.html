@@ -130,20 +130,5 @@
     <script src="{{ url_for('static', filename="../static/js/script_labeit.js")}}"></script>
     <script src="{{ url_for('static', filename="../static/js/ubicacion_chile.js")}}"></script>
 
-    <script type="text/javascript">
-
-      $("#sidebarToggle").click(function(){
-        $("#sidebarToggle").prop("disabled",true);
-        $.ajax({
-            type: "POST",
-            url: "/maximizar_minimizar_sidebar"
-        })
-         .done(function(data){
-           $("#sidebarToggle").prop("disabled",false);
-         });
-        event.preventDefault();
-      });
-    </script>
-
   </body>
 </html>

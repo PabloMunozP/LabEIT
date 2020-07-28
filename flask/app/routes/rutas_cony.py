@@ -78,7 +78,7 @@ def solicitudes_prestamos():
     lista_carro = []
     for pedido in session["carro_pedidos"]:
         sql_query = """
-            SELECT id,marca,modelo,codigo
+            SELECT id,nombre,marca,modelo,codigo
                 FROM Equipo
                     WHERE id = %s
         """
@@ -110,7 +110,7 @@ def agregar_al_carro():
         if not existe_pedido:
             session["carro_pedidos"].append((datos_equipo["id_equipo"],int(datos_equipo["cantidad_pedidos"])))
 
-    # Se obtienen los datos de los equipos pedidos para luego mostrar en la lista en el front-end
+    # Se obtienen los datos de los equipos pedidos para luego mostrar la lista en el front-end
     lista_carro = []
     for pedido in session["carro_pedidos"]:
         sql_query = """

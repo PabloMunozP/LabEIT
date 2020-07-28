@@ -86,9 +86,6 @@ def iniciar_sesion():
     session["usuario"] = {} # Creación de sesión para usuario
     for atributo in datos_usuario_registrado.keys():
         session["usuario"][str(atributo)] = datos_usuario_registrado[str(atributo)]
-    # Se crea una variable para almacenar si el sidebar está minimizado o no (0/1)
-    # Por default, el sidebar se encuentra desplegado
-    session["sidebar_minimizado"] = 0
 
     # Se verifica si el usuario presenta sanciones
     sql_query = """
@@ -477,7 +474,7 @@ def rechazar_solicitud(id_detalle):
     if session["usuario"]["id_credencial"] != 3: # El usuario debe ser un administrador (Credencial = 3)
         return redirect("/")
 
-    fecha_revision_solicitud = datetime.now()
+    fecha_revision_solicitud = str(datetime.now().replace(microsecond=0))
 
     # Razón de rechazo de solicitud
     razon_rechazo = request.form.to_dict()["razon_rechazo"]
@@ -527,8 +524,6 @@ def rechazar_solicitud(id_detalle):
     archivo_html = archivo_html.replace("%nombre_usuario%",datos_usuario["nombres"])
     archivo_html = archivo_html.replace("%equipo_solicitado%",datos_solicitud_rechazada["marca"]+" "+datos_solicitud_rechazada["modelo"])
     archivo_html = archivo_html.replace("%fecha_registro%",str(datos_solicitud_rechazada["fecha_registro"]))
-
-    fecha_revision_solicitud = str(fecha_revision_solicitud.date())+" "+str(fecha_revision_solicitud.hour)+":"+str(fecha_revision_solicitud.minute)
     archivo_html = archivo_html.replace("%fecha_revision_solicitud%",fecha_revision_solicitud)
 
     razon_rechazo = razon_rechazo.strip()
@@ -913,18 +908,6 @@ def finalizar_solicitud(id_detalle):
     flash("detalle-finalizado")
     return redirect(redirect_url())
 
-# ======== Maximizar/Minimizar Sidebar =============
-@mod.route("/maximizar_minimizar_sidebar",methods=["POST"])
-def maximizar_minimizar_sidebar():
-    if "sidebar_minimizado" not in session.keys():
-        session["sidebar_minimizado"] = 0
-
-    session["sidebar_minimizado"] = int(not bool(session["sidebar_minimizado"]))
-    print(session["sidebar_minimizado"])
-
-    resp = jsonify(success=True)
-    return resp
-
 # ======== EXPORTACIONES DE SOLICITUDES ============
 @mod.route("/exportar_solicitudes/<int:id_exportacion>",methods=["GET"])
 def exportar_solicitudes(id_exportacion):
@@ -1002,4 +985,95 @@ def estadisticas_generales():
     if session["usuario"]["id_credencial"] != 3: # El usuario debe ser un administrador (Credencial = 3)
         return redirect("/")
 
-    return render_template("/estadisticas/estadisticas_generales.html")
+    # Se obtiene las cantidades según estados de solicitudes de préstamos
+    cantidades_solicitudes_estados = {}
+    # Solicitudes entrantes (por revisar)
+    sql_query = """
+        SELECT COUNT(*) as cantidad_solicitudes_entrantes
+            FROM Detalle_solicitud
+                WHERE estado = 0
+    """
+    cursor.execute(sql_query)
+    cantidades_solicitudes_estados["solicitudes_entrantes"] = cursor.fetchone()["cantidad_solicitudes_entrantes"]
+
+    # Retiros pendientes de solicitudes aprobadas
+    sql_query = """
+        SELECT COUNT(*) as cantidad_retiros_pendientes
+            FROM Detalle_solicitud
+                WHERE estado = 1
+    """
+    cursor.execute(sql_query)
+    cantidades_solicitudes_estados["retiros_pendientes"] = cursor.fetchone()["cantidad_retiros_pendientes"]
+
+    # Préstamos activos (en posesión)
+    sql_query = """
+        SELECT COUNT(*) as cantidad_en_posesion
+            FROM Detalle_solicitud
+                WHERE estado = 2
+    """
+    cursor.execute(sql_query)
+    cantidades_solicitudes_estados["en_posesion"] = cursor.fetchone()["cantidad_en_posesion"]
+
+    # Préstamos con atrasos
+    sql_query = """
+        SELECT COUNT(*) as cantidad_con_atrasos
+            FROM Detalle_solicitud
+                WHERE estado = 3
+    """
+    cursor.execute(sql_query)
+    cantidades_solicitudes_estados["con_atrasos"] = cursor.fetchone()["cantidad_con_atrasos"]
+
+    # Préstamos finalizados (Se contabilizan los que se encuentran aún en estado 'devuelto')
+    sql_query = """
+        SELECT COUNT(*) as cantidad_finalizados
+            FROM Detalle_solicitud
+                WHERE estado = 4
+                OR estado = 6
+    """
+    cursor.execute(sql_query)
+    cantidades_solicitudes_estados["finalizados"] = cursor.fetchone()["cantidad_finalizados"]
+
+    # Solicitudes rechazadas y canceladas
+    # Préstamos finalizados (Se contabilizan los que se encuentran aún en estado 'devuelto')
+    sql_query = """
+        SELECT COUNT(*) as cantidad_rechazadas_canceladas
+            FROM Detalle_solicitud
+                WHERE estado = 5
+                OR estado = 7
+    """
+    cursor.execute(sql_query)
+    cantidades_solicitudes_estados["rechazadas_canceladas"] = cursor.fetchone()["cantidad_rechazadas_canceladas"]
+
+    return render_template("/estadisticas/estadisticas_generales.html",
+        cantidades_solicitudes_estados=cantidades_solicitudes_estados)
+
+@mod.route("/consultar_equipos_solicitados",methods=["POST"])
+def consultar_equipos_solicitados():
+    # Se obtiene la lista de equipos que se han solicitado en cualquiera de los estados
+    # durante las fechas "desde" (limite_inferior) y "hasta" (limite_superior) indicadas.
+
+    limites_fechas = request.form.to_dict()
+
+    # Se agrega la hora 23:59 a las fechas para cubrir los días límites en su totalidad
+    limites_fechas["limite_inferior"] = str(datetime.strptime(limites_fechas["limite_inferior"],"%Y-%m-%d").replace(hour=0,minute=0))
+    limites_fechas["limite_superior"] = str(datetime.strptime(limites_fechas["limite_superior"],"%Y-%m-%d").replace(hour=23,minute=59))
+
+    sql_query = """
+        SELECT Equipo.id,Equipo.nombre,Equipo.modelo,Equipo.marca,COUNT(*) AS cantidad_solicitudes
+            FROM Equipo,Detalle_solicitud,Solicitud
+                WHERE Solicitud.id = Detalle_solicitud.id_solicitud
+                AND Detalle_solicitud.id_equipo = Equipo.id
+                AND Solicitud.fecha_registro >= %s
+                AND Solicitud.fecha_registro <= %s
+                GROUP BY Equipo.id
+    """
+    cursor.execute(sql_query,(limites_fechas["limite_inferior"],limites_fechas["limite_superior"]))
+    resultados_consulta = cursor.fetchall()
+
+    # Se transforma el formato para posterior visualización con librerías gráficas
+    data = []
+    for registro in resultados_consulta:
+        equipo = registro["nombre"]+" "+registro["modelo"]+" "+registro["marca"]
+        data.append([equipo,registro["cantidad_solicitudes"]])
+
+    return jsonify(data)

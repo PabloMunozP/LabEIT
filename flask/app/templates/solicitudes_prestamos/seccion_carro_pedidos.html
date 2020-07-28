@@ -6,9 +6,7 @@
 				<table class="table">
 					<thead class="text-white" style="background:#4D4D4D;">
 						<tr>
-							<th scope="col">Nombre</th>
-							<th scope="col">Marca</th>
-							<th scope="col">Modelo</th>
+							<th scope="col">Equipos agregados a tu carro de pedidos</th>
 							<th scope="col" class="text-center">Unidades</th>
 							<th scope="col" class="text-center">Acciones</th>
 						</tr>
@@ -16,9 +14,7 @@
 					<tbody>
 						{% for equipo in lista_carro %}
 							<tr style="background:#ECF0F1;">
-								<td>{{equipo["nombre"]}}</td>
-								<td>{{equipo["marca"]}}</td>
-								<td>{{equipo["modelo"]}}</td>
+								<td>{{equipo["nombre"]}} {{equipo["marca"]}} {{equipo["modelo"]}}</td>
 								<td class="text-center">{{equipo["cantidad_pedidos"]}}</td>
 								<td class="text-center">
 									<span class="btn-group">
