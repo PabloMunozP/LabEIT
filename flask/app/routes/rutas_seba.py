@@ -1047,33 +1047,116 @@ def estadisticas_generales():
     return render_template("/estadisticas/estadisticas_generales.html",
         cantidades_solicitudes_estados=cantidades_solicitudes_estados)
 
-@mod.route("/consultar_equipos_solicitados",methods=["POST"])
-def consultar_equipos_solicitados():
+@mod.route("/consultar_estadisticas_solicitudes",methods=["POST"])
+def consultar_estadisticas_solicitudes():
     # Se obtiene la lista de equipos que se han solicitado en cualquiera de los estados
     # durante las fechas "desde" (limite_inferior) y "hasta" (limite_superior) indicadas.
 
-    limites_fechas = request.form.to_dict()
+    datos_formulario = request.form.to_dict()
+    datos_formulario["id_consulta"] = int(datos_formulario["id_consulta"])
 
-    # Se agrega la hora 23:59 a las fechas para cubrir los días límites en su totalidad
-    limites_fechas["limite_inferior"] = str(datetime.strptime(limites_fechas["limite_inferior"],"%Y-%m-%d").replace(hour=0,minute=0))
-    limites_fechas["limite_superior"] = str(datetime.strptime(limites_fechas["limite_superior"],"%Y-%m-%d").replace(hour=23,minute=59))
+    if datos_formulario["id_consulta"] == 1:
+        # Consulta 1: Se obtienen la cantidad de solicitudes para cada equipo según las fechas
+        # del filtro
+        # Se agrega la hora 23:59 a las fechas para cubrir los días límites en su totalidad
+        datos_formulario["limite_inferior"] = str(datetime.strptime(datos_formulario["limite_inferior"],"%Y-%m-%d").replace(hour=0,minute=0))
+        datos_formulario["limite_superior"] = str(datetime.strptime(datos_formulario["limite_superior"],"%Y-%m-%d").replace(hour=23,minute=59))
 
-    sql_query = """
-        SELECT Equipo.id,Equipo.nombre,Equipo.modelo,Equipo.marca,COUNT(*) AS cantidad_solicitudes
-            FROM Equipo,Detalle_solicitud,Solicitud
-                WHERE Solicitud.id = Detalle_solicitud.id_solicitud
-                AND Detalle_solicitud.id_equipo = Equipo.id
-                AND Solicitud.fecha_registro >= %s
-                AND Solicitud.fecha_registro <= %s
-                GROUP BY Equipo.id
-    """
-    cursor.execute(sql_query,(limites_fechas["limite_inferior"],limites_fechas["limite_superior"]))
-    resultados_consulta = cursor.fetchall()
+        sql_query = """
+            SELECT Equipo.id,Equipo.nombre,Equipo.modelo,Equipo.marca,COUNT(*) AS cantidad_solicitudes
+                FROM Equipo,Detalle_solicitud,Solicitud
+                    WHERE Solicitud.id = Detalle_solicitud.id_solicitud
+                    AND Detalle_solicitud.id_equipo = Equipo.id
+                    AND Solicitud.fecha_registro >= %s
+                    AND Solicitud.fecha_registro <= %s
+                    GROUP BY Equipo.id
+        """
+        cursor.execute(sql_query,(datos_formulario["limite_inferior"],datos_formulario["limite_superior"]))
+        resultados_consulta = cursor.fetchall()
 
-    # Se transforma el formato para posterior visualización con librerías gráficas
-    data = []
-    for registro in resultados_consulta:
-        equipo = registro["nombre"]+" "+registro["modelo"]+" "+registro["marca"]
-        data.append([equipo,registro["cantidad_solicitudes"]])
+        # Se transforma el formato para posterior visualización con librerías gráficas
+        data = []
+        for registro in resultados_consulta:
+            equipo = registro["nombre"]+" "+registro["modelo"]+" "+registro["marca"]
+            data.append([equipo,registro["cantidad_solicitudes"]])
 
-    return jsonify(data)
+        return jsonify(data)
+
+    elif datos_formulario["id_consulta"] == 2:
+        # Consulta 2: Se obtienen las cantidades para cada equipo solicitado según las fechas del formulario
+        # en los distintos estados de solicitudes (por revisar, por retirar, etc)
+
+        # Se agrega la hora 23:59 a las fechas para cubrir los días límites en su totalidad
+        datos_formulario["limite_inferior"] = str(datetime.strptime(datos_formulario["limite_inferior"],"%Y-%m-%d").replace(hour=0,minute=0))
+        datos_formulario["limite_superior"] = str(datetime.strptime(datos_formulario["limite_superior"],"%Y-%m-%d").replace(hour=23,minute=59))
+
+        # Se obtiene la lista de estados para poder realizar las consultar por cada una de ellas
+        sql_query = """
+            SELECT Estado_detalle_solicitud.id,Estado_detalle_solicitud.nombre
+                FROM Estado_detalle_solicitud
+        """
+        cursor.execute(sql_query)
+        lista_estados = cursor.fetchall()
+
+        # Se obtienen los equipos según las fechas del formulario para categorías en el gráfico
+        sql_query = """
+            SELECT Equipo.id,Equipo.nombre,Equipo.marca,Equipo.modelo
+                FROM Equipo,Detalle_solicitud,Solicitud
+                    WHERE Equipo.id = Detalle_solicitud.id_equipo
+                    AND Detalle_solicitud.id_solicitud = Solicitud.id
+                    AND Solicitud.fecha_registro >= %s
+                    AND Solicitud.fecha_registro <= %s
+                    GROUP BY Equipo.id
+        """
+        cursor.execute(sql_query,(datos_formulario["limite_inferior"],datos_formulario["limite_superior"]))
+        lista_equipos = cursor.fetchall()
+
+        if not len(lista_equipos):
+            return jsonify([])
+
+        # Se crea la lista con las categorías para posteriormente ponerlas en el gráfico
+        lista_categorias = []
+        lista_categorias.append("Equipo")
+        for equipo in lista_equipos:
+            label_equipo = ""+equipo["nombre"]+" "+equipo["marca"]+" "+equipo["modelo"]
+            lista_categorias.append(label_equipo)
+        dict_chart = {'role':'annotation'} # Necesario según documentación de Google Chart
+        lista_categorias.append(dict(dict_chart))
+
+        # Para cada equipo y para cada estado se obtiene la cantidad de detalles de solicitudes asociados
+        # según la fecha de registro
+
+        datos_grafico = {}
+        for estado in lista_estados:
+            datos_grafico[estado["nombre"]] = []
+            datos_grafico[estado["nombre"]].append(estado["nombre"])
+            for equipo in lista_equipos:
+                sql_query = """
+                    SELECT COUNT(*) AS cantidad_equipos
+                        FROM Equipo,Detalle_solicitud,Solicitud,Estado_detalle_solicitud
+                            WHERE Equipo.id = Detalle_solicitud.id_equipo
+                            AND Detalle_solicitud.id_solicitud = Solicitud.id
+                            AND Solicitud.fecha_registro >= %s
+                            AND Solicitud.fecha_registro <= %s
+                            AND Detalle_solicitud.estado = Estado_detalle_solicitud.id
+                            AND Estado_detalle_solicitud.id = %s
+                            AND Equipo.id = %s
+                            GROUP BY Equipo.id
+                """
+                cursor.execute(sql_query,(datos_formulario["limite_inferior"],datos_formulario["limite_superior"],estado["id"],equipo["id"]))
+                cantidad_equipos = cursor.fetchone()
+                if cantidad_equipos is None:
+                    cantidad_equipos = 0
+                else:
+                    cantidad_equipos = cantidad_equipos["cantidad_equipos"]
+
+                datos_grafico[estado["nombre"]].append(cantidad_equipos)
+            datos_grafico[estado["nombre"]].append("")
+
+        # Se crea el objeto final con todos los datos según lo establecido en la API de Google Charts
+        datos_finales = []
+        datos_finales.append(lista_categorias)
+        for estado in datos_grafico:
+            datos_finales.append(datos_grafico[estado])
+
+        return jsonify(datos_finales)
