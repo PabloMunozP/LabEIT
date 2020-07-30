@@ -193,3 +193,56 @@ def registrar_solicitud():
 
     flash("solicitud-registrada")
     return redirect("/solicitudes_prestamos")
+#*********************************************************************************************#
+
+# == VISTA PRINCIPAL GESTION DE CURSOS
+
+# Consulta una lista con todos los cursos
+def consultar_lista_cursos():
+    query = ('''
+    SELECT
+        Curso.id AS curso_id,
+        Curso.codigo_udp,
+        Curso.nombre,
+        Curso.descripcion
+        FROM Curso
+    ''')
+    cursos.execute(query)
+    cursos = cursor.fetchall()
+    return cursos
+
+@mod.route("/gestion_cursos")
+def gestion_cursos():
+    if 'usuario' not in session or session["usuario"]["id_credencial"] != 3:
+        return redirect('/')
+    else:
+        cursos = consultar_lista_cursos()
+        return render_template('cursos/gestion_cursos.html',
+        lista_cursos = cursos)
+
+# == VISTA PRINCIPAL/MODAL "AGREGAR CURSO" ==
+
+def insertar_cursos(val):
+    query = ('''
+    INSERT INTO Curso (codigo_udp, nombre, descripcion)
+    VALUES (%s, %s, %s);
+    ''')
+    cursor.execute(query, (
+        val['codigo_udp'],
+        val['nombre'],
+        val['descripcion']))
+    db.commit()
+    return 'OK'
+
+@mod.route("gestion_cursos/insert", methods = ['POST'])
+def agregar_curso_form():
+    if request.method == 'POST':
+        valores = request.form.to_dict()
+        insertar_cursos(valores)
+        flash("El curso fue agregado correctamente")
+        cursos = consultar_lista_cursos()
+        return redirect('/gestion_cursos')
+
+# == VISTA PRINCIPAL/MODAL "EDITAR CURSO"
+
+#@mod.route('/gestion_curso')
