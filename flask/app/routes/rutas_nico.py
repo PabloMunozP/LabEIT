@@ -66,7 +66,7 @@ def consultar_lista_equipos(): # funcion para poder conusultar toda la lista de 
         FROM Equipo_diferenciado
         LEFT JOIN Equipo ON Equipo.codigo = Equipo_diferenciado.codigo_equipo
         LEFT JOIN (SELECT * FROM Detalle_solicitud WHERE Detalle_solicitud.estado IN (1,2,3)) AS Detalle_solicitud
-            ON Detalle_solicitud.id_equipo = Equipo.id 
+            ON Detalle_solicitud.id_equipo = Equipo.id
             AND Detalle_solicitud.codigo_sufijo_equipo = Equipo_diferenciado.codigo_sufijo
     """)
     cursor.execute(query)
@@ -87,8 +87,8 @@ def gestion_inventario_admin():
     else:
         equipos = consultar_lista_equipos_general()
         equipos_detalle = consultar_lista_equipos()
-        return render_template('vistas_gestion_inventario/gestion_inventario.html', 
-            lista_equipo = equipos, 
+        return render_template('vistas_gestion_inventario/gestion_inventario.html',
+            lista_equipo = equipos,
             lista_equipo_detalle = equipos_detalle)
 
 
@@ -96,8 +96,8 @@ def gestion_inventario_admin():
 
 def insertar_lista_equipos_general(valores_a_insertar):
     query = ('''
-        INSERT INTO Equipo (codigo, nombre, modelo, marca, descripcion, dias_max_prestamo)
-        VALUES (%s, %s, %s, %s, %s ,%s);
+        INSERT INTO Equipo (codigo, nombre, modelo, marca, descripcion, imagen, dias_max_prestamo)
+        VALUES (%s, %s, %s, %s, %s, %s,%s);
     ''')
     cursor.execute(query,(
         valores_a_insertar['codigo'],
@@ -105,6 +105,7 @@ def insertar_lista_equipos_general(valores_a_insertar):
         valores_a_insertar['modelo'],
         valores_a_insertar['marca'],
         valores_a_insertar['descripcion'],
+        valores_a_insertar['imagen'],
         valores_a_insertar['dias_maximo_prestamo']))
     db.commit()
     return 'OK'
