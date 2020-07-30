@@ -29,6 +29,7 @@
         <thead class="text-white" style="background:#4D4D4D;">
             <tr>
               <th scope="col">Código</th>
+              <th scope="col">Código activo</th>
               <th scope="col">Estado</th>
               <th scope="col">Acciones</th>
             </tr>
@@ -37,6 +38,7 @@
             {% for elemento in equipos_detalle %}
               <tr style="background:#ECF0F1;">
                 <td>{{elemento.codigo_equipo}}-{{elemento.codigo_sufijo}} </td>
+                <td>{{elemento.codigo_activo}} </td>
                   {% if elemento.activo == 1 %}
                   <td ><span class="badge badge-success">Activo</span></td>
                   {% elif elemento.activo == 0 %}

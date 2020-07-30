@@ -15,22 +15,22 @@
 
             <div class="form-group">
               <label for="editar-equipo-codigo">Código</label>
-              <input class="form-control" type="text" name="codigo" value="" id="editar-equipo-codigo">
+              <input class="form-control" type="text" name="codigo" value="" id="editar-equipo-codigo" maxlength="6" pattern="[A-Z0-9]+"required placeholder="AAA111">
             </div>
 
             <div class="form-group">
               <label for="editar-equipo-modelo">Nombre</label>
-              <input class="form-control" type="text" name="nombre" value="" id="editar-equipo-nombre">
+              <input class="form-control" type="text" name="nombre" value="" id="editar-equipo-nombre" required>
             </div>
 
             <div class="form-group">
               <label for="editar-equipo-marca">Marca</label>
-              <input class="form-control" type="text" name="marca"  value="" id="editar-equipo-marca">
+              <input class="form-control" type="text" name="marca"  value="" id="editar-equipo-marca" required>
             </div>
 
             <div class="form-group">
               <label for="editar-equipo-modelo">Modelo</label>
-              <input class="form-control" type="text" name="modelo" value="" id="editar-equipo-modelo">
+              <input class="form-control" type="text" name="modelo" value="" id="editar-equipo-modelo" required>
             </div>
 
             <div class="form-group">
@@ -48,18 +48,6 @@
               <input type="number" min="1" class="form-control" name="dias_max_prestamo" value="" id="editar-equipo-dias">
             </div>
 
-          <div class="form-check">
-          <hr style="border:2px;">
-            <input class="form-check-input" type="checkbox" name="multi_componente" value="XD" id="editar-es-circuito">
-            <label class="form-check-label" for="editar-es-circuito">Multi componente</label>
-          <hr style="border:2px;">
-          </div>
-
-          <div class="form-group">
-            <label for="editar-cantidad-circuito">Cantidad de componentes</label>
-            <input class="form-control" type="number" min="1" name="cantidad_componentes" value="" id="editar-cantidad-circuito">
-          </div>
-
           </div>
           <div class="modal-footer">
             <button type="button" id="boton_cerrar" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
@@ -71,7 +59,7 @@
   </div>
 
   <script>
-    function cargar_datos_equipo_modal(codigo, nombre, modelo, marca, descripcion, dias_max_prestamo, imagen_url, multi_componente, total_equipos ){
+    function cargar_datos_equipo_modal(codigo, nombre, modelo, marca, descripcion, dias_max_prestamo, imagen_url){
       document.getElementById("modal-title").innerHTML = '<i class="fas fa-edit"></i> Editar equipo ' + codigo ;
       $("#editar-equipo-hidden-id").val(codigo);
       $("#editar-equipo-codigo").val(codigo);
@@ -81,24 +69,5 @@
       $("#editar-equipo-descripcion").val( descripcion);
       $("#editar-equipo-dias").val(dias_max_prestamo);
       $("#editar-equipo-imagen").val(imagen_url);
-      $("#editar-es-circuito").prop('checked', multi_componente).change();
-      if(multi_componente == true){
-        $('#editar-cantidad-circuito').attr("value", total_equipos);
-      }
-      else{
-        $('#editar-cantidad-circuito').attr("value", null);
-      }
-      console.log('Multi componente:' + multi_componente)
-    }
-    $(document).ready(function()
-    {
-      $('#editar-es-circuito').change(function(){
-        if (this.checked) {
-          $('#editar-cantidad-circuito').prop( "disabled", false );
-        }
-        else {
-          $('#editar-cantidad-circuito').prop( "disabled", true );
-        }
-      });
-    });
+    };
   </script>
