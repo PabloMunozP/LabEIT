@@ -207,7 +207,7 @@ def consultar_lista_cursos():
         Curso.descripcion
         FROM Curso
     ''')
-    cursos.execute(query)
+    cursor.execute(query)
     cursos = cursor.fetchall()
     return cursos
 
@@ -222,7 +222,7 @@ def gestion_cursos():
 
 # == VISTA PRINCIPAL/MODAL "AGREGAR CURSO" ==
 
-def insertar_cursos(val):
+def insertar_curso(val):
     query = ('''
     INSERT INTO Curso (codigo_udp, nombre, descripcion)
     VALUES (%s, %s, %s);
@@ -234,15 +234,49 @@ def insertar_cursos(val):
     db.commit()
     return 'OK'
 
-@mod.route("gestion_cursos/insert", methods = ['POST'])
+@mod.route("/gestion_cursos/insert", methods = ['POST'])
 def agregar_curso_form():
     if request.method == 'POST':
         valores = request.form.to_dict()
-        insertar_cursos(valores)
+        insertar_cursos(valores_ins)
         flash("El curso fue agregado correctamente")
         cursos = consultar_lista_cursos()
         return redirect('/gestion_cursos')
 
-# == VISTA PRINCIPAL/MODAL "EDITAR CURSO"
-
-#@mod.route('/gestion_curso')
+# == VISTA PRINCIPAL/MODAL "EDITAR CURSO" ==
+def editar_curso(val):
+    query = ('''
+        UPDATE Curso
+        SET codigo_udp = %s,
+            nombre = %s,
+            descripcion = %s
+        WHERE Curso.codigo_udp = %s
+    ''')
+    cursor.execute(query, (
+        val['codigo_udp'],
+        val['nombre'],
+        val['descripcion']
+        ))
+    db.commit()
+    return val
+@mod.route('/gestion_cursos/update', methods = ['POST'])
+def editar_curso_form():
+    if request.method == 'POST':
+        valores = request.form.to_dict()
+        editar_curso(valores)
+        return redirect("/gestion_cursos")
+# == VISTA PRINCIPAL/MODAL "BORRAR CURSO" ==
+def eliminar_curso(curso):
+    query = ('''
+        DELETE Curso FROM Curso WHERE Curso.codigo_udp = %s
+    ''')
+    cursor.execute(query,(curso['codigo_udp'],))
+    db.commit()
+    return 'OK'
+@mod.route("/gestion_cursos/delete",methods=["POST"])
+def eliminar_curso_form():
+    if request.method == 'POST':
+        curso = request.form.to_dict()
+        eliminar_curso(curso)
+        flash("El curso fue eliminado correctamente")
+        return redirect("/gestion_cursos")
