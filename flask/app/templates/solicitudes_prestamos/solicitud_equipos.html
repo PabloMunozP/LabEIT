@@ -1,0 +1,218 @@
+{% extends "layout_in.html" %}
+	{%block body%}
+
+	{% include "/solicitudes_prestamos/modals/confirmacion_pedido.html" %}
+
+	{% for equipo in lista_equipos %}
+		{% include "/solicitudes_prestamos/modals/info_detallada_equipo.html" %}
+	{% endfor %}
+
+	<div class="container-fluid">
+
+		{% with msgs = get_flashed_messages() %}
+			{% if msgs %}
+				{% for msg in msgs %}
+				{% if msg == "solicitud-registrada" %}
+				<div class="alert alert-success mt-2 alert-dismissible fade show" role="alert">
+						<i class="fas fa-check-circle mr-2"></i>La solicitud de préstamo ha sido registrada correctamente. Recuerda estar atento a las indicaciones en tu correo electrónico.
+						<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+								<span aria-hidden="true">&times;</span>
+						</button>
+				</div>
+				{% endif %}
+				{%endfor%}
+			{%endif%}
+		{%endwith%}
+
+
+
+		<div class="card-header mt-4" style="background:#0db26b;">
+			<h5 class="card-title text-white my-auto">Solicitudes de préstamos</h5>
+			<p class="text-white my-auto"><i class="fas fa-info-circle mr-2"></i>En esta sección podrás realizar las solicitudes de préstamo de los equipos que necesites, seleccionándolos en la lista y agregándolos a tu carro de pedidos.</p>
+		</div>
+
+		{% if lista_equipos %}
+		<div class="card-header mt-3" style="background:#4D4D4D;">
+			<h5 class="text-white my-auto text-center"><i class="fas fa-laptop mr-2"></i>Lista de equipos del laboratorio</h5>
+		</div>
+		<div class="row mt-2">
+	    <div class="col-md-4">
+				<div class="input-group">
+        <div class="input-group-prepend">
+          <div class="input-group-text"><i class="fas fa-search"></i></div>
+        </div>
+        <input type="text" class="form-control" id="filtro_busqueda_solicitud_equipos" placeholder="Buscar por marca, modelo, etc.">
+      </div>
+	    </div>
+	  </div>
+			<div class="table-responsive mt-2">
+				<div class="table-wrapper-scroll-y" style="position: relative;
+										max-height: 350px;
+										overflow:auto;">
+					<table class="table" id="tabla_equipos_solicitud">
+					  <thead class="text-white" style="background:#4D4D4D;">
+					    <tr>
+								<th scope="col">Nombre</th>
+					      <th scope="col">Marca</th>
+					      <th scope="col">Modelo</th>
+					      <th scope="col" class="text-center">Cantidad disponible</th>
+								<th scope="col" class="text-center">Acciones</th>
+					    </tr>
+					  </thead>
+					  <tbody>
+							{% for equipo in lista_equipos %}
+								<tr style="background:#ECF0F1;">
+										<td>{{equipo["nombre"]}}</td>
+										<td>{{equipo["marca"]}}</td>
+										<td>{{equipo["modelo"]}}</td>
+										<td class="text-center">{{equipo["cantidad_disponible"]}}/{{equipo["cantidad_total"]}}</td>
+										<td class="text-center">
+											<button type="button" title="Ver información detallada" class="btn btn-sm btn-info" data-toggle="modal" data-target="#info_detallada_equipo_{{equipo["id"]}}"><i class="fas fa-file-invoice"></i></button>
+										</td>
+								</tr>
+							{% endfor %}
+					  </tbody>
+					</table>
+				</div>
+			</div>
+		{% else %}
+			<div class="alert alert-warning alert-dismissible fade show text-center mt-2" role="alert">
+				<i class="fas fa-exclamation-triangle mr-2"></i>Actualmente no hay equipos disponibles.
+			</div>
+		{% endif %}
+
+		<div class="card-header mt-4" style="background:#0db26b;">
+			<h5 class="card-title text-white my-auto"><i class="fas fa-shopping-cart mr-2"></i>Tu carro de pedidos</h5>
+			<p class="text-white my-auto"><i class="fas fa-info-circle mr-2"></i>A medida que selecciones equipos, estos irán apareciendo en tu lista de pedidos.</p>
+		</div>
+
+		<div id="carro_pedidos">
+			{% if session["carro_pedidos"] %}
+			<div class="table-responsive mt-2">
+				<div class="table-wrapper-scroll-y" style="position: relative;
+										max-height: 350px;
+										overflow:auto;">
+					<table class="table">
+						<thead class="text-white" style="background:#4D4D4D;">
+							<tr>
+								<th scope="col">Equipos agregados a tu carro de pedidos</th>
+								<th scope="col" class="text-center">Unidades</th>
+								<th scope="col" class="text-center">Acciones</th>
+							</tr>
+						</thead>
+						<tbody>
+							{% for equipo in lista_carro %}
+								<tr style="background:#ECF0F1;">
+									<td>{{equipo["nombre"]}} {{equipo["marca"]}} {{equipo["modelo"]}}</td>
+									<td class="text-center">{{equipo["cantidad_pedidos"]}}</td>
+									<td class="text-center">
+										<span class="btn-group">
+											<button type="button" onclick="eliminar_del_carro({{equipo}})" title="Eliminar equipo del carro" class="btn btn-sm btn-danger boton-eliminar-pedido-carro"><i class="fas fa-times-circle"></i></button>
+										</span>
+									</td>
+								</tr>
+							{% endfor %}
+						</tbody>
+					</table>
+				</div>
+			</div>
+
+			<div class="card-header text-right mt-1">
+				<button type="button" id="boton-vaciar-carro" onclick="vaciar_carro()" class="btn my-auto btn-danger"><i class="fas fa-trash-alt mr-2"></i>Vaciar carro</button>
+				<button type="button" class="btn my-auto btn-success" data-toggle="modal" data-target="#confirmacion_pedido"><i class="fas fa-clipboard-check mr-2"></i>Confirmar pedido</button>
+			</div>
+
+			{% else %}
+				<div class="alert alert-warning alert-dismissible fade show text-center mt-2" role="alert">
+					<i class="fas fa-exclamation-triangle mr-2"></i>Actualmente tu carro de pedidos se encuentra vacío.
+				</div>
+			{% endif %}
+		</div>
+
+
+	</div>
+
+	<script type="text/javascript">
+
+		$(function() { // Filtro de búsqueda para lista de equipos
+		  $("#filtro_busqueda_solicitud_equipos").on("keyup", function() {
+		    var value = $(this).val().toLowerCase();
+		    $("#tabla_equipos_solicitud > tbody > tr").filter(function() {      $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+		    });
+		  });
+		});
+
+		$(document).ready( () =>{
+				// AJAX para agregar pedido al carro de pedidos
+				$(".formulario-agregar-equipo-carro").on("submit",function(event){
+						var elements = this.elements; // Elementos HTML del form
+						let id_equipo = elements[0].value;
+						// Se minimiza el modal correspondiente
+						$("#info_detallada_equipo_"+id_equipo).modal("toggle");
+						let cantidad_pedidos = elements[1].value;
+						// Se deja el input de cantidad denuevo en 1
+						this.elements[1].value = 1;
+						// Se desactiva el botón submit
+						$(".submit-agregar-pedido").prop('disabled', true);
+						$.ajax({
+								data: {
+									id_equipo: id_equipo,
+									cantidad_pedidos: cantidad_pedidos
+								},
+								type: "POST",
+								url: "/agregar_al_carro"
+						})
+						 .done(function(data){
+							 $("#carro_pedidos").html(data);
+								 // Se activa el botón submit
+							 $(".submit-agregar-pedido").prop('disabled', false);
+							 alert("El pedido ha sido agregado correctamente a tu carro de pedidos.");
+						 });
+						event.preventDefault();
+				});
+
+		});
+
+		function eliminar_del_carro(equipo){
+			let id_equipo = equipo["id"];
+			$(".boton-eliminar-pedido-carro").prop('disabled', true);
+			$.ajax({
+					data: {
+						id_equipo: id_equipo,
+						vaciar_carro: 0
+					},
+					type: "POST",
+					url: "/eliminar_del_carro"
+			})
+			 .done(function(data){
+				 $("#carro_pedidos").html(data);
+					 // Se activa el botón submit
+				 $(".boton-eliminar-pedido-carro").prop('disabled', false);
+				 alert("El pedido ha sido eliminado correctamente de tu carro de pedidos.");
+			 });
+			event.preventDefault();
+		}
+
+		function vaciar_carro(){
+			$("#boton-vaciar-carro").prop('disabled', true);
+			$.ajax({
+					data: {
+						vaciar_carro: 1
+					},
+					type: "POST",
+					url: "/eliminar_del_carro"
+			})
+			 .done(function(data){
+				 $("#carro_pedidos").html(data);
+					 // Se activa el botón submit
+				 $("#boton-vaciar-carro").prop('disabled', false);
+				 alert("El carro de pedidos ha sido vaciado correctamente.");
+			 });
+			event.preventDefault();
+		}
+
+	</script>
+
+
+
+	{% endblock %}

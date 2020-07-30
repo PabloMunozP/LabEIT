@@ -1,0 +1,164 @@
+{% extends "layout_in.html"%}
+{%block body%}
+
+<div class="container-fluid mt-2">
+			<div class="card-header border-0 rounded-0" style="background:#0db26b;">
+				<h5 class="card-title my-auto text-white"><i class="fas fa-laptop mr-2"></i>Información detallada del equipo</h5>
+			</div>
+			<div class="card-body rounded-0" style="background:#ECF0F1;">
+
+				<div class="form-group row">
+					<label class="col-md-4 col-form-label texto-gris-eit">
+						<strong>ID de equipo:</strong>
+					</label>
+					<div class="col-md-2">
+						<p class="form-control-plaintext text-break">
+							  {{equipo_descripcion.id}}
+						</p>
+					</div>
+					<label class="col-md-4 col-form-label texto-gris-eit">
+						<strong>Código de laboratorio:</strong>
+					</label>
+					<div class="col-md-2">
+						<p class="form-control-plaintext
+							 text-break">
+             {{equipo_descripcion.codigo}}
+						</p>
+					</div>
+				</div>
+
+				<hr>
+
+				<div class="form-group row">
+					<label class="col-md-2 col-form-label texto-gris-eit">
+						<strong>Marca:</strong>
+					</label>
+					<div class="col-md-4">
+						<p class="form-control-plaintext text-break">
+						 {{equipo_descripcion.marca}}
+						</p>
+					</div>
+					<label class="col-md-2 col-form-label texto-gris-eit">
+						<strong>Modelo:</strong>
+					</label>
+					<div class="col-md-4">
+						<p class="form-control-plaintext
+							 text-break">
+							  {{equipo_descripcion.modelo}}
+						</p>
+					</div>
+				</div>
+
+
+
+				<div class="form-group row">
+					<label class="col-md-2 col-form-label texto-gris-eit">
+						<strong>Stock:</strong>
+					</label>
+					<div class="col-md-4">
+						<p class="form-control-plaintext text-break">
+							X/X
+						</p>
+					</div>
+					<label class="col-md-4 col-form-label texto-gris-eit">
+						<strong>Cantidad de días permitidos:</strong>
+					</label>
+					<div class="col-md-2">
+						<p class="form-control-plaintext
+							 text-break">
+							  {{equipo_descripcion.dias_max_prestamo}}
+						</p>
+					</div>
+				</div>
+
+				<hr>
+
+				<div class="form-group row">
+					<label class="col-md-2 col-form-label texto-gris-eit">
+						<strong>Descripción:</strong>
+					</label>
+					<div class="col-md-6">
+						<p class="form-control-plaintext text-break">
+							 {{equipo_descripcion.descripcion}}
+						</p>
+					</div>
+					<div class="col-md-4 text-right">
+						<label class="col-form-label">
+            {% if equipo_descripcion.imagen == None or equipo_descripcion.imagen=="None" %}
+						<img src="https://static.thenounproject.com/png/340719-200.png" style="max-width:80%;" class="img-fluid">
+            {% else %}
+          	<img src="{{equipo_descripcion.imagen}}" style="max-width:80%;" class="img-fluid">
+            {% endif %}
+
+
+						</label>
+					</div>
+				</div>
+
+			</div>
+
+			<div class="card-header mt-2" style="background:#0db26b;">
+				<h5 class="card-title text-white my-auto">Lista de solicitudes de préstamos activas</h5>
+			</div>
+
+
+				<div class="table-responsive mt-2">
+					<div class="table-wrapper-scroll-y" style="position: relative;
+											max-height: 450px;
+											overflow:auto;">
+						<table class="table">
+						  <thead class="text-white" style="background:#4D4D4D;">
+						    <tr>
+						      <th scope="col">Sufijo</th>
+						      <th scope="col">RUT solicitante</th>
+						      <th scope="col" class="text-center">Estado</th>
+									<th scope="col">Fecha de inicio</th>
+									<th scope="col">Fecha de término</th>
+									<th scope="col">Fecha de vencimiento</th>
+						    </tr>
+						  </thead>
+						  <tbody>
+								{% for solicitud in equipos_detalle %}
+									<tr style="background:#ECF0F1;">
+										<td>{{solicitud.codigo_sufijo_equipo}}</td>
+										<td>{{solicitud.rut_alumno|formato_rut}}</td>
+
+										{% if solicitud.estado == 0 %}
+											<td class="text-center"><span class="badge badge-primary">{{solicitud.nombre}}</span></td>
+										{% elif solicitud.estado == 1 %}
+											<td class="text-center"><span class="badge badge-info">{{solicitud.nombre}}</span></td>
+										{% elif solicitud.estado == 2 %}
+											<td class="text-center"><span class="badge badge-success">{{solicitud.nombre}}</span></td>
+										{% elif solicitud.estado == 3 %}
+											<td class="text-center"><span class="badge badge-danger">{{solicitud.nombre}}</span></td>
+										{% elif solicitud.estado == 4 %}
+											<td class="text-center"><span class="badge badge-success">{{solicitud.nombre}}</span></td>
+										{% elif solicitud.estado == 5 %}
+											<td class="text-center"><span class="badge badge-danger">{{solicitud.nombre}}</span></td>
+										{% elif solicitud.estado == 6 %}
+											<td class="text-center"><span class="badge badge-secondary">{{solicitud.nombre}}</span></td>
+										{% endif %}
+
+										<td>
+												{{solicitud.fecha_inicio}}
+
+										</td>
+
+										<td>
+			                  {{solicitud.fecha_termino}}
+										</td>
+										<td>
+												{{solicitud.fecha_vencimiento}}
+										</td>
+									</tr>
+								{% endfor %}
+						  </tbody>
+						</table>
+					</div>
+				</div>
+
+</div>
+
+
+
+{% endblock %}

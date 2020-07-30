@@ -1,0 +1,196 @@
+
+<div class="card-header mt-4" style="background:#0db26b;">
+	<h5 class="card-title text-white my-auto">Lista de solicitudes de préstamos por revisar</h5>
+	<p class="text-white my-auto"><i class="fas fa-info-circle mr-2"></i>En esta sección podrá encontrar la lista de solicitudes entrantes que aún no han sido revisadas.</p>
+</div>
+
+{% if lista_solicitudes_por_revisar %}
+
+<div class="row mt-2">
+	<div class="col-md-6">
+		<div class="input-group">
+		<div class="input-group-prepend">
+			<div class="input-group-text"><i class="fas fa-search"></i></div>
+		</div>
+		<input type="text" class="form-control" id="filtro_busqueda_solicitudes_por_revisar" placeholder="Buscar por RUT de solicitante, equipo solicitado, IDs, etc.">
+	</div>
+	</div>
+	<div class="col-md-6 my-auto text-right">
+		<a href="/exportar_solicitudes/1">
+			<button type="button" title="Exportar solicitudes por revisar" class="btn btn-sm btn-secondary"><i class="fas fa-file-excel mr-2"></i>Exportar registros</button>
+		</a>
+	</div>
+</div>
+
+	<div class="table-responsive mt-2">
+		<div class="table-wrapper-scroll-y" style="position: relative;
+								max-height: 450px;
+								overflow:auto;">
+			<table class="table" id="tabla_solicitudes_por_revisar">
+			  <thead class="text-white" style="background:#4D4D4D;">
+			    <tr>
+			      <th title="ID de solicitud" scope="col">IDS</th>
+						<th title="ID de detalle de solicitud" scope="col">IDD</th>
+			      <th scope="col">RUT de alumno solicitante</th>
+						<th scope="col">Nombre del solicitante</th>
+			      <th scope="col">Equipo solicitado</th>
+						<th scope="col">Fecha de registro</th>
+						<th scope="col">Acciones</th>
+			    </tr>
+			  </thead>
+			  <tbody>
+					{% for detalle_solicitud in lista_solicitudes_por_revisar %}
+						<tr style="background:#ECF0F1;">
+							<td>{{detalle_solicitud["id_solicitud"]}}</td>
+							<td>{{detalle_solicitud["id"]}}</td>
+							<td>{{detalle_solicitud["rut_alumno"]|formato_rut}}</td>
+							<td>{{detalle_solicitud["nombres_usuario"]}} {{detalle_solicitud["apellidos_usuario"]}}</td>
+							<td>{{detalle_solicitud["nombre"]}} {{detalle_solicitud["marca"]}} {{detalle_solicitud["modelo"]}}</td>
+							<td>{{detalle_solicitud["fecha_registro"]}}</td>
+							<td>
+								<span class="btn-group">
+									<a href="gestion_solicitudes_prestamos/detalle_solicitud/{{detalle_solicitud["id"]}}">
+										<button type="button" title="Ver detalle de solicitud" class="btn btn-sm btn-secondary mr-1"><i class="fas fa-search-plus"></i></button>
+									</a>
+										<button type="submit" title="Eliminar solicitud" onclick="agregar_action_form_eliminar_solicitud({{detalle_solicitud["id"]}})" class="btn btn-sm btn-danger" data-toggle="modal" data-target="#confirmacion_eliminacion_solicitud_entrante"><i class="fas fa-minus-circle"></i></button>
+								</span>
+							</td>
+						</tr>
+					{% endfor %}
+			  </tbody>
+			</table>
+		</div>
+	</div>
+
+{% else %}
+	<div class="alert alert-warning alert-dismissible fade show text-center mt-2" role="alert">
+		<i class="fas fa-exclamation-triangle mr-2"></i>No se han encontrado solicitudes por revisar.
+	</div>
+{% endif %}
+
+<div class="card-header mt-2" style="background:#0db26b;">
+	<h5 class="card-title text-white my-auto">Lista de solicitudes de préstamos activas</h5>
+	<p class="text-white my-auto"><i class="fas fa-info-circle mr-2"></i>En esta sección podrá encontrar la lista de solicitudes que se encuentran actualmente en curso, independientemente de su estado.</p>
+</div>
+
+{% if lista_solicitudes_activas %}
+	<div class="row mt-2">
+		<div class="col-md-6">
+			<div class="input-group">
+			<div class="input-group-prepend">
+				<div class="input-group-text"><i class="fas fa-search"></i></div>
+			</div>
+			<input type="text" class="form-control" id="filtro_busqueda_solicitudes_activas" placeholder="Buscar por RUT de solicitante, equipo solicitado, IDs, etc.">
+		</div>
+		</div>
+		<div class="col-md-6 my-auto text-right">
+			<a href="/exportar_solicitudes/2">
+				<button type="button" title="Exportar préstamos activos" class="btn btn-sm btn-secondary"><i class="fas fa-file-excel mr-2"></i>Exportar registros</button>
+			</a>
+		</div>
+	</div>
+	<div class="table-responsive mt-2">
+		<div class="table-wrapper-scroll-y" style="position: relative;
+								max-height: 450px;
+								overflow:auto;">
+			<table class="table" id="tabla_solicitudes_activas">
+			  <thead class="text-white" style="background:#4D4D4D;">
+			    <tr>
+						<th title="ID de solicitud" scope="col">IDS</th>
+						<th title="ID de detalle de solicitud" scope="col">IDD</th>
+			      <th scope="col">RUT de alumno solicitante</th>
+						<th scope="col">Nombre del solicitante</th>
+			      <th scope="col">Equipo solicitado</th>
+			      <th scope="col" class="text-center">Estado</th>
+						<th scope="col">Fecha de inicio</th>
+						<th scope="col">Fecha de término</th>
+						<th scope="col">Acciones</th>
+			    </tr>
+			  </thead>
+			  <tbody>
+					{% for detalle_solicitud in lista_solicitudes_activas %}
+						<tr style="background:#ECF0F1;">
+							<td>{{detalle_solicitud["id_solicitud"]}}</td>
+							<td>{{detalle_solicitud["id"]}}</td>
+							<td>{{detalle_solicitud["rut_alumno"]|formato_rut}}</td>
+							<td>{{detalle_solicitud["nombres_usuario"]}} {{detalle_solicitud["apellidos_usuario"]}}</td>
+							<td>{{detalle_solicitud["nombre"]}} {{detalle_solicitud["marca"]}} {{detalle_solicitud["modelo"]}}</td>
+							{% if detalle_solicitud["estado"] == 0 %}
+								<td class="text-center"><span class="badge badge-primary">{{detalle_solicitud["nombre_estado"]}}</span></td>
+							{% elif detalle_solicitud["estado"] == 1 %}
+								<td class="text-center"><span class="badge badge-info">{{detalle_solicitud["nombre_estado"]}}</span></td>
+							{% elif detalle_solicitud["estado"] == 2 %}
+								<td class="text-center"><span class="badge badge-success">{{detalle_solicitud["nombre_estado"]}}</span></td>
+							{% elif detalle_solicitud["estado"] == 3 %}
+								<td class="text-center"><span class="badge badge-danger">{{detalle_solicitud["nombre_estado"]}}</span></td>
+							{% elif detalle_solicitud["estado"] == 4 %}
+								<td class="text-center"><span class="badge badge-success">{{detalle_solicitud["nombre_estado"]}}</span></td>
+							{% elif detalle_solicitud["estado"] == 5 %}
+								<td class="text-center"><span class="badge badge-danger">{{detalle_solicitud["nombre_estado"]}}</span></td>
+							{% elif detalle_solicitud["estado"] == 6 %}
+								<td class="text-center"><span class="badge badge-secondary">{{detalle_solicitud["nombre_estado"]}}</span></td>
+							{% endif %}
+
+							<td>
+								{% if detalle_solicitud["fecha_inicio"] %}
+									{{detalle_solicitud["fecha_inicio"]}}
+								{% endif %}
+
+							</td>
+
+							<td>
+								{% if detalle_solicitud["fecha_termino"] %}
+									{{detalle_solicitud["fecha_termino"]}}
+								{% endif %}
+
+							</td>
+
+							<td>
+								<span class="btn-group text-center">
+									<a href="gestion_solicitudes_prestamos/detalle_solicitud/{{detalle_solicitud["id"]}}">
+										<button type="button" title="Ver detalle de solicitud" class="btn btn-sm btn-secondary mr-1"><i class="fas fa-search-plus"></i></button>
+									</a>
+									{% if detalle_solicitud["estado"] == 4 %}
+										<a href="/finalizar_solicitud/{{detalle_solicitud["id"]}}">
+											<button type="button" title="Finalizar solicitud de préstamo" class="btn btn-sm btn-success"><i class="fas fa-check-circle"></i></button>
+										</a>
+									{% endif %}
+								</span>
+							</td>
+						</tr>
+					{% endfor %}
+			  </tbody>
+			</table>
+		</div>
+	</div>
+{% else %}
+	<div class="alert alert-warning alert-dismissible fade show text-center mt-2" role="alert">
+		<i class="fas fa-exclamation-triangle mr-2"></i>No se han encontrado solicitudes activas.
+	</div>
+{% endif %}
+
+<script>
+	// Filtros de búsqueda para solicitudes por revisar, activas e historial
+
+	$(function() { // Filtro de solicitudes por revisar
+	  $("#filtro_busqueda_solicitudes_por_revisar").on("keyup", function() {
+	    var value = $(this).val().toLowerCase();
+	    $("#tabla_solicitudes_por_revisar > tbody > tr").filter(function() {      $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+	    });
+	  });
+	});
+
+	$(function() { // Filtro de solicitudes activas
+	  $("#filtro_busqueda_solicitudes_activas").on("keyup", function() {
+	    var value = $(this).val().toLowerCase();
+	    $("#tabla_solicitudes_activas > tbody > tr").filter(function() {      $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+	    });
+	  });
+	});
+
+	function agregar_action_form_eliminar_solicitud(id){
+		var formulario = document.getElementById("formulario_confirmacion_eliminacion_solicitud");
+		formulario.action = "/eliminar_solicitud/"+id;
+	}
+
+</script>

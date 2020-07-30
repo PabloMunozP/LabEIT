@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>LabEIT UDP</title>
+
+				<!-- Hojas de estilo CSS -->
+		    <script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+				<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Roboto:400,100,300,500">
+		    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+		    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css" integrity="sha384-oS3vJWv+0UjzBfQzYUhtDYW+Pj2yciDJxpsK1OYPAYjqT085Qq/1cq5FLXAZQ7Ay" crossorigin="anonymous">
+				<link href="{{ url_for('static', filename='../static/css/estilos_lab.css') }}" rel="stylesheet"/>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.inputmask/3.3.4/inputmask/inputmask.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.inputmask/3.3.4/jquery.inputmask.bundle.js"></script>
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/jquery.inputmask/3.3.4/css/inputmask.min.css" rel="stylesheet"/>
+
+    </head>
+
+    <body id="body-login">
+
+      <div class="col-md-12 mt-2 mx-auto">
+        {% with msgs = get_flashed_messages() %}
+          {% if msgs %}
+            {% for msg in msgs %}
+              {% if msg == "credenciales-invalidas"%}
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                  <i class="fas fa-times-circle mr-2"></i>El usuario y/o la contraseña que ingresaste no coinciden con nuestros registros. Por favor, revisa e inténtalo nuevamente.
+                  <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+              {%endif%}
+              {% if msg == "error-id-token"%}
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                  <i class="fas fa-times-circle mr-2"></i>Se ha producido un error con el token de restablecimiento. Esto puede producirse debido a que ya se utilizó el token o debido a una eliminación inesperada.
+                  <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+              {%endif%}
+              {% if msg == "contraseña-actualizada" %}
+              <div class="alert alert-success mt-2 alert-dismissible fade show" role="alert">
+                  <i class="fas fa-check-circle mr-2"></i>La contraseña ha sido modificada correctamente.
+                  <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                  </button>
+              </div>
+              {% endif %}
+            {%endfor%}
+          {%endif%}
+        {%endwith%}
+      </div>
+
+			<div class="col-md-4 mt-5 mx-auto">
+				<img src="{{ url_for('static', filename="../static/imgs/logo_eit.png")}}" class="img-fluid rounded-0 mx-auto d-block mb-2" alt="..." style="width:70%;opacity:88%;">
+				<div class="card shadow-lg bg-dark border-0 rounded-0">
+					<div class="card-header text-center border-0 rounded-0 bg-verde-eit" style="opacity:90%;">
+						<div class="row align-items-center">
+             <div class="col-md-12">
+                    <h4 class="text-white text-center">LabEIT UDP</h4>
+             </div>
+      </div>
+					</div>
+					<div class="card-body bg-gris-eit" style="opacity:95%;">
+						<form action="/iniciar_sesion" method="post" autocomplete="off">
+							<div class="col-md-12 mb-3">
+								<div class="input-group">
+									<div class="input-group-prepend">
+											<span class="input-group-text"> <i class="fas fa-user-circle"></i> </span>
+									 </div>
+										<input type="text" id="rut_input_login" required name="rut" maxlength="9" onkeyup="validar_rut(this)" class="form-control" placeholder="Ingresa tu RUT" autocomplete="off">
+								</div>
+								<small class="form-text text-white ">Ingresa tu RUT sin guión ni puntos.</small>
+							</div>
+							<div class="col-md-12 mb-3">
+								<div class="input-group">
+									<div class="input-group-prepend">
+											<span class="input-group-text"> <i class="fa fa-lock"></i> </span>
+									 </div>
+										<input type="password" id="password_input_login" required name="password" class="form-control" placeholder="Ingresa tu contraseña" autocomplete="off">
+								</div>
+							</div>
+							<button type="submit" class="btn btn-block btn-rojo-udp rounded-0"><i class="fas fa-sign-in-alt mr-2"></i>Ingresar</button>
+							<hr>
+							<p class="text-white text-center small mt-1">¿Has olvidado tu contraseña? <a href="/recuperacion_password" class="text-white" style="text-decoration:none;"><u>¡Recupérala aquí!</u></a></p>
+						</form>
+					</div>
+				</div>
+			</div>
+
+			<footer class="footer-login bg-gris-eit mt-5" style="opacity:0.9;">
+				<p class="text-center mt-2 text-white small"><i class="fas fa-exclamation-triangle mr-2"></i>En caso de tener dudas o problemas con tu cuenta, no dudes en escribirnos al mail: <a href="mailto:labeit@mail.udp.cl?subject=Duda/Problema-LabEIT">labeit@mail.udp.cl</a> o dirigirte al laboratorio.</p>
+			</footer>
+
+
+
+        <!-- Javascript -->
+				<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+		    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+        <script src="{{ url_for('static', filename='../static/js/script_labeit.js') }}"></script>
+
+        <script type="text/javascript"> // Formato de solo números y 'K' final en input de RUT
+          function validar_rut(input_rut){
+            input_rut.value = input_rut.value.replace(/ +?/g, '');
+            var rut = input_rut.value;
+            if(!rut.length){
+              return;
+            }else{
+              sub_string = ""
+              for(var i = 0 ; i < rut.length ; i++){
+                if(isNaN(rut[i])){
+                  if(rut.length != 9){ // El caracter no crresponde al último dígito
+                    input_rut.value = sub_string.replace(/ +?/g, '');
+                    break;
+                  }else{ // El caracter se encuentra al final del string
+                    if(rut[i].toLowerCase() != "k"){ // El último caracter no es el caracter K (único permitido)
+                      input_rut.value = sub_string.replace(/ +?/g, '');
+                      break;
+                    }else{
+                    }
+                  }
+                }else{
+                  sub_string += rut[i];
+                }
+              }
+            }
+          }
+        </script>
+
+    </body>
+
+</html>

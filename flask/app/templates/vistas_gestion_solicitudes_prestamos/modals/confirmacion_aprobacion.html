@@ -1,0 +1,62 @@
+<div class="modal fade" id="confirmacion_aprobacion_solicitud" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header bg-gris-eit">
+        <h5 class="modal-title text-white"><i class="fas fa-question-circle mr-2"></i>Confirmación de aprobación de solicitud</h5>
+        <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close" style="outline:none;">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <form action="/aprobar_solicitud/{{datos_detalle_solicitud["id"]}}" method="post">
+        <div class="modal-body">
+          <input type="text" hidden name="id_encabezado_solicitud" value="{{datos_encabezado_solicitud["id"]}}">
+          <input type="text" hidden name="codigo_equipo" value="{{datos_equipo["codigo"]}}">
+          {% if lista_equipos_prestamo %}
+            <p>La solicitud de préstamo será marcada automáticamente como <strong>aprobada</strong> y el usuario solicitante será notificado para retirar el equipo.</p>
+            <p>Equipo solicitado: <strong>{{datos_equipo["marca"]}} {{datos_equipo["modelo"]}} ({{datos_equipo["codigo"]}})</strong></p>
+            <div class="form-group">
+              <label class="col-form-label">Seleccione el código del equipo a entregar:</label>
+              <select required class="form-control" size="3" name="codigo_sufijo_prestado" id="lista_equipos_prestamo">
+                {% for equipo in lista_equipos_prestamo %}
+                    <option value="{{equipo["codigo_sufijo"]}}">{{equipo["codigo_equipo"]}} {{equipo["codigo_sufijo"]}}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="col-form-label">Seleccione la fecha de vencimiento de la solicitud:</label>
+              <input type="date" required class="form-control" id="fecha_vencimiento_solicitud" name="fecha_vencimiento_solicitud">
+              <small class="form-text text-muted">El sistema eliminará automáticamente las solicitudes de préstamos de equipos que no hayan sido retirados al cumplirse la fecha de vencimiento.</small>
+            </div>
+          {% else %}
+            <div class="alert alert-warning alert-dismissible fade show text-center mt-2" role="alert">
+              <i class="fas fa-exclamation-triangle mr-2"></i>No se han encontrado equipos disponibles. Revise el inventario asociado al equipo {{datos_equipo["marca"]}} {{datos_equipo["modelo"]}} ({{datos_equipo["codigo"]}}).
+            </div>
+          {% endif %}
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+          {% if lista_equipos_prestamo %}
+            <button type="submit" class="btn btn-success">Confirmar</button>
+          {% endif %}
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+  var today = new Date();
+  var dd = today.getDate();
+  var mm = today.getMonth()+1; //January is 0!
+  var yyyy = today.getFullYear();
+   if(dd<10){
+    dd='0'+dd
+   }
+   if(mm<10){
+    mm='0'+mm
+   }
+
+  today = yyyy+'-'+mm+'-'+dd;
+  document.getElementById("fecha_vencimiento_solicitud").setAttribute("min", today);
+</script>
