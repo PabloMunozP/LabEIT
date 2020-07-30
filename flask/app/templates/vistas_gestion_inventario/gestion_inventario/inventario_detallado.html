@@ -16,6 +16,7 @@
               <th scope="col">Nombre</th>
               <th scope="col">Modelo</th>
               <th scope="col">Marca</th>
+              <th scope="col">Fecha compra</th>
               <th scope="col">Estado</th>
               <th scope="col">Acciones</th>
           </tr>
@@ -28,7 +29,9 @@
               <td>{{elemento.nombre}}</td>
               <td>{{elemento.modelo}}</td>
               <td>{{elemento.marca}}</td>
+              <td>{{elemento.fecha_compra}}</td>
               <td>
+                {{elemento.activo}}
                 {% if elemento.estado == 'No disponible' %}
                   <span class="badge badge-danger">{{elemento.estado}}</span>
                 {% elif elemento.estado == 'Disponible' %}
@@ -45,9 +48,9 @@
               </td>
               <td>
                   <span class="btn-group">
-                    
-                      <button type="button" data-target="#editar_equipo_similar" title="Editar equipo" class="btn btn-sm btn-warning mr-1" data-toggle="modal"><i class="fas fa-edit"></i></button>
-                      <button type="button" title="Eliminar equipo"  data-target="#eliminar_equipo_similar" data-toggle="modal" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
+                    <button type="button" onclick="cargar_datos_equipo_dif_modal('{{elemento.codigo_equipo}}','{{elemento.codigo_sufijo}}', '{{elemento.fecha_compra}}', '{{elemento.activo}}')" data-target="#editar_equipo_similar" title="Editar equipo" class="btn btn-sm btn-warning mr-1" data-toggle="modal"><i class="fas fa-edit"></i></button>
+                    <button type="button" onclick="cargar_codigo_delete_equipo_diferenciado_modal('{{elemento.codigo_equipo}}','{{elemento.codigo_sufijo}}')" title="Eliminar equipo"  data-target="#eliminar_equipo_similar" data-toggle="modal" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
+                  
                   </span>
               </td>
           {% endfor %}
@@ -56,6 +59,9 @@
   </div>
 </div>
 
+
+{% include "vistas_gestion_inventario/modals/eliminar_equipo_similar.html" %}
+{% include "vistas_gestion_inventario/modals/editar_equipo_similar.html" %}
 
 <script>
   

@@ -35,14 +35,14 @@
             <tbody>
               {% for elemento in lista_equipo %}
                 <tr style="background:#ECF0F1;">
-                  <td> {{elemento.codigo}} </td>
+                  <td > {{elemento.codigo}} </td>
                   <td> {{elemento.nombre}} </td>
                   <td> {{elemento.modelo}} </td>
                   <td> {{elemento.marca}} </td>
-                  <td> {{elemento.dias_max_prestamo}} </td>
-                  <td> {{elemento.en_prestamo}} </td>
-                  <td> {{elemento.disponibles}}</td>
-                  <td> {{elemento.total_equipos}}</td>
+                  <td class="text-center"> {{elemento.dias_max_prestamo}} </td>
+                  <td class="text-center"> {{elemento.en_prestamo}} </td>
+                  <td class="text-center"> {{elemento.disponibles}}</td>
+                  <td class="text-center"> {{elemento.total_equipos}}</td>
                   <td>
                     <span class="btn-group">
                       <a href="gestion_inventario_admin/detalles_equipo/{{elemento.codigo}}"><button type="button" title="Ver detalles de equipo" data-toggle="modal" class="btn btn-sm btn-info mr-1"><i class="fas fa-search-plus"></i></button></a>
