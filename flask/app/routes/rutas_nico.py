@@ -42,20 +42,41 @@ def consultar_lista_equipos_general():
             LEFT JOIN Detalle_solicitud ON inventario_general.equipo_id = Detalle_solicitud.id_equipo
         GROUP BY inventario_general.equipo_id
             ''')
-            #
-            # CASE WHEN Detalle_solicitud.estado = 2 THEN 1
-            #                         WHEN Detalle_solicitud.estado = 3 THEN 1
-            #                         ELSE NULL END)
     cursor.execute(query)
     equipos = cursor.fetchall()
     # for element in equipos:
     #     print(element)
     return equipos
-
+def consultar_lista_equipos(): # funcion para poder conusultar toda la lista de equiipos detallados
+    query = ("""
+        SELECT Equipo_diferenciado.id,
+            Equipo_diferenciado.codigo_equipo,
+            Equipo_diferenciado.codigo_sufijo,
+            Equipo_diferenciado.codigo_activo,
+            Equipo_diferenciado.fecha_compra,
+            Equipo.nombre,
+            Equipo.modelo,
+            Equipo.marca,
+            CASE WHEN Equipo_diferenciado.activo = 0 THEN 'No disponible'
+                WHEN Detalle_solicitud.estado = 1 THEN 'Por retirar'
+                WHEN Detalle_solicitud.estado = 2 THEN 'En posesión'
+                WHEN Detalle_solicitud.estado = 3 THEN 'Con atraso'
+                ELSE 'Disponible' END AS estado,
+            Detalle_solicitud.codigo_sufijo_equipo
+        FROM Equipo_diferenciado
+        LEFT JOIN Equipo ON Equipo.codigo = Equipo_diferenciado.codigo_equipo
+        LEFT JOIN (SELECT * FROM Detalle_solicitud WHERE Detalle_solicitud.estado IN (1,2,3)) AS Detalle_solicitud
+            ON Detalle_solicitud.id_equipo = Equipo.id 
+            AND Detalle_solicitud.codigo_sufijo_equipo = Equipo_diferenciado.codigo_sufijo
+    """)
+    cursor.execute(query)
+    resultado = cursor.fetchall()
+    return resultado
 @mod.route("/debug_query")
 def debug_query():
-    equipos = consultar_lista_equipos_general()
-    print(equipos)
+    debug_equipos = consultar_lista_equipos()
+    for i in debug_equipos:
+        print(i)
     return 'xD'
 
 
@@ -65,7 +86,10 @@ def gestion_inventario_admin():
         return redirect('/')
     else:
         equipos = consultar_lista_equipos_general()
-        return render_template('vistas_gestion_inventario/gestion_inventario.html', lista_equipo = equipos)
+        equipos_detalle = consultar_lista_equipos()
+        return render_template('vistas_gestion_inventario/gestion_inventario.html', 
+            lista_equipo = equipos, 
+            lista_equipo_detalle = equipos_detalle)
 
 
 # **** VISTA_PRINCIPAL/MODAL "AGREGAR EQUIPO" **** #
