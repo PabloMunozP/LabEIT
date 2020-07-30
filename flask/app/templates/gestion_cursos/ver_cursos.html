@@ -1,0 +1,39 @@
+{%extends 'layout_in.html' %}
+
+{% block body %}
+    <div class="container-fluid">
+      {% with msgs = get_flashed_messages() %}
+        {% if msgs %}
+          {% for msg in msgs %}
+            {% if msg == "El curso se ha actualizado correctamente"%}
+              <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="fas fa-check-circle mr-2"></i>Se ha modificado correctamente.
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+            {%endif%}
+            {% if msg == "El curso fue agregado correctamente"%}
+              <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="fas fa-check-circle mr-2"></i>Se ha agregado correctamente.
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+            {%endif%}
+            {% if msg == "El curso fue eliminado correctamente"%}
+              <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="fas fa-check-circle mr-2"></i>Se ha eliminado correctamente.
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+            {%endif%}
+          {%endfor%}
+        {%endif%}
+      {%endwith%}
+
+
+
+
+      {%endblock%}
