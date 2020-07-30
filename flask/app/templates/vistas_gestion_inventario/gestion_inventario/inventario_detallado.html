@@ -6,56 +6,59 @@
 <br>
 
 
-
-<table id="tabla_equipos" class="table">
-    <thead class="text-white" style="background:#4D4D4D;">
-        <tr>
-            <th scope="col">Código</th>
-            <th scope="col">Código activo</th>
-            <th scope="col">Nombre</th>
-            <th scope="col">Modelo</th>
-            <th scope="col">Marca</th>
-            <th scope="col">Estado</th>
-            <th scope="col">Acciones</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for elemento in lista_equipo_detalle %}
-        <tr style="background:#ECF0F1;">
-            <td>{{elemento.codigo_equipo}}-{{elemento.codigo_sufijo}}</td>
-            <td>{{elemento.codigo_activo}}</td>
-            <td>{{elemento.nombre}}</td>
-            <td>{{elemento.modelo}}</td>
-            <td>{{elemento.marca}}</td>
-            <td>
-              {% if elemento.estado == 'No disponible' %}
-                <span class="badge badge-danger">{{elemento.estado}}</span>
-              {% elif elemento.estado == 'Disponible' %}
-                <span class="badge badge-success">Disponible</span>
-              {% elif elemento.estado == 'Por retirar' %}
-                <span class="badge badge-success">Por retirar</span>
-              {% elif elemento.estado == 'En posesión' %}
-                <span class="badge badge-success">En posesión</span>
-              {% elif elemento.estado == 'Con atraso' %}
-                <span class="badge badge-success">Con atraso</span>
-              {% else %} 
-                <span>Inesperado</span>
-              {% endif %}
-            </td>
-            <td>
-                <span class="btn-group">
-                  
-                    <button type="button" data-target="#editar_equipo_similar" title="Editar equipo" class="btn btn-sm btn-warning mr-1" data-toggle="modal"><i class="fas fa-edit"></i></button>
-                    <button type="button" title="Eliminar equipo"  data-target="#eliminar_equipo_similar" data-toggle="modal" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
-                </span>
-            </td>
-        {% endfor %}
-    </tbody>
-</table>
+<div class="table-responsive">
+  <div class="table-wrapper-scroll-y" style="position: relative; overflow:auto;">
+    <table id="tabla_equipos" class="table">
+      <thead class="text-white" style="background:#4D4D4D;">
+          <tr>
+              <th scope="col">Código</th>
+              <th scope="col">Código activo</th>
+              <th scope="col">Nombre</th>
+              <th scope="col">Modelo</th>
+              <th scope="col">Marca</th>
+              <th scope="col">Estado</th>
+              <th scope="col">Acciones</th>
+          </tr>
+      </thead>
+      <tbody>
+          {% for elemento in lista_equipo_detalle %}
+          <tr style="background:#ECF0F1;">
+              <td>{{elemento.codigo_equipo}}-{{elemento.codigo_sufijo}}</td>
+              <td>{{elemento.codigo_activo}}</td>
+              <td>{{elemento.nombre}}</td>
+              <td>{{elemento.modelo}}</td>
+              <td>{{elemento.marca}}</td>
+              <td>
+                {% if elemento.estado == 'No disponible' %}
+                  <span class="badge badge-danger">{{elemento.estado}}</span>
+                {% elif elemento.estado == 'Disponible' %}
+                  <span class="badge badge-primary">Disponible</span>
+                {% elif elemento.estado == 'Por retirar' %}
+                  <span class="badge badge-info">Por retirar</span>
+                {% elif elemento.estado == 'En posesión' %}
+                  <span class="badge badge-success">En posesión</span>
+                {% elif elemento.estado == 'Con atraso' %}
+                  <span class="badge badge-success">Con atraso</span>
+                {% else %} 
+                  <span>Inesperado</span>
+                {% endif %}
+              </td>
+              <td>
+                  <span class="btn-group">
+                    
+                      <button type="button" data-target="#editar_equipo_similar" title="Editar equipo" class="btn btn-sm btn-warning mr-1" data-toggle="modal"><i class="fas fa-edit"></i></button>
+                      <button type="button" title="Eliminar equipo"  data-target="#eliminar_equipo_similar" data-toggle="modal" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
+                  </span>
+              </td>
+          {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
 
 
 <script>
-  var show_debug = {{lista_equipo_detalle | tojson }}
+  
   $(document).ready(function() {
     $('#tabla_equipos').DataTable( {
           "language": {
