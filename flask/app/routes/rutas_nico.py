@@ -57,6 +57,8 @@ def consultar_lista_equipos(): # funcion para poder conusultar toda la lista de 
             Equipo.nombre,
             Equipo.modelo,
             Equipo.marca,
+            Equipo_diferenciado.activo,
+            Equipo_diferenciado.razon_inactivo,
             CASE WHEN Equipo_diferenciado.activo = 0 THEN 'No disponible'
                 WHEN Detalle_solicitud.estado = 1 THEN 'Por retirar'
                 WHEN Detalle_solicitud.estado = 2 THEN 'En posesión'
