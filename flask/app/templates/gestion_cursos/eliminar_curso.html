@@ -1,4 +1,4 @@
-<div class="modal fade" id="eliminar_{{curso['codigo_udp']}}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal fade" id="eliminar_curso" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header bg-gris-eit">
@@ -7,10 +7,10 @@
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
-      <form action="/eliminar_curso" id="form_confirmar_eliminar_curso" method="POST">
+      <form action="/gestion_cursos/eliminar_curso" id="form_confirmar_eliminar_curso" method="POST">
         <div class="modal-body">
           <p>Al eliminar el curso, los registros asociados serán eliminados automáticamente.</p>
-          <input class="form-control" type="text" name="codigo" value="" id="form_eliminar_curso_codigo" hidden>
+          <input class="form-control" type="text" name="codigo_udp" value="" id="form_eliminar_curso_codigo" hidden>
         </div>
         <div class="modal-footer">
           <button type="button" id="boton_cerrar"  class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
@@ -22,7 +22,7 @@
 </div>
 
 <script>
-  function cargar_codigo_delete_curso_modal(codigo){
-    $("#form_eliminar_curso_codigo").val(codigo);
+  function cargar_codigo_delete_curso_modal(codigo_udp){
+    $("#form_eliminar_curso_codigo").val(codigo_udp);
   }
 </script>
