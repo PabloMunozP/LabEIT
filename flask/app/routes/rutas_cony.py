@@ -221,12 +221,11 @@ def gestion_cursos():
         return redirect('/')
     else:
         cursos = consultar_lista_cursos()
-        return render_template('gestion_cursos/ver_cursos.html',
-        lista_cursos = cursos)
+        return render_template('gestion_cursos/ver_cursos.html', cursos = cursos)
 
 # == VISTA PRINCIPAL/MODAL "AGREGAR CURSO" ==
 
-def insertar_curso(val):
+def agregar_curso(val):
     query = ('''
     INSERT INTO Curso (codigo_udp, nombre, descripcion)
     VALUES (%s, %s, %s);
@@ -240,9 +239,13 @@ def insertar_curso(val):
 
 @mod.route("/gestion_cursos/insert", methods = ['POST'])
 def agregar_curso_form():
+    if "usuario" not in session.keys():
+        return redirect("/")
+    if session["usuario"]["id_credencial"] != 3:
+        return redirect("/")
     if request.method == 'POST':
         valores = request.form.to_dict()
-        insertar_cursos(valores_ins)
+        agregar_curso(valores_ins)
         flash("El curso fue agregado correctamente")
         cursos = consultar_lista_cursos()
         return redirect('/gestion_cursos')
@@ -265,8 +268,12 @@ def editar_curso(val):
     db.commit()
     return val
 
-@mod.route('/gestion_cursos/update', methods = ['POST'])
+@mod.route('/gestion_cursos/editar_curso', methods = ['POST'])
 def editar_curso_form():
+    if "usuario" not in session.keys():
+        return redirect("/")
+    if session["usuario"]["id_credencial"] != 3:
+        return redirect("/")
     if request.method == 'POST':
         valores = request.form.to_dict()
         editar_curso(valores)
@@ -283,10 +290,28 @@ def eliminar_curso(curso):
     db.commit()
     return 'OK'
 
-@mod.route("/gestion_cursos/delete",methods=["POST"])
+@mod.route("/gestion_cursos/eliminar_curso",methods=["POST"])
 def eliminar_curso_form():
+    if "usuario" not in session.keys():
+        return redirect("/")
+    if session["usuario"]["id_credencial"] != 3:
+        return redirect("/")
     if request.method == 'POST':
         curso = request.form.to_dict()
         eliminar_curso(curso)
         flash("El curso fue eliminado correctamente")
         return redirect("/gestion_cursos")
+# == VISTA DETALLES CURSO ==
+def consultar_curso_descripcion(codigo_curso):
+    query = ('''
+        SELECT *
+        FROM CURSO
+        WHERE Curso.codigo_udp = %s
+    ''')
+    cursor.execute(query,(codigo_curso,))
+    curso_detalle = cursos.fetchone()
+    return curso_detalle
+@mod.route("/gestion_cursos/detalles_curso/<string:codigo_udp>",methods=["GET"])
+def detalle_info_curso(codigo_udp):
+    curso_desc = consultar_curso_descripcion(codigo_udp)
+    return render_template("/gestion_cursos/detalles_curso.html", curso_desc=curso_desc)
