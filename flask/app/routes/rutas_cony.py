@@ -205,7 +205,6 @@ def consultar_lista_cursos():
         return redirect("/")
     query = ('''
     SELECT
-        Curso.id AS curso_id,
         Curso.codigo_udp,
         Curso.nombre,
         Curso.descripcion
@@ -237,7 +236,7 @@ def agregar_curso(val):
     db.commit()
     return 'OK'
 
-@mod.route("/gestion_cursos/insert", methods = ['POST'])
+@mod.route("/gestion_cursos/agregar_curso", methods = ['POST'])
 def agregar_curso_form():
     if "usuario" not in session.keys():
         return redirect("/")
@@ -282,23 +281,23 @@ def editar_curso_form():
 
 # == VISTA PRINCIPAL/MODAL "BORRAR CURSO" ==
 
-def eliminar_curso(curso):
+def eliminar_curso(id_curso):
     query = ('''
         DELETE Curso FROM Curso WHERE Curso.codigo_udp = %s
     ''')
-    cursor.execute(query,(curso['codigo_udp'],))
+    cursor.execute(query,(id_curso))
     db.commit()
     return 'OK'
 
-@mod.route("/gestion_cursos/eliminar_curso",methods=["POST"])
-def eliminar_curso_form():
+@mod.route("/gestion_cursos/eliminar_curso/<string:id_curso>",methods=["POST"])
+def eliminar_curso_form(id_curso):
     if "usuario" not in session.keys():
         return redirect("/")
     if session["usuario"]["id_credencial"] != 3:
         return redirect("/")
     if request.method == 'POST':
-        curso = request.form.to_dict()
-        eliminar_curso(curso)
+        #curso = request.form.to_dict()
+        eliminar_curso(id_curso)
         flash("El curso fue eliminado correctamente")
         return redirect("/gestion_cursos")
 # == VISTA DETALLES CURSO ==
