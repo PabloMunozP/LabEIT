@@ -58,6 +58,7 @@ def consultar_lista_equipos(): # funcion para poder conusultar toda la lista de 
             Equipo.modelo,
             Equipo.marca,
             Equipo_diferenciado.activo,
+            Equipo_diferenciado.razon_inactivo,
             CASE WHEN Equipo_diferenciado.activo = 0 THEN 'No disponible'
                 WHEN Detalle_solicitud.estado = 1 THEN 'Por retirar'
                 WHEN Detalle_solicitud.estado = 2 THEN 'En posesión'
@@ -134,7 +135,7 @@ def editar_equipo_general(informacion_a_actualizar):  # Query UPDATE
                     Equipo.marca = %s,
                     Equipo.imagen = %s,
                     Equipo.descripcion = %s,
-                    Equipo.dias_max_prestamo = %s
+                    Equipo.dias_max_prestamo = %s,
                 WHERE
                     Equipo.codigo = %s
 
@@ -194,7 +195,7 @@ def funcion_editar_equipo_diferenciado_form():
 def funcion_editar_equipo():
     if request.method == 'POST':
         informacion_a_actualizar = request.form.to_dict()
-        print('Información a actualizar:', informacion_a_actualizar)
+        # print('Información a actualizar:', informacion_a_actualizar)
         editar_equipo_general(informacion_a_actualizar)
         return redirect("/gestion_inventario_admin")
 
