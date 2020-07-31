@@ -281,23 +281,23 @@ def editar_curso_form():
 
 # == VISTA PRINCIPAL/MODAL "BORRAR CURSO" ==
 
-def eliminar_curso(id_curso):
+def eliminar_curso(curso):
     query = ('''
         DELETE Curso FROM Curso WHERE Curso.codigo_udp = %s
     ''')
-    cursor.execute(query,(id_curso))
+    cursor.execute(query,(curso['codigo_udp'],))
     db.commit()
     return 'OK'
 
-@mod.route("/gestion_cursos/eliminar_curso/<string:id_curso>",methods=["POST"])
-def eliminar_curso_form(id_curso):
+@mod.route("/gestion_cursos/eliminar_curso",methods=["POST"])
+def eliminar_curso_form():
     if "usuario" not in session.keys():
         return redirect("/")
     if session["usuario"]["id_credencial"] != 3:
         return redirect("/")
     if request.method == 'POST':
-        #curso = request.form.to_dict()
-        eliminar_curso(id_curso)
+        curso = request.form.to_dict()
+        eliminar_curso(curso)
         flash("El curso fue eliminado correctamente")
         return redirect("/gestion_cursos")
 # == VISTA DETALLES CURSO ==
