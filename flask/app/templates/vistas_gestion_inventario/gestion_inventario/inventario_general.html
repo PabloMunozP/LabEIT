@@ -20,7 +20,7 @@
         <div class="table-wrapper-scroll-y" style="position: relative; overflow:auto;">
           <table class="table table-hover" id="tabla_equipos_general">
             <thead class="text-white" style="background:#4D4D4D;">
-              <tr >
+              <tr>
                 <th scope="col">Código</th>
                 <th scope="col">Nombre</th>
                 <th scope="col">Modelo</th>
@@ -49,8 +49,6 @@
                       <button type="button" onclick="cargar_datos_equipo_modal('{{elemento.codigo}}','{{elemento.nombre}}','{{elemento.modelo}}', '{{elemento.marca}}', '{{elemento.descripcion}}','{{elemento.dias_max_prestamo}}','{{elemento.imagen}}')" data-target="#editar_equipo" title="Editar equipo" class="btn btn-sm btn-warning mr-1" data-toggle="modal"><i class="fas fa-edit"></i></button>
                       <button type="button" onclick="cargar_codigo_delete_equipo_modal('{{elemento.codigo}}')" title="Eliminar equipo" data-toggle="modal" data-target="#eliminar_equipo" class="btn btn-sm btn-danger mr-1"><i class="fas fa-trash"></i></button>
                       <a href="/gestion_inventario_admin/lista_equipo_diferenciado/{{elemento.codigo}}"><button type="button" class="btn btn-sm btn-secondary" title="Ver unidades registradas"><i class="fas fa-clipboard-list"></i></button></a>
-                      </span>
-
                     </span>
                   </td>
                 </tr>
@@ -64,24 +62,3 @@
 
 
 
-  
-<script>
-  
-  $(document).ready(function() {
-    $('#tabla_equipos_general').DataTable( {
-          "language": {
-              "lengthMenu": "Mostrar _MENU_ registros por página",
-              "zeroRecords": "Nothing found - sorry",
-              "info": "Mostrando página _PAGE_ de _PAGES_",
-              "infoEmpty": "Sin registros disponibles",
-              "search":         "Buscar",
-              "paginate": {
-                  "next":       "Anterior",
-                  "previous":   "Siguiente"
-              },
-              "infoFiltered": "(filtrado de _MAX_ registros totales)"
-          }
-      } );
-  } );
-
-</script>

@@ -17,7 +17,7 @@
                     <img id="profile-pic" class="profile-pic" src="/static/imgs/profile_pics/{{dir_foto_perfil}}"/>
                     <h6 class="profile-subtext"> Credencial: {{perfil_info.credencial_nombre}} </h6>
                     <h6 class="profile-subtext"> <span>Sanción activa:</span>    <span style="color: #96d37c;">No</span></h6>
-                    <button type="button" data-target="#editar_informacion" class="btn btn-info" data-toggle="modal" style="margin-left: 10px;">Editar información</button>
+                    <button type="button" onclick="Cargar_informacion()" data-target="#editar_informacion" class="btn btn-info" data-toggle="modal" style="margin-left: 10px;">Editar información</button>
                 </div>
             </div>
 
@@ -59,8 +59,8 @@
             <button>Préstamos</button><button>Solicitudes</button>
         </div>
         <div>
-            {% include "perfil/tabla_prestamos.html" %}
+            {% include "vistas_perfil/tablas/tabla_prestamos.html" %}
         </div>
 
-    {% include "victor/configurar_perfil.html" %}
+    {% include "vistas_perfil/configurar_perfil.html" %}
   {% endblock %}

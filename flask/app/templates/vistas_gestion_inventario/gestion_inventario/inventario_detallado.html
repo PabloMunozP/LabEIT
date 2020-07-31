@@ -12,7 +12,7 @@
       <thead class="text-white" style="background:#4D4D4D;">
           <tr>
               <th scope="col">Código</th>
-              <th scope="col">Código activo</th>
+              <th scope="col">Código activo fijo</th>
               <th scope="col">Nombre</th>
               <th scope="col">Modelo</th>
               <th scope="col">Marca</th>
@@ -52,6 +52,7 @@
                   
                   </span>
               </td>
+            </tr>
           {% endfor %}
       </tbody>
     </table>
@@ -59,26 +60,3 @@
 </div>
 
 
-{% include "vistas_gestion_inventario/modals/eliminar_equipo_similar.html" %}
-{% include "vistas_gestion_inventario/modals/editar_equipo_similar.html" %}
-
-<script>
-  
-  $(document).ready(function() {
-    $('#tabla_equipos').DataTable( {
-          "language": {
-              "lengthMenu": "Mostrar _MENU_ registros por página",
-              "zeroRecords": "Nothing found - sorry",
-              "info": "Mostrando página _PAGE_ de _PAGES_",
-              "infoEmpty": "Sin registros disponibles",
-              "search":         "Buscar",
-              "paginate": {
-                  "next":       "Anterior",
-                  "previous":   "Siguiente"
-              },
-              "infoFiltered": "(filtrado de _MAX_ registros totales)"
-          }
-      } );
-  } );
-
-</script>
