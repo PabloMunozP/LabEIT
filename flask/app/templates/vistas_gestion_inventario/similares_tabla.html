@@ -25,7 +25,7 @@
 
   <div class="table-responsive mt-2">
     <div class="table-wrapper-scroll-y" style="position: relative; overflow:auto;">
-      <table class="table table-hover">
+      <table class="table table-hover" id="tabla_equipos_dif">
         <thead class="text-white" style="background:#4D4D4D;">
             <tr>
               <th scope="col">Código</th>
@@ -46,7 +46,7 @@
                   {% endif %}
                 <td>
                   <span class="btn-group">
-                    <button type="button" onclick="cargar_datos_equipo_dif_modal('{{elemento.codigo_equipo}}','{{elemento.codigo_sufijo}}', '{{elemento.fecha_compra}}', '{{elemento.activo}}')" data-target="#editar_equipo_similar" title="Editar equipo" class="btn btn-sm btn-warning mr-1" data-toggle="modal"><i class="fas fa-edit"></i></button>
+                    <button type="button" onclick="cargar_datos_equipo_dif_modal('{{elemento.codigo_equipo}}','{{elemento.codigo_sufijo}}', '{{elemento.fecha_compra}}', '{{elemento.activo}}','{{elemento.codigo_activo}}' , '{{elemento.razon_inactivo}}')" data-target="#editar_equipo_similar" title="Editar equipo" class="btn btn-sm btn-warning mr-1" data-toggle="modal"><i class="fas fa-edit"></i></button>
                     <button type="button" onclick="cargar_codigo_delete_equipo_diferenciado_modal('{{elemento.codigo_equipo}}','{{elemento.codigo_sufijo}}')" title="Eliminar equipo"  data-target="#eliminar_equipo_similar" data-toggle="modal" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
                   </span>
                 </td>
@@ -64,5 +64,24 @@
 {% include "vistas_gestion_inventario/modals/eliminar_equipo_similar.html" %}
 {% include "vistas_gestion_inventario/modals/agregar_equipo_similar.html" %}
 {% include "vistas_gestion_inventario/modals/editar_equipo_similar.html" %}
+<script>
 
+  $(document).ready(function() {
+    $('#tabla_equipos_dif').DataTable( {
+          "language": {
+              "lengthMenu": "Mostrar _MENU_ registros por página",
+              "zeroRecords": "Nothing found - sorry",
+              "info": "Mostrando página _PAGE_ de _PAGES_",
+              "infoEmpty": "Sin registros disponibles",
+              "search":         "Buscar",
+              "paginate": {
+                  "next":       "Anterior",
+                  "previous":   "Siguiente"
+              },
+              "infoFiltered": "(filtrado de _MAX_ registros totales)"
+          }
+      } );
+  } );
+
+</script>
 {% endblock %}
