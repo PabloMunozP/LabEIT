@@ -1,0 +1,206 @@
+<div class="modal fade" id="formulario_solicitud_agil" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header bg-gris-eit">
+        <h5 class="modal-title text-white"><i class="fas fa-file-invoice mr-2"></i>Formulario de solicitud de préstamo</h5>
+        <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close" style="outline:none;">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      {% if lista_equipos_disponibles %}
+
+        <form action="/registrar_solicitud_agil" method="POST">
+          <div class="modal-body">
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label>Ingrese el RUT del usuario solicitante</label>
+                  <input id="rut_input_login" name="rut_usuario" maxlength="9" onkeyup="validar_rut(this)" type="text" required class="form-control">
+                  <small class="form-text text-muted">* Ingrese el RUT del usuario sin guión ni puntos.</small>
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Seleccione los equipos a entregar al usuario</label>
+              <div class="input-group">
+          		<div class="input-group-prepend">
+          			<div class="input-group-text"><i class="fas fa-search"></i></div>
+          		</div>
+          		<input type="text" class="form-control" id="filtro_equipos_disponibles" placeholder="Buscar por ID, nombre o código de equipo.">
+          	</div>
+              <div class="table-responsive mt-2">
+            		<div class="table-wrapper-scroll-y" style="position: relative;
+            								max-height: 300px;
+            								overflow:auto;">
+            			<table class="table" id="tabla_equipos_disponibles">
+            				<thead class="text-white" style="background:#4D4D4D;">
+            					<tr>
+            						<th title="ID de detalle de solicitud" scope="col">Nombre del equipo</th>
+            						<th scope="col">Código de equipo</th>
+            						<th class="text-center" scope="col">Acciones</th>
+            					</tr>
+            				</thead>
+            				<tbody>
+            					{% for equipo in lista_equipos_disponibles %}
+            						<tr style="background:#ECF0F1;">
+                          <td hidden>{{equipo["id"]}}</td>
+                          <td hidden>{{equipo["codigo_sufijo"]}}</td>
+                          <td>{{equipo["nombre"]}} {{equipo["marca"]}} {{equipo["modelo"]}}</td>
+            							<td>{{equipo["codigo"]}}-{{equipo["codigo_sufijo"]}}</td>
+            							<td class="text-center">
+                              <div class="form-check">
+                                <input class="form-check-input checkbox-equipo" id="checkbox1_equipo,{{loop.index}}" type="checkbox" name="id_equipo_seleccionado" value="{{equipo["id"]}}">
+                              </div>
+            							</td>
+                          <input hidden class="form-check-input" id="checkbox2_equipo,{{loop.index}}" type="checkbox" name="codigo_sufijo_equipo_seleccionado" value="{{equipo["codigo_sufijo"]}}">
+            						</tr>
+            					{% endfor %}
+            				</tbody>
+            			</table>
+            		</div>
+            	</div>
+
+              <div class="card-header mt-4" style="background:#4D4D4D;">
+              	<h5 class="card-title text-white my-auto">Equipos a prestar</h5>
+              	<p class="text-white my-auto"><i class="fas fa-info-circle mr-2"></i>A continuación se muestran los equipos que se han seleccionado para el préstamo.</p>
+              </div>
+
+              <div class="table-wrapper-scroll-y" style="position: relative;
+                          max-height: 250px;
+                          overflow:auto;">
+                <ul class="list-group" id="lista_equipos_seleccionados">
+                </ul>
+              </div>
+
+              <div class="row mt-4">
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label>Seleccione la fecha de término del préstamo</label>
+                    <input id="fecha_termino_prestamo" disabled name="fecha_termino" type="date" class="form-control">
+                    <small class="form-text text-muted">* La fecha de término será la misma para cada equipo prestado.</small>
+                    <small class="form-text text-muted">* Al omitir este campo, cada equipo solicitado estará regido por la cantidad máxima de días de préstamo.</small>
+                    <small class="form-text text-danger" id="error_dia_habil" hidden>* Seleccione un día hábil para el término del préstamo.</small>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+          <div class="modal-footer">
+
+            <p><i class="fas fa-info-circle mr-1"></i>Al confirmar, los equipos seleccionados serán automáticamente asignados al usuario solicitante y estos quedarán marcados como "en posesión" en la sección de gestión de solicitudes.</p>
+
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+            <button type="submit" class="btn btn-success">Confirmar</button>
+          </div>
+        </form>
+
+      {% else %}
+        <div class="modal-body">
+          <div class="alert alert-warning alert-dismissible fade show text-center mt-2" role="alert">
+            <i class="fas fa-exclamation-triangle mr-2"></i>No se han encontrado equipos disponibles para préstamos. Consulte el inventario para más información.
+          </div>
+        </div>
+      {% endif %}
+
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+  // Función para activar segundo checkbox que contiene el código de sufijo del equipo
+  $(".checkbox-equipo").change(function(){
+    let id_elemento = $(this).attr("id").split(",")[1];
+    if($(this).is(":checked")){
+      let nombre_equipo = $(this).closest("tr")[0].getElementsByTagName("td")[2].innerHTML;
+      let codigo_equipo = $(this).closest("tr")[0].getElementsByTagName("td")[3].innerHTML;
+
+      // Se crea el elemento <li> para agregarlo a la lista de equipos seleccionados (solo texto)
+      elemento_li_equipo = document.createElement("LI");
+      elemento_li_equipo.id = "li_"+id_elemento;
+      elemento_li_equipo.innerHTML = nombre_equipo+" "+codigo_equipo;
+      elemento_li_equipo.classList.add("list-group-item");
+
+      // Se agrega el nuevo elemento a la lista <ul>
+      lista_equipos_seleccionados = document.getElementById("lista_equipos_seleccionados");
+      lista_equipos_seleccionados.appendChild(elemento_li_equipo)
+
+      document.getElementById("checkbox2_equipo,"+id_elemento).checked = true;
+      // Se activa el input de fecha de término del préstamo
+      document.getElementById("fecha_termino_prestamo").disabled = false;
+    }else{
+      document.getElementById("checkbox2_equipo,"+id_elemento).checked = false;
+      // Se remueve el elemento <li> creado al momento de haber desmarcado el checkbox
+      lista_equipos_seleccionados = document.getElementById("lista_equipos_seleccionados");
+      lista_equipos_seleccionados.removeChild(document.getElementById("li_"+id_elemento));
+      if(!lista_equipos_seleccionados.childElementCount){
+        // Se desactiva el input de fecha de término del préstamo
+        document.getElementById("fecha_termino_prestamo").disabled = true;
+      }
+    }
+  })
+
+	$(function() { // Filtro de historial de solicitudes
+	  $("#filtro_equipos_disponibles").on("keyup", function() {
+	    var value = $(this).val().toLowerCase();
+	    $("#tabla_equipos_disponibles > tbody > tr").filter(function() {      $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+	    });
+	  });
+	});
+</script>
+<script type="text/javascript">
+  var today = new Date();
+  var dd = today.getDate();
+  var mm = today.getMonth()+1; //January is 0!
+  var yyyy = today.getFullYear();
+   if(dd<10){
+    dd='0'+dd
+   }
+   if(mm<10){
+    mm='0'+mm
+   }
+
+  today = yyyy+'-'+mm+'-'+dd;
+  document.getElementById("fecha_termino_prestamo").setAttribute("min", today);
+
+  const picker = document.getElementById('fecha_termino_prestamo');
+  picker.addEventListener('input', function(e){
+    var day = new Date(this.value).getUTCDay();
+    if([6,0].includes(day)){
+      e.preventDefault();
+      this.value = '';
+      $("#error_dia_habil").prop("hidden",false);
+    }else{
+      $("#error_dia_habil").prop("hidden",true);
+    }
+  });
+
+</script>
+<script type="text/javascript">
+
+  function validar_rut(input_rut){
+    input_rut.value = input_rut.value.replace(/ +?/g, '');
+    var rut = input_rut.value;
+    if(!rut.length){
+      return;
+    }else{
+      sub_string = ""
+      for(var i = 0 ; i < rut.length ; i++){
+        if(isNaN(rut[i])){
+          if(rut.length != 9){ // El caracter no crresponde al último dígito
+            input_rut.value = sub_string.replace(/ +?/g, '');
+            break;
+          }else{ // El caracter se encuentra al final del string
+            if(rut[i].toLowerCase() != "k"){ // El último caracter no es el caracter K (único permitido)
+              input_rut.value = sub_string.replace(/ +?/g, '');
+              break;
+            }else{
+            }
+          }
+        }else{
+          sub_string += rut[i];
+        }
+      }
+    }
+  }
+</script>
