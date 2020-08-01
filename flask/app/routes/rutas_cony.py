@@ -1,5 +1,6 @@
 from flask import Flask,Blueprint,render_template,request,redirect,url_for,flash,session,jsonify
 from config import db,cursor
+from datetime import datetime
 import os,time,bcrypt
 
 mod = Blueprint("rutas_cony",__name__)
@@ -171,10 +172,10 @@ def registrar_solicitud():
     if "carro_pedidos" in session.keys():
         # Se registra la solicitud
         sql_query = """
-            INSERT INTO Solicitud (rut_alumno)
-                VALUES (%s)
+            INSERT INTO Solicitud (rut_alumno,fecha_registro)
+                VALUES (%s,%s)
         """
-        cursor.execute(sql_query,(session["usuario"]["rut"],))
+        cursor.execute(sql_query,(session["usuario"]["rut"],datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
         id_solicitud = cursor.lastrowid # Se obtiene el id de solicitud recién creada
 
         # Se registran los detalles de solicitud por cada pedido (unitario)

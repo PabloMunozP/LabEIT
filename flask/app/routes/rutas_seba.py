@@ -339,10 +339,27 @@ def gestion_solicitudes_prestamos():
     cursor.execute(sql_query)
     lista_historial_solicitudes = cursor.fetchall()
 
+    # Lista de equipos para formulario ágil
+    sql_query = """
+        SELECT Equipo.id,Equipo.nombre,Equipo.marca,Equipo.modelo,Equipo.codigo,Equipo_diferenciado.codigo_sufijo
+            FROM Equipo,Equipo_diferenciado
+                WHERE Equipo.codigo = Equipo_diferenciado.codigo_equipo
+                AND Equipo_diferenciado.activo = 1
+                AND Equipo_diferenciado.codigo_sufijo
+                    NOT IN (SELECT Detalle_solicitud.codigo_sufijo_equipo
+                                FROM Detalle_solicitud
+                                    WHERE Detalle_solicitud.id_equipo = Equipo.id
+                                        AND codigo_sufijo_equipo IS NOT NULL)
+                ORDER BY Equipo.nombre,Equipo.marca,Equipo.modelo
+    """
+    cursor.execute(sql_query)
+    lista_equipos_disponibles = cursor.fetchall()
+
     return render_template("/vistas_gestion_solicitudes_prestamos/gestion_solicitudes.html",
     lista_solicitudes_por_revisar=lista_solicitudes_por_revisar,
     lista_solicitudes_activas=lista_solicitudes_activas,
-    lista_historial_solicitudes=lista_historial_solicitudes)
+    lista_historial_solicitudes=lista_historial_solicitudes,
+    lista_equipos_disponibles=lista_equipos_disponibles)
 
 @mod.route("/gestion_solicitudes_prestamos/detalle_solicitud/<string:id_detalle_solicitud>",methods=["GET"])
 def detalle_solicitud(id_detalle_solicitud):
@@ -782,8 +799,8 @@ def entregar_equipo(id_detalle):
     else:
         fecha_termino_prestamo = datetime.strptime(datos_formulario["fecha_termino_prestamo"],"%Y-%m-%d")
 
-    # Se agrega la hora a la fecha de término, por default (18:00 PM)
-    fecha_termino_prestamo = fecha_termino_prestamo.replace(hour=18,minute=0,second=0)
+    # Se agrega la hora a la fecha de término, por default (18:30 PM)
+    fecha_termino_prestamo = fecha_termino_prestamo.replace(hour=18,minute=30,second=0)
 
     # Se actualizan los datos del detalle de la solicitud
     sql_query = """
@@ -1160,3 +1177,88 @@ def consultar_estadisticas_solicitudes():
             datos_finales.append(datos_grafico[estado])
 
         return jsonify(datos_finales)
+
+# Rutas solicitudes ágiles
+@mod.route("/registrar_solicitud_agil",methods=["POST"])
+def registrar_solicitud_agil():
+    # Permite registrar solicitudes por parte del administrador (pensado para casos informales)
+    # La solicitud se crea con todos los detalles y pasa automáticamente al estado de posesión
+    rut_usuario = request.form.get("rut_usuario")
+    fecha_termino = request.form.get("fecha_termino")
+    lista_equipos_seleccionados = request.form.getlist("id_equipo_seleccionado")
+    lista_codigos_sufijos_equipos_seleccionados = request.form.getlist("codigo_sufijo_equipo_seleccionado")
+
+    # Se comprueba que el RUT sea válido
+    sql_query = """
+        SELECT COUNT(*) AS cantidad_usuarios
+            FROM Usuario
+                WHERE rut = %s
+    """
+    cursor.execute(sql_query,(rut_usuario,))
+    usuario_existente = bool(cursor.fetchone()["cantidad_usuarios"])
+
+    # Si el rut ingresado no coincide con ningún usuario, se notifica el error.
+    if not usuario_existente:
+        flash("usuario-no-existente")
+        return redirect(redirect_url())
+
+    # Se verifica que ambas listas (de equipos y códigos) coincidan en la cantidad de elementos
+    if len(lista_equipos_seleccionados) != len(lista_codigos_sufijos_equipos_seleccionados):
+        flash("error-listas-agiles")
+        return redirect(redirect_url())
+
+    # Se modifican las fechas para agregar la hora
+    fecha_inicio = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    fecha_termino_especificada = False
+
+    if len(fecha_termino):
+        fecha_termino_especificada = True
+        # Si se especificó una fecha en el formulario, se considera esa.
+        # En caso contrario, se registra para cada uno de los detalles según la cantidad de días
+        fecha_termino = datetime.strptime(fecha_termino,"%Y-%m-%d").replace(hour=18,minute=30,second=0)
+
+    # Se crea la solicitud de préstamo con el rut y la fecha correspondiente
+    sql_query = """
+        INSERT INTO Solicitud (rut_alumno,fecha_registro)
+            VALUES (%s,%s)
+    """
+    cursor.execute(sql_query,(rut_usuario,fecha_inicio))
+    id_solicitud = cursor.lastrowid # Se obtiene el id de solicitud recién creada
+
+    # Se crean los detalles de solicitud según las listas de equipos y códigos
+    for id_equipo,codigo_sufijo in zip(lista_equipos_seleccionados,lista_codigos_sufijos_equipos_seleccionados):
+
+        if not fecha_termino_especificada:
+            sql_query = """
+                SELECT dias_max_prestamo
+                    FROM Equipo
+                        WHERE id = %s
+            """
+            cursor.execute(sql_query,(id_equipo,))
+            cantidad_dias_prestamo = cursor.fetchone()["dias_max_prestamo"]
+
+            if cantidad_dias_prestamo is None:
+                cantidad_dias_prestamo = 5
+
+            fecha_termino = datetime.strptime(fecha_inicio,"%Y-%m-%d %H:%M:%S") + timedelta(days=cantidad_dias_prestamo)
+            dia_habil = fecha_termino.weekday() # Entrega día de la semana en formato 0-4: Lunes-Viernes / 5-6: Sábado-Domingo
+
+            if dia_habil >= 5: # Si el día de la fecha de término es un fin de semana se debe recalcular
+                if dia_habil == 6:
+                    delta = 1
+                else:
+                    delta = 2
+                # Se calcula la fecha de término como el Lunes inmediatamente siguiente al fin de semana
+                fecha_termino += timedelta(days=delta)
+
+            fecha_termino = fecha_termino.replace(hour=18,minute=30,second=0)
+
+        sql_query = """
+            INSERT INTO Detalle_solicitud
+                (id_solicitud,id_equipo,fecha_inicio,fecha_termino,estado,codigo_sufijo_equipo)
+                    VALUES (%s,%s,%s,%s,2,%s)
+        """
+        cursor.execute(sql_query,(id_solicitud,id_equipo,fecha_inicio,fecha_termino,codigo_sufijo))
+
+    flash("solicitud-registrada")
+    return redirect(redirect_url())
