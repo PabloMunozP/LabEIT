@@ -285,6 +285,7 @@ def eliminar_curso(curso):
     query = ('''
         DELETE Curso FROM Curso WHERE Curso.codigo_udp = %s
     ''')
+    print(curso)
     cursor.execute(query,(curso['codigo_udp'],))
     db.commit()
     return 'OK'
@@ -296,8 +297,9 @@ def eliminar_curso_form():
     if session["usuario"]["id_credencial"] != 3:
         return redirect("/")
     if request.method == 'POST':
-        curso = request.form.to_dict()
-        eliminar_curso(curso)
+        curso_por_eliminar = request.form.to_dict()
+        print(curso_por_eliminar)
+        eliminar_curso(curso_por_eliminar)
         flash("El curso fue eliminado correctamente")
         return redirect("/gestion_cursos")
 # == VISTA DETALLES CURSO ==
