@@ -1,0 +1,27 @@
+<div class="modal fade" id="eliminar_circuito" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header bg-gris-eit">
+        <h5 class="modal-title text-white" id="editar_informacion_label"><i class="fas fa-question-circle mr-2"></i>Confirmación de eliminación de circuito</h5>
+      </div>
+      <form action="/gestion_inventario_admin/delete_circuito" id="form_confirmar_eliminar_circuito" method="POST">
+        <div class="modal-body">
+          <p>Al eliminar la unidad, otros registros podrían verse afectados.</p>
+          <input class="form-control" type="text" name="nombre_circuito" value="" id="form_eliminar_equipo_circuito_nombre" hidden>
+            <input class="form-control" type="text" name="descripcion_circuito" value="" id="form_eliminar_equipo_circuito_descripcion" hidden>
+        </div>
+        <div class="modal-footer">
+          <button type="button" id="boton_cerrar"  class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+          <button type="summit" id="boton_guardar" class="btn btn-success">Confirmar</button>
+        </div>
+      </form>
+  </div>
+</div>
+</div>
+
+<script>
+  function cargar_codigo_delete_circuito(nombre_circuito, descripcion_circuito){
+    $("#form_eliminar_equipo_circuito_nombre").val(nombre_circuito);
+    $("#form_eliminar_equipo_circuito_descripcion").val(descripcion_circuito);
+  }
+</script>

@@ -88,9 +88,11 @@ def gestion_inventario_admin():
     else:
         equipos = consultar_lista_equipos_general()
         equipos_detalle = consultar_lista_equipos()
+        circuitos = consultar_lista_circuito()
         return render_template('vistas_gestion_inventario/gestion_inventario.html',
             lista_equipo = equipos,
-            lista_equipo_detalle = equipos_detalle)
+            lista_equipo_detalle = equipos_detalle,
+            lista_circuitos = circuitos)
 
 
 # **** VISTA_PRINCIPAL/MODAL "AGREGAR EQUIPO" **** #
@@ -382,3 +384,99 @@ def gestion_inventario_admin_equipo(codigo_equipo):
     equipos_descripcion = consultar_equipo_descripcion(codigo_equipo)
     return render_template('vistas_gestion_inventario/similares_tabla.html',
     equipos_descripcion=equipos_descripcion, equipos_detalle = equipos, equipo_padre = codigo_equipo) #Cambiar render por el que corresponda
+
+
+
+#*********************************************************************************************#
+
+# ***** Importante VISTA CIRCUITOS **** #
+
+#Consulta tabla principal
+def consultar_lista_circuito():
+    query = ('''
+        SELECT *
+        FROM Circuito
+    '''
+    )
+    cursor.execute(query)
+    circuitos = cursor.fetchall()
+    return circuitos
+
+
+#Consulta para insertar circuito
+def insertar_lista_circuitos(valores_a_insertar):
+    query = ('''
+        INSERT INTO Circuito (nombre, cantidad, descripcion)
+        VALUES (%s, %s, %s);
+    ''')
+    cursor.execute(query,(
+        valores_a_insertar['nombre_circuito'],
+        valores_a_insertar['cantidad_circuito'],
+        valores_a_insertar['descripcion_circuito']))
+    db.commit()
+    return 'OK'
+
+#funcion insertar nuevo circuito
+@mod.route("/gestion_inventario_admin/insert_circuito", methods = ['POST'])
+def funcion_añadir_circuito_form():
+    if request.method == 'POST':
+        informacion_a_insertar = request.form.to_dict()
+        insertar_lista_circuitos(informacion_a_insertar)
+        flash("El equipo fue agregado correctamente")
+        return redirect('/gestion_inventario_admin')
+
+#Consulta editar circuito
+def editar_circuito(informacion_a_actualizar):  # Query UPDATE
+            query = ('''
+                UPDATE Circuito
+                SET Circuito.nombre = %s,
+                    Circuito.cantidad = %s,
+                    Circuito.descripcion = %s
+                WHERE Circuito.nombre= %s
+                AND Circuito.descripcion = %s
+
+            ''')
+            cursor.execute(query,(
+                informacion_a_actualizar['nombre_circuito'],
+                informacion_a_actualizar['cantidad_circuito'],
+                informacion_a_actualizar['descripcion_circuito'],
+                informacion_a_actualizar['nombre_circuito_original'],
+                informacion_a_actualizar['descripcion_circuito_original']
+                ))
+            db.commit()
+            return informacion_a_actualizar
+
+#Funcion editar circuito
+@mod.route('/gestion_inventario_admin/actualizar_informacion_circuito', methods = ['POST'])
+def funcion_editar_circuito():
+    if request.method == 'POST':
+        informacion_a_actualizar = request.form.to_dict()
+        editar_circuito(informacion_a_actualizar)
+        print(informacion_a_actualizar)
+        return redirect("/gestion_inventario_admin")
+
+
+#Consulta eliminar circuito
+def eliminar_circuito(circuito):
+    query = ('''
+        DELETE Circuito
+        FROM Circuito
+        WHERE Circuito.nombre = %s
+        AND Circuito.descripcion = %s
+    ''')
+    cursor.execute(query,(
+    circuito['nombre_circuito'],
+    circuito['descripcion_circuito']
+    ))
+    db.commit()
+    return 'ok'
+
+
+#Funcion eliminar circuito
+
+@mod.route("/gestion_inventario_admin/delete_circuito",methods=["POST"])
+def funcion_eliminar_circuito():
+    if request.method == 'POST':
+        equipo_a_eliminar = request.form.to_dict()
+        eliminar_circuito(equipo_a_eliminar)
+        return redirect("/gestion_inventario_admin")
