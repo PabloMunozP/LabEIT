@@ -1,6 +1,9 @@
 from flask import Flask,Blueprint,render_template,request,redirect,url_for,flash,session,jsonify
 from config import db,cursor
+<<<<<<< HEAD
 from datetime import datetime
+=======
+>>>>>>> jun
 import os,time,bcrypt
 
 mod = Blueprint("rutas_cony",__name__)
@@ -172,10 +175,17 @@ def registrar_solicitud():
     if "carro_pedidos" in session.keys():
         # Se registra la solicitud
         sql_query = """
+<<<<<<< HEAD
             INSERT INTO Solicitud (rut_alumno,fecha_registro)
                 VALUES (%s,%s)
         """
         cursor.execute(sql_query,(session["usuario"]["rut"],datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
+=======
+            INSERT INTO Solicitud (rut_alumno)
+                VALUES (%s)
+        """
+        cursor.execute(sql_query,(session["usuario"]["rut"],))
+>>>>>>> jun
         id_solicitud = cursor.lastrowid # Se obtiene el id de solicitud recién creada
 
         # Se registran los detalles de solicitud por cada pedido (unitario)
@@ -194,3 +204,129 @@ def registrar_solicitud():
 
     flash("solicitud-registrada")
     return redirect("/solicitudes_prestamos")
+<<<<<<< HEAD
+=======
+#*********************************************************************************************#
+
+# == VISTA PRINCIPAL GESTION DE CURSOS
+
+# Consulta una lista con todos los cursos
+def consultar_lista_cursos():
+    if "usuario" not in session.keys():
+        return redirect("/")
+    if session["usuario"]["id_credencial"] != 3:
+        return redirect("/")
+    query = ('''
+    SELECT
+        Curso.codigo_udp,
+        Curso.nombre,
+        Curso.descripcion
+        FROM Curso
+    ''')
+    cursor.execute(query)
+    cursos = cursor.fetchall()
+    return cursos
+
+@mod.route("/gestion_cursos")
+def gestion_cursos():
+    if 'usuario' not in session or session["usuario"]["id_credencial"] != 3:
+        return redirect('/')
+    else:
+        cursos = consultar_lista_cursos()
+        return render_template('gestion_cursos/ver_cursos.html', cursos = cursos)
+
+# == VISTA PRINCIPAL/MODAL "AGREGAR CURSO" ==
+
+def agregar_curso(val):
+    query = ('''
+    INSERT INTO Curso (codigo_udp, nombre, descripcion)
+    VALUES (%s, %s, %s);
+    ''')
+    cursor.execute(query, (
+        val['codigo_udp'],
+        val['nombre'],
+        val['descripcion']))
+    db.commit()
+    return 'OK'
+
+@mod.route("/gestion_cursos/agregar_curso", methods = ['POST'])
+def agregar_curso_form():
+    if "usuario" not in session.keys():
+        return redirect("/")
+    if session["usuario"]["id_credencial"] != 3:
+        return redirect("/")
+    if request.method == 'POST':
+        valores = request.form.to_dict()
+        agregar_curso(valores_ins)
+        flash("El curso fue agregado correctamente")
+        cursos = consultar_lista_cursos()
+        return redirect('/gestion_cursos')
+
+# == VISTA PRINCIPAL/MODAL "EDITAR CURSO" ==
+
+def editar_curso(val):
+    query = ('''
+        UPDATE Curso
+        SET codigo_udp = %s,
+            nombre = %s,
+            descripcion = %s
+        WHERE Curso.codigo_udp = %s
+    ''')
+    cursor.execute(query, (
+        val['codigo_udp'],
+        val['nombre'],
+        val['descripcion']
+        ))
+    db.commit()
+    return val
+
+@mod.route('/gestion_cursos/editar_curso', methods = ['POST'])
+def editar_curso_form():
+    if "usuario" not in session.keys():
+        return redirect("/")
+    if session["usuario"]["id_credencial"] != 3:
+        return redirect("/")
+    if request.method == 'POST':
+        valores = request.form.to_dict()
+        editar_curso(valores)
+        flash("El curso se ha actualizado correctamente")
+        return redirect("/gestion_cursos")
+
+# == VISTA PRINCIPAL/MODAL "BORRAR CURSO" ==
+
+def eliminar_curso(curso):
+    query = ('''
+        DELETE Curso FROM Curso WHERE Curso.codigo_udp = %s
+    ''')
+    print(curso)
+    cursor.execute(query,(curso['codigo_udp'],))
+    db.commit()
+    return 'OK'
+
+@mod.route("/gestion_cursos/eliminar_curso",methods=["POST"])
+def eliminar_curso_form():
+    if "usuario" not in session.keys():
+        return redirect("/")
+    if session["usuario"]["id_credencial"] != 3:
+        return redirect("/")
+    if request.method == 'POST':
+        curso_por_eliminar = request.form.to_dict()
+        print(curso_por_eliminar)
+        eliminar_curso(curso_por_eliminar)
+        flash("El curso fue eliminado correctamente")
+        return redirect("/gestion_cursos")
+# == VISTA DETALLES CURSO ==
+def consultar_curso_descripcion(codigo_curso):
+    query = ('''
+        SELECT *
+        FROM CURSO
+        WHERE Curso.codigo_udp = %s
+    ''')
+    cursor.execute(query,(codigo_curso,))
+    curso_detalle = cursos.fetchone()
+    return curso_detalle
+@mod.route("/gestion_cursos/detalles_curso/<string:codigo_udp>",methods=["GET"])
+def detalle_info_curso(codigo_udp):
+    curso_desc = consultar_curso_descripcion(codigo_udp)
+    return render_template("/gestion_cursos/detalles_curso.html", curso_desc=curso_desc)
+>>>>>>> jun

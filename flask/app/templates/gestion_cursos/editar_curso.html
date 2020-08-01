@@ -1,0 +1,32 @@
+<div id="editar_curso" class="modal fade in" tabindex="-1" role="dialog"  aria-hidden="true" data-keyboard="true" data-backdrop="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-gris-eit">
+                <h5 class="modal-title text-white" id="editar_informacion_label"><i class="fas fa-user-edit mr-2"></i>Editar información del curso</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
+                <span aria-hidden="true">&times; </span>
+                </button>
+            </div>
+            <form id="editar_curso" action="/gestion_usuarios/editar_curso" method="POST">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="codigo_udp">Código:</label>
+                        <input type="text" id="codigo_udp" name="codigo_udp" class="form-control" value="{{curso['codigo_udp']}}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="nombre">Nombre:</label>
+                        <input type="text" name="nombre" id="nombre" class="form-control" value="{{curso['nombre']}}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="descripcion">Descripcion:</label>
+                        <input type="text" name="descripcion" id="descripcion" class="form-control" value="{{curso['descripcion']}}" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                    <button type="submit"  class="btn btn-info">Guardar cambios</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

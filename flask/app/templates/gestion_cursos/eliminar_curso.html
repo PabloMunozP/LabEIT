@@ -1,0 +1,28 @@
+<div class="modal fade" id="eliminar_curso" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header bg-gris-eit">
+        <h5 class="modal-title text-white" id="editar_informacion_label"><i class="fas fa-question-circle mr-2"></i>Confirmación de eliminación del curso</h5>
+        <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close" style="outline:none;">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <form action="/gestion_cursos/eliminar_curso" id="form_confirmar_eliminar_curso" method="POST">
+        <div class="modal-body">
+          <p>Al eliminar el curso, los registros asociados serán eliminados automáticamente.</p>
+          <input class="form-control" type="text" name="codigo_udp" value="" id="form_eliminar_curso_codigo" hidden>
+        </div>
+        <div class="modal-footer">
+          <button type="button" id="boton_cerrar"  class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+          <button type="submit" id="boton_guardar" class="btn btn-success">Eliminar</button>
+        </div>
+      </form>
+  </div>
+</div>
+</div>
+
+<script>
+  function cargar_codigo_delete_curso_modal(codigo_udp){
+    $("#form_eliminar_curso_codigo").val(codigo_udp);
+  }
+</script>
