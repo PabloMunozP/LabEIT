@@ -21,10 +21,9 @@ def consultar_lista_equipos_general():
     # Nota importante:
     # actualizar la query papra definir equipos_disponibles y total_equipos
     query = ('''
-        SELECT *,
-            CASE    WHEN Detalle_solicitud.cantidad IS NOT NULL THEN Detalle_solicitud.cantidad
-                    ELSE COUNT(CASE WHEN Detalle_solicitud.estado IN (1, 2, 3) THEN 1 ELSE NULL END)
-                    END AS en_prestamo
+        SELECT *, 
+            COUNT(CASE WHEN Detalle_solicitud.estado IN (1, 2, 3) THEN 1 
+            ELSE NULL END) AS en_prestamo
         FROM (SELECT
                 Equipo.id AS equipo_id,
                 Equipo.codigo,
