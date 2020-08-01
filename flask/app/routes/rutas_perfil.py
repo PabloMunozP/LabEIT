@@ -13,6 +13,39 @@ def redirect_url(default='index'): # Redireccionamiento desde donde vino la requ
 mod = Blueprint('rutas_perfil',__name__)
 
 
+# Quuery de solicitudes de equipos del usuario
+def consultar_solicitudes_alumno_compuesta(rut_alumno):
+    query = ('''
+            SELECT Detalle_solicitud.id_solicitud,
+                Solicitud.rut_alumno,    
+                Solicitud.rut_profesor,
+                Solicitud.motivo,
+                Solicitud.fecha_registro,
+                Detalle_solicitud.id_equipo,
+                Equipo.codigo,
+                Equipo.nombre,
+                Equipo.modelo,
+                Equipo.marca,
+                Estado_detalle_solicitud.nombre AS estado
+            FROM Solicitud
+            RIGHT JOIN Detalle_solicitud ON Detalle_solicitud.id_solicitud = Solicitud.id
+            LEFT JOIN Estado_detalle_solicitud ON Estado_detalle_solicitud.id = Detalle_solicitud.estado
+            LEFT JOIN Equipo ON Equipo.id = Detalle_solicitud.id_equipo 
+            
+            WHERE Solicitud.rut_alumno = %s
+        ''')
+    cursor.execute(query,(rut_alumno,))
+    query_solicitud = cursor.fetchall()
+    return query_solicitud
+
+
+@mod.route('/debug_sol_query') # link para hacer debug de la query
+def debug_sol_query():
+    solicitudes = consultar_solicitudes_alumno_compuesta("198182354")
+    for i in solicitudes:
+        print(i)
+    return 'debug_sol_query'
+
 
 @mod.route('/perfil') # ** Importante PERFIL** #
 def perfil():
@@ -66,39 +99,13 @@ def perfil():
         # print(archivo_foto_perfil)         
         # print('resultado: ', resultado_perfil)
 
-        # Query de prestamos alumno
-        # En esta Query la tabla dominante es Solicitud pero muestra la parte de Detalle
-        query_prestamos = ('''
-            SELECT
-                Solicitud.fecha_registro AS fecha_registro_solicitud,
-                Detalle_solicitud.id_equipo,
-                Detalle_solicitud.fecha_inicio AS fecha_entrega_equipo,
-                Detalle_solicitud.fecha_devolucion AS fecha_devolucion_equipo,
-                Usuario.nombres AS profesor_nombres,
-                Usuario.apellidos AS profesor_apellidos
-            FROM
-                Solicitud JOIN
-                Detalle_solicitud ON Detalle_solicitud.id_solicitud = Solicitud.id JOIN
-                Usuario ON Usuario.rut = Solicitud.rut_profesor
-            WHERE 
-                Solicitud.rut_alumno = %s
-            ;
-        ''')
-                #         Usuario.nombres AS profesor_nombres,
-                # Usuario.apellidos AS profesor_apellidos,
-                
-        cursor.execute(query_prestamos,(session['usuario']['rut'],))
-        resultado_prestamos = cursor.fetchall()
-        for i in range(len(resultado_prestamos)):
-            print('PRESTAMOS',resultado_prestamos[i])
-
 
         return render_template(
             'vistas_perfil/perfil.html',
+            perfil_rut = session['usuario']['rut'],
             perfil_info = resultado_perfil,
             dir_foto_perfil = archivo_foto_perfil,
-            completar_info = validar_completar,
-            prestamos_info = resultado_prestamos)
+            completar_info = validar_completar)
     
 
 # Configurar perfil # ** Importante MODAL PERFIl ** #
