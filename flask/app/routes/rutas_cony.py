@@ -1,9 +1,5 @@
 from flask import Flask,Blueprint,render_template,request,redirect,url_for,flash,session,jsonify
 from config import db,cursor
-<<<<<<< HEAD
-from datetime import datetime
-=======
->>>>>>> jun
 import os,time,bcrypt
 
 mod = Blueprint("rutas_cony",__name__)
@@ -175,17 +171,10 @@ def registrar_solicitud():
     if "carro_pedidos" in session.keys():
         # Se registra la solicitud
         sql_query = """
-<<<<<<< HEAD
-            INSERT INTO Solicitud (rut_alumno,fecha_registro)
-                VALUES (%s,%s)
-        """
-        cursor.execute(sql_query,(session["usuario"]["rut"],datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
-=======
             INSERT INTO Solicitud (rut_alumno)
                 VALUES (%s)
         """
         cursor.execute(sql_query,(session["usuario"]["rut"],))
->>>>>>> jun
         id_solicitud = cursor.lastrowid # Se obtiene el id de solicitud recién creada
 
         # Se registran los detalles de solicitud por cada pedido (unitario)
@@ -204,8 +193,6 @@ def registrar_solicitud():
 
     flash("solicitud-registrada")
     return redirect("/solicitudes_prestamos")
-<<<<<<< HEAD
-=======
 #*********************************************************************************************#
 
 # == VISTA PRINCIPAL GESTION DE CURSOS
@@ -332,4 +319,3 @@ def consultar_curso_descripcion(codigo_curso):
 def detalle_info_curso(codigo_udp):
     curso_desc = consultar_curso_descripcion(codigo_udp)
     return render_template("/gestion_cursos/detalles_curso.html", curso_desc=curso_desc)
->>>>>>> jun
