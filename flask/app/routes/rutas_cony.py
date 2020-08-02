@@ -244,7 +244,7 @@ def agregar_curso_form():
         return redirect("/")
     if request.method == 'POST':
         valores = request.form.to_dict()
-        agregar_curso(valores_ins)
+        agregar_curso(valores)
         flash("El curso fue agregado correctamente")
         cursos = consultar_lista_cursos()
         return redirect('/gestion_cursos')
