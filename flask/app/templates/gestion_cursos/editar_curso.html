@@ -7,7 +7,7 @@
                 <span aria-hidden="true">&times; </span>
                 </button>
             </div>
-            <form id="editar_curso" action="/gestion_usuarios/editar_curso" method="POST">
+            <form id="editar_curso" action="/gestion_cursos/editar_curso" method="POST">
                 <div class="modal-body">
                     <div class="form-group">
                         <label for="codigo_udp">Código:</label>
@@ -23,8 +23,8 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-                    <button type="submit"  class="btn btn-info">Guardar cambios</button>
+                    <button type="button" id="boton_cerrar" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                    <button type="submit" id="boton_guardar" class="btn btn-info">Guardar cambios</button>
                 </div>
             </form>
         </div>

@@ -262,8 +262,11 @@ def editar_curso(val):
     cursor.execute(query, (
         val['codigo_udp'],
         val['nombre'],
-        val['descripcion']
+        val['descripcion'],
+        val['codigo_udp']
         ))
+    print("editar")
+    print(val)
     db.commit()
     return val
 
@@ -275,6 +278,7 @@ def editar_curso_form():
         return redirect("/")
     if request.method == 'POST':
         valores = request.form.to_dict()
+        print(valores)
         editar_curso(valores)
         flash("El curso se ha actualizado correctamente")
         return redirect("/gestion_cursos")
