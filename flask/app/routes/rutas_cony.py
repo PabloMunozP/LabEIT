@@ -302,7 +302,6 @@ def eliminar_curso(curso):
     query = ('''
         DELETE Curso FROM Curso WHERE Curso.codigo_udp = %s
     ''')
-    print(curso)
     cursor.execute(query,(curso['codigo_udp'],))
     db.commit()
     return 'OK'
