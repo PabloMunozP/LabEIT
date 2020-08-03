@@ -355,11 +355,24 @@ def gestion_solicitudes_prestamos():
     cursor.execute(sql_query)
     lista_equipos_disponibles = cursor.fetchall()
 
+    # Se obtiene de forma general la lista de solicitudes registradas (vista de canasta)
+    sql_query = """
+        SELECT Solicitud.*,CONCAT(Usuario.nombres,' ',Usuario.apellidos) AS nombre_solicitante,
+            (SELECT COUNT(*) FROM Detalle_solicitud WHERE Detalle_solicitud.id_solicitud = Solicitud.id ) AS cantidad_detalles
+         FROM
+            Solicitud,Usuario
+                WHERE Solicitud.rut_alumno = Usuario.rut
+                ORDER BY Solicitud.fecha_registro DESC
+    """
+    cursor.execute(sql_query)
+    lista_solicitud_canasta = cursor.fetchall()
+
     return render_template("/vistas_gestion_solicitudes_prestamos/gestion_solicitudes.html",
     lista_solicitudes_por_revisar=lista_solicitudes_por_revisar,
     lista_solicitudes_activas=lista_solicitudes_activas,
     lista_historial_solicitudes=lista_historial_solicitudes,
-    lista_equipos_disponibles=lista_equipos_disponibles)
+    lista_equipos_disponibles=lista_equipos_disponibles,
+    lista_solicitud_canasta=lista_solicitud_canasta)
 
 @mod.route("/gestion_solicitudes_prestamos/detalle_solicitud/<string:id_detalle_solicitud>",methods=["GET"])
 def detalle_solicitud(id_detalle_solicitud):
@@ -1262,3 +1275,69 @@ def registrar_solicitud_agil():
 
     flash("solicitud-registrada")
     return redirect(redirect_url())
+
+# Canasta de solicitud
+@mod.route("/gestion_solicitudes_prestamos/canasta_solicitud/<string:id_solicitud>",methods=["GET"])
+def detalle_canasta_solicitud(id_solicitud):
+    if "usuario" not in session.keys():
+        return redirect("/")
+    if session["usuario"]["id_credencial"] != 3: # El usuario debe ser un administrador (Credencial = 3)
+        return redirect("/")
+
+    # Se obtiene la solicitud
+    sql_query = """
+        SELECT *
+            FROM Solicitud
+                WHERE id = %s
+    """
+    cursor.execute(sql_query,(id_solicitud,))
+    solicitud = cursor.fetchone()
+
+    # Se obtienen los datos principales del usuario
+    sql_query = """
+        SELECT rut,nombres,apellidos,email
+            FROM Usuario
+                WHERE rut = %s
+    """
+    cursor.execute(sql_query,(solicitud["rut_alumno"],))
+    datos_usuario = cursor.fetchone()
+
+    # Se obtienen cada uno de los detalles asociados a la solicitud
+    sql_query = """
+        SELECT Detalle_solicitud.*,Equipo.codigo AS codigo_equipo,Equipo.nombre AS nombre_equipo,Equipo.modelo AS modelo_equipo,Equipo.marca AS marca_equipo,
+            Equipo.dias_max_prestamo AS dias_max_prestamo_equipo,Estado_detalle_solicitud.nombre AS nombre_estado
+            FROM Detalle_solicitud,Equipo,Estado_detalle_solicitud
+                WHERE id_solicitud = %s
+                AND Detalle_solicitud.id_equipo = Equipo.id
+                AND Detalle_solicitud.estado = Estado_detalle_solicitud.id
+    """
+    cursor.execute(sql_query,(id_solicitud,))
+    lista_detalles_solicitud = cursor.fetchall()
+
+    # Se almacena como llave el ID del detalle de solicitud y como valor la lista de equipos
+    # disponibles para prestar
+    equipos_disponibles = {}
+    for detalle_solicitud in lista_detalles_solicitud:
+        # En caso de que el detalle se encuentre aún pendiente, se obtiene la lista
+        # de equipos disponibles para prestar
+        if detalle_solicitud["estado"] == 0:
+            sql_query = """
+                SELECT Equipo_diferenciado.codigo_equipo,Equipo_diferenciado.codigo_sufijo
+                    FROM Equipo_diferenciado,Equipo
+                        WHERE Equipo.codigo = Equipo_diferenciado.codigo_equipo
+                        AND Equipo.id = %s
+                        AND activo = 1
+                        AND codigo_sufijo NOT IN (SELECT codigo_sufijo_equipo
+                                                    FROM Detalle_solicitud
+                                                        WHERE id_equipo = %s
+                                                            AND codigo_sufijo_equipo IS NOT NULL)
+            """
+            cursor.execute(sql_query,(detalle_solicitud["id_equipo"],detalle_solicitud["id_equipo"]))
+            equipos_disponibles[detalle_solicitud["id"]] = cursor.fetchall()
+
+
+    return render_template("/vistas_gestion_solicitudes_prestamos/detalle_canasta_solicitud.html",
+        solicitud=solicitud,
+        equipos_disponibles=equipos_disponibles,
+        datos_usuario=datos_usuario,
+        lista_detalles_solicitud=lista_detalles_solicitud)
