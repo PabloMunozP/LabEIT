@@ -5,21 +5,19 @@
 <div class="container-fluid">
     <nav>
         <ul class="nav nav-tabs" id="myTab" role="tablist">
-            <li class="nav-item">
-              <a class="nav-link active" id="tab_inventario_general" data-toggle="tab" href="#inventario_general" role="tab" aria-controls="home" aria-selected="true">General</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" id="tab_inventario_detallado" data-toggle="tab" href="#inventario_detallado" role="tab" aria-controls="profile" aria-selected="false">Detallado</a>
-            </li>
+            <li class="nav-item"><a class="nav-link active" id="tab_inventario_general" data-toggle="tab" href="#inventario_general" role="tab" aria-controls="home" aria-selected="true">Inventario general</a></li>
+            <li class="nav-item"><a class="nav-link" id="tab_inventario_detallado" data-toggle="tab" href="#inventario_detallado" role="tab" aria-controls="profile" aria-selected="false">Equipos detallado</a></li>
+            <li class="nav-item"><a class="nav-link" id="tab_inventario_circuito" data-toggle="tab" href="#inventario_circuito" role="tab" aria-controls="contact" aria-selected="false">Circuitos</a></li>
           </ul>
           <div class="tab-content" id="myTabContent">
             <div class="tab-pane fade show active" id="inventario_general" role="tabpanel" aria-labelledby="home-tab">{% include "vistas_gestion_inventario/gestion_inventario/inventario_general.html" %}</div>
             <div class="tab-pane fade" id="inventario_detallado" role="tabpanel" aria-labelledby="profile-tab">{% include "vistas_gestion_inventario/gestion_inventario/inventario_detallado.html" %}</div>
+            <div class="tab-pane fade" id="inventario_circuito" role="tabpanel" aria-labelledby="contact-tab">{% include "vistas_gestion_inventario/gestion_inventario/inventario_circuitos.html" %}</div>
           </div>
     </nav>
-    
+
     <style>
-        #tab_inventario_general, #tab_inventario_detallado {
+        #tab_inventario_general, #tab_inventario_detallado, #tab_inventario_circuito{
             color: #495057;
             font-weight: 600;
         }
@@ -30,6 +28,26 @@
         }
     </style>
 
+    <script>
+
+      $(document).ready(function() {
+        $('#tabla_equipos,#tabla_equipos_general,#tabla_circuitos').DataTable( {
+              "language": {
+                  "lengthMenu": "Mostrar _MENU_ registros por página",
+                  "zeroRecords": "Nothing found - sorry",
+                  "info": "Mostrando página _PAGE_ de _PAGES_",
+                  "infoEmpty": "Sin registros disponibles",
+                  "search":         "Buscar",
+                  "paginate": {
+                      "next":       "Anterior",
+                      "previous":   "Siguiente"
+                  },
+                  "infoFiltered": "(filtrado de _MAX_ registros totales)"
+              }
+          } );
+      } );
+
+    </script>
 
 
 </div>
@@ -37,4 +55,9 @@
 {% include "vistas_gestion_inventario/modals/editar_equipo.html" %}
 {% include "vistas_gestion_inventario/modals/agregar_equipo.html" %}
 {% include "vistas_gestion_inventario/modals/eliminar_equipo.html" %}
+
+{% include "vistas_gestion_inventario/modals/eliminar_equipo_similar.html" %}
+{% include "vistas_gestion_inventario/modals/editar_equipo_similar.html" %}
+
+
 {% endblock %}

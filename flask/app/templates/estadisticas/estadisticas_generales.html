@@ -1,6 +1,299 @@
 {% extends "layout_in.html" %}
 	{%block body%}
 
-		<p>Estadísticas generales de uso del sistema</p>
+	<div class="container-fluid">
+		<div class="card-header mt-4" style="background:#0db26b;">
+			<h5 class="card-title text-white my-auto">Estadísticas de solicitudes de préstamos</h5>
+		</div>
+
+		<div class="row mt-2">
+			<div class="col-md-6">
+				<ul class="list-group">
+				  <li class="list-group-item d-flex justify-content-between align-items-center">
+				    Solicitudes entrantes (por revisar)
+				    <span class="badge badge-secondary badge-pill">{{cantidades_solicitudes_estados["solicitudes_entrantes"]}}</span>
+				  </li>
+				  <li class="list-group-item d-flex justify-content-between align-items-center">
+						Retiros pendientes de solicitudes aprobadas
+				    <span class="badge badge-secondary badge-pill">{{cantidades_solicitudes_estados["retiros_pendientes"]}}</span>
+				  </li>
+				  <li class="list-group-item d-flex justify-content-between align-items-center">
+				    Préstamos activos (en posesión)
+				    <span class="badge badge-secondary badge-pill">{{cantidades_solicitudes_estados["en_posesion"]}}</span>
+				  </li>
+				</ul>
+			</div>
+			<div class="col-md-6">
+				<ul class="list-group">
+				  <li class="list-group-item d-flex justify-content-between align-items-center">
+						Préstamos con atraso
+				    <span class="badge badge-secondary badge-pill">{{cantidades_solicitudes_estados["con_atrasos"]}}</span>
+				  </li>
+				  <li class="list-group-item d-flex justify-content-between align-items-center">
+				    Préstamos finalizados
+				    <span class="badge badge-secondary badge-pill">{{cantidades_solicitudes_estados["finalizados"]}}</span>
+				  </li>
+				  <li class="list-group-item d-flex justify-content-between align-items-center">
+				    Solicitudes rechazadas y canceladas
+				    <span class="badge badge-secondary badge-pill">{{cantidades_solicitudes_estados["rechazadas_canceladas"]}}</span>
+				  </li>
+				</ul>
+			</div>
+		</div>
+
+		<div class="card mt-4 border-0" style="background:#ECF0F1;">
+			<div class="card-body">
+
+				<form id="formulario-consulta-equipos-solicitados">
+					<div class="row my-auto">
+						<div class="col">
+							Revisar cantidad de equipos solicitados.
+						</div>
+						<div class="col">
+							<div class="input-group mb-3">
+							  <div class="input-group-prepend">
+							    <span class="input-group-text">Desde</span>
+							  </div>
+							  <input type="date" required class="form-control" name="limite_inferior" id="fecha_desde_equipos_solicitados">
+							</div>
+						</div>
+						<div class="col">
+							<div class="input-group mb-3">
+							  <div class="input-group-prepend">
+							    <span class="input-group-text">Hasta</span>
+							  </div>
+							  <input type="date" required class="form-control" name="limite_superior" id="fecha_hasta_equipos_solicitados">
+							</div>
+						</div>
+						<div class="col">
+							<button type="submit" id="boton-consulta-equipos-solicitados" class="btn btn-verde-eit">Consultar</button>
+						</div>
+					</div>
+					<div id="fila_boton_eliminar_grafico_1" hidden class="row my-auto">
+						<div class="col mt-2 text-right">
+							<button type="button" id="boton_eliminacion_grafico_1" class="btn btn-sm btn-danger">Borrar gráfico</button>
+						</div>
+					</div>
+				</form>
+
+				<div id="seccion_consulta_1" class="mt-3 text-center">
+					<div id="notificacion_consulta_cantidad_equipos_solicitados" hidden class="alert alert-warning alert-dismissible fade show text-center mt-2" role="alert">
+						<i class="fas fa-exclamation-triangle mr-2"></i>No se han encontrado resultados según las fechas seleccionadas.
+					</div>
+					<div id="seccion_grafico_1"></div>
+				</div>
+
+			</div>
+			<div class="card-body" style="background:#fff;">
+			</div>
+		</div>
+
+		<div class="card border-0" style="background:#ECF0F1;">
+			<div class="card-body">
+				<form id="formulario-consulta-2">
+					<div class="row my-auto">
+						<div class="col">
+							Revisar equipos según estados de solicitudes.
+						</div>
+						<div class="col">
+							<div class="input-group mb-3">
+								<div class="input-group-prepend">
+									<span class="input-group-text">Desde</span>
+								</div>
+								<input type="date" required class="form-control" name="limite_inferior" id="fecha_desde_consulta_2">
+							</div>
+						</div>
+						<div class="col">
+							<div class="input-group mb-3">
+								<div class="input-group-prepend">
+									<span class="input-group-text">Hasta</span>
+								</div>
+								<input type="date" required class="form-control" name="limite_superior" id="fecha_hasta_consulta_2">
+							</div>
+						</div>
+						<div class="col">
+							<button type="submit" id="boton-consulta-2" class="btn btn-verde-eit">Consultar</button>
+						</div>
+					</div>
+				</form>
+
+				<div id="fila_boton_eliminar_grafico_2" hidden class="row my-auto">
+					<div class="col mt-2 text-right">
+						<button type="button" id="boton_eliminacion_grafico_2" class="btn btn-sm btn-danger">Borrar gráfico</button>
+					</div>
+				</div>
+
+				<div id="seccion_consulta_2" class="mt-3 text-center">
+					<div id="notificacion_consulta_2" hidden class="alert alert-warning alert-dismissible fade show text-center mt-2" role="alert">
+						<i class="fas fa-exclamation-triangle mr-2"></i>No se han encontrado resultados según las fechas seleccionadas.
+					</div>
+					<div id="seccion_grafico_2"></div>
+				</div>
+
+			</div>
+		</div>
+
+		<script type="text/javascript">
+			$("#formulario-consulta-equipos-solicitados").on("submit",function(event){
+						var elements = this.elements; // Elementos HTML del form
+						let limite_inferior = elements[0].value;
+						let limite_superior = elements[1].value;
+
+						if(limite_inferior > limite_superior){
+							alert("La fecha de inicio seleccionada debe ser menor a la fecha de término.");
+					    return false;
+						}
+						// Se desactiva el botón submit
+						$("#boton-consulta-equipos-solicitados").prop('disabled', true);
+						$.ajax({
+								data: {
+									limite_inferior: limite_inferior,
+									limite_superior: limite_superior,
+									id_consulta: 1
+								},
+								type: "POST",
+								url: "/consultar_estadisticas_solicitudes"
+						})
+						 .done(function(data){
+							 $("#boton-consulta-equipos-solicitados").prop('disabled', false);
+							 // Se verifica que existan resultados
+							 // En caso de que existan, se crea el gráfico
+							 // En caso contrario, se activa la notificación
+							 if(!data.length){
+								 $("#fecha_desde_equipos_solicitados").val("");
+			 					 $("#fecha_hasta_equipos_solicitados").val("");
+								 $("#fila_boton_eliminar_grafico_1").prop("hidden",true);
+								 $("#seccion_grafico_1").prop("hidden",true);
+								 $("#notificacion_consulta_cantidad_equipos_solicitados").prop("hidden",false);
+								 return;
+							 }
+							 $("#fila_boton_eliminar_grafico_1").prop("hidden",false);
+							 $("#seccion_grafico_1").prop("hidden",false);
+							 $("#notificacion_consulta_cantidad_equipos_solicitados").prop("hidden",true);
+							 $("#seccion_consulta_1").prop("hidden",false);
+							 $("#seccion_grafico_1").empty();
+							 google.charts.load("current", {packages:['bar']});
+    			 		 google.charts.setOnLoadCallback(function(){
+								 drawChart(data);
+							 });
+
+							 function drawChart(resultados) {
+
+								 datos_grafico = [];
+								 datos_grafico.push(['Equipos solicitados', 'Cantidad solicitada']);
+
+								 for(var i = 0 ; i < resultados.length ; i++){
+									 datos_grafico.push(resultados[i])
+								 }
+
+								 var data = new google.visualization.arrayToDataTable(datos_grafico);
+
+					        var options = {
+					          title: 'Equipos solicitados desde '+limite_inferior+" hasta "+limite_superior+"",
+										height: 350,
+					          legend: { position: 'none' },
+					          chart: { title: 'Equipos solicitados desde '+limite_inferior+" hasta "+limite_superior+"",
+					                   subtitle: 'Los resultados consideran las solicitudes independientemente del estado en el que se encuentren.' },
+					          bars: 'horizontal', // Required for Material Bar Charts.
+					          axes: {
+					            x: {
+					              0: { side: 'top', label: 'Cantidad solicitada'} // Top x-axis.
+					            }
+					          },
+					          bar: { groupWidth: "100%" }
+					        };
+						      var chart = new google.charts.Bar(document.getElementById("seccion_grafico_1"));
+						      chart.draw(data, options);
+						  }
+						 });
+						event.preventDefault();
+				});
+
+				$("#boton_eliminacion_grafico_1").on("click",function(){
+					$("#seccion_grafico_1").empty();
+					$("#fila_boton_eliminar_grafico_1").prop("hidden",true);
+					$("#fecha_desde_equipos_solicitados").val("");
+					$("#fecha_hasta_equipos_solicitados").val("");
+				});
+
+
+				// Consulta 2
+				$("#formulario-consulta-2").on("submit",function(event){
+							var elements = this.elements; // Elementos HTML del form
+							let limite_inferior = elements[0].value;
+							let limite_superior = elements[1].value;
+
+							if(limite_inferior > limite_superior){
+								alert("La fecha de inicio seleccionada debe ser menor a la fecha de término.");
+						    return false;
+							}
+
+							// Se desactiva el botón submit
+							$("#boton-consulta-2").prop('disabled', true);
+							$.ajax({
+									data: {
+										limite_inferior: limite_inferior,
+										limite_superior: limite_superior,
+										id_consulta: 2
+									},
+									type: "POST",
+									url: "/consultar_estadisticas_solicitudes"
+							})
+							 .done(function(data){
+								 $("#boton-consulta-2").prop('disabled', false);
+								 // Se verifica que existan resultados
+								 // En caso de que existan, se crea el gráfico
+								 // En caso contrario, se activa la notificación
+								 if(!data.length){
+									 $("#fecha_desde_consulta_2").val("");
+				 					 $("#fecha_hasta_consulta_2").val("");
+									 $("#fila_boton_eliminar_grafico_2").prop("hidden",true);
+									 $("#seccion_grafico_2").prop("hidden",true);
+									 $("#notificacion_consulta_2").prop("hidden",false);
+									 return;
+								 }
+								 $("#fila_boton_eliminar_grafico_2").prop("hidden",false);
+								 $("#seccion_grafico_2").prop("hidden",false);
+								 $("#notificacion_consulta_2").prop("hidden",true);
+								 $("#seccion_consulta_2").prop("hidden",false);
+								 $("#seccion_grafico_2").empty();
+
+								 // Creación del gráfico
+								 google.charts.load("current", {packages:['corechart']});
+    				 		 google.charts.setOnLoadCallback(function(){
+									 drawChart(data);
+								 });
+
+								 function drawChart(resultados){
+									 console.log(resultados);
+									 var data_grafico = google.visualization.arrayToDataTable(resultados);
+									 let titulo_grafico = "Cantidad de equipos por estado de solicitudes registradas entre "+limite_inferior+" y "+limite_superior+"";
+									 var options = {
+										 	title: titulo_grafico,
+							        height: 450,
+							        legend: { position: 'none' },
+							        bar: { groupWidth: '75%' },
+							        isStacked: true,
+							      };
+									 var chart = new google.visualization.ColumnChart(document.getElementById('seccion_grafico_2'));
+             			 chart.draw(data_grafico, options);
+
+								 }
+
+							 });
+							 event.preventDefault();
+				});
+
+				$("#boton_eliminacion_grafico_2").on("click",function(){
+					$("#seccion_grafico_2").empty();
+					$("#fila_boton_eliminar_grafico_2").prop("hidden",true);
+					$("#fecha_desde_consulta_2").val("");
+					$("#fecha_hasta_consulta_2").val("");
+				});
+
+		</script>
+
+	</div>
+
 
 	{% endblock %}

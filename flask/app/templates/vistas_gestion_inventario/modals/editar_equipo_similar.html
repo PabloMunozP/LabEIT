@@ -15,13 +15,21 @@
 
             <div class="form-group">
               <label for="editar_equipo_codigo_sufijo"> Código sufijo </label>
-              <input class="form-control" type="text" name="codigo_sufijo" id="editar_equipo_codigo_sufijo" onchange="validar_informacion_perfil()" value="">
+              <input class="form-control" type="text" name="codigo_sufijo" id="editar_equipo_codigo_sufijo" maxlength="3" pattern="[0-9]+"required placeholder="111">
             </div>
+
 
             <div class="form-group">
               <label for="editar_equipo_fecha_compra"> Fecha de compra</label>
-              <input class="form-control" input type="text" placeholder="DD/MM/AAAA" id="editar_equipo_fecha_compra"name="fecha_compra">
+              <input class="form-control"  type="date" placeholder="DD/MM/AAAA" id="editar_equipo_fecha_compra" name="fecha_compra" required >
             </div>
+
+
+            <div class="form-group">
+              <label for="editar_equipo_codigo_sufijo"> Código activo </label>
+              <input class="form-control" type="text" name="codigo_activo" id="editar_codigo_activo">
+            </div>
+
 
             <div class="form-group">
               <label for="editar_equipo_activo">Estado</label>
@@ -29,6 +37,11 @@
                <option value="1">Activo</option>
                <option value="0">Inactivo</option>
               </select>
+            </div>
+
+            <div class="form-group">
+              <label for="comunas">Motivo inactivo</label>
+              <textarea class="form-control"   id="editar_equipo_razon_inactivo" name="razon_inactivo" rows="3" style="min-height:100px;max-height:300px;"></textarea>
             </div>
 
           </div>
@@ -42,12 +55,14 @@
 
 
   <script>
-    function cargar_datos_equipo_dif_modal(codigo_equipo, codigo_sufijo, fecha_compra, activo){
+    function cargar_datos_equipo_dif_modal(codigo_equipo, codigo_sufijo, fecha_compra, activo, codigo_activo,  razon_inactivo){
       document.getElementById("modal-title").innerHTML = '<i class="fas fa-edit"></i> Editar equipo ' + codigo_equipo + "-" + codigo_sufijo ;
       $("#editar_equipo_hidden_id_equipo").val(codigo_equipo);
       $("#editar_equipo_hidden_id_sufijo").val(codigo_sufijo);
       $("#editar_equipo_codigo_sufijo").val(codigo_sufijo);
       $("#editar_equipo_fecha_compra").val(fecha_compra);
+      $("#editar_codigo_activo").val(codigo_activo);
       $("#editar_equipo_activo").val(activo);
-}
+      $("#editar_equipo_razon_inactivo").val(razon_inactivo);
+    }
   </script>

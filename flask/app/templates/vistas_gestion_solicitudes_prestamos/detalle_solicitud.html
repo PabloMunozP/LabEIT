@@ -109,7 +109,9 @@
 					</label>
 					<div class="col-md-2">
 						<p class="form-control-plaintext text-break">
-							{{datos_encabezado_solicitud["id"]}}
+							<a href="/gestion_solicitudes_prestamos/canasta_solicitud/{{datos_encabezado_solicitud["id"]}}">
+								{{datos_encabezado_solicitud["id"]}}
+							</a>
 						</p>
 					</div>
 					<label class="col-md-4 col-form-label texto-gris-eit">
@@ -219,7 +221,7 @@
 					</label>
 					<div class="col-md-2">
 						<p class="form-control-plaintext text-break">
-							<a href="/usuarios_registrados/{{datos_alumno["rut"]}}" title="Ver perfil del usuario" style="text-decoration:none;">{{datos_alumno["rut"]|formato_rut}}</a>
+							<a href="/gestion_usuarios/ver_usuario?rut={{datos_alumno["rut"]}}" title="Ver perfil del usuario" style="text-decoration:none;">{{datos_alumno["rut"]|formato_rut}}</a>
 						</p>
 					</div>
 					<label class="col-md-2 col-form-label texto-gris-eit">
@@ -415,7 +417,7 @@
 						<button type="button" class="btn btn-info" data-toggle="modal" data-target="#formulario_retiro_equipo"><i class="fas fa-clipboard-check mr-1"></i>Marcar como entregado</button>
 					{% elif datos_detalle_solicitud["estado"] == 2 %}
 						<button type="button" class="btn btn-info" data-toggle="modal" data-target="#confirmacion_devolucion_equipo">Registrar devolución</button>
-					{% elif datos_detalle_solicitud["estado"] == 5 %}
+					{% elif datos_detalle_solicitud["estado"] >= 5 %}
 						<button type="button" class="btn btn-danger mr-1" data-toggle="modal" data-target="#confirmacion_eliminacion_solicitud"><i class="fas fa-minus-circle mr-1"></i>Eliminar solicitud</button>
 					{% endif %}
 				</span>

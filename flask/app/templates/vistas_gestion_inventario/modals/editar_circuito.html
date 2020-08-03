@@ -1,0 +1,50 @@
+<!-- Modal editar equipo-->
+<div class="modal fade" id="editar_circuito" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header bg-gris-eit">
+          <h5 id="modal-title" class="modal-title text-white" id="editar_informacion_label"><i class="fas fa-edit"></i> Editar circuito</h5>
+          <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close" style="outline:none;">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <form id="editar_form" action="/gestion_inventario_admin/actualizar_informacion_circuito" method="POST">
+          <div class="modal-body">
+            <input class="form-control" type="text" name="nombre_circuito_original" value="" id="editar_equipo_hidden_nombre_circuito" hidden>
+                        <input class="form-control" type="text" name="descripcion_circuito_original" value="" id="editar_equipo_hidden_descripcion_circuito" hidden>
+
+            <div class="form-group">
+              <label for="nombres"> Nombre </label>
+              <input class="form-control" type="text" name="nombre_circuito" id="editar_nombre_circuito" required>
+            </div>
+
+            <div class="form-group">
+              <label for="apellidos">Cantidad</label>
+              <input class="form-control" type="number" min="1" max="999" name="cantidad_circuito" id="editar_cantidad_circuito"   value="1">
+            </div>
+
+            <div class="form-group">
+              <label for="comunas">Descripción</label>
+              <textarea class="form-control"   id="editar_descripcion_circuito" name="descripcion_circuito" rows="3" style="min-height:100px;max-height:300px;"></textarea>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" id="boton_cerrar" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+            <button type="summit" id="boton_guardar" class="btn btn-info" type="hidden"> Guardar cambios</button>
+        </form>
+       </div>
+      </div>
+    </div>
+
+
+  <script>
+    function cargar_datos_equipo_circuito(nombre_circuito, cantidad_circuito, descripcion_circuito){
+      document.getElementById("modal-title").innerHTML = '<i class="fas fa-edit"></i> Editar circuito ' + nombre_circuito ;
+      $("#editar_equipo_hidden_nombre_circuito").val(nombre_circuito);
+      $("#editar_equipo_hidden_descripcion_circuito").val(descripcion_circuito);
+      $("#editar_nombre_circuito").val(nombre_circuito);
+      $("#editar_cantidad_circuito").val(cantidad_circuito);
+      $("#editar_descripcion_circuito").val(descripcion_circuito);
+
+    }
+  </script>

@@ -12,21 +12,28 @@
 
             <div class="form-group">
               <label for="nombres"> Código sufijo </label>
-              <input class="form-control" type="text" name="codigo_sufijo" id="codigo">
+              <input class="form-control" type="text" name="codigo_sufijo" id="codigo" maxlength="3" pattern="[0-9]+"required placeholder="111">
             </div>
 
             <div class="form-group">
               <label for="nombres"> Fecha de compra</label>
-              <input type="date" max="3000-01-01" class="form-control" id="fecha_compra" name="fecha_compra">
+              <input type="date" max="3000-01-01" class="form-control" id="fecha_compra" name="fecha_compra" required>
+            </div>
+
+            <div class="form-group">
+              <label for="nombres"> Código activo </label>
+              <input class="form-control" type="text" name="codigo_activo" id="codigo_activo" maxlength="3" pattern="[0-9]+"required placeholder="111">
             </div>
 
             <div class="form-group">
               <label for="exampleSelect1">Estado</label>
-              <select class="form-control" id="exampleSelect1" input type="text" name="activo">
+              <select class="form-control" input type="text" name="activo">
                 <option value="1">Activo</option>
                 <option value="0">Inactivo</option>
               </select>
             </div>
+
+
       </div>
       <div class="modal-footer">
               <button type="button" id="boton_cerrar" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>

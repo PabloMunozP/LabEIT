@@ -21,10 +21,9 @@ def consultar_lista_equipos_general():
     # Nota importante:
     # actualizar la query papra definir equipos_disponibles y total_equipos
     query = ('''
-        SELECT *,
-            CASE    WHEN Detalle_solicitud.cantidad IS NOT NULL THEN Detalle_solicitud.cantidad
-                    ELSE COUNT(CASE WHEN Detalle_solicitud.estado IN (1, 2, 3) THEN 1 ELSE NULL END)
-                    END AS en_prestamo
+        SELECT *, 
+            COUNT(CASE WHEN Detalle_solicitud.estado IN (1, 2, 3) THEN 1 
+            ELSE NULL END) AS en_prestamo
         FROM (SELECT
                 Equipo.id AS equipo_id,
                 Equipo.codigo,
@@ -42,20 +41,43 @@ def consultar_lista_equipos_general():
             LEFT JOIN Detalle_solicitud ON inventario_general.equipo_id = Detalle_solicitud.id_equipo
         GROUP BY inventario_general.equipo_id
             ''')
-            #
-            # CASE WHEN Detalle_solicitud.estado = 2 THEN 1
-            #                         WHEN Detalle_solicitud.estado = 3 THEN 1
-            #                         ELSE NULL END)
     cursor.execute(query)
     equipos = cursor.fetchall()
     # for element in equipos:
     #     print(element)
     return equipos
-
+def consultar_lista_equipos(): # funcion para poder conusultar toda la lista de equiipos detallados
+    query = ("""
+        SELECT Equipo_diferenciado.id,
+            Equipo_diferenciado.codigo_equipo,
+            Equipo_diferenciado.codigo_sufijo,
+            Equipo_diferenciado.codigo_activo,
+            Equipo_diferenciado.fecha_compra,
+            Equipo.nombre,
+            Equipo.modelo,
+            Equipo.marca,
+            Equipo_diferenciado.activo,
+            Equipo_diferenciado.razon_inactivo,
+            CASE WHEN Equipo_diferenciado.activo = 0 THEN 'No disponible'
+                WHEN Detalle_solicitud.estado = 1 THEN 'Por retirar'
+                WHEN Detalle_solicitud.estado = 2 THEN 'En posesión'
+                WHEN Detalle_solicitud.estado = 3 THEN 'Con atraso'
+                ELSE 'Disponible' END AS estado,
+            Detalle_solicitud.codigo_sufijo_equipo
+        FROM Equipo_diferenciado
+        LEFT JOIN Equipo ON Equipo.codigo = Equipo_diferenciado.codigo_equipo
+        LEFT JOIN (SELECT * FROM Detalle_solicitud WHERE Detalle_solicitud.estado IN (1,2,3)) AS Detalle_solicitud
+            ON Detalle_solicitud.id_equipo = Equipo.id
+            AND Detalle_solicitud.codigo_sufijo_equipo = Equipo_diferenciado.codigo_sufijo
+    """)
+    cursor.execute(query)
+    resultado = cursor.fetchall()
+    return resultado
 @mod.route("/debug_query")
 def debug_query():
-    equipos = consultar_lista_equipos_general()
-    print(equipos)
+    debug_equipos = consultar_lista_equipos()
+    for i in debug_equipos:
+        print(i)
     return 'xD'
 
 
@@ -65,15 +87,20 @@ def gestion_inventario_admin():
         return redirect('/')
     else:
         equipos = consultar_lista_equipos_general()
-        return render_template('vistas_gestion_inventario/gestion_inventario.html', lista_equipo = equipos)
+        equipos_detalle = consultar_lista_equipos()
+        circuitos = consultar_lista_circuito()
+        return render_template('vistas_gestion_inventario/gestion_inventario.html',
+            lista_equipo = equipos,
+            lista_equipo_detalle = equipos_detalle,
+            lista_circuitos = circuitos)
 
 
 # **** VISTA_PRINCIPAL/MODAL "AGREGAR EQUIPO" **** #
 
 def insertar_lista_equipos_general(valores_a_insertar):
     query = ('''
-        INSERT INTO Equipo (codigo, nombre, modelo, marca, descripcion, dias_max_prestamo)
-        VALUES (%s, %s, %s, %s, %s ,%s);
+        INSERT INTO Equipo (codigo, nombre, modelo, marca, descripcion, imagen, dias_max_prestamo)
+        VALUES (%s, %s, %s, %s, %s, %s,%s);
     ''')
     cursor.execute(query,(
         valores_a_insertar['codigo'],
@@ -81,6 +108,7 @@ def insertar_lista_equipos_general(valores_a_insertar):
         valores_a_insertar['modelo'],
         valores_a_insertar['marca'],
         valores_a_insertar['descripcion'],
+        valores_a_insertar['imagen'],
         valores_a_insertar['dias_maximo_prestamo']))
     db.commit()
     return 'OK'
@@ -98,8 +126,6 @@ def funcion_añadir_equipo_form():
 # **** VISTA_PRINCIPAL/MODAL "EDITAR EQUIPO" **** #
 
 def editar_equipo_general(informacion_a_actualizar):  # Query UPDATE
-        if 'multi_componente' not in informacion_a_actualizar:
-            # print('este equipo no posee el atributo multi componente')
             query = ('''
                 UPDATE Equipo
                 LEFT JOIN Equipo_diferenciado ON Equipo_diferenciado.codigo_equipo = Equipo.codigo
@@ -111,12 +137,10 @@ def editar_equipo_general(informacion_a_actualizar):  # Query UPDATE
                     Equipo.imagen = %s,
                     Equipo.descripcion = %s,
                     Equipo.dias_max_prestamo = %s,
-                    Equipo.cantidad_circuito = NULL
                 WHERE
                     Equipo.codigo = %s
 
             ''')
-
             cursor.execute(query,(
                 informacion_a_actualizar['codigo'],
                 informacion_a_actualizar['codigo'],
@@ -129,41 +153,16 @@ def editar_equipo_general(informacion_a_actualizar):  # Query UPDATE
                 informacion_a_actualizar['codigo_original']
                 ))
             db.commit()
-        else:
-            # print('este equipo posee el atributo multi componente y su cantidad es:', informacion_a_actualizar['cantidad_componentes'])
-            query = ('''
-                UPDATE Equipo
-                SET codigo = %s,
-                    nombre = %s,
-                    modelo = %s,
-                    marca = %s,
-                    imagen = %s,
-                    descripcion = %s,
-                    dias_max_prestamo = %s,
-                    cantidad_circuito = %s
-                Where Equipo.codigo = %s
-            ''')
-
-            cursor.execute(query,(
-                informacion_a_actualizar['codigo'],
-                informacion_a_actualizar['nombre'],
-                informacion_a_actualizar['modelo'],
-                informacion_a_actualizar['marca'],
-                informacion_a_actualizar['imagen'],
-                informacion_a_actualizar['descripcion'],
-                informacion_a_actualizar['dias_max_prestamo'],
-                informacion_a_actualizar['cantidad_componentes'],
-                informacion_a_actualizar['codigo_original']
-                ))
-            db.commit()
-        return informacion_a_actualizar
+            return informacion_a_actualizar
 
 def editar_equipo_especifico(informacion_a_actualizar):
             query = ('''
                 UPDATE Equipo_diferenciado
                 SET Equipo_diferenciado.codigo_sufijo = %s,
                     Equipo_diferenciado.fecha_compra = %s,
-                    Equipo_diferenciado.activo = %s
+                    Equipo_diferenciado.codigo_activo = %s,
+                    Equipo_diferenciado.activo = %s,
+                    Equipo_diferenciado.razon_inactivo = %s
                 WHERE Equipo_diferenciado.codigo_sufijo = %s
                 AND Equipo_diferenciado.codigo_equipo = %s
             ''')
@@ -171,12 +170,15 @@ def editar_equipo_especifico(informacion_a_actualizar):
             cursor.execute(query,(
                 informacion_a_actualizar['codigo_sufijo'],
                 informacion_a_actualizar['fecha_compra'],
+                informacion_a_actualizar['codigo_activo'],
                 informacion_a_actualizar['activo'],
+                informacion_a_actualizar['razon_inactivo'],
                 informacion_a_actualizar['codigo_sufijo_original'],
                 informacion_a_actualizar['codigo_equipo']
                 ))
             db.commit()
             return informacion_a_actualizar
+
 
 #Actualizar informacion equipo diferenciado
 
@@ -184,7 +186,7 @@ def editar_equipo_especifico(informacion_a_actualizar):
 def funcion_editar_equipo_diferenciado_form():
     if request.method == 'POST':
         informacion_a_actualizar = request.form.to_dict()
-        # print('Información a actualizar:', informacion_a_actualizar)
+        print('Información a actualizar:', informacion_a_actualizar)
         editar_equipo_especifico(informacion_a_actualizar)
         return redirect("/gestion_inventario_admin/lista_equipo_diferenciado/"+informacion_a_actualizar["codigo_equipo"])
 
@@ -351,12 +353,13 @@ def busqueda_equipo():
 # Agrega un equipo a partir de la relacion que tenga DIF
 def insertar_lista_equipos_detalle(codigo_equipo, valores_a_insertar):
     query = ('''
-        INSERT INTO Equipo_diferenciado (codigo_equipo, codigo_sufijo, fecha_compra, activo)
-        VALUES (%s, %s, %s, %s);
+        INSERT INTO Equipo_diferenciado (codigo_equipo, codigo_sufijo, codigo_activo, fecha_compra, activo)
+        VALUES (%s, %s, %s, %s, %s);
     ''')
     cursor.execute(query,(
         codigo_equipo,
         valores_a_insertar['codigo_sufijo'],
+        valores_a_insertar['codigo_activo'],
         valores_a_insertar['fecha_compra'],
         valores_a_insertar['activo']))
     db.commit()
@@ -381,3 +384,99 @@ def gestion_inventario_admin_equipo(codigo_equipo):
     equipos_descripcion = consultar_equipo_descripcion(codigo_equipo)
     return render_template('vistas_gestion_inventario/similares_tabla.html',
     equipos_descripcion=equipos_descripcion, equipos_detalle = equipos, equipo_padre = codigo_equipo) #Cambiar render por el que corresponda
+
+
+
+#*********************************************************************************************#
+
+# ***** Importante VISTA CIRCUITOS **** #
+
+#Consulta tabla principal
+def consultar_lista_circuito():
+    query = ('''
+        SELECT *
+        FROM Circuito
+    '''
+    )
+    cursor.execute(query)
+    circuitos = cursor.fetchall()
+    return circuitos
+
+
+#Consulta para insertar circuito
+def insertar_lista_circuitos(valores_a_insertar):
+    query = ('''
+        INSERT INTO Circuito (nombre, cantidad, descripcion)
+        VALUES (%s, %s, %s);
+    ''')
+    cursor.execute(query,(
+        valores_a_insertar['nombre_circuito'],
+        valores_a_insertar['cantidad_circuito'],
+        valores_a_insertar['descripcion_circuito']))
+    db.commit()
+    return 'OK'
+
+#funcion insertar nuevo circuito
+@mod.route("/gestion_inventario_admin/insert_circuito", methods = ['POST'])
+def funcion_añadir_circuito_form():
+    if request.method == 'POST':
+        informacion_a_insertar = request.form.to_dict()
+        insertar_lista_circuitos(informacion_a_insertar)
+        flash("El equipo fue agregado correctamente")
+        return redirect('/gestion_inventario_admin')
+
+#Consulta editar circuito
+def editar_circuito(informacion_a_actualizar):  # Query UPDATE
+            query = ('''
+                UPDATE Circuito
+                SET Circuito.nombre = %s,
+                    Circuito.cantidad = %s,
+                    Circuito.descripcion = %s
+                WHERE Circuito.nombre= %s
+                AND Circuito.descripcion = %s
+
+            ''')
+            cursor.execute(query,(
+                informacion_a_actualizar['nombre_circuito'],
+                informacion_a_actualizar['cantidad_circuito'],
+                informacion_a_actualizar['descripcion_circuito'],
+                informacion_a_actualizar['nombre_circuito_original'],
+                informacion_a_actualizar['descripcion_circuito_original']
+                ))
+            db.commit()
+            return informacion_a_actualizar
+
+#Funcion editar circuito
+@mod.route('/gestion_inventario_admin/actualizar_informacion_circuito', methods = ['POST'])
+def funcion_editar_circuito():
+    if request.method == 'POST':
+        informacion_a_actualizar = request.form.to_dict()
+        editar_circuito(informacion_a_actualizar)
+        print(informacion_a_actualizar)
+        return redirect("/gestion_inventario_admin")
+
+
+#Consulta eliminar circuito
+def eliminar_circuito(circuito):
+    query = ('''
+        DELETE Circuito
+        FROM Circuito
+        WHERE Circuito.nombre = %s
+        AND Circuito.descripcion = %s
+    ''')
+    cursor.execute(query,(
+    circuito['nombre_circuito'],
+    circuito['descripcion_circuito']
+    ))
+    db.commit()
+    return 'ok'
+
+
+#Funcion eliminar circuito
+
+@mod.route("/gestion_inventario_admin/delete_circuito",methods=["POST"])
+def funcion_eliminar_circuito():
+    if request.method == 'POST':
+        equipo_a_eliminar = request.form.to_dict()
+        eliminar_circuito(equipo_a_eliminar)
+        return redirect("/gestion_inventario_admin")

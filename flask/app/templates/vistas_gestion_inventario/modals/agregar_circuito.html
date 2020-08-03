@@ -1,0 +1,37 @@
+<div class="modal fade" id="agregar_circuito" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header bg-gris-eit">
+        <h5 class="modal-title text-white" id="editar_informacion_label"><i class="fas fa-plus-circle mr-2"></i>Agregar nuevo circuito</h5>
+        <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close" style="outline:none;">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+
+          <form action="/gestion_inventario_admin/insert_circuito" method="POST">
+          <div class="modal-body">
+
+            <div class="form-group">
+              <label for="nombres"> Nombre </label>
+              <input class="form-control" type="text" name="nombre_circuito" id="nombre_circuito" required>
+            </div>
+
+            <div class="form-group">
+              <label for="apellidos">Cantidad</label>
+              <input class="form-control" type="number" min="1" max="999" name="cantidad_circuito" id="cantidad_circuito"   value="1">
+            </div>
+
+            <div class="form-group">
+              <label for="comunas">Descripción</label>
+              <textarea class="form-control"   id="descripcion_circuito" name="descripcion_circuito" rows="3" style="min-height:100px;max-height:300px;"></textarea>
+            </div>
+
+      </div>
+      <div class="modal-footer">
+              <button type="button" id="boton_cerrar" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+              <button type="summit" id="boton_guardar" class="btn btn-info"> Guardar cambios</button>
+      </div>
+    </form>
+  </div>
+</div>
+</div>

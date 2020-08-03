@@ -1,0 +1,47 @@
+<div class="card-header mt-4" style="background:#0db26b;">
+    <h5 class="card-title text-white my-auto">Gestión de circuitos</h5>
+    <p class="text-white my-auto"><i class="fas fa-info-circle mr-2"></i>A continuación encontrará la lista de circuitos registrados en el laboratorio.</p>
+</div>
+
+<div class="row" style="display: flex; justify-content: flex-end">
+    <div class="mt-2 mb-2">
+      <div class="col-md-12">
+        <button type="button" data-target="#agregar_circuito" class="btn btn-success" data-toggle="modal"><i class="fas fa-plus-circle mr-2"></i>Agregar circuito</button>
+      </div>
+    </div>
+</div>
+
+
+<div class="table-responsive">
+  <div class="table-wrapper-scroll-y" style="position: relative; overflow:auto;">
+    <table id="tabla_circuitos" class="table">
+      <thead class="text-white" style="background:#4D4D4D;">
+          <tr>
+              <th scope="col">Nombre</th>
+              <th scope="col">Cantidad</th>
+              <th scope="col">Descripción</th>
+              <th scope="col">Acciones</th>
+          </tr>
+      </thead>
+      <tbody>
+          {% for elemento in lista_circuitos %}
+          <tr style="background:#ECF0F1;">
+              <td>{{elemento.nombre}}</td>
+              <td>{{elemento.cantidad}}</td>
+              <td>{{elemento.descripcion}}</td>
+              <td>
+                  <span class="btn-group">
+                    <button type="button" onclick="cargar_datos_equipo_circuito('{{elemento.nombre}}','{{elemento.cantidad}}', '{{elemento.descripcion}}')" data-target="#editar_circuito" title="Editar equipo" class="btn btn-sm btn-warning mr-1" data-toggle="modal"><i class="fas fa-edit"></i></button>
+                    <button type="button" onclick="cargar_codigo_delete_circuito('{{elemento.nombre}}','{{elemento.descripcion}}')" title="Eliminar equipo"  data-target="#eliminar_circuito" data-toggle="modal" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
+                  </span>
+              </td>
+            </tr>
+          {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% include "vistas_gestion_inventario/modals/agregar_circuito.html" %}
+{% include "vistas_gestion_inventario/modals/eliminar_circuito.html" %}
+{% include "vistas_gestion_inventario/modals/editar_circuito.html" %}
