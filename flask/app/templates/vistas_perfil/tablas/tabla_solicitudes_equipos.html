@@ -1,0 +1,54 @@
+
+<br>
+
+
+<div class="table-responsive">
+  <div class="table-wrapper-scroll-y" style="position: relative; overflow:auto;">
+    <table id="tabla_equipos" class="table">
+      <thead class="text-white" style="background:#4D4D4D;">
+        <tr>
+            <th>Código</th>
+            <th>Equipo</th>
+            <th>Modelo</th>
+            <th>Marca</th>
+            <th>Fecha inicio</th>
+            <th>Fecha término</th>
+            <th>Fecha devolucion</th>
+            <th>Estado</th>
+
+        </tr>
+      </thead>
+      <tbody>
+        {% for elemento in solicitudes_equipos %}
+        <tr>
+          <td>{{elemento.codigo}}</td>
+          <td>{{elemento.nombre}}</td>
+          <td>{{elemento.modelo}}</td>
+          <td>{{elemento.marca}}</td>
+          <td>{{elemento.fecha_inicio if elemento.fecha_inicio}}</td>
+          <td>{{elemento.fecha_termino if elemento.fecha_termino}}</td>
+          <td>{{elemento.fecha_devolucion if elemento.fecha_devolucion}}</td>
+          <td>
+            {% if elemento.estado == 'Pendiente' %}
+              <span class="badge badge-secondary">{{elemento.estado}}</span>
+            {% elif elemento.estado == 'Por retirar' %}
+              <span class="badge badge-info">{{elemento.estado}}</span>
+            {% elif elemento.estado == 'En posesión' %}
+              <span class="badge badge-success">{{elemento.estado}}</span>
+            {% elif elemento.estado == 'Con atraso' %}
+              <span class="badge badge-danger">{{elemento.estado}}</span>
+              {% elif elemento.estado == 'Rechazada' %}
+              <span class="badge badge-warning">{{elemento.estado}}</span>
+              {% elif elemento.estado == 'Cancelada' %}
+              <span class="badge badge-warning">{{elemento.estado}}</span>
+            {% else %} 
+                    <span>{{elemento.estado}}</span>
+            {% endif %}
+          </td>
+          
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>

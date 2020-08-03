@@ -1,0 +1,65 @@
+<div id="modal_ver_detalle_solicitud" class="modal fade in" tabindex="-1" role="dialog" aria-labelledby="editar_informacion_label" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+    <div class="modal-dialog modal-lg" role="document">
+      <div class="modal-content ">
+        <div class="modal-header bg-gris-eit">
+          <h5 class="modal-title text-white" id="editar_informacion_label"><i class="fas fa-user-edit mr-2"></i>Detalle solicitud</h5>
+        </div>
+        <div class="modal-body">
+          <div class="table-responsive">
+            <div class="table-wrapper-scroll-y" style="position: relative; overflow:auto;">
+              <table class="table">
+
+                <thead class="text-white" style="background:#4D4D4D;">
+                  <tr>
+                    <th>Código</th>
+                    <th>Equipo</th>
+                    <th>Modelo</th>
+                    <th>Marca</th>
+                    <th>Fecha inicio</th>
+                    <th>Fecha término</th>
+                    <th>Fecha devolucion</th>
+                    <th>Estado</th>
+                  </tr>
+                </thead>
+                <tbody id="table_body_detalle_solicitud">
+                  
+                </tbody>
+              </table>
+              
+            </div>
+          </div>
+          
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+        </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const lista_solicitudes_equipos = {{solicitudes_equipos | tojson}}
+
+  function cargar_informacion_modal_detalle_solicitud(id_solicitud){
+    const tableBody = document.getElementById('table_body_detalle_solicitud');
+    let dataHtml = '';
+
+    for(var element of lista_solicitudes_equipos){
+      Object.keys(element).forEach(function(key) {if(element[key] === null) {element[key] = '';}});
+      if(element.id_solicitud == id_solicitud){
+        dataHtml +=`
+        <tr style="background:#ECF0F1;">
+          <td>${element.codigo}</td>
+          <td>${element.nombre}</td>
+          <td>${element.modelo}</td>
+          <td>${element.marca}</td>
+          <td>${element.fecha_inicio}</td>
+          <td>${element.fecha_termino}</td>
+          <td>${element.fecha_devolucion}</td>
+          <td>${element.estado}</td>
+        </tr>`;
+      }
+    }
+    tableBody.innerHTML = dataHtml;
+  }
+</script>

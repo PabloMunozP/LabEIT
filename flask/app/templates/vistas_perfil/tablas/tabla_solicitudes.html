@@ -1,0 +1,37 @@
+
+
+<br>
+
+
+<div class="table-responsive">
+  <div class="table-wrapper-scroll-y" style="position: relative; overflow:auto;">
+    <table id="tabla_solicitudes" class="table">
+      <thead class="text-white" style="background:#4D4D4D;">
+        <tr>
+          <th scope="col">Número</th>
+          <th scope="col">Fecha</th>
+          <th scope="col">Responsable directo</th>
+          <th scope="col">Profesor supervisor</th>
+          <th scope="col">Acciones</th>
+
+        </tr>
+      </thead>
+      <tbody>
+        {% for elemento in solicitudes %}
+        <tr>
+          <td>{{elemento.id}}</td>
+          <td>{{elemento.fecha_registro}}</td>
+          <td>{{elemento.responsable_nombres}} {{elemento.responsable_apellidos}}</td>
+          <td>{{elemento.supervisor_responsable_nombres if elemento.supervisor_responsable_nombres}} {{elemento.supervisor_responsable_apellidos if elemento.supervisor_responsable_apellidos}}</td>
+          <td>
+            <button type="button" title="Ver detalles de solicitud" data-target="#modal_ver_detalle_solicitud" onclick="cargar_informacion_modal_detalle_solicitud({{elemento.id}})" data-toggle="modal" class="btn btn-sm btn-info mr-1"><i class="fas fa-search-plus"></i></button>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+
+
