@@ -1,4 +1,4 @@
-<div id="editar_curso" class="modal fade in" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" data-keyboard="true" data-backdrop="true">
+<div id="editar_curso_{{curso['codigo_udp']}}"  class="modal fade in" tabindex="-1" role="dialog"  aria-hidden="true" data-keyboard="true" data-backdrop="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header bg-gris-eit">
@@ -7,11 +7,11 @@
                 <span aria-hidden="true">&times; </span>
                 </button>
             </div>
-            <form action="/gestion_cursos/editar_curso" method="POST">
+            <form id="editar_curso" action="/gestion_cursos/editar_curso" method="POST">
                 <div class="modal-body">
                     <div class="form-group">
                         <label for="codigo_udp">Código curso:</label>
-                        <input type="text" id="codigo_udp" name="codigo_udp" class="form-control" onchange="validar_informacion_perfil()" value="{{curso['codigo_udp']}}" required>
+                        <input type="text" id="codigo_udp" name="codigo_udp" class="form-control" value="{{curso['codigo_udp']}}" required>
                     </div>
                     <div class="form-group">
                         <label for="nombre">Nombre:</label>
