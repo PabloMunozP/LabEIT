@@ -276,6 +276,31 @@ def editar_curso_form():
         return redirect("/")
     if session["usuario"]["id_credencial"] != 3:
         return redirect("/")
+    if request.method=='POST':
+        val=request.form.to_dict()
+        query = ('''
+            UPDATE Curso
+            SET codigo_udp = %s,
+                nombre = %s,
+                descripcion = %s
+            WHERE Curso.codigo_udp = %s
+        ''')
+        cursor.execute(query, (
+            val['codigo_udp'],
+            val['nombre'],
+            val['descripcion'],
+            val['codigo_udp']
+            ))
+        db.commit()
+        flash("El curso se ha actualizado correctamente")
+        #se redirige de vuelta a la pagina principal de gestion usuarios
+        return redirect("/gestion_cursos")
+
+def editar_curso_form2():
+    if "usuario" not in session.keys():
+        return redirect("/")
+    if session["usuario"]["id_credencial"] != 3:
+        return redirect("/")
     if request.method == 'POST':
         valores = request.form.to_dict()
         print(valores)
