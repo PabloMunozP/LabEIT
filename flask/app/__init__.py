@@ -132,7 +132,7 @@ def revisar_solicitudes_vencidas():
 # ============================================================================
 
 # Define the WSGI application object
-app = Flask(__name__)
+app = Flask(__name__)   
 
 # Blueprints (Routes)
 from app.routes.rutas_seba import mod
@@ -187,6 +187,8 @@ def formato_rut(rut_entrada):
     # Transforma 123456789 => 12.345.678-9
     if len(rut_entrada) == 9:
         return ('{d[0]}{d[1]}.{d[2]}{d[3]}{d[4]}.{d[5]}{d[6]}{d[7]}-{d[8]}'.format(d = rut_entrada))
+    elif len(rut_entrada) == 8: # 12345678 =>1.234.567-8
+        return ('{d[0]}.{d[1]}{d[2]}{d[3]}.{d[4]}{d[5]}{d[6]}-{d[7]}'.format(d = rut_entrada))
 
     # Transforma 12.345.678-9 => 123456789
     elif len(rut_entrada) == 12:

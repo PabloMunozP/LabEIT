@@ -1,0 +1,30 @@
+<div id="modal_subir_foto" class="modal fade in" tabindex="-1" role="dialog" aria-labelledby="subir_foto" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content ">
+        <div class="modal-header bg-gris-eit">
+          <h5 class="modal-title text-white" id="editar_informacion_label"><i class="fas fa-user-edit mr-2"></i>Subir foto de perfil</h5>
+        </div>
+        <form action="/perfil/subir_foto" method="POST" enctype="multipart/form-data">
+
+            <div class="modal-body">
+                <div class="custom-file">
+                    <input type="file" class="custom-file-input" name="image" id="image" lang="es" required>
+                    <label class="custom-file-label" for="image">Seleccionar Archivo</label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                <button type="summit" id="boton_subir" class="btn btn-info">Subir imagen</button>
+            </div>
+        </form>
+    </div>
+  </div>
+</div>
+
+
+<script>
+    function open_modal_subir_foto(){
+        $('#modal_subir_foto').modal('show');
+    }
+    
+</script>

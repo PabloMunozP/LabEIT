@@ -1,10 +1,13 @@
-from flask import Flask,Blueprint,render_template,request,redirect,url_for,flash,session,jsonify
-from config import db,cursor
+from flask import Flask,Blueprint,render_template,request,redirect,url_for,flash,session,jsonify,send_from_directory
+from config import db,cursor, BASE_DIR
+from werkzeug.utils import secure_filename
 import os, time, bcrypt
 import mysql.connector
 import rut_chile
 import glob
-
+import platform
+path = BASE_DIR # obtiene la ruta del directorio actual
+path = path.replace(os.sep, '/') #  remplaza [\\] por [/] en windows 
 def redirect_url(default='index'): # Redireccionamiento desde donde vino la request
     return request.args.get('next') or \
            request.referrer or \
@@ -41,7 +44,6 @@ def consultar_equipos_solicitudes_alumno(list_id_solicitudes): # Query para cons
     if len(list_id_solicitudes) < 1:
         return []
         
-    print(list_id_solicitudes)
     format_strings = ','.join(['%s'] * len(list_id_solicitudes)) # Genera un string para la query
     query = ('''
         SELECT Detalle_solicitud.id_solicitud,
@@ -87,19 +89,6 @@ def consultar_informacion_perfil(rut_perfil): # Query para consultar la informac
     resultado_perfil = cursor.fetchone()
     return resultado_perfil
 
-
-@mod.route('/debug_sol_query') # link para hacer debug de la query
-def debug_sol_query():
-    solicitudes = consultar_solicitudes_alumno("198182354") # Consulta las solicitudes a partir del rut
-    ids = get_id_from_list_of_dictionary(solicitudes) # Obtiene las id de las solicitudes
-    soliciturdes_equipos = consultar_equipos_solicitudes_alumno(ids)
-    for i in solicitudes:
-        print(i)
-    # # print(resultado)
-    return 'debug_sol_query'
-
-
-
 @mod.route('/perfil') # ** Importante PERFIL** #
 def perfil():
     # si hay un usuario en la session carga el perfil
@@ -117,15 +106,12 @@ def perfil():
         # Funcion que verifica si existe la foto de perfil
         # Las fotos puedes estar guardadas en cualquier tipo de extension
         # Si existe una foto para del usuario obtiene el nombre del archivo + extension
-        if glob.glob(os.getcwd()+'/app/static/imgs/profile_pics/'+ session['usuario']['rut'] +'.*'):
-            filename = glob.glob(os.getcwd()+'/app/static/imgs/profile_pics/'+ session['usuario']['rut'] +'.*')
+        if glob.glob(   path+'/app/static/imgs/profile_pics/'+ session['usuario']['rut'] +'.*'):
+            filename = glob.glob(path+'/app/static/imgs/profile_pics/'+ session['usuario']['rut'] +'.*')
             head, tail = os.path.split(filename[0])
             archivo_foto_perfil = tail
         else:
             archivo_foto_perfil = 'default_pic.png'
-
-        # print(archivo_foto_perfil)         
-        # print('resultado: ', resultado_perfil)
         solicitudes = consultar_solicitudes_alumno(session['usuario']['rut']) # Consulta las solicitudes a partir del rut
         ids = get_id_from_list_of_dictionary(solicitudes) # Obtiene las id de las solicitudes
         solicitudes_equipos = consultar_equipos_solicitudes_alumno(ids) # Obtiene todas las solicitudes de los equipos
@@ -170,10 +156,22 @@ def configurar_perfil():
         return redirect('/')
 
 
+@mod.route('/debug')
+def debug():
+    print(BASE_DIR+'\\app\\static\\imgs\\profile_pics')
+    return 'XD'
+@mod.route('/perfil/subir_foto',methods = ['GET','POST'])
+def subir_foto():
 
+    if request.method == "POST":
+            image = request.files["image"] # obtiene la imagen del formulario
 
+            image.filename = session['usuario']['rut'] +"." +image.filename.split('.')[1].lower() # Le da a la imagen el nombre del rut
+            
+            image.save( os.path.join( path+'/app/static/imgs/profile_pics', image.filename ) ) # guarda la imagen en la direccion /app/static/imgs/profile_pics/
+            
+            print("image saved")
 
-
-
-
-
+            return redirect(request.url)
+    
+    return redirect('/')
