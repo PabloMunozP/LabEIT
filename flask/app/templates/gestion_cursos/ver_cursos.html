@@ -67,7 +67,7 @@
                           <td class="text-center">
                              <button type="button" title="Editar información" data-target="#editar_curso_{{curso['codigo_udp']}}" class= "btn btn-sm btn-warning" data-toggle="modal"><i class="fas fa-edit"></i></button>
                              <!---<a class="btn btn-sm btn-info" title="Ver información detallada" href="/gestion_cursos/detalles_curso/codigo_udp={{curso['codigo_udp']}}"><i class="fas fa-search-plus"></i></a>--->
-                             <button type="submit" title="Eliminar curso" data-target="#eliminar_curso" class="btn btn-sm btn-danger" data-toggle="modal"><i class="fas fa-trash-alt"></i></button>
+                             <button type="submit" title="Eliminar curso" data-target="#eliminar_curso_{{curso['codigo_udp']}}" class="btn btn-sm btn-danger" data-toggle="modal"><i class="fas fa-trash-alt"></i></button>
                           </td>
                           {% include 'gestion_cursos/agregar_curso.html' %}
                           {% include 'gestion_cursos/editar_curso.html' %}
