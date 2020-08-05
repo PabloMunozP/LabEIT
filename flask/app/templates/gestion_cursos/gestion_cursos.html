@@ -6,11 +6,11 @@
     <nav>
         <ul class="nav nav-tabs" id="myTab" role="tablist">
             <li class="nav-item"><a class="nav-link active" id="tab_cursos" data-toggle="tab" href="#cursos" role="tab" aria-controls="home" aria-selected="true">Cursos (general)</a></li>
-            <li class="nav-item"><a class="nav-link" id="tab_cursos_secciones" data-toggle="tab" href="#cursos_secciones" role="tab" aria-controls="profile" aria-selected="false">Secciones</a></li>
+            <li class="nav-item"><a class="nav-link" id="tab_cursos_secciones" data-toggle="tab" href="#secciones" role="tab" aria-controls="profile" aria-selected="false">Secciones</a></li>
           </ul>
           <div class="tab-content" id="myTabContent">
             <div class="tab-pane fade show active" id="cursos" role="tabpanel" aria-labelledby="home-tab">{% include "gestion_cursos/ver_cursos.html" %}</div>
-            <div class="tab-pane fade" id="cursos_secciones" role="tabpanel" aria-labelledby="profile-tab">{% include "gestion_cursos/ver_cursos_secciones.html" %}</div>
+            <div class="tab-pane fade" id="secciones" role="tabpanel" aria-labelledby="profile-tab">{% include "gestion_cursos/ver_cursos_secciones.html" %}</div>
           </div>
     </nav>
 
@@ -49,13 +49,7 @@
 
 
 </div>
-{% include "gestion_cursos/ver_cursos.html" %}
-{% include "gestion_cursos/editar_curso.html" %}
-{% include "gestion_cursos/agregar_curso.html" %}
-{% include "gestion_cursos/eliminar_curso.html" %}
 
-{% include "gestion_cursos/eliminar_curso_seccion.html" %}
-{% include "gestion_cursos/editar_curso_seccion.html" %}
 
 
 {% endblock %}

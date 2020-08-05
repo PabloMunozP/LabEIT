@@ -216,6 +216,7 @@ def consultar_lista_cursos():
 def consultar_lista_cursos_secciones():
     query = ("""
         SELECT
+            Seccion.id,
             Seccion.rut_profesor,
             Seccion.codigo AS codigo_seccion,
             Curso.codigo_udp,
@@ -224,17 +225,17 @@ def consultar_lista_cursos_secciones():
             LEFT JOIN Curso ON Curso.id = Seccion.id_curso
     """)
     cursor.execute(query)
-    resultado = cursor.fetchall()
-    return resultado
-    
+    secciones = cursor.fetchall()
+    return secciones
+
 @mod.route("/gestion_cursos")
 def gestion_cursos():
     if 'usuario' not in session or session["usuario"]["id_credencial"] != 3:
         return redirect('/')
     else:
         cursos = consultar_lista_cursos()
-        cursos_secciones = consultar_lista_cursos_secciones()
-        return render_template('gestion_cursos/gestion_cursos.html', cursos = cursos, cursos_secciones = cursos_secciones)
+        secciones = consultar_lista_cursos_secciones()
+        return render_template('gestion_cursos/gestion_cursos.html', cursos = cursos, secciones = secciones)
 
 # == VISTA PRINCIPAL/MODAL "AGREGAR CURSO" ==
 

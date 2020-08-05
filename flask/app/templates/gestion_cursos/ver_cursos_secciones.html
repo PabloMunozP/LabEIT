@@ -1,1 +1,78 @@
-work in progress :D
+<div class="container-fluid">
+  {% with msgs = get_flashed_messages() %}
+    {% if msgs %}
+      {% for msg in msgs %}
+        {% if msg == "La seccion se ha actualizado correctamente"%}
+          <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle mr-2"></i>Se ha modificado correctamente.
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+        {%endif%}
+        {% if msg == "La seccion fue agregada correctamente"%}
+          <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle mr-2"></i>Se ha agregado correctamente.
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+        {%endif%}
+        {% if msg == "La seccion fue eliminada correctamente"%}
+          <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle mr-2"></i>Se ha eliminado correctamente.
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+        {%endif%}
+      {%endfor%}
+    {%endif%}
+  {%endwith%}
+  <div class="card-header mt-4" style="background:#0db26b;">
+  	<h5 class="card-title text-white my-auto">Gestión de secciones</h5>
+  	<p class="text-white my-auto"><i class="fas fa-info-circle mr-2"></i>Aquí encontrará las secciones registradas en el sistema, además de poder realizar nuevos registros, consultar y editar información.</p>
+  </div>
+
+  <div class="row float-right mt-2 mb-2">
+      <div class="col-md-12">
+          <button type="button" data-target=" #agregar_curso_seccion" class= "btn btn-success" data-toggle="modal"><i class="fas fa-user-plus mr-2"></i>Agregar nueva sección</button>
+           {% include 'gestion_cursos/agregar_curso_seccion.html' %}
+           <button type="button" data-target=" #agregar_masivo" class= "btn btn-info" data-toggle="modal"><i class="fas fa-file-csv mr-2"></i>Carga masiva</button>
+      </div>
+  </div>
+  <div class="table-responsive">
+		<div class="table-wrapper-scroll-y" style="position: relative;
+								max-height: 450px;
+								overflow:auto;">
+      <table class="table" style="background:#ECF0F1;">
+			  <thead class="text-white" style="background:#4D4D4D;">
+              <tr>
+                  <th scope="col">Código UDP</th>
+                  <th scope="col">Número sección</th>
+                  <th scope="col">Nombre</th>
+                  <th scope="col">Rut Profesor</th>
+                  <th scope="col" class="text-center">Acciones</th>
+              </tr>
+          </thead>
+          <tbody>
+              {%for seccion in secciones%}
+                  <tr>
+                      <td>{{seccion['codigo_udp']}}</td>
+                      <td>{{seccion['codigo_seccion']}}</td>
+                      <td>{{seccion['nombre']}}</td>
+                      <td>{{seccion['rut_profesor']}}</td>
+                      <td class="text-center">
+                         <button type="button" title="Editar información" data-target="#editar_seccion_{{seccion['id']}}" class= "btn btn-sm btn-warning" data-toggle="modal"><i class="fas fa-edit"></i></button>
+                         <button type="submit" title="Eliminar seccion" data-target="#eliminar_seccion_{{seccion['id']}}" class="btn btn-sm btn-danger" data-toggle="modal"><i class="fas fa-trash-alt"></i></button>
+                      </td>
+                      {% include 'gestion_cursos/agregar_curso_seccion.html' %}
+                      {% include 'gestion_cursos/editar_curso_seccion.html' %}
+                      {% include 'gestion_cursos/eliminar_curso_seccion.html' %}
+                  </tr>
+              {%endfor%}
+          </tbody>
+      </table>
+    </div>
+  </div>
+</div>
