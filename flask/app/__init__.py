@@ -31,103 +31,113 @@ def enviar_correo_notificacion(archivo,str_para,str_asunto,correo_usuario): # En
     except Exception as e:
         print(e)
 
-# ============= Configuraciones para funciones con timer ======================
-#def verificar_fechas_vencimiento_solicitudes():
-    # Función para verificar la fecha de vencimiento de una solicitud, una vez aprobada
-    #print("verificar_fechas_vencimiento_solicitudes")
+# ============= Funciones programadas ======================
 
-def revisar_atrasos_prestamos():
-    # Se revisan los préstamos que presenten atrasos para realizar las sanciones.
-    # En caso de presentar anteriormente un atraso activo, se suma a la sanción.
+# Función para eliminar tokens de passwords que hayan vencido (máx 1 día para usarlo)
+# Revisión a las 23:59 todos los días
+def revisar_tokens_password():
+    fecha_actual = datetime.now().replace(microsecond=0)
     sql_query = """
-        SELECT Detalle_solicitud.*,Solicitud.rut_alumno,Equipo.marca,Equipo.modelo,Equipo.codigo AS codigo_equipo
-            FROM Detalle_solicitud,Solicitud,Equipo
-                WHERE Solicitud.id = Detalle_solicitud.id_solicitud
-                AND Detalle_solicitud.id_equipo = Equipo.id
-                AND Detalle_solicitud.estado = 2
-    """
-    cursor.execute(sql_query)
-    lista_prestamos = cursor.fetchall()
-
-    fecha_actual = datetime.now().date()
-
-    #for prestamo in lista_prestamos:
-
-
-
-            # Se notifica al usuario vía correo electrónico sobre la sanción
-            #direccion_template = os.path.normpath(os.path.join(os.getcwd(), "app/templates/vistas_gestion_solicitudes_prestamos/templates_mail/informe_sancion.html"))
-            #archivo_html = open(direccion_template,encoding="utf-8").read()
-
-            # Se reemplazan los datos correspondientes en el archivo html
-            #archivo_html = archivo_html.replace("%id_solicitud%",str(prestamo["id_solicitud"]))
-            #archivo_html = archivo_html.replace("%id_detalle%",str(prestamo["id"]))
-            #archivo_html = archivo_html.replace("%equipo_prestado%",prestamo["marca"]+" "+prestamo["modelo"])
-            #archivo_html = archivo_html.replace("%codigo_equipo%",str(prestamo["codigo_equipo"]))
-            #archivo_html = archivo_html.replace("%codigo_sufijo%",str(prestamo["codigo_sufijo_equipo"]))
-            #archivo_html = archivo_html.replace("%fecha_inicio_prestamo%",str(prestamo["fecha_inicio"]))
-            #archivo_html = archivo_html.replace("%fecha_termino_prestamo%",str(prestamo["fecha_termino"]))
-            #archivo_html = archivo_html.replace("%dias_sancion%",str(dias_sancion))
-
-            #enviar_correo_notificacion(archivo_html,datos_usuario["email"],"Alerta de sanción",datos_usuario["email"])
-
-    # Se revisan las solicitudes que ya presentaban atrasos ...
-
-
-def revisar_solicitudes_vencidas():
-    # Se revisan las solicitudes que han sido aprobadas, pero que no se han retirado a tiempo.
-    # En caso de que se cumpla la fecha de vencimiento de la solicitud, se elimina automáticamente.
-
-    # Se obtiene la fecha actual según la aplicación
-    fecha_actual = datetime.now().date()
-
-    sql_query = """
-        SELECT id,id_solicitud,fecha_vencimiento
-            FROM Detalle_solicitud
-                WHERE estado = 1
-                AND fecha_vencimiento <= %s
+        DELETE FROM
+            Token_recuperacion_password
+                WHERE datediff(fecha_registro,%s) <= -1
     """
     cursor.execute(sql_query,(fecha_actual,))
-    lista_detalles_solicitud = cursor.fetchall()
 
-    for detalle_solicitud in lista_detalles_solicitud:
-        # Se comprueba si se debe eliminar el encabezado de la solicitud,
-        # en caso de que la solicitud sólo tenga un detalle.
-        eliminar_encabezado = False
+# Función para eliminar detalles de solicitudes aprobados que hayan cumplido con la fecha de vencimiento
+# Revisión a las 18:30 todos los días
+def eliminar_detalles_vencidos():
+    fecha_actual = datetime.now().replace(microsecond=0)
+    # Se eliminan los detalles que se encuentren vencidos y en estado de 'por retirar'
+    sql_query = """
+        DELETE FROM
+            Detalle_solicitud
+                WHERE datediff(fecha_vencimiento,%s) <= -1
+                AND estado = 1
+     """
+    cursor.execute(sql_query,(fecha_actual,))
+
+    # Se eliminan los encabezados de solicitud que no presenten ningún detalle
+    sql_query = """
+        DELETE FROM
+            Solicitud
+                WHERE (SELECT COUNT(*)
+                        FROM Detalle_solicitud
+                            WHERE id_solicitud = Solicitud.id) = 0
+     """
+    cursor.execute(sql_query)
+
+# Función para revisar solicitudes atrasadas y realizar sanciones de forma automática
+# Revisión a las 18:30 todos los días
+def revisar_solicitudes_atrasadas():
+    fecha_actual = datetime.now().replace(microsecond=0)
+    sql_query = """
+        SELECT Detalle_solicitud.*,Solicitud.rut_alumno
+            FROM Detalle_solicitud,Solicitud
+                WHERE Detalle_solicitud.id_solicitud = Solicitud.id
+                AND (Detalle_solicitud.estado = 2 OR Detalle_solicitud.estado = 3)
+                AND datediff(Detalle_solicitud.fecha_termino,%s) <= -1
+    """
+    cursor.execute(sql_query,(fecha_actual,))
+    lista_detalles_con_atraso = cursor.fetchall()
+
+    for detalle_solicitud in lista_detalles_con_atraso:
+        # Se verifica si se encuentra registrada una sanción
+        # En caso de que se encuentre registrada, se aumenta su multa
+        # En caso contrario, se registra una nueva sanción
 
         sql_query = """
-            SELECT COUNT(*) AS cantidad_detalles
-                FROM Detalle_solicitud
-                    WHERE id_solicitud = %s
+            SELECT *
+                FROM Sanciones
+                    WHERE rut_alumno = %s
+                    AND activa = 1
         """
-        cursor.execute(sql_query,(detalle_solicitud["id_solicitud"],))
-        cantidad_detalles = cursor.fetchone()["cantidad_detalles"]
+        cursor.execute(sql_query,(detalle_solicitud["rut_alumno"],))
+        sancion = cursor.fetchone()
 
-        if cantidad_detalles == 1:
-            # Si la cantidad de detalles es 1, significa que sólo está el detalle vencido
-            # Por lo tanto, además de eliminar el detalle de solicitud, se elimina el encabezado
-            eliminar_encabezado = True
-
-        # Se elimina el detalle de solicitud vencido
-        sql_query = """
-            DELETE FROM
-                Detalle_solicitud
-                    WHERE id = %s
-        """
-        cursor.execute(sql_query,(detalle_solicitud["id"],))
-
-        # Se elimina el encabezado, según las condiciones
-        if eliminar_encabezado:
+        if sancion:
             sql_query = """
-                DELETE FROM
-                    Solicitud
+                UPDATE Sanciones
+                    SET cantidad_dias = cantidad_dias + 5,fecha_actualizacion = %s
                         WHERE id = %s
             """
-            cursor.execute(sql_query,(detalle_solicitud["id_solicitud"],))
+            cursor.execute(sql_query,(fecha_actual,sancion["id"]))
+        else:
+            sql_query = """
+                INSERT INTO Sanciones (rut_alumno,cantidad_dias,activa,fecha_registro,fecha_actualizacion)
+                    VALUES (%s,5,1,%s,%s)
+            """
+            cursor.execute(sql_query,(detalle_solicitud["rut_alumno"],fecha_actual,fecha_actual))
+
+        # Se modifica el estado de la sanción, en caso de que esté 'en posesión'
+        if detalle_solicitud["estado"] == 2:
+            sql_query = """
+                UPDATE Detalle_solicitud
+                    SET estado = 3
+                        WHERE id = %s
+            """
+            cursor.execute(sql_query,(detalle_solicitud["id"],))
+
+        # Se activa la sanción en el registro de la tabla de Detalle de solicitud
+        if detalle_solicitud["sancion_activa"] is not None:
+            sql_query = """
+                UPDATE Detalle_solicitud
+                    SET sancion_activa = 1
+                        WHERE id = %s
+            """
+            cursor.execute(sql_query,(detalle_solicitud["id"],))
+
+
+def revisar_18_30():
+    # Eliminación de solicitudes vencidas
+    eliminar_detalles_vencidos()
+
+    # Revisión de solicitudes atrasadas y sanciones
+    revisar_solicitudes_atrasadas()
 
 #sched = APScheduler()
-#sched.add_job(id="revisar_atrasos_prestamos",func=revisar_atrasos_prestamos,trigger='interval',seconds=10)
-#sched.add_job(id="revisar_solicitudes_vencidas",func=revisar_solicitudes_vencidas,trigger='interval',seconds=60)
+#sched.add_job(id="revisar_tokens_password",func=revisar_tokens_password,trigger='cron',hour=23,minute=59)
+#sched.add_job(id="revisar_18_30",func=revisar_18_30,trigger='cron',hour=12,minute=55)
 #sched.start()
 # ============================================================================
 
@@ -202,7 +212,7 @@ def formato_rut(rut_entrada):
 @app.before_request
 def make_session_permanent():
     session.permanent = True
-    app.permanent_session_lifetime = timedelta(minutes=120)
+    app.permanent_session_lifetime = timedelta(minutes=60)
 
 
 @app.after_request

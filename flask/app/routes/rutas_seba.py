@@ -617,6 +617,10 @@ def aprobar_solicitud(id_detalle):
         return redirect(redirect_url())
 
     # En caso de que pueda prestarse:
+    # Se agrega la hora (18:30) a la fecha de vencimiento
+    datos_formulario["fecha_vencimiento_solicitud"] = datetime.strptime(datos_formulario["fecha_vencimiento_solicitud"],"%Y-%m-%d")
+    datos_formulario["fecha_vencimiento_solicitud"] = str(datos_formulario["fecha_vencimiento_solicitud"].replace(hour=18,minute=30,second=0))
+
     #Se agrega el código sufijo a la solicitud, la fecha de vencimiento y se modifica el estado a 'Por retirar'
     sql_query = """
         UPDATE Detalle_solicitud
@@ -653,7 +657,7 @@ def aprobar_solicitud(id_detalle):
     archivo_html = archivo_html.replace("%codigo_sufijo%",datos_formulario["codigo_sufijo_prestado"])
     archivo_html = archivo_html.replace("%fecha_registro%",str(datos_encabezado_solicitud["fecha_registro"]))
 
-    fecha_vencimiento = datetime.strptime(datos_formulario["fecha_vencimiento_solicitud"],"%Y-%m-%d").strftime("%d-%m-%Y")
+    fecha_vencimiento = datetime.strptime(datos_formulario["fecha_vencimiento_solicitud"],"%Y-%m-%d %H:%M:%S").strftime("%d-%m-%Y %H:%M:%S")
     archivo_html = archivo_html.replace("%fecha_vencimiento_solicitud%",str(fecha_vencimiento))
 
     fecha_revision_solicitud = str(fecha_revision_solicitud.date())+" "+str(fecha_revision_solicitud.hour)+":"+str(fecha_revision_solicitud.minute)
