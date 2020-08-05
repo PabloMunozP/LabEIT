@@ -16,6 +16,7 @@
           </div>
     </nav>
     <br>
+
     <style>
         #tab_inventario_general, #tab_inventario_detallado, #tab_inventario_circuito{
             color: #495057;
@@ -29,9 +30,9 @@
     </style>
 
     <script>
-  
+
       $(document).ready(function() {
-        $('#tabla_equipos,#tabla_equipos_general').DataTable( {
+        $('#tabla_equipos,#tabla_equipos_general,#tabla_circuitos').DataTable( {
               "language": {
                   "lengthMenu": "Mostrar _MENU_ registros por página",
                   "zeroRecords": "Nothing found - sorry",
@@ -46,9 +47,9 @@
               }
           } );
       } );
-    
+
     </script>
-    
+
 
 </div>
 
@@ -58,5 +59,6 @@
 
     {% include "vistas_gestion_inventario/modals/eliminar_equipo_similar.html" %}
     {% include "vistas_gestion_inventario/modals/editar_equipo_similar.html" %}
+
 
 {% endblock %}

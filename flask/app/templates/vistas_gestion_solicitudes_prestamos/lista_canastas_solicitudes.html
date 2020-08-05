@@ -1,0 +1,72 @@
+
+<div class="card-header mt-4" style="background:#0db26b;">
+	<h5 class="card-title text-white my-auto">Solicitudes de préstamos registradas</h5>
+	<p class="text-white my-auto"><i class="fas fa-info-circle mr-2"></i>En la siguiente lista podrá encontrar, de forma general, el conjunto de solicitudes registradas en el sistema.</p>
+	<button type="button" class="btn btn-sm btn-secondary mt-2" data-toggle="modal" data-target="#formulario_solicitud_agil"><i class="fas fa-plus-circle mr-2"></i>Registrar solicitud</button>
+</div>
+
+{% if lista_solicitud_canasta %}
+<div class="row mt-2">
+	<div class="col-md-6">
+		<div class="input-group">
+		<div class="input-group-prepend">
+			<div class="input-group-text"><i class="fas fa-search"></i></div>
+		</div>
+		<input type="text" class="form-control" id="filtro_solicitudes_canasta" placeholder="Buscar por ID de solicitud, RUT, nombre, etc.">
+	</div>
+	</div>
+	<div class="col-md-6 my-auto text-right">
+	</div>
+</div>
+	<div class="table-responsive mt-2">
+		<div class="table-wrapper-scroll-y" style="position: relative;
+								max-height: 450px;
+								overflow:auto;">
+			<table class="table" id="tabla_solicitudes_canastas">
+				<thead class="text-white" style="background:#4D4D4D;">
+					<tr>
+						<th scope="col">ID de solicitud</th>
+						<th scope="col">RUT del solicitante</th>
+						<th scope="col">Nombre del solicitante</th>
+						<th scope="col" class="text-center">Cantidad de equipos</th>
+						<th scope="col">Fecha de registro</th>
+						<th scope="col">Acciones</th>
+					</tr>
+				</thead>
+				<tbody>
+					{% for solicitud in lista_solicitud_canasta %}
+						<tr>
+							<td>{{solicitud["id"]}}</td>
+							<td>{{solicitud["rut_alumno"]}}</td>
+							<td>{{solicitud["nombre_solicitante"]}}</td>
+							<td class="text-center">{{solicitud["cantidad_detalles"]}}</td>
+							<td>{{solicitud["fecha_registro"]}}</td>
+							<td class="text-center">
+								<span class="btn-group">
+									<a href="gestion_solicitudes_prestamos/canasta_solicitud/{{solicitud["id"]}}">
+										<button type="button" title="Ver detalle de canasta" class="btn btn-sm btn-secondary mr-1"><i class="fas fa-clipboard-list"></i></button>
+									</a>
+								</span>
+							</td>
+						</tr>
+					{% endfor %}
+				</tbody>
+			</table>
+		</div>
+	</div>
+{% else %}
+	<div class="alert alert-warning alert-dismissible fade show text-center mt-2" role="alert">
+		<i class="fas fa-exclamation-triangle mr-2"></i>No se han encontrado solicitudes registradas en el sistema.
+	</div>
+{% endif %}
+
+
+<script type="text/javascript">
+	$(function() { // Filtro de historial de solicitudes
+	  $("#filtro_solicitudes_canasta").on("keyup", function() {
+	    var value = $(this).val().toLowerCase();
+	    $("#tabla_solicitudes_canastas > tbody > tr").filter(function() {      $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+	    });
+	  });
+	});
+</script>

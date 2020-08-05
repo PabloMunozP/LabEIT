@@ -339,10 +339,40 @@ def gestion_solicitudes_prestamos():
     cursor.execute(sql_query)
     lista_historial_solicitudes = cursor.fetchall()
 
+    # Lista de equipos para formulario ágil
+    sql_query = """
+        SELECT Equipo.id,Equipo.nombre,Equipo.marca,Equipo.modelo,Equipo.codigo,Equipo_diferenciado.codigo_sufijo
+            FROM Equipo,Equipo_diferenciado
+                WHERE Equipo.codigo = Equipo_diferenciado.codigo_equipo
+                AND Equipo_diferenciado.activo = 1
+                AND Equipo_diferenciado.codigo_sufijo
+                    NOT IN (SELECT Detalle_solicitud.codigo_sufijo_equipo
+                                FROM Detalle_solicitud
+                                    WHERE Detalle_solicitud.id_equipo = Equipo.id
+                                        AND codigo_sufijo_equipo IS NOT NULL)
+                ORDER BY Equipo.nombre,Equipo.marca,Equipo.modelo
+    """
+    cursor.execute(sql_query)
+    lista_equipos_disponibles = cursor.fetchall()
+
+    # Se obtiene de forma general la lista de solicitudes registradas (vista de canasta)
+    sql_query = """
+        SELECT Solicitud.*,CONCAT(Usuario.nombres,' ',Usuario.apellidos) AS nombre_solicitante,
+            (SELECT COUNT(*) FROM Detalle_solicitud WHERE Detalle_solicitud.id_solicitud = Solicitud.id ) AS cantidad_detalles
+         FROM
+            Solicitud,Usuario
+                WHERE Solicitud.rut_alumno = Usuario.rut
+                ORDER BY Solicitud.fecha_registro DESC
+    """
+    cursor.execute(sql_query)
+    lista_solicitud_canasta = cursor.fetchall()
+
     return render_template("/vistas_gestion_solicitudes_prestamos/gestion_solicitudes.html",
     lista_solicitudes_por_revisar=lista_solicitudes_por_revisar,
     lista_solicitudes_activas=lista_solicitudes_activas,
-    lista_historial_solicitudes=lista_historial_solicitudes)
+    lista_historial_solicitudes=lista_historial_solicitudes,
+    lista_equipos_disponibles=lista_equipos_disponibles,
+    lista_solicitud_canasta=lista_solicitud_canasta)
 
 @mod.route("/gestion_solicitudes_prestamos/detalle_solicitud/<string:id_detalle_solicitud>",methods=["GET"])
 def detalle_solicitud(id_detalle_solicitud):
@@ -782,8 +812,8 @@ def entregar_equipo(id_detalle):
     else:
         fecha_termino_prestamo = datetime.strptime(datos_formulario["fecha_termino_prestamo"],"%Y-%m-%d")
 
-    # Se agrega la hora a la fecha de término, por default (18:00 PM)
-    fecha_termino_prestamo = fecha_termino_prestamo.replace(hour=18,minute=0,second=0)
+    # Se agrega la hora a la fecha de término, por default (18:30 PM)
+    fecha_termino_prestamo = fecha_termino_prestamo.replace(hour=18,minute=30,second=0)
 
     # Se actualizan los datos del detalle de la solicitud
     sql_query = """
@@ -1160,3 +1190,154 @@ def consultar_estadisticas_solicitudes():
             datos_finales.append(datos_grafico[estado])
 
         return jsonify(datos_finales)
+
+# Rutas solicitudes ágiles
+@mod.route("/registrar_solicitud_agil",methods=["POST"])
+def registrar_solicitud_agil():
+    # Permite registrar solicitudes por parte del administrador (pensado para casos informales)
+    # La solicitud se crea con todos los detalles y pasa automáticamente al estado de posesión
+    rut_usuario = request.form.get("rut_usuario")
+    fecha_termino = request.form.get("fecha_termino")
+    lista_equipos_seleccionados = request.form.getlist("id_equipo_seleccionado")
+    lista_codigos_sufijos_equipos_seleccionados = request.form.getlist("codigo_sufijo_equipo_seleccionado")
+
+    # Se comprueba que el RUT sea válido
+    sql_query = """
+        SELECT COUNT(*) AS cantidad_usuarios
+            FROM Usuario
+                WHERE rut = %s
+    """
+    cursor.execute(sql_query,(rut_usuario,))
+    usuario_existente = bool(cursor.fetchone()["cantidad_usuarios"])
+
+    # Si el rut ingresado no coincide con ningún usuario, se notifica el error.
+    if not usuario_existente:
+        flash("usuario-no-existente")
+        return redirect(redirect_url())
+
+    # Se verifica que ambas listas (de equipos y códigos) coincidan en la cantidad de elementos
+    if len(lista_equipos_seleccionados) != len(lista_codigos_sufijos_equipos_seleccionados):
+        flash("error-listas-agiles")
+        return redirect(redirect_url())
+
+    # Se modifican las fechas para agregar la hora
+    fecha_inicio = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    fecha_termino_especificada = False
+
+    if len(fecha_termino):
+        fecha_termino_especificada = True
+        # Si se especificó una fecha en el formulario, se considera esa.
+        # En caso contrario, se registra para cada uno de los detalles según la cantidad de días
+        fecha_termino = datetime.strptime(fecha_termino,"%Y-%m-%d").replace(hour=18,minute=30,second=0)
+
+    # Se crea la solicitud de préstamo con el rut y la fecha correspondiente
+    sql_query = """
+        INSERT INTO Solicitud (rut_alumno,fecha_registro)
+            VALUES (%s,%s)
+    """
+    cursor.execute(sql_query,(rut_usuario,fecha_inicio))
+    id_solicitud = cursor.lastrowid # Se obtiene el id de solicitud recién creada
+
+    # Se crean los detalles de solicitud según las listas de equipos y códigos
+    for id_equipo,codigo_sufijo in zip(lista_equipos_seleccionados,lista_codigos_sufijos_equipos_seleccionados):
+
+        if not fecha_termino_especificada:
+            sql_query = """
+                SELECT dias_max_prestamo
+                    FROM Equipo
+                        WHERE id = %s
+            """
+            cursor.execute(sql_query,(id_equipo,))
+            cantidad_dias_prestamo = cursor.fetchone()["dias_max_prestamo"]
+
+            if cantidad_dias_prestamo is None:
+                cantidad_dias_prestamo = 5
+
+            fecha_termino = datetime.strptime(fecha_inicio,"%Y-%m-%d %H:%M:%S") + timedelta(days=cantidad_dias_prestamo)
+            dia_habil = fecha_termino.weekday() # Entrega día de la semana en formato 0-4: Lunes-Viernes / 5-6: Sábado-Domingo
+
+            if dia_habil >= 5: # Si el día de la fecha de término es un fin de semana se debe recalcular
+                if dia_habil == 6:
+                    delta = 1
+                else:
+                    delta = 2
+                # Se calcula la fecha de término como el Lunes inmediatamente siguiente al fin de semana
+                fecha_termino += timedelta(days=delta)
+
+            fecha_termino = fecha_termino.replace(hour=18,minute=30,second=0)
+
+        sql_query = """
+            INSERT INTO Detalle_solicitud
+                (id_solicitud,id_equipo,fecha_inicio,fecha_termino,estado,codigo_sufijo_equipo)
+                    VALUES (%s,%s,%s,%s,2,%s)
+        """
+        cursor.execute(sql_query,(id_solicitud,id_equipo,fecha_inicio,fecha_termino,codigo_sufijo))
+
+    flash("solicitud-registrada")
+    return redirect(redirect_url())
+
+# Canasta de solicitud
+@mod.route("/gestion_solicitudes_prestamos/canasta_solicitud/<string:id_solicitud>",methods=["GET"])
+def detalle_canasta_solicitud(id_solicitud):
+    if "usuario" not in session.keys():
+        return redirect("/")
+    if session["usuario"]["id_credencial"] != 3: # El usuario debe ser un administrador (Credencial = 3)
+        return redirect("/")
+
+    # Se obtiene la solicitud
+    sql_query = """
+        SELECT *
+            FROM Solicitud
+                WHERE id = %s
+    """
+    cursor.execute(sql_query,(id_solicitud,))
+    solicitud = cursor.fetchone()
+
+    # Se obtienen los datos principales del usuario
+    sql_query = """
+        SELECT rut,nombres,apellidos,email
+            FROM Usuario
+                WHERE rut = %s
+    """
+    cursor.execute(sql_query,(solicitud["rut_alumno"],))
+    datos_usuario = cursor.fetchone()
+
+    # Se obtienen cada uno de los detalles asociados a la solicitud
+    sql_query = """
+        SELECT Detalle_solicitud.*,Equipo.codigo AS codigo_equipo,Equipo.nombre AS nombre_equipo,Equipo.modelo AS modelo_equipo,Equipo.marca AS marca_equipo,
+            Equipo.dias_max_prestamo AS dias_max_prestamo_equipo,Estado_detalle_solicitud.nombre AS nombre_estado
+            FROM Detalle_solicitud,Equipo,Estado_detalle_solicitud
+                WHERE id_solicitud = %s
+                AND Detalle_solicitud.id_equipo = Equipo.id
+                AND Detalle_solicitud.estado = Estado_detalle_solicitud.id
+    """
+    cursor.execute(sql_query,(id_solicitud,))
+    lista_detalles_solicitud = cursor.fetchall()
+
+    # Se almacena como llave el ID del detalle de solicitud y como valor la lista de equipos
+    # disponibles para prestar
+    equipos_disponibles = {}
+    for detalle_solicitud in lista_detalles_solicitud:
+        # En caso de que el detalle se encuentre aún pendiente, se obtiene la lista
+        # de equipos disponibles para prestar
+        if detalle_solicitud["estado"] == 0:
+            sql_query = """
+                SELECT Equipo_diferenciado.codigo_equipo,Equipo_diferenciado.codigo_sufijo
+                    FROM Equipo_diferenciado,Equipo
+                        WHERE Equipo.codigo = Equipo_diferenciado.codigo_equipo
+                        AND Equipo.id = %s
+                        AND activo = 1
+                        AND codigo_sufijo NOT IN (SELECT codigo_sufijo_equipo
+                                                    FROM Detalle_solicitud
+                                                        WHERE id_equipo = %s
+                                                            AND codigo_sufijo_equipo IS NOT NULL)
+            """
+            cursor.execute(sql_query,(detalle_solicitud["id_equipo"],detalle_solicitud["id_equipo"]))
+            equipos_disponibles[detalle_solicitud["id"]] = cursor.fetchall()
+
+
+    return render_template("/vistas_gestion_solicitudes_prestamos/detalle_canasta_solicitud.html",
+        solicitud=solicitud,
+        equipos_disponibles=equipos_disponibles,
+        datos_usuario=datos_usuario,
+        lista_detalles_solicitud=lista_detalles_solicitud)
