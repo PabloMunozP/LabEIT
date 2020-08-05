@@ -133,6 +133,7 @@ def revisar_solicitudes_vencidas():
 
 # Define the WSGI application object
 app = Flask(__name__)
+app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 
 # Blueprints (Routes)
 from app.routes.rutas_seba import mod
@@ -187,6 +188,8 @@ def formato_rut(rut_entrada):
     # Transforma 123456789 => 12.345.678-9
     if len(rut_entrada) == 9:
         return ('{d[0]}{d[1]}.{d[2]}{d[3]}{d[4]}.{d[5]}{d[6]}{d[7]}-{d[8]}'.format(d = rut_entrada))
+    elif len(rut_entrada) == 8: # 12345678 =>1.234.567-8
+        return ('{d[0]}.{d[1]}{d[2]}{d[3]}.{d[4]}{d[5]}{d[6]}-{d[7]}'.format(d = rut_entrada))
 
     # Transforma 12.345.678-9 => 123456789
     elif len(rut_entrada) == 12:
@@ -200,6 +203,15 @@ def formato_rut(rut_entrada):
 def make_session_permanent():
     session.permanent = True
     app.permanent_session_lifetime = timedelta(minutes=120)
+
+
+@app.after_request
+def add_header(response):
+    # response.cache_control.no_store = True
+    response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0, max-age=0'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '-1'
+    return response
 
 # --------- Functiones útiles ------------------------------------------------
 

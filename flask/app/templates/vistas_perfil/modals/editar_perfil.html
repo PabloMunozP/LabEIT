@@ -4,35 +4,26 @@
       <div class="modal-content">
         <div class="modal-header bg-gris-eit">
           <h5 class="modal-title text-white" id="editar_informacion_label"><i class="fas fa-user-edit mr-2"></i>Editar información personal</h5>
-            <!-- <button type="button" class="close" data-dismiss="modal" aria-label="Close"></button>
-              <span aria-hidden="true">&times; asdasdds</span>
-            </button> -->
       </div>
       <form id="editar_form" action="/perfil/actualizar_informacion" method="POST">
         <div class="modal-body">
             <div class="form-group">
-                <label for="nombres"> Nombres</label>
-                <input class="form-control" type="text" name="nombres" id="nombres" onchange="validar_informacion_perfil()" value="">
+                <label for="nombres"> Nombres</label><input class="form-control" type="text" name="nombres" id="nombres" onchange="validar_informacion_perfil()" value="" required>
             </div>
             <div class="form-group">
-                <label for="apellidos"> Apellidos</label>
-                <input class="form-control" type="text" name="apellidos" id="apellidos" onchange="validar_informacion_perfil()" value="">
+                <label for="apellidos"> Apellidos</label><input class="form-control" type="text" name="apellidos" id="apellidos" onchange="validar_informacion_perfil()" value="" required>
             </div>
             <div class="form-group">
-                <label for="regiones"> Región</label>
-                <select class="form-control" name="region" id="regiones" onchange="validar_informacion_perfil();"></select>
+                <label for="regiones"> Región</label><select class="form-control" name="region" id="regiones" onchange="validar_informacion_perfil();" required></select>
             </div>
             <div class="form-group">
-                <label for="comunas"> Comuna</label>
-                <select class="form-control" name="comuna" id="comunas" onchange="validar_informacion_perfil()"></select>
+                <label for="comunas"> Comuna</label><select class="form-control" name="comuna" id="comunas" onchange="validar_informacion_perfil()" required></select>
             </div>
             <div class="form-group">
-                <label for="direccion"> Dirección</label>
-                <input class="form-control" type="text" name="direccion" id="direccion" onchange="validar_informacion_perfil()" value="">
+                <label for="direccion"> Dirección</label><input class="form-control" type="text" name="direccion" id="direccion" onchange="validar_informacion_perfil()" value="" required>
             </div>
             <div class="form-group">
-                <label for="celular"> Número de celular</label>
-                <input class="form-control" type="text" name="celular" id="celular" onchange="validar_informacion_perfil()" value="">
+                <label for="celular"> Número de celular</label><input class="form-control" placeholder="9 dígitos" type="input" maxlength="9" onkeypress="return event.charCode >= 48 && event.charCode <= 57" pattern="[0-9]{9}" name="celular" id="celular" onchange="validar_informacion_perfil()" value="" required>
             </div>
         </div>
         <div class="modal-footer">
@@ -53,15 +44,10 @@
 <script>
   function Cargar_informacion() {
     if('{{perfil_info.apellidos}}' != 'None'){document.getElementById("apellidos").value = "{{perfil_info.apellidos}}";}
-    console.log("listo");
     if('{{perfil_info.nombres}}' != 'None'){document.getElementById("nombres").value = "{{perfil_info.nombres}}";}
-    console.log("listo");
     if('{{perfil_info.celular}}' != 'None'){document.getElementById("celular").value = "{{perfil_info.celular}}";}
-    console.log("listo");
     if('{{perfil_info.direccion}}' != 'None'){document.getElementById("direccion").value = "{{perfil_info.direccion}}";}
-    console.log("listo");
     if('{{perfil_info.region}}' != 'None'){
-      //document.getElementById("regiones").value = "{{perfil_info.region}}";
       $("#regiones").val("{{perfil_info.region}}").change();
     }
     if('{{perfil_info.comuna}}' != 'None'){
