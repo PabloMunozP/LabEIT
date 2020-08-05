@@ -1,6 +1,41 @@
 {% extends "layout_in.html" %}
 	{% block body %}
 
+	<style media="screen">
+		.panel-group .panel {
+  border-radius: 0;
+  box-shadow: none;
+  border-color: #EEEEEE;
+}
+
+.panel-default > .panel-heading {
+  padding: 0;
+  border-radius: 0;
+  color: #212121;
+  background-color: #FAFAFA;
+  border-color: #EEEEEE;
+}
+
+.panel-title {
+  font-size: 15px;
+}
+
+.panel-title > a {
+  display: block;
+  padding: 15px;
+  text-decoration: none;
+}
+
+.more-less {
+  float: right;
+  color: #212121;
+}
+
+.panel-default > .panel-heading + .panel-collapse > .panel-body {
+  border-top-color: #EEEEEE;
+}
+	</style>
+
 	<div class="container-fluid mt-2">
 
 		<nav aria-label="breadcrumb">
@@ -76,74 +111,110 @@
 				<h5 class="card-title my-auto text-white"><i class="fas fa-list mr-2"></i>Lista de equipos solicitados</h5>
 			</div>
 
-			<table class="table">
-				<thead class="text-white" style="background:#4D4D4D;">
-					<tr>
-						<th scope="col">ID de detalle</th>
-						<th scope="col">Código de equipo</th>
-						<th scope="col">Código de equipo prestado</th>
-						<th scope="col">Equipo</th>
-						<th scope="col" class="text-center">Estado de solicitud</th>
-						<th scope="col">Fecha de inicio</th>
-						<th scope="col">Fecha de término</th>
-						<th scope="col" class="text-center">Acciones</th>
-					</tr>
-				</thead>
-				<tbody>
-					{% for detalle_solicitud in lista_detalles_solicitud %}
-		        <tr style="background:#ECF0F1;">
-							<td>{{detalle_solicitud["id_equipo"]}}</td>
-							<td>{{detalle_solicitud["codigo_equipo"]}}</td>
-							{% if detalle_solicitud["codigo_sufijo_equipo"] %}
-								<td>{{detalle_solicitud["codigo_sufijo_equipo"]}}</td>
-							{% else %}
-								<td></td>
-							{% endif %}
-							<td>{{detalle_solicitud["nombre_equipo"]}} {{detalle_solicitud["marca_equipo"]}} {{detalle_solicitud["modelo_equipo"]}}</td>
-								{% if detalle_solicitud["estado"] == 0 %}
-									<td class="text-center"><span class="badge badge-primary">{{detalle_solicitud["nombre_estado"]}}</span></td>
-								{% elif detalle_solicitud["estado"] == 1 %}
-									<td class="text-center"><span class="badge badge-info">{{detalle_solicitud["nombre_estado"]}}</span></td>
-								{% elif detalle_solicitud["estado"] == 2 %}
-									<td class="text-center"><span class="badge badge-success">{{detalle_solicitud["nombre_estado"]}}</span></td>
-								{% elif detalle_solicitud["estado"] == 3 %}
-									<td class="text-center"><span class="badge badge-danger">{{detalle_solicitud["nombre_estado"]}}</span></td>
-								{% elif detalle_solicitud["estado"] == 4 %}
-									<td class="text-center"><span class="badge badge-success">{{detalle_solicitud["nombre_estado"]}}</span></td>
-								{% elif detalle_solicitud["estado"] == 5 %}
-									<td class="text-center"><span class="badge badge-danger">{{detalle_solicitud["nombre_estado"]}}</span></td>
-								{% elif detalle_solicitud["estado"] == 6 %}
-									<td class="text-center"><span class="badge badge-secondary">{{detalle_solicitud["nombre_estado"]}}</span></td>
-								{% endif %}
-							{% if detalle_solicitud["fecha_inicio"] %}
-								<td>{{detalle_solicitud["fecha_inicio"]}}</td>
-							{% else %}
-								<td></td>
-							{% endif %}
+			<div class="card-body" style="background:#ECF0F1;">
+				<div class="table-responsive mt-2">
+					<div class="table-wrapper-scroll-y" style="position: relative;
+											max-height: 500px;
+											overflow:auto;">
 
-							{% if detalle_solicitud["fecha_termino"] %}
-								<td>{{detalle_solicitud["fecha_termino"]}}</td>
-							{% else %}
-								<td></td>
-							{% endif %}
-		            <td>
-									<span class="btn-group">
-										<button type="button" class="btn btn-secondary btn-sm" data-toggle="collapse" data-target="#detalle-{{detalle_solicitud["id"]}}"><i class="fas fa-search-plus"></i></button>
-									</span>
-		            </td>
-		        </tr>
-		        <tr style="background:#ECF0F1;">
-		            <td style="padding: 0 !important;">
-		                <div class="collapse out" id="detalle-{{detalle_solicitud["id"]}}">
+						<div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+
+							{% for detalle_solicitud in lista_detalles_solicitud %}
+
+								<div class="panel panel-default">
+									<div class="panel-heading" style="background:#4D4D4D;" role="tab" id="encabezado_detalle_{{detalle_solicitud["id"]}}">
+										<h4 class="panel-title text-white">
+										  <a role="button" style="color:inherit;" data-toggle="collapse" data-parent="#accordion" href="#detalle_{{detalle_solicitud["id"]}}" aria-expanded="true">
+										    <strong>[IDD {{detalle_solicitud["id"]}}]</strong> {{detalle_solicitud["nombre_equipo"]}} {{detalle_solicitud["marca_equipo"]}} {{detalle_solicitud["modelo_equipo"]}}
+
+												{% if detalle_solicitud["estado"] == 0 %}
+													<td class="text-center"><span class="badge float-right badge-primary">{{detalle_solicitud["nombre_estado"]}}</span></td>
+												{% elif detalle_solicitud["estado"] == 1 %}
+													<td class="text-center"><span class="badge float-right badge-info">{{detalle_solicitud["nombre_estado"]}}</span></td>
+												{% elif detalle_solicitud["estado"] == 2 %}
+													<td class="text-center"><span class="badge float-right badge-success">{{detalle_solicitud["nombre_estado"]}}</span></td>
+												{% elif detalle_solicitud["estado"] == 3 %}
+													<td class="text-center"><span class="badge float-right badge-danger">{{detalle_solicitud["nombre_estado"]}}</span></td>
+												{% elif detalle_solicitud["estado"] == 4 %}
+													<td class="text-center"><span class="badge float-right badge-success">{{detalle_solicitud["nombre_estado"]}}</span></td>
+												{% elif detalle_solicitud["estado"] == 5 %}
+													<td class="text-center"><span class="badge float-right badge-danger">{{detalle_solicitud["nombre_estado"]}}</span></td>
+												{% elif detalle_solicitud["estado"] == 6 %}
+													<td class="text-center"><span class="badge float-right badge-secondary">{{detalle_solicitud["nombre_estado"]}}</span></td>
+												{% endif %}
+
+										  </a>
+										</h4>
+									</div>
+									<div id="detalle_{{detalle_solicitud["id"]}}" class="panel-collapse collapse" role="tabpanel">
+										<div class="panel-body" style="background:#fff;">
+
+											<div class="form-group row">
+												<label title="ID de solicitud" class="col-md-2 col-form-label texto-gris-eit">
+													<strong>Equipo solicitado:</strong>
+												</label>
+												<div class="col-md-4">
+													<p class="form-control-plaintext text-break">
+														{{detalle_solicitud["nombre_equipo"]}} {{detalle_solicitud["marca_equipo"]}} {{detalle_solicitud["modelo_equipo"]}}
+													</p>
+												</div>
+												<label title="ID de detalle de solicitud" class="col-md-3 col-form-label texto-gris-eit">
+													<strong>Código de equipo:</strong>
+												</label>
+												<div class="col-md-3">
+													<p class="form-control-plaintext
+														 text-break">
+														 {{detalle_solicitud["codigo_equipo"]}}
+													</p>
+												</div>
+											</div>
+
+												{% if detalle_solicitud["estado"] == 1 %}
+												<div class="form-group row">
+													<label title="ID de solicitud" class="col-md-4 col-form-label texto-gris-eit">
+														<strong>Fecha de vencimiento de solicitud:</strong>
+													</label>
+													<div class="col-md-4">
+														<p class="form-control-plaintext text-break">
+															{{detalle_solicitud["fecha_vencimiento"]}}
+														</p>
+													</div>
+												</div>
+												{% elif detalle_solicitud["estado"] == 2 or detalle_solicitud["estado"] == 3 %}
+												<div class="form-group row">
+													<label title="ID de solicitud" class="col-md-3 col-form-label texto-gris-eit">
+														<strong>Fecha de inicio:</strong>
+													</label>
+													<div class="col-md-3">
+														<p class="form-control-plaintext text-break">
+															{{detalle_solicitud["fecha_inicio"]}}
+														</p>
+													</div>
+													<label title="ID de solicitud" class="col-md-3 col-form-label texto-gris-eit">
+														<strong>Fecha de término:</strong>
+													</label>
+													<div class="col-md-3">
+														<p class="form-control-plaintext text-break">
+															{{detalle_solicitud["fecha_termino"]}}
+														</p>
+													</div>
+												</div>
+												
+												{% endif %}
 
 										</div>
-		            </td>
-		        </tr>
-					{% endfor %}
-				</tbody>
-	    </table>
+									</div>
+								</div>
 
+							{% endfor %}
+
+						</div><!-- panel-group -->
+
+					</div>
+				</div>
+			</div>
 		</div>
+
 
 	</div>
 

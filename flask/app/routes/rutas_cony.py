@@ -1,5 +1,6 @@
 from flask import Flask,Blueprint,render_template,request,redirect,url_for,flash,session,jsonify
 from config import db,cursor
+from datetime import datetime,timedelta
 import os,time,bcrypt
 
 mod = Blueprint("rutas_cony",__name__)
@@ -25,9 +26,23 @@ def solicitudes_prestamos():
     cursor.execute(sql_query,(session["usuario"]["rut"],))
     sancion = cursor.fetchone()
 
+    # Se obtiene la lista de detalles que se encuentran con sanción activa
+    sql_query = """
+        SELECT Detalle_solicitud.*,Equipo.codigo AS codigo_equipo,Equipo.nombre AS nombre_equipo,Equipo.marca AS marca_equipo,
+            Equipo.modelo AS modelo_equipo
+            FROM Detalle_solicitud,Solicitud,Equipo
+                WHERE Detalle_solicitud.id_solicitud = Solicitud.id
+                AND Detalle_solicitud.id_equipo = Equipo.id
+                AND Solicitud.rut_alumno = %s
+                AND Detalle_solicitud.sancion_activa = 1
+    """
+    cursor.execute(sql_query,(session["usuario"]["rut"],))
+    lista_detalles_sancionados = cursor.fetchall()
+
     if sancion is not None:
         return render_template("/solicitudes_prestamos/notificacion_sancion.html",
-            sancion=sancion)
+            sancion=sancion,
+            lista_detalles_sancionados=lista_detalles_sancionados)
 
     # Se obtiene la lista de equipos desde la base de datos
     sql_query = """
@@ -170,11 +185,12 @@ def registrar_solicitud():
 
     if "carro_pedidos" in session.keys():
         # Se registra la solicitud
+        fecha_registro = datetime.now().replace(microsecond=0)
         sql_query = """
-            INSERT INTO Solicitud (rut_alumno)
-                VALUES (%s)
+            INSERT INTO Solicitud (rut_alumno,fecha_registro)
+                VALUES (%s,%s)
         """
-        cursor.execute(sql_query,(session["usuario"]["rut"],))
+        cursor.execute(sql_query,(session["usuario"]["rut"],fecha_registro))
         id_solicitud = cursor.lastrowid # Se obtiene el id de solicitud recién creada
 
         # Se registran los detalles de solicitud por cada pedido (unitario)
