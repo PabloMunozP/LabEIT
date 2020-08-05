@@ -219,6 +219,7 @@ def consultar_lista_cursos_secciones():
             Seccion.id,
             Seccion.rut_profesor,
             Seccion.codigo AS codigo_seccion,
+            Seccion.id_curso,
             Curso.codigo_udp,
             Curso.nombre
             FROM Seccion
@@ -263,6 +264,31 @@ def agregar_curso_form():
         flash("El curso fue agregado correctamente")
         cursos = consultar_lista_cursos()
         return redirect('/gestion_cursos')
+
+def agregar_curso_seccion(val):
+    query = ('''
+    INSERT INTO Secciones (id_curso, rut_profesor, codigo)
+    VALUES (%s, %s, %s);
+    ''')
+    cursor.execute(query, (
+        val['id_curso'],
+        val['rut_profesor'],
+        val['codigo']))
+    db.commit()
+    return 'OK'
+
+@mod.route("/gestion_cursos/agregar_curso_seccion", methods = ['POST'])
+def agregar_curso_seccion_form():
+    if "usuario" not in session.keys():
+        return redirect("/")
+    if session["usuario"]["id_credencial"] != 3:
+        return redirect("/")
+    if request.method == 'POST':
+        valores = request.form.to_dict()
+        agregar_curso_seccion(valores)
+        flash("La seccion fue agregada correctamente")
+        return redirect('/gestion_cursos')
+
 
 # == VISTA PRINCIPAL/MODAL "EDITAR CURSO" ==
 

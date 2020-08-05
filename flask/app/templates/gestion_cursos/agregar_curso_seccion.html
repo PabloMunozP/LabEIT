@@ -1,0 +1,36 @@
+<div class="modal fade" id="agregar_curso_seccion" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header bg-gris-eit">
+        <h5 class="modal-title text-white" id="editar_informacion_label"><i class="fas fa-plus-circle mr-2"></i>Agregar nueva sección</h5>
+        <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close" style="outline:none;">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+
+          <form action="/gestion_cursos/agregar_curso_seccion" method="POST">
+          <div class="modal-body">
+
+            <div class="form-group">
+              <label for="codigo_udp">Código curso</label>
+              <input class="form-control" type="text" name="codigo_udp" id="codigo_udp" onchange="validar_informacion_perfil()" value="">
+            </div>
+            <div class="form-group">
+              <label for="codigo">Número sección</label>
+              <input class="form-control" type="text" name="codigo" id="codigo" onchange="validar_informacion_perfil()" value="">
+            </div>
+            <div class="form-group">
+              <label for="rut_profesor">Rut Profesor</label>
+              <input class="form-control" type="text" name="rut_profesor" id="rut_profesor" onchange="validar_informacion_perfil()" value="">
+            </div>
+
+      </div>
+      <div class="modal-footer">
+              <button type="button" id="boton_cerrar" class="btn btn-secondary" data-dismiss="modal" onclick="Cargar_informacion()">Cancelar</button>
+              <button type="button" id="boton_cerrar" class="btn btn-secondary" data-dismiss="modal" onclick="Cargar_informacion()" hidden>Cancelar</button>
+              <button type="summit" id="boton_guardar" class="btn btn-info"> Guardar cambios</button>
+      </div>
+    </form>
+  </div>
+</div>
+</div>
