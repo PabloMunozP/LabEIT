@@ -6,8 +6,10 @@ import mysql.connector
 import rut_chile
 import glob
 import platform
-path = BASE_DIR # obtiene la ruta del directorio actual
-path = path.replace(os.sep, '/') #  remplaza [\\] por [/] en windows 
+
+PATH = BASE_DIR # obtiene la ruta del directorio actual
+PROFILE_PICS_PATH = PATH.replace(os.sep, '/')+'/app/static/imgs/profile_pics/' #  remplaza [\\] por [/] en windows 
+
 def redirect_url(default='index'): # Redireccionamiento desde donde vino la request
     return request.args.get('next') or \
            request.referrer or \
@@ -89,7 +91,7 @@ def consultar_informacion_perfil(rut_perfil): # Query para consultar la informac
     resultado_perfil = cursor.fetchone()
     return resultado_perfil
 
-@mod.route('/perfil') # ** Importante PERFIL** #
+@mod.route('/perfil',  methods =['GET','POST']) # ** Importante PERFIL** #
 def perfil():
     # si hay un usuario en la session carga el perfil
     if 'usuario' not in session:
@@ -106,8 +108,8 @@ def perfil():
         # Funcion que verifica si existe la foto de perfil
         # Las fotos puedes estar guardadas en cualquier tipo de extension
         # Si existe una foto para del usuario obtiene el nombre del archivo + extension
-        if glob.glob(   path+'/app/static/imgs/profile_pics/'+ session['usuario']['rut'] +'.*'):
-            filename = glob.glob(path+'/app/static/imgs/profile_pics/'+ session['usuario']['rut'] +'.*')
+        if glob.glob(PROFILE_PICS_PATH + session['usuario']['rut'] +'.*'):
+            filename = glob.glob(PROFILE_PICS_PATH + session['usuario']['rut'] +'.*')
             head, tail = os.path.split(filename[0])
             archivo_foto_perfil = tail
         else:
@@ -121,10 +123,10 @@ def perfil():
             solicitudes = solicitudes,
             solicitudes_equipos = solicitudes_equipos,
             perfil_info = resultado_perfil,
-            dir_foto_perfil = archivo_foto_perfil,
+            dir_foto_perfil = url_for('static',filename='imgs/profile_pics/'+archivo_foto_perfil),
             completar_info = validar_completar)
     
-
+ 
 # Configurar perfil # ** Importante MODAL PERFIl ** #
 @mod.route('/perfil/actualizar_informacion', methods = ['POST']) # ** Importante CONFIGURAR PERFIL** #
 def configurar_perfil():
@@ -158,20 +160,41 @@ def configurar_perfil():
 
 @mod.route('/debug')
 def debug():
-    print(BASE_DIR+'\\app\\static\\imgs\\profile_pics')
     return 'XD'
+
+
+
+EXTENSIONES_PERMITIDAS = ["PNG","JPG","JPEG","GIF"]
+def allowed_image(filename): # funcion que valida la extension de la imagen
+    if not "." in filename:
+        return False
+    
+    ext = filename.rsplit(".",1)[1] 
+    if ext.upper() in EXTENSIONES_PERMITIDAS:
+        return True
+    else:
+        return False
+
+
+
 @mod.route('/perfil/subir_foto',methods = ['GET','POST'])
 def subir_foto():
-
     if request.method == "POST":
             image = request.files["image"] # obtiene la imagen del formulario
 
+            if not allowed_image(image.filename): # Comprueba la extension de la imagen
+                print("extension no permitida") 
+                return redirect('/')
+
+            if glob.glob(PROFILE_PICS_PATH + session['usuario']['rut'] +'.*'): # Si existe alguna foto del usuario
+                filename = glob.glob(PROFILE_PICS_PATH + session['usuario']['rut'] +'.*') # Obtiene la direccion de la foto del usuario
+                head, tail = os.path.split(filename[0]) # separa el nombre del archivo
+                os.remove(PROFILE_PICS_PATH + tail ) 
+            
             image.filename = session['usuario']['rut'] +"." +image.filename.split('.')[1].lower() # Le da a la imagen el nombre del rut
             
-            image.save( os.path.join( path+'/app/static/imgs/profile_pics', image.filename ) ) # guarda la imagen en la direccion /app/static/imgs/profile_pics/
-            
-            print("image saved")
+            image.save( os.path.join( PATH+'/app/static/imgs/profile_pics', secure_filename(image.filename) ) ) # guarda la imagen en la direccion /app/static/imgs/profile_pics/
 
-            return redirect(request.url)
+            return redirect('/')
     
     return redirect('/')
