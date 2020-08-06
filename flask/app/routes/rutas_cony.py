@@ -238,6 +238,46 @@ def gestion_cursos():
         secciones = consultar_lista_cursos_secciones()
         return render_template('gestion_cursos/gestion_cursos.html', cursos = cursos, secciones = secciones)
 
+def consultar_curso(codigo):
+    if "usuario" not in session.keys():
+        return redirect("/")
+    if session["usuario"]["id_credencial"] != 3:
+        return redirect("/")
+    query = ('''
+        SELECT
+            Curso.id,
+            Curso.codigo_udp,
+            Curso.nombre,
+            Curso.descripcion
+            FROM Curso
+            WHERE Curso.codigo_udp = %s
+    ''')
+    cursor.execute(query,(codigo,))
+    curso = cursor.fetchall()
+    return curso
+
+def consultar_curso_secciones(codigo):
+    query = ('''
+        SELECT
+            Seccion.id,
+            Seccion.rut_profesor,
+            Seccion.codigo AS codigo_seccion,
+            Seccion.id_curso,
+            Curso.codigo_udp,
+            Curso.nombre
+            FROM Seccion
+            LEFT JOIN Curso ON Curso.id = Seccion.id_curso
+            WHERE Curso.codigo_udp = %s
+    ''')
+    cursor.execute(query,(codigo,))
+    secciones = cursor.fetchall()
+    return secciones
+
+@mod.route("/gestion_cursos/detalles_curso/<string:codigo_udp>",methods=["GET"])
+def secciones_curso(codigo_udp):
+    curso = consultar_curso(codigo_udp)
+    secciones = consultar_curso_secciones(codigo_udp)
+    return render_template("/gestion_cursos/detalles_curso.html",curso=curso, secciones=secciones)
 # == VISTA PRINCIPAL/MODAL "AGREGAR CURSO" ==
 
 def agregar_curso(val):
