@@ -361,15 +361,16 @@ def editar_curso_form():
         return redirect("/")
     if request.method=='POST':
         val=request.form.to_dict()
+        print(val)
         query = ('''
             UPDATE Curso
-            SET codigo_udp = %s,
-                nombre = %s,
-                descripcion = %s
+            SET Curso.codigo_udp = %s,
+                Curso.nombre = %s,
+                Curso.descripcion = %s
             WHERE Curso.codigo_udp = %s
         ''')
         cursor.execute(query, (
-            val['codigo_udp'],
+            val['nuevo_codigo_udp'],
             val['nombre'],
             val['descripcion'],
             val['codigo_udp']

@@ -8,10 +8,13 @@
                 </button>
             </div>
             <form id="editar_curso" action="/gestion_cursos/editar_curso" method="POST">
+              <div class="modal-body">
+                <input class="form-control" type="text" name="codigo_udp" value="{{curso['codigo_udp']}}" id="editar-curso-hidden-id" hidden>
+              </div>
                 <div class="modal-body">
                     <div class="form-group">
-                        <label for="codigo_udp">Código curso:</label>
-                        <input type="text" id="codigo_udp" name="codigo_udp" class="form-control" value="{{curso['codigo_udp']}}" required>
+                        <label for="nuevo_codigo_udp">Código curso:</label>
+                        <input type="text" id="nuevo_codigo_udp" name="nuevo_codigo_udp" class="form-control" value="{{curso['codigo_udp']}}" required>
                     </div>
                     <div class="form-group">
                         <label for="nombre">Nombre:</label>
