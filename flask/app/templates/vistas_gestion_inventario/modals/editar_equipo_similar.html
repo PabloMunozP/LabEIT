@@ -21,7 +21,7 @@
 
             <div class="form-group">
               <label for="editar_equipo_fecha_compra"> Fecha de compra</label>
-              <input class="form-control"  type="date" placeholder="DD/MM/AAAA" id="editar_equipo_fecha_compra" name="fecha_compra" required >
+              <input class="form-control"  type="text"  id="editar_equipo_fecha_compra" name="fecha_compra" required >
             </div>
 
 
@@ -64,5 +64,6 @@
       $("#editar_codigo_activo").val(codigo_activo);
       $("#editar_equipo_activo").val(activo);
       $("#editar_equipo_razon_inactivo").val(razon_inactivo);
-    }
+      console.log(getFullYear(fecha_compra));
+}
   </script>
