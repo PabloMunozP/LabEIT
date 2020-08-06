@@ -18,7 +18,12 @@
 
             <div class="form-group">
               <label for="apellidos">Nombre</label>
-              <input class="form-control" type="text" name="nombre" id="nombre" required>
+              <input class="form-control" type="text" name="nombre" id="nombre" list="states-list" required autocomplete="off">
+              <datalist id="states-list">
+                {% for elemento in lista_equipo %}
+                <option> {{elemento.nombre}} </option>
+                             {% endfor %}
+              </datalist>
             </div>
 
             <div class="form-group">

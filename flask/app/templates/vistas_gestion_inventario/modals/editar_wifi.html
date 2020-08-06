@@ -1,0 +1,53 @@
+<!-- Modal editar equipo-->
+<div class="modal fade" id="editar_wifi" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header bg-gris-eit">
+          <h5 id="modal-title" class="modal-title text-white" id="editar_informacion_label"><i class="fas fa-edit"></i> Editar red </h5>
+          <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close" style="outline:none;">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <form id="editar_form" action="/modificar_wifi/actualizar" method="POST">
+          <div class="modal-body">
+            <input class="form-control" type="text" name="ssid_original" value="" id="editar_wifi_hidden_ssid" hidden>
+            <input class="form-control" type="text" name="bssid_original" value="" id="editar_wifi_hidden_bssid" hidden>
+
+            <div class="form-group">
+              <label for="editar_equipo_codigo_sufijo"> SSID </label>
+              <input class="form-control" type="text" name="ssid" id="editar_ssid" required>
+            </div>
+
+
+            <div class="form-group">
+              <label for="editar_equipo_fecha_compra"> BSSID </label>
+              <input class="form-control"  type="text" id="editar_bssid" name="bssid" required >
+            </div>
+
+
+            <div class="form-group">
+              <label for="editar_equipo_codigo_sufijo"> Contraseña </label>
+              <input class="form-control" type="text" name="contraseña" id="editar_contraseña"  required >
+            </div>
+
+          </div>
+          <div class="modal-footer">
+            <button type="button" id="boton_cerrar" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+            <button type="summit" id="boton_guardar" class="btn btn-info" type="hidden"> Guardar cambios</button>
+        </form>
+       </div>
+      </div>
+    </div>
+
+
+  <script>
+    function cargar_datos_wifi(ssid, bssid, contraseña){
+      document.getElementById("modal-title").innerHTML = '<i class="fas fa-edit"></i> Editar red ' + ssid ;
+      $("#editar_wifi_hidden_ssid").val(ssid);
+      $("#editar_wifi_hidden_bssid").val(bssid);
+      $("#editar_ssid").val(ssid);
+      $("#editar_bssid").val(bssid);
+      $("#editar_contraseña").val(contraseña);
+
+    }
+  </script>
