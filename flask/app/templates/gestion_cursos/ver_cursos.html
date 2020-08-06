@@ -1,3 +1,5 @@
+{% extends "layout_in.html"%}
+{%block body%}
   <div class="container-fluid">
     {% with msgs = get_flashed_messages() %}
       {% if msgs %}
@@ -75,3 +77,4 @@
       </div>
     </div>
   </div>
+  {% endblock %}

@@ -236,7 +236,7 @@ def gestion_cursos():
     else:
         cursos = consultar_lista_cursos()
         secciones = consultar_lista_cursos_secciones()
-        return render_template('gestion_cursos/gestion_cursos.html', cursos = cursos, secciones = secciones)
+        return render_template('gestion_cursos/ver_cursos.html', cursos = cursos, secciones = secciones)
 
 def consultar_curso(codigo):
     if "usuario" not in session.keys():
@@ -245,7 +245,7 @@ def consultar_curso(codigo):
         return redirect("/")
     query = ('''
         SELECT
-            Curso.id,
+            Curso.id as curso_id,
             Curso.codigo_udp,
             Curso.nombre,
             Curso.descripcion
@@ -253,7 +253,7 @@ def consultar_curso(codigo):
             WHERE Curso.codigo_udp = %s
     ''')
     cursor.execute(query,(codigo,))
-    curso = cursor.fetchall()
+    curso = cursor.fetchone()
     return curso
 
 def consultar_curso_secciones(codigo):
@@ -277,7 +277,9 @@ def consultar_curso_secciones(codigo):
 def secciones_curso(codigo_udp):
     curso = consultar_curso(codigo_udp)
     secciones = consultar_curso_secciones(codigo_udp)
-    return render_template("/gestion_cursos/detalles_curso.html",curso=curso, secciones=secciones)
+    print(curso)
+    print(secciones)
+    return render_template("/gestion_cursos/detalles_curso.html", curso=curso, secciones=secciones)
 # == VISTA PRINCIPAL/MODAL "AGREGAR CURSO" ==
 
 def agregar_curso(val):
