@@ -415,15 +415,13 @@ def editar_seccion_form():
         print(val)
         query = ('''
             UPDATE Seccion
-            SET Seccion.id_curso = %s,
-                Seccion.rut_profesor = %s,
+            SET Seccion.rut_profesor = %s,
                 Seccion.codigo = %s
             WHERE Seccion.id = %s
         ''')
         cursor.execute(query, (
-            val['id_curso'],
             val['rut_profesor'],
-            val['codigo'],
+            val['codigo_seccion'],
             val['id']
             ))
         db.commit()
@@ -454,6 +452,29 @@ def eliminar_curso_form():
         eliminar_curso(curso_por_eliminar)
         flash("El curso fue eliminado correctamente")
         return redirect("/gestion_cursos")
+
+def eliminar_seccion(seccion):
+    query = ('''
+        DELETE Seccion FROM Seccion WHERE Seccion.id = %s
+    ''')
+    cursor.execute(query,(seccion['id'],))
+    db.commit()
+    return 'OK'
+
+@mod.route("/gestion_cursos/eliminar_seccion",methods=["POST"])
+def eliminar_seccion_form():
+    if "usuario" not in session.keys():
+        return redirect("/")
+    if session["usuario"]["id_credencial"] != 3:
+        return redirect("/")
+    if request.method == 'POST':
+        seccion_por_eliminar = request.form.to_dict()
+        print(seccion_por_eliminar)
+        eliminar_seccion(seccion_por_eliminar)
+        curso = redirigir_detalle(seccion_por_eliminar["id_curso"])
+        print(curso['codigo_udp'])
+        flash("La sección se ha actualizado correctamente")
+        return redirect('/gestion_cursos/detalles_curso/'+curso['codigo_udp'])
 # == VISTA DETALLES CURSO ==
 def consultar_curso_descripcion(codigo_curso):
     query = ('''
