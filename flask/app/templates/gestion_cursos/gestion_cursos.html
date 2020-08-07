@@ -1,0 +1,55 @@
+{% extends "layout_in.html"%}
+{%block body%}
+
+<br>
+<div class="container-fluid">
+    <nav>
+        <ul class="nav nav-tabs" id="myTab" role="tablist">
+            <li class="nav-item"><a class="nav-link active" id="tab_cursos" data-toggle="tab" href="#cursos" role="tab" aria-controls="home" aria-selected="true">Cursos (general)</a></li>
+            <li class="nav-item"><a class="nav-link" id="tab_cursos_secciones" data-toggle="tab" href="#secciones" role="tab" aria-controls="profile" aria-selected="false">Secciones</a></li>
+          </ul>
+          <div class="tab-content" id="myTabContent">
+            <div class="tab-pane fade show active" id="cursos" role="tabpanel" aria-labelledby="home-tab">{% include "gestion_cursos/ver_cursos.html" %}</div>
+            <div class="tab-pane fade" id="secciones" role="tabpanel" aria-labelledby="profile-tab">{% include "gestion_cursos/ver_cursos_secciones.html" %}</div>
+          </div>
+    </nav>
+
+    <style>
+        #tab_cursos, #tab_cursos_secciones{
+            color: #495057;
+            font-weight: 600;
+        }
+        .project-tab a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 600;
+        }
+    </style>
+
+    <script>
+
+      $(document).ready(function() {
+        $('#tabla_cursos,#tabla_cursos_secciones').DataTable( {
+              "language": {
+                  "lengthMenu": "Mostrar _MENU_ registros por página",
+                  "zeroRecords": "Nothing found - sorry",
+                  "info": "Mostrando página _PAGE_ de _PAGES_",
+                  "infoEmpty": "Sin registros disponibles",
+                  "search":         "Buscar",
+                  "paginate": {
+                      "next":       "Anterior",
+                      "previous":   "Siguiente"
+                  },
+                  "infoFiltered": "(filtrado de _MAX_ registros totales)"
+              }
+          } );
+      } );
+
+    </script>
+
+
+</div>
+
+
+
+{% endblock %}

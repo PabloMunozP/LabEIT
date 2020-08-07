@@ -1,5 +1,6 @@
 from flask import Flask,Blueprint,render_template,request,redirect,url_for,flash,session,jsonify
 from config import db,cursor
+from datetime import datetime,timedelta
 import os,time,bcrypt
 
 mod = Blueprint("rutas_cony",__name__)
@@ -25,9 +26,23 @@ def solicitudes_prestamos():
     cursor.execute(sql_query,(session["usuario"]["rut"],))
     sancion = cursor.fetchone()
 
+    # Se obtiene la lista de detalles que se encuentran con sanción activa
+    sql_query = """
+        SELECT Detalle_solicitud.*,Equipo.codigo AS codigo_equipo,Equipo.nombre AS nombre_equipo,Equipo.marca AS marca_equipo,
+            Equipo.modelo AS modelo_equipo
+            FROM Detalle_solicitud,Solicitud,Equipo
+                WHERE Detalle_solicitud.id_solicitud = Solicitud.id
+                AND Detalle_solicitud.id_equipo = Equipo.id
+                AND Solicitud.rut_alumno = %s
+                AND Detalle_solicitud.sancion_activa = 1
+    """
+    cursor.execute(sql_query,(session["usuario"]["rut"],))
+    lista_detalles_sancionados = cursor.fetchall()
+
     if sancion is not None:
         return render_template("/solicitudes_prestamos/notificacion_sancion.html",
-            sancion=sancion)
+            sancion=sancion,
+            lista_detalles_sancionados=lista_detalles_sancionados)
 
     # Se obtiene la lista de equipos desde la base de datos
     sql_query = """
@@ -170,11 +185,12 @@ def registrar_solicitud():
 
     if "carro_pedidos" in session.keys():
         # Se registra la solicitud
+        fecha_registro = datetime.now().replace(microsecond=0)
         sql_query = """
-            INSERT INTO Solicitud (rut_alumno)
-                VALUES (%s)
+            INSERT INTO Solicitud (rut_alumno,fecha_registro)
+                VALUES (%s,%s)
         """
-        cursor.execute(sql_query,(session["usuario"]["rut"],))
+        cursor.execute(sql_query,(session["usuario"]["rut"],fecha_registro))
         id_solicitud = cursor.lastrowid # Se obtiene el id de solicitud recién creada
 
         # Se registran los detalles de solicitud por cada pedido (unitario)
@@ -213,6 +229,21 @@ def consultar_lista_cursos():
     cursor.execute(query)
     cursos = cursor.fetchall()
     return cursos
+def consultar_lista_cursos_secciones():
+    query = ("""
+        SELECT
+            Seccion.id,
+            Seccion.rut_profesor,
+            Seccion.codigo AS codigo_seccion,
+            Seccion.id_curso,
+            Curso.codigo_udp,
+            Curso.nombre
+            FROM Seccion
+            LEFT JOIN Curso ON Curso.id = Seccion.id_curso
+    """)
+    cursor.execute(query)
+    secciones = cursor.fetchall()
+    return secciones
 
 @mod.route("/gestion_cursos")
 def gestion_cursos():
@@ -220,8 +251,52 @@ def gestion_cursos():
         return redirect('/')
     else:
         cursos = consultar_lista_cursos()
-        return render_template('gestion_cursos/ver_cursos.html', cursos = cursos)
+        secciones = consultar_lista_cursos_secciones()
+        return render_template('gestion_cursos/ver_cursos.html', cursos = cursos, secciones = secciones)
 
+def consultar_curso(codigo):
+    if "usuario" not in session.keys():
+        return redirect("/")
+    if session["usuario"]["id_credencial"] != 3:
+        return redirect("/")
+    query = ('''
+        SELECT
+            Curso.id as curso_id,
+            Curso.codigo_udp,
+            Curso.nombre,
+            Curso.descripcion
+            FROM Curso
+            WHERE Curso.codigo_udp = %s
+    ''')
+    cursor.execute(query,(codigo,))
+    curso = cursor.fetchone()
+    return curso
+
+def consultar_curso_secciones(codigo):
+    query = ('''
+        SELECT
+            Seccion.id,
+            Seccion.rut_profesor,
+            Seccion.codigo AS codigo_seccion,
+            Seccion.id_curso,
+            Curso.codigo_udp,
+            Curso.nombre
+            FROM Seccion
+            LEFT JOIN Curso ON Curso.id = Seccion.id_curso
+            WHERE Curso.codigo_udp = %s
+    ''')
+    cursor.execute(query,(codigo,))
+    secciones = cursor.fetchall()
+    return secciones
+
+@mod.route("/gestion_cursos/detalles_curso/<string:codigo_udp>",methods=["GET"])
+def secciones_curso(codigo_udp):
+    curso = consultar_curso(codigo_udp)
+    secciones = consultar_curso_secciones(codigo_udp)
+    print(curso)
+    print("XD")
+    print(secciones)
+    return render_template("/gestion_cursos/detalles_curso.html", curso=curso, secciones=secciones)
 # == VISTA PRINCIPAL/MODAL "AGREGAR CURSO" ==
 
 def agregar_curso(val):
@@ -248,6 +323,42 @@ def agregar_curso_form():
         flash("El curso fue agregado correctamente")
         cursos = consultar_lista_cursos()
         return redirect('/gestion_cursos')
+
+def agregar_curso_seccion(val):
+    query = ('''
+    INSERT INTO Seccion (id_curso, rut_profesor, codigo)
+    VALUES (%s, %s, %s);
+    ''')
+    cursor.execute(query, (
+        val['id_curso'],
+        val['rut_profesor'],
+        val['codigo']))
+    db.commit()
+    return 'OK'
+
+def redirigir_detalle(val):
+    query = ('''
+        SELECT codigo_udp FROM Curso WHERE Curso.id = %s
+    ''')
+    cursor.execute(query, (val,))
+    resultado = cursor.fetchone()
+    return resultado
+
+@mod.route("/gestion_cursos/agregar_seccion", methods = ['POST'])
+def agregar_curso_seccion_form():
+    if "usuario" not in session.keys():
+        return redirect("/")
+    if session["usuario"]["id_credencial"] != 3:
+        return redirect("/")
+    if request.method == 'POST':
+        valores = request.form.to_dict()
+        print(valores)
+        agregar_curso_seccion(valores)
+        curso = redirigir_detalle(valores["id_curso"])
+        print(curso['codigo_udp'])
+        flash("La seccion fue agregada correctamente")
+        return redirect('/gestion_cursos/detalles_curso/'+curso['codigo_udp'])
+
 
 # == VISTA PRINCIPAL/MODAL "EDITAR CURSO" ==
 
@@ -276,12 +387,64 @@ def editar_curso_form():
         return redirect("/")
     if session["usuario"]["id_credencial"] != 3:
         return redirect("/")
+    if request.method=='POST':
+        val=request.form.to_dict()
+        print(val)
+        query = ('''
+            UPDATE Curso
+            SET Curso.codigo_udp = %s,
+                Curso.nombre = %s,
+                Curso.descripcion = %s
+            WHERE Curso.codigo_udp = %s
+        ''')
+        cursor.execute(query, (
+            val['nuevo_codigo_udp'],
+            val['nombre'],
+            val['descripcion'],
+            val['codigo_udp']
+            ))
+        db.commit()
+        flash("El curso se ha actualizado correctamente")
+        #se redirige de vuelta a la pagina principal de gestion usuarios
+        return redirect("/gestion_cursos")
+
+def editar_curso_form2():
+    if "usuario" not in session.keys():
+        return redirect("/")
+    if session["usuario"]["id_credencial"] != 3:
+        return redirect("/")
     if request.method == 'POST':
         valores = request.form.to_dict()
         print(valores)
         editar_curso(valores)
         flash("El curso se ha actualizado correctamente")
         return redirect("/gestion_cursos")
+
+@mod.route('/gestion_cursos/editar_seccion', methods = ['POST'])
+def editar_seccion_form():
+    if "usuario" not in session.keys():
+        return redirect("/")
+    if session["usuario"]["id_credencial"] != 3:
+        return redirect("/")
+    if request.method=='POST':
+        val=request.form.to_dict()
+        print(val)
+        query = ('''
+            UPDATE Seccion
+            SET Seccion.rut_profesor = %s,
+                Seccion.codigo = %s
+            WHERE Seccion.id = %s
+        ''')
+        cursor.execute(query, (
+            val['rut_profesor'],
+            val['codigo_seccion'],
+            val['id']
+            ))
+        db.commit()
+        curso = redirigir_detalle(val["id_curso"])
+        print(curso['codigo_udp'])
+        flash("La sección se ha actualizado correctamente")
+        return redirect('/gestion_cursos/detalles_curso/'+curso['codigo_udp'])
 
 # == VISTA PRINCIPAL/MODAL "BORRAR CURSO" ==
 
@@ -305,6 +468,29 @@ def eliminar_curso_form():
         eliminar_curso(curso_por_eliminar)
         flash("El curso fue eliminado correctamente")
         return redirect("/gestion_cursos")
+
+def eliminar_seccion(seccion):
+    query = ('''
+        DELETE Seccion FROM Seccion WHERE Seccion.id = %s
+    ''')
+    cursor.execute(query,(seccion['id'],))
+    db.commit()
+    return 'OK'
+
+@mod.route("/gestion_cursos/eliminar_seccion",methods=["POST"])
+def eliminar_seccion_form():
+    if "usuario" not in session.keys():
+        return redirect("/")
+    if session["usuario"]["id_credencial"] != 3:
+        return redirect("/")
+    if request.method == 'POST':
+        seccion_por_eliminar = request.form.to_dict()
+        print(seccion_por_eliminar)
+        eliminar_seccion(seccion_por_eliminar)
+        curso = redirigir_detalle(seccion_por_eliminar["id_curso"])
+        print(curso['codigo_udp'])
+        flash("La sección se ha actualizado correctamente")
+        return redirect('/gestion_cursos/detalles_curso/'+curso['codigo_udp'])
 # == VISTA DETALLES CURSO ==
 def consultar_curso_descripcion(codigo_curso):
     query = ('''

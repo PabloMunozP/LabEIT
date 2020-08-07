@@ -32,7 +32,7 @@
               <td>{{elemento.fecha_compra}}</td>
               <td>
                 {% if elemento.estado == 'No disponible' %}
-                  <span class="badge badge-danger">No disponible</span>
+                  <span class="badge badge-warning">No disponible</span>
                 {% elif elemento.estado == 'Disponible' %}
                   <span class="badge badge-primary">Disponible</span>
                 {% elif elemento.estado == 'Por retirar' %}
@@ -40,7 +40,7 @@
                 {% elif elemento.estado == 'En posesión' %}
                   <span class="badge badge-success">En posesión</span>
                 {% elif elemento.estado == 'Con atraso' %}
-                  <span class="badge badge-success">Con atraso</span>
+                  <span class="badge badge-danger">Con atraso</span>
                 {% else %} 
                   <span>Inesperado</span>
                 {% endif %}

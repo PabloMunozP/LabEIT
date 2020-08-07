@@ -2,6 +2,8 @@ from flask import Flask,Blueprint,render_template,request,redirect,url_for,flash
 from config import db,cursor
 import os,time,bcrypt
 from datetime import datetime
+import json
+from jinja2 import Environment
 
 def redirect_url(default='index'): # Redireccionamiento desde donde vino la request
     return request.args.get('next') or \
@@ -21,8 +23,8 @@ def consultar_lista_equipos_general():
     # Nota importante:
     # actualizar la query papra definir equipos_disponibles y total_equipos
     query = ('''
-        SELECT *, 
-            COUNT(CASE WHEN Detalle_solicitud.estado IN (1, 2, 3) THEN 1 
+        SELECT *,
+            COUNT(CASE WHEN Detalle_solicitud.estado IN (1, 2, 3) THEN 1
             ELSE NULL END) AS en_prestamo
         FROM (SELECT
                 Equipo.id AS equipo_id,
@@ -89,10 +91,19 @@ def gestion_inventario_admin():
         equipos = consultar_lista_equipos_general()
         equipos_detalle = consultar_lista_equipos()
         circuitos = consultar_lista_circuito()
+        cursor = db.cursor(dictionary=True)
+        query = ("""
+            SELECT *
+                    FROM Equipo
+                """)
+        cursor.execute(query)
+        resultado = cursor.fetchall()
+        print(f"json: {json.dumps(resultado)}")
         return render_template('vistas_gestion_inventario/gestion_inventario.html',
             lista_equipo = equipos,
             lista_equipo_detalle = equipos_detalle,
-            lista_circuitos = circuitos)
+            lista_circuitos = circuitos,
+            resultados= {json.dumps(resultado)} )
 
 
 # **** VISTA_PRINCIPAL/MODAL "AGREGAR EQUIPO" **** #
@@ -480,3 +491,55 @@ def funcion_eliminar_circuito():
         equipo_a_eliminar = request.form.to_dict()
         eliminar_circuito(equipo_a_eliminar)
         return redirect("/gestion_inventario_admin")
+
+
+
+
+#Modificar Wifi
+
+def consultar_datos_wifi():
+    query = ('''
+        SELECT *
+        FROM Wifi
+    '''
+    )
+    cursor.execute(query)
+    wifi = cursor.fetchone()
+    return wifi
+
+@mod.route("/modificar_wifi")
+def modificar_wifi():
+    if 'usuario' not in session or session["usuario"]["id_credencial"] != 3:
+        return redirect('/')
+    else:
+        datos = consultar_datos_wifi()
+        return render_template('vistas_gestion_inventario/modificar_wifi.html',
+            datos_wifi = datos )
+
+def editar_datos_wifi(informacion_a_actualizar):  # Query UPDATE
+            query = ('''
+                UPDATE Wifi
+                SET Wifi.ssid = %s,
+                    Wifi.bssid = %s,
+                    Wifi.password = %s
+                WHERE Wifi.ssid = %s
+                AND Wifi.bssid = %s
+
+            ''')
+            cursor.execute(query,(
+                informacion_a_actualizar['ssid'],
+                informacion_a_actualizar['bssid'],
+                informacion_a_actualizar['contraseña'],
+                informacion_a_actualizar['ssid_original'],
+                informacion_a_actualizar['bssid_original']
+                ))
+            db.commit()
+            return informacion_a_actualizar
+
+@mod.route('/modificar_wifi/actualizar', methods = ['POST'])
+def funcion_editar_wifi():
+    if request.method == 'POST':
+        informacion_a_actualizar = request.form.to_dict()
+        editar_datos_wifi(informacion_a_actualizar)
+        print(informacion_a_actualizar)
+        return redirect("/modificar_wifi")

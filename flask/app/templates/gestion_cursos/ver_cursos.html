@@ -1,83 +1,80 @@
-{%extends 'layout_in.html' %}
-
-{% block body %}
-    <div class="container-fluid">
-      {% with msgs = get_flashed_messages() %}
-        {% if msgs %}
-          {% for msg in msgs %}
-            {% if msg == "El curso se ha actualizado correctamente"%}
-              <div class="alert alert-success alert-dismissible fade show" role="alert">
-                <i class="fas fa-check-circle mr-2"></i>Se ha modificado correctamente.
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-                </button>
-              </div>
-            {%endif%}
-            {% if msg == "El curso fue agregado correctamente"%}
-              <div class="alert alert-success alert-dismissible fade show" role="alert">
-                <i class="fas fa-check-circle mr-2"></i>Se ha agregado correctamente.
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-                </button>
-              </div>
-            {%endif%}
-            {% if msg == "El curso fue eliminado correctamente"%}
-              <div class="alert alert-success alert-dismissible fade show" role="alert">
-                <i class="fas fa-check-circle mr-2"></i>Se ha eliminado correctamente.
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-                </button>
-              </div>
-            {%endif%}
-          {%endfor%}
-        {%endif%}
-      {%endwith%}
-
-      <div class="card-header mt-4" style="background:#0db26b;">
-      	<h5 class="card-title text-white my-auto">Gestión de cursos</h5>
-      	<p class="text-white my-auto"><i class="fas fa-info-circle mr-2"></i>En esta sección encontrará los cursos registrados en el sistema, además de poder realizar nuevos registros, consultar y editar información.</p>
-      </div>
-
-      <div class="row float-right mt-2 mb-2">
-          <div class="col-md-12">
-              <button type="button" data-target=" #agregar_curso" class= "btn btn-success" data-toggle="modal"><i class="fas fa-user-plus mr-2"></i>Agregar nuevo curso</button>
-               {% include 'gestion_cursos/agregar_curso.html' %}
-               <button type="button" data-target=" #agregar_masivo" class= "btn btn-info" data-toggle="modal"><i class="fas fa-file-csv mr-2"></i>Carga masiva</button>
-          </div>
-      </div>
-      <div class="table-responsive mt-2">
-    		<div class="table-wrapper-scroll-y" style="position: relative;
-    								max-height: 450px;
-    								overflow:auto;">
-          <table class="table" style="background:#ECF0F1;">
-    			  <thead class="text-white" style="background:#4D4D4D;">
-                  <tr>
-                      <th scope="col">Código UDP</th>
-                      <th scope="col">Nombre</th>
-                      <th scope="col">Descripción</th>
-                      <th scope="col" class="text-center">Acciones</th>
-                  </tr>
-              </thead>
-              <tbody>
-                  {%for curso in cursos%}
-                      <tr>
-                          <td>{{curso['codigo_udp']}}</td>
-                          <td>{{curso['nombre']}}</td>
-                          <td>{{curso['descripcion']}}</td>
-                          <td class="text-center">
-                             <button type="button" title="Editar información" data-target="#editar_curso" class= "btn btn-sm btn-warning" data-toggle="modal"><i class="fas fa-edit"></i></button>
-                             <!---<a class="btn btn-sm btn-info" title="Ver información detallada" href="/gestion_cursos/detalles_curso/codigo_udp={{curso['codigo_udp']}}"><i class="fas fa-search-plus"></i></a>--->
-                             <button type="submit" title="Eliminar curso" data-target="#eliminar_curso" class="btn btn-sm btn-danger" data-toggle="modal"><i class="fas fa-trash-alt"></i></button>
-                          </td>
-                          {% include 'gestion_cursos/agregar_curso.html' %}
-                          {% include 'gestion_cursos/editar_curso.html' %}
-                          {% include 'gestion_cursos/eliminar_curso.html' %}
-                      </tr>
-                  {%endfor%}
-              </tbody>
-          </table>
-        </div>
-      </div>
-
+{% extends "layout_in.html"%}
+{%block body%}
+  <div class="container-fluid">
+    {% with msgs = get_flashed_messages() %}
+      {% if msgs %}
+        {% for msg in msgs %}
+          {% if msg == "El curso se ha actualizado correctamente"%}
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+              <i class="fas fa-check-circle mr-2"></i>Se ha modificado correctamente.
+              <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+          {%endif%}
+          {% if msg == "El curso fue agregado correctamente"%}
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+              <i class="fas fa-check-circle mr-2"></i>Se ha agregado correctamente.
+              <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+          {%endif%}
+          {% if msg == "El curso fue eliminado correctamente"%}
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+              <i class="fas fa-check-circle mr-2"></i>Se ha eliminado correctamente.
+              <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+          {%endif%}
+        {%endfor%}
+      {%endif%}
+    {%endwith%}
+    <div class="card-header mt-4" style="background:#0db26b;">
+    	<h5 class="card-title text-white my-auto">Gestión de cursos</h5>
+    	<p class="text-white my-auto"><i class="fas fa-info-circle mr-2"></i>En esta sección encontrará los cursos registrados en el sistema, además de poder realizar nuevos registros, consultar y editar información.</p>
     </div>
-{%endblock%}
+
+    <div class="row float-right mt-2 mb-2">
+        <div class="col-md-12">
+            <button type="button" data-target=" #agregar_curso" class= "btn btn-success" data-toggle="modal"><i class="fas fa-user-plus mr-2"></i>Agregar nuevo curso</button>
+             {% include 'gestion_cursos/agregar_curso.html' %}
+             <button type="button" data-target=" #agregar_masivo" class= "btn btn-info" data-toggle="modal"><i class="fas fa-file-csv mr-2"></i>Carga masiva</button>
+        </div>
+    </div>
+    <div class="table-responsive">
+  		<div class="table-wrapper-scroll-y" style="position: relative;
+  								max-height: 450px;
+  								overflow:auto;">
+        <table class="table" style="background:#ECF0F1;">
+  			  <thead class="text-white" style="background:#4D4D4D;">
+                <tr>
+                    <th scope="col">Código UDP</th>
+                    <th scope="col">Nombre</th>
+                    <th scope="col">Descripción</th>
+                    <th scope="col" class="text-center">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {%for curso in cursos%}
+                    <tr>
+                        <td>{{curso['codigo_udp']}}</td>
+                        <td>{{curso['nombre']}}</td>
+                        <td>{{curso['descripcion']}}</td>
+                        <td class="text-center">
+                           <button type="button" title="Editar información" data-target="#editar_curso_{{curso['codigo_udp']}}" class= "btn btn-sm btn-warning" data-toggle="modal"><i class="fas fa-edit"></i></button>
+                           <a href="gestion_cursos/detalles_curso/{{curso.codigo_udp}}"><button type="button" title="Ver detalles del curso" data-toggle="modal" class="btn btn-sm btn-info mr-1"><i class="fas fa-search-plus"></i></button></a>
+                           <button type="submit" title="Eliminar curso" data-target="#eliminar_curso_{{curso['codigo_udp']}}" class="btn btn-sm btn-danger" data-toggle="modal"><i class="fas fa-trash-alt"></i></button>
+                        </td>
+                        {% include 'gestion_cursos/agregar_curso.html' %}
+                        {% include 'gestion_cursos/editar_curso.html' %}
+                        {% include 'gestion_cursos/eliminar_curso.html' %}
+                    </tr>
+                {%endfor%}
+            </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  {% endblock %}

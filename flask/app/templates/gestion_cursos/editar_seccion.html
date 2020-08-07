@@ -1,4 +1,4 @@
-<div id="editar_curso_{{curso['codigo_udp']}}"  class="modal fade in" tabindex="-1" role="dialog"  aria-hidden="true" data-keyboard="true" data-backdrop="true">
+<div id="editar_seccion_{{seccion['id']}}"  class="modal fade in" tabindex="-1" role="dialog"  aria-hidden="true" data-keyboard="true" data-backdrop="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header bg-gris-eit">
@@ -7,22 +7,21 @@
                 <span aria-hidden="true">&times; </span>
                 </button>
             </div>
-            <form id="editar_curso" action="/gestion_cursos/editar_curso" method="POST">
+            <form id="editar_seccion" action="/gestion_cursos/editar_seccion" method="POST">
               <div class="modal-body">
-                <input class="form-control" type="text" name="codigo_udp" value="{{curso['codigo_udp']}}" id="editar-curso-hidden-id" hidden>
+                <input class="form-control" type="text" name="id" value="{{seccion['id']}}" id="editar-seccion-hidden-id" hidden>
               </div>
                 <div class="modal-body">
+                  <div class="modal-body">
+                    <input class="form-control" type="text" name="id_curso" value="{{curso['curso_id']}}" id="id_curso" hidden>
+                  </div>
                     <div class="form-group">
-                        <label for="nuevo_codigo_udp">Código curso:</label>
-                        <input type="text" id="nuevo_codigo_udp" name="nuevo_codigo_udp" class="form-control" value="{{curso['codigo_udp']}}" required>
+                        <label for="codigo_seccion">Código sección:</label>
+                        <input type="text" id="codigo_seccion" name="codigo_seccion" class="form-control" value="{{seccion['codigo_seccion']}}" required>
                     </div>
                     <div class="form-group">
-                        <label for="nombre">Nombre:</label>
-                        <input type="text" name="nombre" id="nombre" class="form-control" value="{{curso['nombre']}}" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="descripcion">Descripcion:</label>
-                        <input type="text" name="descripcion" id="descripcion" class="form-control" value="{{curso['descripcion']}}" required>
+                        <label for="nombre">RUT Profesor:</label>
+                        <input type="text" name="rut_profesor" id="rut_profesor" class="form-control" value="{{seccion['rut_profesor']}}">
                     </div>
                 </div>
                 <div class="modal-footer">
