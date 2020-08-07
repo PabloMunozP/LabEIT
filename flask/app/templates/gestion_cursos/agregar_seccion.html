@@ -1,4 +1,4 @@
-<div class="modal fade" id="agregar_seccion" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal fade" id="agregar_seccion_{{curso['curso_id']}}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" data-keyboard="true" data-backdrop="true">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header bg-gris-eit">
@@ -11,10 +11,8 @@
           <form action="/gestion_cursos/agregar_seccion" method="POST">
           <div class="modal-body">
 
-            <div class="form-group">
-              <label for="codigo_udp">Código curso</label>
-              <select name="codigo_udp" id="codigo_udp" class="form-control">
-              </select>
+            <div class="modal-body">
+              <input class="form-control" type="text" name="id_curso" value="{{curso['curso_id']}}" id="id_curso" hidden>
             </div>
             <div class="form-group">
               <label for="codigo">Número sección</label>

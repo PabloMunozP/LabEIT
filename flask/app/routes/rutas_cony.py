@@ -278,6 +278,7 @@ def secciones_curso(codigo_udp):
     curso = consultar_curso(codigo_udp)
     secciones = consultar_curso_secciones(codigo_udp)
     print(curso)
+    print("XD")
     print(secciones)
     return render_template("/gestion_cursos/detalles_curso.html", curso=curso, secciones=secciones)
 # == VISTA PRINCIPAL/MODAL "AGREGAR CURSO" ==
@@ -309,7 +310,7 @@ def agregar_curso_form():
 
 def agregar_curso_seccion(val):
     query = ('''
-    INSERT INTO Secciones (id_curso, rut_profesor, codigo)
+    INSERT INTO Seccion (id_curso, rut_profesor, codigo)
     VALUES (%s, %s, %s);
     ''')
     cursor.execute(query, (
@@ -319,7 +320,15 @@ def agregar_curso_seccion(val):
     db.commit()
     return 'OK'
 
-@mod.route("/gestion_cursos/agregar_curso_seccion", methods = ['POST'])
+def redirigir_detalle(val):
+    query = ('''
+        SELECT codigo_udp FROM Curso WHERE Curso.id = %s
+    ''')
+    cursor.execute(query, (val,))
+    resultado = cursor.fetchone()
+    return resultado
+
+@mod.route("/gestion_cursos/agregar_seccion", methods = ['POST'])
 def agregar_curso_seccion_form():
     if "usuario" not in session.keys():
         return redirect("/")
@@ -327,9 +336,12 @@ def agregar_curso_seccion_form():
         return redirect("/")
     if request.method == 'POST':
         valores = request.form.to_dict()
+        print(valores)
         agregar_curso_seccion(valores)
+        curso = redirigir_detalle(valores["id_curso"])
+        print(curso['codigo_udp'])
         flash("La seccion fue agregada correctamente")
-        return redirect('/gestion_cursos')
+        return redirect('/gestion_cursos/detalles_curso/'+curso['codigo_udp'])
 
 
 # == VISTA PRINCIPAL/MODAL "EDITAR CURSO" ==
@@ -391,6 +403,34 @@ def editar_curso_form2():
         editar_curso(valores)
         flash("El curso se ha actualizado correctamente")
         return redirect("/gestion_cursos")
+
+@mod.route('/gestion_cursos/editar_seccion', methods = ['POST'])
+def editar_seccion_form():
+    if "usuario" not in session.keys():
+        return redirect("/")
+    if session["usuario"]["id_credencial"] != 3:
+        return redirect("/")
+    if request.method=='POST':
+        val=request.form.to_dict()
+        print(val)
+        query = ('''
+            UPDATE Seccion
+            SET Seccion.id_curso = %s,
+                Seccion.rut_profesor = %s,
+                Seccion.codigo = %s
+            WHERE Seccion.id = %s
+        ''')
+        cursor.execute(query, (
+            val['id_curso'],
+            val['rut_profesor'],
+            val['codigo'],
+            val['id']
+            ))
+        db.commit()
+        curso = redirigir_detalle(val["id_curso"])
+        print(curso['codigo_udp'])
+        flash("La sección se ha actualizado correctamente")
+        return redirect('/gestion_cursos/detalles_curso/'+curso['codigo_udp'])
 
 # == VISTA PRINCIPAL/MODAL "BORRAR CURSO" ==
 

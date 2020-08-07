@@ -2,11 +2,10 @@
 {%block body%}
 
 <div class="container-fluid mt-2">
-			<div class="card-header border-0 rounded-0" style="background:#0db26b;">
-				<h5 class="card-title my-auto text-white"><i class="fas fa-laptop mr-2"></i>Información del curso</h5>
+			<div class="card-header mt-2" style="background:#0db26b;">
+				<h5 class="card-title text-white my-auto">Información del curso:</h5>
 			</div>
 			<div class="card-body rounded-0" style="background:#ECF0F1;">
-
 				<div class="form-group row">
 					<label class="col-md-2 col-form-label texto-gris-eit">
 						<strong>ID:</strong>
@@ -54,8 +53,12 @@
 			<div class="card-header mt-2" style="background:#0db26b;">
 				<h5 class="card-title text-white my-auto">Secciones:</h5>
 			</div>
-
-
+			<div class="row float-right mt-2 mb-2">
+					<div class="col-md-12">
+					<button type="button" data-target=" #agregar_seccion_{{curso['curso_id']}}" class= "btn btn-success" data-toggle="modal"><i class="fas fa-user-plus mr-2"></i>Agregar sección</button>
+					 {% include 'gestion_cursos/agregar_seccion.html' %}
+				 </div>
+			</div>
 				<div class="table-responsive mt-2">
 					<div class="table-wrapper-scroll-y" style="position: relative;
 											max-height: 450px;
