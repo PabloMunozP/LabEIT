@@ -1,8 +1,57 @@
 {%extends "layout_in.html" %}
 {% block body %}
-<div class="container-fluid" align="center">
+
+{% include "/wishlist/modals/confirmacion_eliminacion_solicitud.html" %}
+
+{% with msgs = get_flashed_messages() %}
+{% if msgs %}
+{% for msg in msgs %}
+{% if msg == "solicitud-no-encontrada"%}
+<div class="alert alert-warning alert-dismissible fade show" role="alert">
+    <i class="fas fa-exclamation-triangle mr-2"></i>La solicitud de Wishlist no se encuentra registrada. Esto puede
+    deberse a una eliminación reciente.
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>
+{%endif%}
+{% if msg == "detalle-eliminado" %}
+<div class="alert alert-success mt-2 alert-dismissible fade show" role="alert">
+    <i class="fas fa-check-circle mr-2"></i>La solicitud de Wishlist ha sido eliminada correctamente.
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>
+{% endif %}
+{% if msg == "solicitud-registrada" %}
+<div class="alert alert-success mt-2 alert-dismissible fade show" role="alert">
+    <i class="fas fa-check-circle mr-2"></i>La solicitud de Wishlist ha sido registrada correctamente.
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>
+{% endif %}
+{% if msg == "usuario-no-existente"%}
+<div class="alert alert-danger alert-dismissible fade show" role="alert">
+    <i class="fas fa-times-circle mr-2"></i>No se ha encontrado un usuario registrado con el RUT ingresado.
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>
+{%endif%}
+{%endfor%}
+{%endif%}
+{%endwith%}
+
+<div class="container-fluid">
     <div class="tab-content" id="nav-tabContent">
-        {% include "/wishlist/admin_tabla_wishlist.html" %}
+        <div class="card-header mt-4" style="background:#0db26b;">
+            <h3 class="card-title text-white my-auto">Wishlist de LabEIT UDP</h3>
+            <p class="text-white my-auto"><i class="fas fa-info-circle mr-2"></i>La siguiente lista muestra las
+                solicitudes de equipos nuevos hechas por alumnos de la escuela.</p>
+        </div>
+        {% include "/wishlist/admin_wishlist_tabla.html" %}
     </div>
 </div>
+
 {% endblock %}

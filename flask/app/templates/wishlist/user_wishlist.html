@@ -21,8 +21,24 @@
     </div>
 
     <div class="container-fluid">
+
+        {% with msgs = get_flashed_messages() %}
+			{% if msgs %}
+				{% for msg in msgs %}
+				{% if msg == "solicitud-registrada" %}
+				<div class="alert alert-success mt-2 alert-dismissible fade show" role="alert">
+						<i class="fas fa-check-circle mr-2"></i>Su solicitud de Wishlist ha sido registrada correctamente.
+						<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+								<span aria-hidden="true">&times;</span>
+						</button>
+				</div>
+				{% endif %}
+				{%endfor%}
+			{%endif%}
+        {%endwith%}
+        
         <div class="col mt-4">
-            <div id="accordion">
+            <div id="accordion" style="width : 1000px; margin-left: 10%;">
                 <form action="#" method="post">
                     <div class="col-md-12">
                         <div class="card">
@@ -40,7 +56,7 @@
                                     <div class="form-group">
                                         <label for="nombreEquipoWishlist">Nombre</label>
                                         <input name="nombre" type="name" class="form-control" id="nombreEquipoWishlist"
-                                            aria-describedby="ejemploNombre" required>
+                                            aria-describedby="ejemploNombre" style="width : 500px;" required>
                                         <small id="ejemploNombre" class="form-text text-muted">Por ejemplo: Smartphone,
                                             Router,
                                             Arduino, Webcam.</small>
@@ -48,7 +64,7 @@
                                     <div class="form-group">
                                         <label for="marcaEquipoWishlist">Marca</label>
                                         <input name="marca" type="name" class="form-control" id="marcaEquipoWishlist"
-                                            aria-describedby="ejemploMarca" required>
+                                            aria-describedby="ejemploMarca" style="width : 500px;" required>
                                         <small id="ejemploMarca" class="form-text text-muted">Por ejemplo: Arduino UNO,
                                             BlackBerry,
                                             Sony, TP-LINK.</small>
@@ -56,7 +72,7 @@
                                     <div class="form-group">
                                         <label for="modeloEquipoWishlist">Modelo</label>
                                         <input name="modelo" type="name" class="form-control" id="modeloEquipoWishlist"
-                                            aria-describedby="ejemploModelo" required>
+                                            aria-describedby="ejemploModelo" style="width : 500px;" required>
                                         <small id="ejemploModelo" class="form-text text-muted">Por ejemplo: Uno R2, 9530,
                                             BCG-34HLD
                                             , TL-WR1043ND.</small>
@@ -116,8 +132,8 @@
                                 <div class="card-body">
                                     <div class="form-group">
                                         <label for="url1">Url 1</label>
-                                        <input name="url" type="url" class="form-control" id="url1" aria-describedby="ejemploUrl"
-                                            required>
+                                        <input name="url" type="url" class="form-control" id="url1" aria-describedby="ejemploUrl" 
+                                        style="width : 850px;" required>
                                         <small id="ejemploUrl" class="form-text text-muted">Por ejemplo:
                                             https://www.mcielectronics.cl/shop/product/arduino-uno-wifi-r2-28297</small>
                                     </div>
@@ -137,9 +153,9 @@
         <div class="tab-content" id="nav-tabContent">
             <div class="card-header mt-4" style="background:#0db26b;">
                 <h3 class="card-title text-white my-auto">Wishlist de LabEIT UDP</h3>
-                <p class="text-white my-auto"><i class="fas fa-info-circle mr-2"></i>Info.</p>
+                <p class="text-white my-auto"><i class="fas fa-info-circle mr-2"></i>La siguiente lista muestra las últimas solicitudes de Wishlist hechas por alumnos de la escuela y que han sido aceptadas.</p>
             </div>
-            {% include "/wishlist/lab_tabla_wishlist.html" %}
+            {% include "/wishlist/user_wishlist_tabla.html" %}
         </div>
     </div>
 {% endblock %}

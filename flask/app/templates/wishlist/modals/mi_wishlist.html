@@ -39,12 +39,12 @@
                   {% endif %}
                   </td>
                   {% if detalle_solicitud["estado_wishlist"] == 0 %}
-                  <td class="text-center"><span class="badge badge-primary">Pendiente</span></td>
+                  <td class="text-center"><span class="badge badge-primary">{{detalle_solicitud["nombre_estado"]}}</span></td>
                   {% elif detalle_solicitud["estado_wishlist"] == 5 %}
-                  <td class="text-center"><span class="badge badge-danger">Rechazada</span>
+                  <td class="text-center"><span class="badge badge-danger">{{detalle_solicitud["nombre_estado"]}}</span>
                   </td>
                   {% elif detalle_solicitud["estado_wishlist"] == 8 %}
-                  <td class="text-center"><span class="badge badge-success">Aceptada</span></td>
+                  <td class="text-center"><span class="badge badge-success">{{detalle_solicitud["nombre_estado"]}}</span></td>
                   {% endif %}
                   <td>
                     {% if detalle_solicitud["fecha_solicitud"] %}
