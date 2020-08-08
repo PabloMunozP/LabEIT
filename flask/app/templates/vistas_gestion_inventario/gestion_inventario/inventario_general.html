@@ -2,20 +2,18 @@
     <h5 class="card-title text-white my-auto">Gestión de inventario general</h5>
     <p class="text-white my-auto"><i class="fas fa-info-circle mr-2"></i>A continuación encontrará la lista agrupada de los equipos registrados en el laboratorio.</p>
 </div>
-
 <div class="row" style="display: flex; justify-content: flex-end">
     <div class="mt-2 mb-2">
       <div class="col-md-12">
         <button type="button" data-target="#agregar_equipo" class="btn btn-success" data-toggle="modal"><i class="fas fa-plus-circle mr-2"></i>Agregar equipo</button>
-        <button type="button" title="Descargar planilla" class="btn btn-info"><i class="fas fa-file-excel mr-2"></i>Descargar planilla</button>
-      </div>  
+        <button type="button" id="export-btn" title="Descargar planilla" class="btn btn-info"><i class="fas fa-file-excel mr-2"></i>Descargar planilla</button>
+      </div>
     </div>
 </div>
 
 
 
 
-    <div>
       <div class="table-responsive">
         <div class="table-wrapper-scroll-y" style="position: relative; overflow:auto;">
           <table class="table table-hover" id="tabla_equipos_general">
@@ -45,7 +43,7 @@
                   <td class="text-center"> {{elemento.total_equipos}}</td>
                   <td>
                     <span class="btn-group">
-                      <a href="gestion_inventario_admin/detalles_equipo/{{elemento.codigo}}"><button type="button" title="Ver detalles de equipo" data-toggle="modal" class="btn btn-sm btn-info mr-1"><i class="fas fa-search-plus"></i></button></a>
+                     <a href="gestion_inventario_admin/detalles_equipo/{{elemento.codigo}}"><button type="button" title="Ver detalles de equipo" data-toggle="modal" class="btn btn-sm btn-info mr-1"><i class="fas fa-search-plus"></i></button></a>
                       <button type="button" onclick="cargar_datos_equipo_modal('{{elemento.codigo}}','{{elemento.nombre}}','{{elemento.modelo}}', '{{elemento.marca}}', '{{elemento.descripcion}}','{{elemento.dias_max_prestamo}}','{{elemento.imagen}}')" data-target="#editar_equipo" title="Editar equipo" class="btn btn-sm btn-warning mr-1" data-toggle="modal"><i class="fas fa-edit"></i></button>
                       <button type="button" onclick="cargar_codigo_delete_equipo_modal('{{elemento.codigo}}')" title="Eliminar equipo" data-toggle="modal" data-target="#eliminar_equipo" class="btn btn-sm btn-danger mr-1"><i class="fas fa-trash"></i></button>
                       <a href="/gestion_inventario_admin/lista_equipo_diferenciado/{{elemento.codigo}}"><button type="button" class="btn btn-sm btn-secondary" title="Ver unidades registradas"><i class="fas fa-clipboard-list"></i></button></a>
@@ -56,9 +54,51 @@
             </tbody>
           </table>
         </div>
-      </div>      
-  </div>
+      </div>
 
 
+      <div class="table-responsive" hidden>
+        <div class="table-wrapper-scroll-y" hidden style="position: relative; overflow:auto;">
+          <table class="table table-hover" id="tabla_equipos_general_descarga" hidden>
+            <thead class="text-white" style="background:#4D4D4D;" hidden>
+              <tr>
+                <th scope="col">Codigo</th>
+                <th scope="col">Nombre</th>
+                <th scope="col">Modelo</th>
+                <th scope="col">Marca</th>
+                <th scope="col" class="text-center">Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for elemento in lista_equipo %}
+                <tr style="background:#ECF0F1;">
+                  <td > {{elemento.codigo}} </td>
+                  <td> {{elemento.nombre}} </td>
+                  <td> {{elemento.modelo}} </td>
+                  <td> {{elemento.marca}} </td>
+                  <td class="text-center"> {{elemento.total_equipos}}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
 
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+<script src="https://rawgit.com/unconditional/jquery-table2excel/master/src/jquery.table2excel.js"></script>
+  <script>
+    jQuery(document).ready(function() {
+        $('#export-btn').on('click', function(e){
+            e.preventDefault();
+            ResultsToTable();
+        });
+
+        function ResultsToTable(){
+            $("#tabla_equipos_general_descarga").table2excel({
+                exclude: ".noExl",
+                name: "Results"
+            });
+        }
+    });
+</script>
