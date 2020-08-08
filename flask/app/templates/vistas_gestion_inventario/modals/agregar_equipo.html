@@ -18,22 +18,32 @@
 
             <div class="form-group">
               <label for="apellidos">Nombre</label>
-              <input class="form-control" type="text" name="nombre" id="nombre" list="states-list" required autocomplete="off">
-              <datalist id="states-list">
+              <input class="form-control" type="text" name="nombre" id="nombre" list="nombre-list" required autocomplete="off">
+              <datalist id="nombre-list">
                 {% for elemento in lista_equipo %}
                 <option> {{elemento.nombre}} </option>
-                             {% endfor %}
+                 {% endfor %}
               </datalist>
             </div>
 
             <div class="form-group">
               <label for="apellidos">Marca</label>
-              <input class="form-control" type="text" name="marca" id="marca" required>
+              <input class="form-control" type="text" name="marca" id="marca" list="marca-list" required autocomplete="off">
+              <datalist id="marca-list">
+                {% for elemento in lista_equipo %}
+                <option> {{elemento.marca}} </option>
+                 {% endfor %}
+              </datalist>
             </div>
 
             <div class="form-group">
               <label for="apellidos">Modelo</label>
-              <input class="form-control" type="text" name="modelo" id="modelo" required>
+              <input class="form-control" type="text" name="modelo" id="modelo" list="modelo-list" required autocomplete="off">
+              <datalist id="modelo-list">
+                {% for elemento in lista_equipo %}
+                <option> {{elemento.modelo}} </option>
+                 {% endfor %}
+              </datalist>
             </div>
 
             <div class="form-group">
