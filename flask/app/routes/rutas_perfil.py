@@ -7,6 +7,8 @@ import rut_chile
 import glob
 import platform
 
+import wsp_app.whatsapp as wsp
+
 PATH = BASE_DIR # obtiene la ruta del directorio actual
 PROFILE_PICS_PATH = PATH.replace(os.sep, '/')+'/app/static/imgs/profile_pics/' #  remplaza [\\] por [/] en windows 
 
@@ -49,6 +51,7 @@ def consultar_equipos_solicitudes_alumno(list_id_solicitudes): # Query para cons
     format_strings = ','.join(['%s'] * len(list_id_solicitudes)) # Genera un string para la query
     query = ('''
         SELECT Detalle_solicitud.id_solicitud,
+            Solicitud.fecha_registro,
             Detalle_solicitud.fecha_inicio,
             Detalle_solicitud.fecha_termino,
             Detalle_solicitud.fecha_devolucion,
@@ -61,6 +64,7 @@ def consultar_equipos_solicitudes_alumno(list_id_solicitudes): # Query para cons
         FROM Detalle_solicitud
         LEFT JOIN Equipo ON Detalle_solicitud.id_equipo = Equipo.id
         LEFT JOIN Estado_detalle_solicitud ON Estado_detalle_solicitud.id = Detalle_solicitud.estado
+        LEFT JOIN Solicitud ON Solicitud.id = Detalle_solicitud.id_solicitud
         WHERE Detalle_solicitud.id_solicitud IN (%s)
     ''' % format_strings)
     cursor.execute(query,tuple(list_id_solicitudes))
@@ -91,6 +95,16 @@ def consultar_informacion_perfil(rut_perfil): # Query para consultar la informac
     resultado_perfil = cursor.fetchone()
     return resultado_perfil
 
+def validar_completar_datos_usario(datos): # Loop para validar si es que faltan completar datos (marcados como None)
+    for key in datos:
+
+        if datos[key] == None or datos[key] == "": # Si falta completar algún dato, la variable cambiará a True
+
+            return True
+
+    return False
+    
+
 @mod.route('/perfil',  methods =['GET','POST']) # ** Importante PERFIL** #
 def perfil():
     # si hay un usuario en la session carga el perfil
@@ -98,13 +112,7 @@ def perfil():
         return redirect('/')
     else:
         resultado_perfil = consultar_informacion_perfil(session['usuario']['rut']) # Hace la consulta a la base sobre los datos del usuario
-        validar_completar = False # Variable que sera pasada para completar la información
-        # Loop para validar si es que faltan completar datos (marcados como None)
-        # Si falta completar algún dato, la variable cambiará a True
-        for key in resultado_perfil:
-            if resultado_perfil[key] == None:
-                validar_completar = True
-                break
+        validar_completar = validar_completar_datos_usario(resultado_perfil) # Variable que sera pasada para completar la información
         # Funcion que verifica si existe la foto de perfil
         # Las fotos puedes estar guardadas en cualquier tipo de extension
         # Si existe una foto para del usuario obtiene el nombre del archivo + extension
@@ -158,10 +166,26 @@ def configurar_perfil():
         return redirect('/')
 
 
-@mod.route('/debug')
-def debug():
-    return 'XD'
+@mod.route('/1')
+def debug1():
+    wsp.init_wsp_web()
+    return '1'
+@mod.route('/2')
+def debug2():
+    wsp.enviar_mensaje_a_usuario("111111111")
+    return '2'
+@mod.route('/3')
+def debug3():
+    wsp.quite_wsp_web()
+    return '3'
 
+@mod.route('/t')
+def debug_t():
+    wsp.añadir_mensaje_a_la_cola("123456","holamundo")
+    # for index, i in rangue(10):
+    #     time.sleep(5)
+    #     wsp.añadir_mensaje_a_la_cola(index,"holamundo")
+    return 't'
 
 
 EXTENSIONES_PERMITIDAS = ["PNG","JPG","JPEG","GIF"]

@@ -7,6 +7,8 @@
     <table id="tabla_equipos" class="table">
       <thead class="text-white" style="background:#4D4D4D;">
         <tr>
+            <th>Solicitud</th>
+            <th>Fecha solicitud</th>
             <th>Código</th>
             <th>Equipo</th>
             <th>Modelo</th>
@@ -21,6 +23,8 @@
       <tbody>
         {% for elemento in solicitudes_equipos %}
         <tr>
+          <td>{{elemento.id_solicitud}}</td>
+          <td>{{elemento.fecha_registro}}</td>
           <td>{{elemento.codigo}}</td>
           <td>{{elemento.nombre}}</td>
           <td>{{elemento.modelo}}</td>

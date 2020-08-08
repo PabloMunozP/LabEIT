@@ -1,0 +1,3 @@
+[9980:16468:0806/031817.879:WARNING:discovery_network_list_win.cc(197)] Failed to open Wlan client handle: 1062
+[9980:11544:0806/031823.421:ERROR:device_event_log_impl.cc(208)] [03:18:23.420] Bluetooth: bluetooth_adapter_winrt.cc:1074 Getting Default Adapter failed.
+[9980:11544:0806/031825.551:WARNING:pref_notifier_impl.cc(40)] Pref observer for media_router.cast_allow_all_ips found at shutdown.
