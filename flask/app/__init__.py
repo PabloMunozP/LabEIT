@@ -76,7 +76,7 @@ def revisar_solicitudes_atrasadas():
             FROM Detalle_solicitud,Solicitud
                 WHERE Detalle_solicitud.id_solicitud = Solicitud.id
                 AND (Detalle_solicitud.estado = 2 OR Detalle_solicitud.estado = 3)
-                AND datediff(Detalle_solicitud.fecha_termino,%s) <= -1
+                AND datediff(Detalle_solicitud.fecha_termino,%s) <= 0
     """
     cursor.execute(sql_query,(fecha_actual,))
     lista_detalles_con_atraso = cursor.fetchall()
@@ -103,11 +103,36 @@ def revisar_solicitudes_atrasadas():
             """
             cursor.execute(sql_query,(fecha_actual,sancion["id"]))
         else:
+            # [!] Falta verificar cuando se está descontando tiempo de una inactiva
+            # Se verifica si existe alguna sanción inactiva (activa=0) con tiempo de multa restante
+
+            sql_query = """
+                SELECT id,cantidad_dias
+                    FROM Sanciones
+                        WHERE rut_alumno = %s
+                        AND activa = 0
+            """
+            cursor.execute(sql_query,(detalle_solicitud["rut_alumno"],))
+            sancion_inactiva = cursor.fetchone()
+
+            if sancion_inactiva:
+                cantidad_dias = sancion_inactiva["cantidad_dias"] + 5 # +5 días de la sanción actual
+                # Se elimina la sanción inactiva, y se añade el tiempo restante a la nueva
+                # sanción a crear
+                sql_query = """
+                    DELETE FROM
+                        Sanciones
+                            WHERE id = %s
+                """
+                cursor.execute(sql_query,(sancion_inactiva["id"],))
+            else:
+                cantidad_dias = 5
+
             sql_query = """
                 INSERT INTO Sanciones (rut_alumno,cantidad_dias,activa,fecha_registro,fecha_actualizacion)
-                    VALUES (%s,5,1,%s,%s)
+                    VALUES (%s,%s,1,%s,%s)
             """
-            cursor.execute(sql_query,(detalle_solicitud["rut_alumno"],fecha_actual,fecha_actual))
+            cursor.execute(sql_query,(detalle_solicitud["rut_alumno"],cantidad_dias,fecha_actual,fecha_actual))
 
         # Se modifica el estado de la sanción, en caso de que esté 'en posesión'
         if detalle_solicitud["estado"] == 2:
@@ -119,7 +144,7 @@ def revisar_solicitudes_atrasadas():
             cursor.execute(sql_query,(detalle_solicitud["id"],))
 
         # Se activa la sanción en el registro de la tabla de Detalle de solicitud
-        if detalle_solicitud["sancion_activa"] is not None:
+        if detalle_solicitud["sancion_activa"] != 1:
             sql_query = """
                 UPDATE Detalle_solicitud
                     SET sancion_activa = 1
@@ -127,6 +152,21 @@ def revisar_solicitudes_atrasadas():
             """
             cursor.execute(sql_query,(detalle_solicitud["id"],))
 
+def descontar_dias_sanciones():
+    # Se descuentan los días de sanción de las sanciones inactivas
+    sql_query = """
+        UPDATE Sanciones
+            SET cantidad_dias = cantidad_dias - 1
+                WHERE activa = 0
+    """
+    cursor.execute(sql_query)
+
+    # Se elimina el registro en caso de alcanzar 0 días
+    sql_query = """
+        DELETE FROM Sanciones
+            WHERE cantidad_dias <= 0
+    """
+    cursor.execute(sql_query)
 
 def revisar_18_30():
     # Eliminación de solicitudes vencidas
@@ -135,9 +175,12 @@ def revisar_18_30():
     # Revisión de solicitudes atrasadas y sanciones
     revisar_solicitudes_atrasadas()
 
+    # Se descuentan los días de sanciones de las sanciones inactivas
+    descontar_dias_sanciones()
+
 #sched = APScheduler()
 #sched.add_job(id="revisar_tokens_password",func=revisar_tokens_password,trigger='cron',hour=23,minute=59)
-#sched.add_job(id="revisar_18_30",func=revisar_18_30,trigger='cron',hour=12,minute=55)
+#sched.add_job(id="revisar_18_30",func=revisar_18_30,trigger='cron',hour=13,minute=50)
 #sched.start()
 # ============================================================================
 
@@ -167,7 +210,7 @@ app.config.from_object('config')
 # Sample HTTP error handling
 @app.errorhandler(404)
 def not_found(error):
-    return render_template('/vistas_errores/404_externo.html'), 404
+    return redirect("/")
 
 @app.errorhandler(401)
 def not_authorized(error):

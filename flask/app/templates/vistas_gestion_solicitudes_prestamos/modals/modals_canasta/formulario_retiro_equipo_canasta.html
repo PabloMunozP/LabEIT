@@ -1,0 +1,66 @@
+<div class="modal fade" id="formulario_retiro_equipo_{{detalle_solicitud["id"]}}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header bg-gris-eit">
+        <h5 class="modal-title text-white"><i class="fas fa-question-circle mr-2"></i>Confirmación de retiro de equipo</h5>
+        <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close" style="outline:none;">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <form action="/entregar_equipo/{{detalle_solicitud["id"]}}" method="post">
+        <div class="modal-body">
+          <input type="text" hidden name="id_encabezado_solicitud" value="{{detalle_solicitud["id_solicitud"]}}">
+          <input type="text" hidden name="codigo_equipo" value="{{detalle_solicitud["codigo_equipo"]}}">
+          <input type="text" hidden name="dias_max_prestamo" value="{{detalle_solicitud["dias_max_prestamo_equipo"]}}">
+            <p>Equipo a retirar: <strong>{{detalle_solicitud["nombre_equipo"]}} {{detalle_solicitud["marca_equipo"]}} {{detalle_solicitud["modelo_equipo"]}}</strong></p>
+            <p>Código de laboratorio: <strong>{{detalle_solicitud["codigo_equipo"]}}</strong></p>
+            <p>Código identificador del equipo: <strong>{{detalle_solicitud["codigo_sufijo_equipo"]}}</strong></p>
+            <p>Cantidad de días máximo de préstamo: <strong>{{detalle_solicitud["dias_max_prestamo_equipo"]}}</strong></p>
+            <hr>
+            <p><i class="fas fa-info-circle mr-1"></i>Por defecto, el préstamo será registrado por la cantidad máxima de días definidas por el equipo.<br> En caso de necesitar una fecha de término específica, ingrésela a continuación:</p>
+
+            <div class="form-group">
+              <input type="date" max="3000-01-01" class="form-control" id="input_fecha_especifica_retiro_{{detalle_solicitud["id"]}}" name="fecha_termino_prestamo">
+              <small class="form-text text-muted">* Omita este campo en caso de utilizar la cantidad de días definida por el equipo.</small>
+              <small class="form-text text-danger" id="error_dia_habil_{{detalle_solicitud["id"]}}" hidden>* Seleccione un día hábil para la devolución del equipo.</small>
+            </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+          <button type="submit" class="btn btn-success">Confirmar entrega</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+  var today = new Date();
+  var dd = today.getDate();
+  var mm = today.getMonth()+1; //January is 0!
+  var yyyy = today.getFullYear();
+   if(dd<10){
+    dd='0'+dd
+   }
+   if(mm<10){
+    mm='0'+mm
+   }
+
+  today = yyyy+'-'+mm+'-'+dd;
+  var id_detalle = {{detalle_solicitud["id"]}};
+  document.getElementById("input_fecha_especifica_retiro_"+id_detalle).setAttribute("min", today);
+
+  var picker = document.getElementById('input_fecha_especifica_retiro_'+id_detalle);
+  picker.addEventListener('input', function(e){
+    var day = new Date(this.value).getUTCDay();
+    var id_detalle = {{detalle_solicitud["id"]}};
+    if([6,0].includes(day)){
+      e.preventDefault();
+      this.value = '';
+      $("#error_dia_habil_"+id_detalle).prop("hidden",false);
+    }else{
+      $("#error_dia_habil_"+id_detalle).prop("hidden",true);
+    }
+  });
+
+</script>

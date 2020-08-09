@@ -512,7 +512,7 @@ def rechazar_solicitud(id_detalle):
 
     # Se obtienen los datos al equipo y detalle de solicitud para notificar al usuario vía correo
     sql_query = """
-        SELECT Equipo.marca,Equipo.modelo,Solicitud.fecha_registro,Solicitud.rut_alumno,Detalle_solicitud.id_solicitud
+        SELECT Equipo.nombre,Equipo.marca,Equipo.modelo,Solicitud.fecha_registro,Solicitud.rut_alumno,Detalle_solicitud.id_solicitud
             FROM Equipo,Solicitud,Detalle_solicitud
                 WHERE Solicitud.id = Detalle_solicitud.id_solicitud
                 AND Detalle_solicitud.id_equipo = Equipo.id
@@ -552,7 +552,7 @@ def rechazar_solicitud(id_detalle):
     archivo_html = archivo_html.replace("%id_solicitud%",str(datos_solicitud_rechazada["id_solicitud"]))
     archivo_html = archivo_html.replace("%id_detalle%",id_detalle)
     archivo_html = archivo_html.replace("%nombre_usuario%",datos_usuario["nombres"])
-    archivo_html = archivo_html.replace("%equipo_solicitado%",datos_solicitud_rechazada["marca"]+" "+datos_solicitud_rechazada["modelo"])
+    archivo_html = archivo_html.replace("%equipo_solicitado%",datos_solicitud_rechazada["nombre"]+" "+datos_solicitud_rechazada["marca"]+" "+datos_solicitud_rechazada["modelo"])
     archivo_html = archivo_html.replace("%fecha_registro%",str(datos_solicitud_rechazada["fecha_registro"]))
     archivo_html = archivo_html.replace("%fecha_revision_solicitud%",fecha_revision_solicitud)
 
@@ -580,7 +580,7 @@ def aprobar_solicitud(id_detalle):
 
     # Se obtienen los datos del equipo según el código de sufijo del formulario
     sql_query = """
-        SELECT marca,modelo
+        SELECT nombre,marca,modelo
             FROM Equipo
                 WHERE codigo = %s
     """
@@ -652,7 +652,7 @@ def aprobar_solicitud(id_detalle):
     archivo_html = archivo_html.replace("%id_solicitud%",str(datos_encabezado_solicitud["id"]))
     archivo_html = archivo_html.replace("%id_detalle%",id_detalle)
     archivo_html = archivo_html.replace("%nombre_usuario%",datos_usuario["nombres"])
-    archivo_html = archivo_html.replace("%equipo_solicitado%",datos_equipo["marca"]+" "+datos_equipo["modelo"])
+    archivo_html = archivo_html.replace("%equipo_solicitado%",datos_equipo["nombre"]+" "+datos_equipo["marca"]+" "+datos_equipo["modelo"])
     archivo_html = archivo_html.replace("%codigo_equipo%",datos_formulario["codigo_equipo"])
     archivo_html = archivo_html.replace("%codigo_sufijo%",datos_formulario["codigo_sufijo_prestado"])
     archivo_html = archivo_html.replace("%fecha_registro%",str(datos_encabezado_solicitud["fecha_registro"]))
@@ -715,7 +715,7 @@ def eliminar_solicitud(id_detalle):
         cursor.execute(sql_query,(id_encabezado_solicitud,))
 
     flash("detalle-eliminado")
-    return redirect("/gestion_solicitudes_prestamos")
+    return redirect(redirect_url())
 
 @mod.route("/cancelar_solicitud/<string:id_detalle>",methods=["POST"])
 def cancelar_solicitud(id_detalle):
@@ -755,7 +755,7 @@ def cancelar_solicitud(id_detalle):
 
     # Se obtienen los datos del equipo según el código de sufijo del formulario
     sql_query = """
-        SELECT marca,modelo
+        SELECT nombre,marca,modelo
             FROM Equipo
                 WHERE codigo = %s
     """
@@ -769,7 +769,7 @@ def cancelar_solicitud(id_detalle):
     archivo_html = archivo_html.replace("%id_solicitud%",str(datos_encabezado_solicitud["id"]))
     archivo_html = archivo_html.replace("%id_detalle%",id_detalle)
     archivo_html = archivo_html.replace("%nombre_usuario%",datos_usuario["nombres"])
-    archivo_html = archivo_html.replace("%equipo_solicitado%",datos_equipo["marca"]+" "+datos_equipo["modelo"])
+    archivo_html = archivo_html.replace("%equipo_solicitado%",datos_equipo["nombre"]+" "+datos_equipo["marca"]+" "+datos_equipo["modelo"])
     archivo_html = archivo_html.replace("%codigo_equipo%",datos_formulario["codigo_equipo"])
     archivo_html = archivo_html.replace("%codigo_sufijo%",datos_formulario["codigo_sufijo_equipo"])
     archivo_html = archivo_html.replace("%fecha_registro%",str(datos_encabezado_solicitud["fecha_registro"]))
@@ -829,7 +829,7 @@ def entregar_equipo(id_detalle):
 
     # Se envía un nuevo correo al usuario con las indicaciones correspondientes
     sql_query = """
-        SELECT Detalle_solicitud.*,Solicitud.rut_alumno,Solicitud.fecha_registro as fecha_registro_encabezado,Equipo.marca,Equipo.modelo,Equipo.codigo AS codigo_equipo
+        SELECT Detalle_solicitud.*,Solicitud.rut_alumno,Solicitud.fecha_registro as fecha_registro_encabezado,Equipo.nombre,Equipo.marca,Equipo.modelo,Equipo.codigo AS codigo_equipo
             FROM Solicitud,Detalle_solicitud,Equipo
                 WHERE Detalle_solicitud.id_solicitud = Solicitud.id
                 AND Detalle_solicitud.id_equipo = Equipo.id
@@ -854,7 +854,7 @@ def entregar_equipo(id_detalle):
     archivo_html = archivo_html.replace("%id_solicitud%",str(datos_formulario["id_encabezado_solicitud"]))
     archivo_html = archivo_html.replace("%id_detalle%",id_detalle)
     archivo_html = archivo_html.replace("%nombre_usuario%",datos_usuario["nombres"])
-    archivo_html = archivo_html.replace("%equipo_prestado%",datos_generales_solicitud["marca"]+" "+datos_generales_solicitud["modelo"])
+    archivo_html = archivo_html.replace("%equipo_prestado%",datos_generales_solicitud["nombre"]+" "+datos_generales_solicitud["marca"]+" "+datos_generales_solicitud["modelo"])
     archivo_html = archivo_html.replace("%codigo_equipo%",datos_generales_solicitud["codigo_equipo"])
     archivo_html = archivo_html.replace("%codigo_sufijo%",datos_generales_solicitud["codigo_sufijo_equipo"])
     archivo_html = archivo_html.replace("%fecha_registro%",str(datos_generales_solicitud["fecha_registro_encabezado"]))
@@ -881,9 +881,24 @@ def devolucion_equipo(id_detalle):
     else:
         fecha_devolucion_equipo = datos_formulario["fecha_devolucion_equipo"]
 
+    # Se verifica si el detalle presentaba sancion_activa = 1
+    sql_query = """
+        SELECT sancion_activa
+            FROM Detalle_solicitud
+                WHERE id = %s
+    """
+    cursor.execute(sql_query,(id_detalle,))
+    sancion_activa_detalle = cursor.fetchone()
+
+    detalle_sancionado = False
+
+    if sancion_activa_detalle is not None:
+        if sancion_activa_detalle["sancion_activa"]:
+            detalle_sancionado = True
+
     # Se obtienen los datos de la solicitud para notificación vía correo electrónico
     sql_query = """
-        SELECT Detalle_solicitud.*,Solicitud.rut_alumno,Solicitud.fecha_registro as fecha_registro_encabezado,Equipo.marca,Equipo.modelo,Equipo.codigo AS codigo_equipo
+        SELECT Detalle_solicitud.*,Solicitud.rut_alumno,Solicitud.fecha_registro as fecha_registro_encabezado,Equipo.nombre,Equipo.marca,Equipo.modelo,Equipo.codigo AS codigo_equipo
             FROM Solicitud,Detalle_solicitud,Equipo
                 WHERE Detalle_solicitud.id_solicitud = Solicitud.id
                 AND Detalle_solicitud.id_equipo = Equipo.id
@@ -893,9 +908,10 @@ def devolucion_equipo(id_detalle):
     datos_generales_solicitud = cursor.fetchone() # Info de solicitud + detalle + equipo
 
     # Se modifica el detalle de solicitud
+    # Se deja en 0 sancion_activa, en caso de que el detalle se encontrara bajo una sanción activa
     sql_query = """
         UPDATE Detalle_solicitud
-            SET codigo_sufijo_equipo = NULL,estado = 4,fecha_devolucion = %s
+            SET codigo_sufijo_equipo = NULL,estado = 4,fecha_devolucion = %s,sancion_activa = 0
                 WHERE id = %s
     """
     cursor.execute(sql_query,(fecha_devolucion_equipo,id_detalle))
@@ -909,13 +925,36 @@ def devolucion_equipo(id_detalle):
     cursor.execute(sql_query,(datos_generales_solicitud["rut_alumno"],))
     datos_usuario = cursor.fetchone()
 
+    # Si el detalle se encontraba sancionado, se verifica si existen más detalles con sanción
+    if detalle_sancionado:
+        # En caso de que no existan, se modifica el registro de la sanción a inactiva (activa = 0)
+        sql_query = """
+            SELECT COUNT(*) AS cantidad_detalles_sancionados
+                FROM Detalle_solicitud,Solicitud
+                    WHERE Detalle_solicitud.id_solicitud = Solicitud.id
+                    AND Solicitud.rut_alumno = %s
+                    AND Detalle_solicitud.sancion_activa = 1
+        """
+        cursor.execute(sql_query,(datos_generales_solicitud["rut_alumno"],))
+        cantidad_detalles_sancionados = int(cursor.fetchone()["cantidad_detalles_sancionados"])
+
+        if cantidad_detalles_sancionados == 0:
+            # Se actualiza la sanción del usuario de activa (1) a inactiva (0)
+            sql_query = """
+                UPDATE Sanciones
+                    SET activa = 0
+                        WHERE activa = 1
+                        AND rut_alumno = %s
+            """
+            cursor.execute(sql_query,(datos_generales_solicitud["rut_alumno"],))
+
     direccion_template = os.path.normpath(os.path.join(os.getcwd(), "app/templates/vistas_gestion_solicitudes_prestamos/templates_mail/comprobante_devolucion.html"))
     archivo_html = open(direccion_template,encoding="utf-8").read()
 
     archivo_html = archivo_html.replace("%id_solicitud%",str(datos_formulario["id_encabezado_solicitud"]))
     archivo_html = archivo_html.replace("%id_detalle%",id_detalle)
     archivo_html = archivo_html.replace("%nombre_usuario%",datos_usuario["nombres"])
-    archivo_html = archivo_html.replace("%equipo_devuelto%",datos_generales_solicitud["marca"]+" "+datos_generales_solicitud["modelo"])
+    archivo_html = archivo_html.replace("%equipo_devuelto%",datos_generales_solicitud["nombre"]+" "+datos_generales_solicitud["marca"]+" "+datos_generales_solicitud["modelo"])
     archivo_html = archivo_html.replace("%codigo_equipo%",datos_generales_solicitud["codigo_equipo"])
     archivo_html = archivo_html.replace("%codigo_sufijo%",datos_generales_solicitud["codigo_sufijo_equipo"])
     archivo_html = archivo_html.replace("%fecha_devolucion_equipo%",str(fecha_devolucion_equipo))
@@ -1090,31 +1129,72 @@ def consultar_estadisticas_solicitudes():
     datos_formulario["id_consulta"] = int(datos_formulario["id_consulta"])
 
     if datos_formulario["id_consulta"] == 1:
-        # Consulta 1: Se obtienen la cantidad de solicitudes para cada equipo según las fechas
-        # del filtro
+        # Consulta 1: Se obtienen los equipos solicitados entre los días solicitados
+
         # Se agrega la hora 23:59 a las fechas para cubrir los días límites en su totalidad
-        datos_formulario["limite_inferior"] = str(datetime.strptime(datos_formulario["limite_inferior"],"%Y-%m-%d").replace(hour=0,minute=0))
-        datos_formulario["limite_superior"] = str(datetime.strptime(datos_formulario["limite_superior"],"%Y-%m-%d").replace(hour=23,minute=59))
+        datos_formulario["limite_inferior"] = datetime.strptime(datos_formulario["limite_inferior"],"%Y-%m-%d").replace(hour=0,minute=0)
+        datos_formulario["limite_superior"] = datetime.strptime(datos_formulario["limite_superior"],"%Y-%m-%d").replace(hour=23,minute=59)
+
+        limite_inferior_iteracion = datos_formulario["limite_inferior"]
+        limite_superior_iteracion = limite_inferior_iteracion.replace(hour=23,minute=59)
+
+        datos_finales_grafico = []
 
         sql_query = """
-            SELECT Equipo.id,Equipo.nombre,Equipo.modelo,Equipo.marca,COUNT(*) AS cantidad_solicitudes
-                FROM Equipo,Detalle_solicitud,Solicitud
-                    WHERE Solicitud.id = Detalle_solicitud.id_solicitud
-                    AND Detalle_solicitud.id_equipo = Equipo.id
-                    AND Solicitud.fecha_registro >= %s
-                    AND Solicitud.fecha_registro <= %s
-                    GROUP BY Equipo.id
+            SELECT Equipo.id,Equipo.nombre,Equipo.marca,Equipo.modelo
+                FROM Equipo
         """
-        cursor.execute(sql_query,(datos_formulario["limite_inferior"],datos_formulario["limite_superior"]))
-        resultados_consulta = cursor.fetchall()
+        cursor.execute(sql_query)
+        lista_equipos_registrados = cursor.fetchall()
 
-        # Se transforma el formato para posterior visualización con librerías gráficas
-        data = []
-        for registro in resultados_consulta:
-            equipo = registro["nombre"]+" "+registro["modelo"]+" "+registro["marca"]
-            data.append([equipo,registro["cantidad_solicitudes"]])
+        if not len(lista_equipos_registrados):
+            return jsonify([])
 
-        return jsonify(data)
+        # Se crea la lista con las categorías para posteriormente ponerlas en el gráfico
+        lista_categorias = []
+        lista_categorias.append("Equipo")
+        for equipo in lista_equipos_registrados:
+            label_equipo = ""+equipo["nombre"]+" "+equipo["marca"]+" "+equipo["modelo"]
+            lista_categorias.append(label_equipo)
+        dict_chart = {'role':'annotation'} # Necesario según documentación de Google Charts
+        lista_categorias.append(dict(dict_chart))
+        datos_finales_grafico.append(lista_categorias)
+
+        while limite_inferior_iteracion <= datos_formulario["limite_superior"]:
+            # Fila
+            datos_fila = []
+            # Se agrega la fecha en la primera columna (por documentación de Google Charts)
+            datos_fila.append(str(limite_inferior_iteracion.date()))
+
+            for equipo in lista_equipos_registrados:
+                # Se seleccionan los equipos según las fechas
+                sql_query = """
+                    SELECT COUNT(*) AS cantidad_equipos
+                        FROM Equipo,Detalle_solicitud,Solicitud
+                            WHERE Equipo.id = Detalle_solicitud.id_equipo
+                            AND Detalle_solicitud.id_solicitud = Solicitud.id
+                            AND Solicitud.fecha_registro >= %s
+                            AND Solicitud.fecha_registro <= %s
+                            AND Equipo.id = %s
+                            GROUP BY Equipo.id
+                """
+                cursor.execute(sql_query,(limite_inferior_iteracion,limite_superior_iteracion,equipo["id"]))
+                registro_cantidad = cursor.fetchone()
+
+                if registro_cantidad is None:
+                    cantidad_equipos = 0
+                else:
+                    cantidad_equipos = registro_cantidad["cantidad_equipos"]
+                datos_fila.append(cantidad_equipos)
+            datos_fila.append("")
+            datos_finales_grafico.append(datos_fila)
+
+            # Se aumenta 1 día a ambos límites, inferior y superior
+            limite_inferior_iteracion += timedelta(days=1)
+            limite_superior_iteracion += timedelta(days=1)
+
+
+        return jsonify(datos_finales_grafico)
 
     elif datos_formulario["id_consulta"] == 2:
         # Consulta 2: Se obtienen las cantidades para cada equipo solicitado según las fechas del formulario
@@ -1154,7 +1234,7 @@ def consultar_estadisticas_solicitudes():
         for equipo in lista_equipos:
             label_equipo = ""+equipo["nombre"]+" "+equipo["marca"]+" "+equipo["modelo"]
             lista_categorias.append(label_equipo)
-        dict_chart = {'role':'annotation'} # Necesario según documentación de Google Chart
+        dict_chart = {'role':'annotation'} # Necesario según documentación de Google Charts
         lista_categorias.append(dict(dict_chart))
 
         # Para cada equipo y para cada estado se obtiene la cantidad de detalles de solicitudes asociados

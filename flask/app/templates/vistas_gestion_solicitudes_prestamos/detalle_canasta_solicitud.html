@@ -36,6 +36,7 @@
 }
 	</style>
 
+
 	<div class="container-fluid mt-2">
 
 		<nav aria-label="breadcrumb">
@@ -44,6 +45,85 @@
 		    <li class="breadcrumb-item active" aria-current="page">Solicitud <span class="badge badge-info">{{solicitud["id"]}}</span></li>
 		  </ol>
 		</nav>
+
+		{% with msgs = get_flashed_messages() %}
+			{% if msgs %}
+				{% for msg in msgs %}
+				{% if msg == "equipo-prestado"%}
+					<div class="alert alert-danger alert-dismissible fade show" role="alert">
+						<i class="fas fa-times-circle mr-2"></i>El equipo a prestar ya no se encuentra disponible.
+						<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+						</button>
+					</div>
+				{%endif%}
+				{% if msg == "equipo-no-existente"%}
+					<div class="alert alert-danger alert-dismissible fade show" role="alert">
+						<i class="fas fa-times-circle mr-2"></i>El equipo a prestar fue eliminado recientemente.
+						<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+						</button>
+					</div>
+				{%endif%}
+				{% if msg == "correo-fallido"%}
+					<div class="alert alert-danger alert-dismissible fade show" role="alert">
+						<i class="fas fa-times-circle mr-2"></i>Se ha producido un error interno al intentar notificar por correo al usuario.
+						<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+						</button>
+					</div>
+				{%endif%}
+				{% if msg == "correo-exito" %}
+				<div class="alert alert-success mt-2 alert-dismissible fade show" role="alert">
+						<i class="fas fa-check-circle mr-2"></i>El usuario ha sido notificado correctamente en su correo electrónico.
+						<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+								<span aria-hidden="true">&times;</span>
+						</button>
+				</div>
+				{% endif %}
+				{% if msg == "solicitud-rechazada-correctamente" %}
+				<div class="alert alert-success mt-2 alert-dismissible fade show" role="alert">
+						<i class="fas fa-check-circle mr-2"></i>La solicitud de préstamo ha sido rechazada correctamente.
+						<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+								<span aria-hidden="true">&times;</span>
+						</button>
+				</div>
+				{% endif %}
+				{% if msg == "solicitud-aprobada-correctamente" %}
+				<div class="alert alert-success mt-2 alert-dismissible fade show" role="alert">
+						<i class="fas fa-check-circle mr-2"></i>La solicitud de préstamo ha sido aprobada correctamente.
+						<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+								<span aria-hidden="true">&times;</span>
+						</button>
+				</div>
+				{% endif %}
+				{% if msg == "solicitud-cancelada" %}
+				<div class="alert alert-success mt-2 alert-dismissible fade show" role="alert">
+						<i class="fas fa-check-circle mr-2"></i>La solicitud de préstamo ha sido cancelada correctamente.
+						<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+								<span aria-hidden="true">&times;</span>
+						</button>
+				</div>
+				{% endif %}
+				{% if msg == "retiro-correcto" %}
+				<div class="alert alert-success mt-2 alert-dismissible fade show" role="alert">
+						<i class="fas fa-check-circle mr-2"></i>El equipo ha sido marcado como retirado correctamente.
+						<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+								<span aria-hidden="true">&times;</span>
+						</button>
+				</div>
+				{% endif %}
+				{% if msg == "equipo-devuelto" %}
+				<div class="alert alert-success mt-2 alert-dismissible fade show" role="alert">
+						<i class="fas fa-check-circle mr-2"></i>La devolución del equipo se ha registrado correctamente.
+						<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+								<span aria-hidden="true">&times;</span>
+						</button>
+				</div>
+				{% endif %}
+				{%endfor%}
+			{%endif%}
+		{%endwith%}
 
 		<div class="card border-1 rounded-0" style="border-color:#0db26b;">
 			<div class="card-header border-0 rounded-0" style="background:#0db26b;">
@@ -137,7 +217,7 @@
 													<td class="text-center"><span class="badge float-right badge-danger">{{detalle_solicitud["nombre_estado"]}}</span></td>
 												{% elif detalle_solicitud["estado"] == 4 %}
 													<td class="text-center"><span class="badge float-right badge-success">{{detalle_solicitud["nombre_estado"]}}</span></td>
-												{% elif detalle_solicitud["estado"] == 5 %}
+												{% elif detalle_solicitud["estado"] == 5 or detalle_solicitud["estado"] == 7 %}
 													<td class="text-center"><span class="badge float-right badge-danger">{{detalle_solicitud["nombre_estado"]}}</span></td>
 												{% elif detalle_solicitud["estado"] == 6 %}
 													<td class="text-center"><span class="badge float-right badge-secondary">{{detalle_solicitud["nombre_estado"]}}</span></td>
@@ -150,7 +230,7 @@
 										<div class="panel-body" style="background:#fff;">
 
 											<div class="form-group row">
-												<label title="ID de solicitud" class="col-md-2 col-form-label texto-gris-eit">
+												<label class="col-md-2 col-form-label texto-gris-eit">
 													<strong>Equipo solicitado:</strong>
 												</label>
 												<div class="col-md-4">
@@ -158,20 +238,23 @@
 														{{detalle_solicitud["nombre_equipo"]}} {{detalle_solicitud["marca_equipo"]}} {{detalle_solicitud["modelo_equipo"]}}
 													</p>
 												</div>
-												<label title="ID de detalle de solicitud" class="col-md-3 col-form-label texto-gris-eit">
+												<label class="col-md-3 col-form-label texto-gris-eit">
 													<strong>Código de equipo:</strong>
 												</label>
 												<div class="col-md-3">
 													<p class="form-control-plaintext
 														 text-break">
 														 {{detalle_solicitud["codigo_equipo"]}}
+														 {% if detalle_solicitud["codigo_sufijo_equipo"] %}
+														 	- {{detalle_solicitud["codigo_sufijo_equipo"]}}
+														 {% endif %}
 													</p>
 												</div>
 											</div>
 
 												{% if detalle_solicitud["estado"] == 1 %}
 												<div class="form-group row">
-													<label title="ID de solicitud" class="col-md-4 col-form-label texto-gris-eit">
+													<label class="col-md-4 col-form-label texto-gris-eit">
 														<strong>Fecha de vencimiento de solicitud:</strong>
 													</label>
 													<div class="col-md-4">
@@ -180,9 +263,10 @@
 														</p>
 													</div>
 												</div>
-												{% elif detalle_solicitud["estado"] == 2 or detalle_solicitud["estado"] == 3 %}
+												{% endif %}
+												{% if detalle_solicitud["estado"] in [2,3,4,6] %}
 												<div class="form-group row">
-													<label title="ID de solicitud" class="col-md-3 col-form-label texto-gris-eit">
+													<label class="col-md-3 col-form-label texto-gris-eit">
 														<strong>Fecha de inicio:</strong>
 													</label>
 													<div class="col-md-3">
@@ -190,7 +274,7 @@
 															{{detalle_solicitud["fecha_inicio"]}}
 														</p>
 													</div>
-													<label title="ID de solicitud" class="col-md-3 col-form-label texto-gris-eit">
+													<label class="col-md-3 col-form-label texto-gris-eit">
 														<strong>Fecha de término:</strong>
 													</label>
 													<div class="col-md-3">
@@ -199,8 +283,39 @@
 														</p>
 													</div>
 												</div>
-												
 												{% endif %}
+												{% if detalle_solicitud["estado"] in [4,6] %}
+													<div class="form-group row">
+														<label class="col-md-3 col-form-label texto-gris-eit">
+															<strong>Fecha de devolución:</strong>
+														</label>
+														<div class="col-md-3">
+															<p class="form-control-plaintext text-break">
+																{{detalle_solicitud["fecha_devolucion"]}}
+															</p>
+														</div>
+													</div>
+												{% endif %}
+
+												<div class="form-group row text-right">
+													<div class="col-md-12 mb-2">
+														<span class="btn-group" role="group">
+															{% if detalle_solicitud["estado"] == 0 %}
+																<button type="button" class="btn btn-sm btn-danger mr-1" data-toggle="modal" data-target="#confirmacion_rechazo_solicitud_{{detalle_solicitud["id"]}}"><i class="fas fa-times-circle mr-1"></i>Rechazar solicitud</button>
+																<button type="button" class="btn btn-sm btn-success" data-toggle="modal" data-target="#confirmacion_aprobacion_solicitud_{{detalle_solicitud["id"]}}"><i class="fas fa-clipboard-check mr-1"></i>Aprobar solicitud</button>
+															{% elif detalle_solicitud["estado"] == 1 %}
+																<button type="button" class="btn btn-sm btn-danger mr-1" data-toggle="modal" data-target="#confirmacion_cancelacion_solicitud_{{detalle_solicitud["id"]}}"><i class="fas fa-times-circle mr-1"></i>Cancelar solicitud</button>
+																<button type="button" class="btn btn-sm btn-info mr-1" data-toggle="modal" data-target="#formulario_retiro_equipo_{{detalle_solicitud["id"]}}"><i class="fas fa-clipboard-check mr-1"></i>Marcar como entregado</button>
+															{% elif detalle_solicitud["estado"] == 2 or detalle_solicitud["estado"] == 3 %}
+																<button type="button" class="btn btn-sm btn-info mr-1" data-toggle="modal" data-target="#confirmacion_devolucion_equipo_{{detalle_solicitud["id"]}}">Registrar devolución</button>
+															{% elif detalle_solicitud["estado"] == 4 %}
+																<button type="button" class="btn btn-sm btn-success mr-1"><i class="fas fa-check-circle mr-1"></i>Marcar como finalizada</button>
+															{% elif detalle_solicitud["estado"] == 5 or detalle_solicitud["estado"] == 6 or detalle_solicitud["estado"] == 7 %}
+																<button type="button" class="btn btn-sm btn-danger mr-1" data-toggle="modal" data-target="#confirmacion_eliminacion_solicitud_{{detalle_solicitud["id"]}}"><i class="fas fa-minus-circle mr-1"></i>Eliminar solicitud</button>
+															{% endif %}
+														</span>
+													</div>
+												</div>
 
 										</div>
 									</div>
@@ -217,6 +332,22 @@
 
 
 	</div>
+
+	{% for detalle_solicitud in lista_detalles_solicitud %}
+
+		{% if detalle_solicitud["estado"] == 0 %}
+			{% include "/vistas_gestion_solicitudes_prestamos/modals/modals_canasta/confirmacion_rechazo_canasta.html" %}
+			{% include "/vistas_gestion_solicitudes_prestamos/modals/modals_canasta/confirmacion_aprobacion_canasta.html" %}
+		{% elif detalle_solicitud["estado"] == 1 %}
+			{% include "/vistas_gestion_solicitudes_prestamos/modals/modals_canasta/confirmacion_cancelacion_canasta.html" %}
+			{% include "/vistas_gestion_solicitudes_prestamos/modals/modals_canasta/formulario_retiro_equipo_canasta.html" %}
+		{% elif detalle_solicitud["estado"] == 2 or detalle_solicitud["estado"] == 3 %}
+			{% include "/vistas_gestion_solicitudes_prestamos/modals/modals_canasta/confirmacion_devolucion_canasta.html" %}
+		{% elif detalle_solicitud["estado"] == 5 or detalle_solicitud["estado"] == 6 or detalle_solicitud["estado"] == 7 %}
+			{% include "/vistas_gestion_solicitudes_prestamos/modals/modals_canasta/confirmacion_eliminacion_canasta.html" %}
+		{% endif %}
+
+	{% endfor %}
 
 
 	{% endblock %}

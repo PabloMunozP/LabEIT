@@ -143,6 +143,20 @@
 							alert("La fecha de inicio seleccionada debe ser menor a la fecha de término.");
 					    return false;
 						}
+
+						// Se verifica que el intervalo de fechas no sea mayor a 1 mes
+						var fecha_limite_inferior = new Date(limite_inferior);
+						var fecha_limite_superior = new Date(limite_superior);
+						var diffTiempo = Math.abs(fecha_limite_superior-fecha_limite_inferior);
+						var diffDias = Math.ceil(diffTiempo / (1000*60*60*24))
+
+						if(diffDias > 31){
+							alert("La diferencia entre las fechas seleccionadas no debe superar los 31 días.");
+							$("#fecha_desde_equipos_solicitados").val("");
+							$("#fecha_hasta_equipos_solicitados").val("");
+							return false;
+						}
+
 						// Se desactiva el botón submit
 						$("#boton-consulta-equipos-solicitados").prop('disabled', true);
 						$.ajax({
@@ -172,38 +186,23 @@
 							 $("#notificacion_consulta_cantidad_equipos_solicitados").prop("hidden",true);
 							 $("#seccion_consulta_1").prop("hidden",false);
 							 $("#seccion_grafico_1").empty();
-							 google.charts.load("current", {packages:['bar']});
+							 google.charts.load("current", {packages:['corechart']});
     			 		 google.charts.setOnLoadCallback(function(){
 								 drawChart(data);
 							 });
 
 							 function drawChart(resultados) {
-
-								 datos_grafico = [];
-								 datos_grafico.push(['Equipos solicitados', 'Cantidad solicitada']);
-
-								 for(var i = 0 ; i < resultados.length ; i++){
-									 datos_grafico.push(resultados[i])
-								 }
-
-								 var data = new google.visualization.arrayToDataTable(datos_grafico);
-
-					        var options = {
-					          title: 'Equipos solicitados desde '+limite_inferior+" hasta "+limite_superior+"",
-										height: 350,
-					          legend: { position: 'none' },
-					          chart: { title: 'Equipos solicitados desde '+limite_inferior+" hasta "+limite_superior+"",
-					                   subtitle: 'Los resultados consideran las solicitudes independientemente del estado en el que se encuentren.' },
-					          bars: 'horizontal', // Required for Material Bar Charts.
-					          axes: {
-					            x: {
-					              0: { side: 'top', label: 'Cantidad solicitada'} // Top x-axis.
-					            }
-					          },
-					          bar: { groupWidth: "100%" }
-					        };
-						      var chart = new google.charts.Bar(document.getElementById("seccion_grafico_1"));
-						      chart.draw(data, options);
+								 var data_grafico = google.visualization.arrayToDataTable(resultados);
+								 var titulo_grafico = "Equipos solicitados entre los días "+limite_inferior+" y "+limite_superior+"";
+								 var options = {
+										title: titulo_grafico,
+										height: 450,
+										legend: { position: 'none' },
+										bar: { groupWidth: '75%' },
+										isStacked: true,
+									};
+								 var chart = new google.visualization.ColumnChart(document.getElementById('seccion_grafico_1'));
+								 chart.draw(data_grafico, options);
 						  }
 						 });
 						event.preventDefault();
@@ -265,9 +264,8 @@
 								 });
 
 								 function drawChart(resultados){
-									 console.log(resultados);
 									 var data_grafico = google.visualization.arrayToDataTable(resultados);
-									 let titulo_grafico = "Cantidad de equipos por estado de solicitudes registradas entre "+limite_inferior+" y "+limite_superior+"";
+									 var titulo_grafico = "Cantidad de equipos por estado de solicitudes registradas entre "+limite_inferior+" y "+limite_superior+"";
 									 var options = {
 										 	title: titulo_grafico,
 							        height: 450,

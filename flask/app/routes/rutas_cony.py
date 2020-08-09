@@ -21,7 +21,6 @@ def solicitudes_prestamos():
         SELECT *
             FROM Sanciones
                 WHERE rut_alumno = %s
-                AND activa = 1
     """
     cursor.execute(sql_query,(session["usuario"]["rut"],))
     sancion = cursor.fetchone()
@@ -40,6 +39,10 @@ def solicitudes_prestamos():
     lista_detalles_sancionados = cursor.fetchall()
 
     if sancion is not None:
+        # Se eliminan los elementos del carro en caso de existir con anterioridad
+        if "carro_pedidos" in session.keys():
+            del session["carro_pedidos"]
+
         return render_template("/solicitudes_prestamos/notificacion_sancion.html",
             sancion=sancion,
             lista_detalles_sancionados=lista_detalles_sancionados)
