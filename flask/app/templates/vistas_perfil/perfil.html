@@ -33,11 +33,6 @@
                     <button type="button" onclick="Cargar_informacion()" data-target="#editar_informacion" class="btn btn-info" data-toggle="modal" style="margin-left: 10px;">Editar información</button>
                 </div>
             </div>
-            <script>
-                function alerta_click(){
-                    alert("some alert");
-                }
-            </script>
             <style>
                 .profile__image{
                     opacity: 1;
@@ -117,13 +112,14 @@
 
         <nav>
             <div class="nav nav-tabs" id="nav-tab" role="tablist">
-              <a class="nav-item nav-link active tabpanel_letra" id="nav-solicitudes-tab" data-toggle="tab" href="#nav-solicitudes" role="tab" aria-controls="nav-solicitudes" aria-selected="true">Solicitudes</a>
-              <a class="nav-item nav-link tabpanel_letra" id="nav-equipos-tab" data-toggle="tab" href="#nav-equipos" role="tab" aria-controls="nav-equipos" aria-selected="false">Equipos</a>
+              <a class="nav-item nav-link tabpanel_letra active" id="nav-equipos-tab" data-toggle="tab" href="#nav-equipos" role="tab" aria-controls="nav-equipos" aria-selected="false">Equipos</a>
+              <a class="nav-item nav-link tabpanel_letra" id="nav-solicitudes-tab" data-toggle="tab" href="#nav-solicitudes" role="tab" aria-controls="nav-solicitudes" aria-selected="true">Solicitudes</a>
             </div>
           </nav>
           <div class="tab-content" id="nav-tabContent">
-            <div class="tab-pane fade show active" id="nav-solicitudes" role="tabpanel" aria-labelledby="nav-solicitudes-tab">{% include "vistas_perfil/tablas/tabla_solicitudes.html" %}</div>
-            <div class="tab-pane fade" id="nav-equipos" role="tabpanel" aria-labelledby="nav-equipos-tab">{% include "vistas_perfil/tablas/tabla_solicitudes_equipos.html" %}</div>
+            <div class="tab-pane fade show active" id="nav-equipos" role="tabpanel" aria-labelledby="nav-equipos-tab">{% include "vistas_perfil/tablas/tabla_solicitudes_equipos.html" %}</div>
+            <div class="tab-pane fade " id="nav-solicitudes" role="tabpanel" aria-labelledby="nav-solicitudes-tab">{% include "vistas_perfil/tablas/tabla_solicitudes.html" %}</div>
+
           </div>
           <br>
           <style>
@@ -148,17 +144,18 @@
         <script>
             $(document).ready(function() {
                 $('#tabla_equipos, #tabla_solicitudes').DataTable( {
-                      "language": {
-                          "lengthMenu": "Mostrar _MENU_ registros por página",
-                          "zeroRecords": "Nothing found - sorry",
-                          "info": "Mostrando página _PAGE_ de _PAGES_",
-                          "infoEmpty": "Sin registros disponibles",
-                          "search":         "Buscar",
-                          "paginate": {
-                              "next":       "Anterior",
-                              "previous":   "Siguiente"
-                          },
-                          "infoFiltered": "(filtrado de _MAX_ registros totales)"
+                    "order": [[ 0, "desc" ]],
+                    "language": {
+                        "lengthMenu": "Mostrar _MENU_ registros por página",
+                        "zeroRecords": "Nothing found - sorry",
+                        "info": "Mostrando página _PAGE_ de _PAGES_",
+                        "infoEmpty": "Sin registros disponibles",
+                        "search":         "Buscar",
+                        "paginate": {
+                            "next":       "Anterior",
+                            "previous":   "Siguiente"
+                        },
+                        "infoFiltered": "(filtrado de _MAX_ registros totales)"
                       }
                   } );
               } );
