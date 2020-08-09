@@ -45,7 +45,7 @@
                                     class="btn btn-sm btn-secondary mr-1"><i class="fas fa-search-plus"></i></button>
                             </a>
                             <button type="submit" title="Eliminar solicitud"
-                                onclick="agregar_action_form_eliminar_solicitud({{detalle_solicitud["id"]}})"
+                                onclick="eliminar_solicitud({{detalle_solicitud["id"]}})"
                                 class="btn btn-sm btn-danger" data-toggle="modal"
                                 data-target="#confirmacion_eliminacion_solicitud"><i
                                     class="fas fa-minus-circle"></i></button>
@@ -64,27 +64,8 @@
 {% endif %}
 
 <script>
-	// Filtros de búsqueda para solicitudes por revisar, activas e historial
-
-	$(function() { // Filtro de solicitudes por revisar
-	  $("#filtro_busqueda_solicitudes_por_revisar").on("keyup", function() {
-	    var value = $(this).val().toLowerCase();
-	    $("#tabla_solicitudes_por_revisar > tbody > tr").filter(function() {      $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
-	    });
-	  });
-	});
-
-	$(function() { // Filtro de solicitudes activas
-	  $("#filtro_busqueda_solicitudes_activas").on("keyup", function() {
-	    var value = $(this).val().toLowerCase();
-	    $("#tabla_solicitudes_activas > tbody > tr").filter(function() {      $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
-	    });
-	  });
-	});
-
-	function agregar_action_form_eliminar_solicitud(id){
-		var formulario = document.getElementById("confirmacion_eliminacion_solicitud");
-		formulario.action = "/eliminar_solicitud/"+id;
+	function eliminar_solicitud(id){
+		var formulario = document.getElementById("formulario_eliminacion_solicitud");
+		formulario.action = "/eliminar_solicitud_w/"+id;
 	}
-
 </script>
