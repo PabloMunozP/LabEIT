@@ -98,7 +98,7 @@ def gestion_inventario_admin():
                 """)
         cursor.execute(query)
         resultado = cursor.fetchall()
-        print(f"json: {json.dumps(resultado)}")
+        ## print(f"json: {json.dumps(resultado)}")
         return render_template('vistas_gestion_inventario/gestion_inventario.html',
             lista_equipo = equipos,
             lista_equipo_detalle = equipos_detalle,
@@ -122,12 +122,18 @@ def insertar_lista_equipos_general(valores_a_insertar):
         valores_a_insertar['imagen'],
         valores_a_insertar['dias_maximo_prestamo']))
     db.commit()
-    return 'OK'
+    return valores_a_insertar['codigo']
 
 @mod.route("/gestion_inventario_admin/insert", methods = ['POST'])
 def funcion_añadir_equipo_form():
     if request.method == 'POST':
         informacion_a_insertar = request.form.to_dict()
+        equipos = consultar_lista_equipos_general()
+        for val in equipos:
+            if (val["codigo"]==informacion_a_insertar["codigo"]):
+                print("el codigo",informacion_a_insertar["codigo"] ,"ya existe")
+                return redirect('/gestion_inventario_admin')
+        print("el codigo",informacion_a_insertar["codigo"] ,"no existe")
         insertar_lista_equipos_general(informacion_a_insertar)
         flash("El equipo fue agregado correctamente")
         equipos = consultar_lista_equipos_general()
@@ -198,6 +204,13 @@ def funcion_editar_equipo_diferenciado_form():
     if request.method == 'POST':
         informacion_a_actualizar = request.form.to_dict()
         print('Información a actualizar:', informacion_a_actualizar)
+        equipos = consultar_lista_equipos_detalle(informacion_a_actualizar["codigo_equipo"])
+        print(informacion_a_actualizar["codigo_sufijo"])
+        for val in equipos:
+            if (val["codigo_sufijo"]==informacion_a_actualizar["codigo_sufijo"]):
+                    print("codigo ya existe")
+                    return redirect("/gestion_inventario_admin/lista_equipo_diferenciado/"+informacion_a_actualizar["codigo_equipo"])
+        print("codigo no existe")
         editar_equipo_especifico(informacion_a_actualizar)
         return redirect("/gestion_inventario_admin/lista_equipo_diferenciado/"+informacion_a_actualizar["codigo_equipo"])
 
@@ -207,6 +220,12 @@ def funcion_editar_equipo_diferenciado_form():
 def funcion_editar_equipo():
     if request.method == 'POST':
         informacion_a_actualizar = request.form.to_dict()
+        equipos = consultar_lista_equipos_general()
+        for val in equipos:
+            if (val["codigo"]==informacion_a_actualizar["codigo"]):
+                    print("codigo ya existe")
+                    return redirect('/gestion_inventario_admin')
+        print("codigo no existe")
         # print('Información a actualizar:', informacion_a_actualizar)
         editar_equipo_general(informacion_a_actualizar)
         return redirect("/gestion_inventario_admin")
@@ -336,30 +355,15 @@ def validar_form_añadir_equipo_espeficio(codigo_equipo):
     if request.method == 'POST':
         informacion_a_insertar = request.form.to_dict()
         insertar_lista_equipos_detalle(codigo_equipo, informacion_a_insertar)
+        equipos = consultar_lista_equipos_detalle(codigo_equipo)
+        print(informacion_a_insertar["codigo_sufijo"])
+        for val in equipos:
+            if (val["codigo_sufijo"]==informacion_a_insertar["codigo_sufijo"]):
+                    print("codigo ya existe")
+                    return redirect("/gestion_inventario_admin/lista_equipo_diferenciado/"+codigo_equipo)
+        print("codigo no existe")
         return redirect("/gestion_inventario_admin/lista_equipo_diferenciado/"+codigo_equipo)
 
-
-
-
-
-#Se buscan los productos similares al codigo ingresado.
-def consultar_search():
-    query = ('''
-        SELECT *
-        FROM Equipo
-        WHERE Equipo.codigo = %s
-    '''
-    )
-    cursor.execute(query,(codigo,))
-    equipo_detalle = cursor.fetchone()
-    return equipo_detalle
-
-# Busqueda sin implementar, tipo de form invalido
-@mod.route("/gestion_inventario_admin/search", methods = ['POST'])
-def busqueda_equipo():
-        informacion_a_buscar = request.form.to_dict()
-        equipos = consultar_search(informacion_a_buscar)
-        return render_template('vistas_gestion_inventario/gestion_inventario.html', lista_equipo = equipos)
 
 # Agrega un equipo a partir de la relacion que tenga DIF
 def insertar_lista_equipos_detalle(codigo_equipo, valores_a_insertar):
