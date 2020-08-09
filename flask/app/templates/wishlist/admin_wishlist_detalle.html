@@ -107,11 +107,17 @@
                         {{detalle_solicitud["fecha_solicitud"]}}
                     </p>
                 </div>
-                <label class="col-md-4 col-form-label texto-gris-eit">
+                <label class="col-md-2 col-form-label texto-gris-eit">
+                    {% if detalle_solicitud["motivo"] != None %}
+                    <strong>Motivo de rechazo:</strong>
+                    {% endif %}
                 </label>
-                <div class="col-md-2">
+                <div class="col-md-4">
                     <p class="form-control-plaintext
-							 text-break">
+                             text-break">
+                    {% if detalle_solicitud["motivo"] != None %}
+                        {{detalle_solicitud["motivo"]}}
+                    {% endif %}
                     </p>
                 </div>
                 <label class="col-md-4 col-form-label texto-gris-eit">

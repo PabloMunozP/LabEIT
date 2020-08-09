@@ -147,7 +147,7 @@ def aceptar_solicitud(id_detalle):
 
     sql_query = """
         UPDATE Wishlist
-            SET estado_wishlist = 8,fecha_revision=%s
+            SET estado_wishlist = 8,fecha_revision=%s,motivo = NULL
                 WHERE id = %s
     """
     cursor.execute(sql_query,(fecha_revision_solicitud,id_detalle))
@@ -231,8 +231,17 @@ def rechazar_solicitud(id_detalle):
     archivo_html = archivo_html.replace("%fecha_revision_solicitud%",fecha_revision_solicitud)
 
     razon_rechazo = razon_rechazo.strip()
+    motivo = razon_rechazo
     if len(razon_rechazo) == 0:
         razon_rechazo = "** No se ha adjuntado un motivo de rechazo de solicitud. **"
+        motivo = None
+
+    sql_query = """
+        UPDATE Wishlist
+            SET motivo=%s
+                WHERE id = %s
+    """
+    cursor.execute(sql_query,(motivo,id_detalle))
 
     archivo_html = archivo_html.replace("%razon_rechazo%",razon_rechazo)
 
@@ -240,3 +249,23 @@ def rechazar_solicitud(id_detalle):
 
     flash("solicitud-rechazada-correctamente")
     return redirect(redirect_url())
+
+@mod.route("/eliminar_solicitud_w/<string:id_detalle>",methods=["POST"])
+def eliminar_solicitud(id_detalle):
+    
+    sql_query = """
+        DELETE FROM
+            Url_wishlist
+                WHERE id_wishlist = %s
+    """
+    cursor.execute(sql_query,(id_detalle,))
+
+    sql_query = """
+        DELETE FROM
+            Wishlist
+                WHERE id = %s
+    """
+    cursor.execute(sql_query,(id_detalle,))
+
+    flash("solicitud-eliminada")
+    return redirect("/gestion_wishlist")

@@ -15,7 +15,7 @@
     </button>
 </div>
 {%endif%}
-{% if msg == "detalle-eliminado" %}
+{% if msg == "solicitud-eliminada" %}
 <div class="alert alert-success mt-2 alert-dismissible fade show" role="alert">
     <i class="fas fa-check-circle mr-2"></i>La solicitud de Wishlist ha sido eliminada correctamente.
     <button type="button" class="close" data-dismiss="alert" aria-label="Close">
@@ -31,14 +31,6 @@
     </button>
 </div>
 {% endif %}
-{% if msg == "usuario-no-existente"%}
-<div class="alert alert-danger alert-dismissible fade show" role="alert">
-    <i class="fas fa-times-circle mr-2"></i>No se ha encontrado un usuario registrado con el RUT ingresado.
-    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-        <span aria-hidden="true">&times;</span>
-    </button>
-</div>
-{%endif%}
 {%endfor%}
 {%endif%}
 {%endwith%}
