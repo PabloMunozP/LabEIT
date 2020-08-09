@@ -1,0 +1,71 @@
+{% if lista_solicitudes_wishlist %}
+<div class="table-responsive mt-2">
+    <div class="table-wrapper-scroll-y" style="position: relative;
+								max-height: 1000px;
+								overflow:auto;">
+        <table class="table" id="tabla_admin_wishlist">
+            <thead class="text-white" style="background:#4D4D4D;">
+                <tr>
+                    <th scope="col">ID</th>
+                    <th scope="col">RUT del solicitante</th>
+                    <th scope="col">Nombre del solicitante</th>
+                    <th scope="col">Equipo solicitado</th>
+                    <th scope="col">Fecha de solicitud</th>
+                    <th scope="col" class="text-center">Estado</th>
+                    <th scope="col">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for detalle_solicitud in lista_solicitudes_wishlist %}
+                <tr style="background:#ECF0F1;">
+                    <td>{{detalle_solicitud["id"]}}</td>
+                    <td>{{detalle_solicitud["rut_solicitante"]|formato_rut}}</td>
+                    <td>{{detalle_solicitud["nombres_usuario"]}} {{detalle_solicitud["apellidos_usuario"]}}</td>
+                    <td>{{detalle_solicitud["nombre_equipo"]}} {{detalle_solicitud["marca_equipo"]}} {{detalle_solicitud["modelo_equipo"]}}</td>
+                    <td>
+                        {% if detalle_solicitud["fecha_solicitud"] %}
+                        {{detalle_solicitud["fecha_solicitud"]}}
+                        {% endif %}
+                    </td>
+                    {% if detalle_solicitud["estado_wishlist"] == 0 %}
+                    <td class="text-center"><span
+                            class="badge badge-primary">{{detalle_solicitud["nombre_estado"]}}</span></td>
+                    {% elif detalle_solicitud["estado_wishlist"] == 5 %}
+                    <td class="text-center"><span
+                            class="badge badge-danger">{{detalle_solicitud["nombre_estado"]}}</span>
+                    </td>
+                    {% elif detalle_solicitud["estado_wishlist"] == 8 %}
+                    <td class="text-center"><span
+                            class="badge badge-success">{{detalle_solicitud["nombre_estado"]}}</span></td>
+                    {% endif %}
+                    <td>
+                        <span class="btn-group">
+                            <a href="gestion_wishlist/detalle_solicitud/{{detalle_solicitud["id"]}}">
+                                <button type="button" title="Ver detalle de solicitud"
+                                    class="btn btn-sm btn-secondary mr-1"><i class="fas fa-search-plus"></i></button>
+                            </a>
+                            <button type="submit" title="Eliminar solicitud"
+                                onclick="eliminar_solicitud({{detalle_solicitud["id"]}})"
+                                class="btn btn-sm btn-danger" data-toggle="modal"
+                                data-target="#confirmacion_eliminacion_solicitud"><i
+                                    class="fas fa-minus-circle"></i></button>
+                        </span>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% else %}
+<div class="alert alert-warning alert-dismissible fade show text-center mt-2" role="alert">
+    <i class="fas fa-exclamation-triangle mr-2"></i>No se han encontrado solicitudes de Wishlist.
+</div>
+{% endif %}
+
+<script>
+	function eliminar_solicitud(id){
+		var formulario = document.getElementById("formulario_eliminacion_solicitud");
+		formulario.action = "/eliminar_solicitud_w/"+id;
+	}
+</script>

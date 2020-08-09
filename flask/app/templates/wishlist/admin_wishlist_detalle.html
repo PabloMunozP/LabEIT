@@ -1,0 +1,263 @@
+{% extends "layout_in.html" %}
+{% block body %}
+
+{% include "/wishlist/modals/confirmacion_aceptacion_solicitud.html" %}
+{% include "/wishlist/modals/confirmacion_rechazo_solicitud.html" %}
+
+<div class="container-fluid mt-2">
+
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/gestion_wishlist">Gestión de solicitudes de Wishlist</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Detalle de solicitud de Wishlist<span
+                    class="badge badge-info" style="margin-left: 10px;">{{detalle_solicitud["id"]}}</span></li>
+        </ol>
+    </nav>
+
+    {% with msgs = get_flashed_messages() %}
+    {% if msgs %}
+    {% for msg in msgs %}
+    {% if msg == "correo-fallido"%}
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fas fa-times-circle mr-2"></i>Se ha producido un error interno al intentar notificar por correo al
+        usuario.
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    {%endif%}
+    {% if msg == "correo-exito" %}
+    <div class="alert alert-success mt-2 alert-dismissible fade show" role="alert">
+        <i class="fas fa-check-circle mr-2"></i>El usuario ha sido notificado correctamente en su correo electrónico.
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    {% endif %}
+    {% if msg == "solicitud-rechazada-correctamente" %}
+    <div class="alert alert-success mt-2 alert-dismissible fade show" role="alert">
+        <i class="fas fa-check-circle mr-2"></i>La solicitud de Wishlist ha sido rechazada correctamente.
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    {% endif %}
+    {% if msg == "solicitud-aceptada-correctamente" %}
+    <div class="alert alert-success mt-2 alert-dismissible fade show" role="alert">
+        <i class="fas fa-check-circle mr-2"></i>La solicitud de Wishlist ha sido aceptada correctamente.
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    {% endif %}
+    {%endfor%}
+    {%endif%}
+    {%endwith%}
+
+    <div class="card border-1 rounded-0" style="border-color:#0db26b;">
+        <div class="card-header border-0 rounded-0" style="background:#0db26b;">
+            <h5 class="card-title my-auto text-white"><i class="fas fa-file-invoice mr-2"></i>Información de la
+                solicitud de Wishlist</h5>
+        </div>
+        <div class="card-body rounded-0" style="background:#ECF0F1;">
+            <div class="form-group row">
+                <label class="col-md-2 col-form-label texto-gris-eit">
+                    <strong>ID de solicitud:</strong>
+                </label>
+                <div class="col-md-4">
+                    <p class="form-control-plaintext text-break">
+                        {{detalle_solicitud["id"]}}
+                    </p>
+                </div>
+                <label class="col-md-4 col-form-label texto-gris-eit">
+                    <strong>Motivo:</strong>
+                </label>
+                <div class="col-md-2">
+                    <p class="form-control-plaintext
+                         text-break">
+                        {% if detalle_solicitud["motivo_academico"] %}
+                        Académico
+                        {% else %}
+                        Personal
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label class="col-md-2 col-form-label texto-gris-eit">
+                    <strong>Estado:</strong>
+                </label>
+                <div class="col-md-4">
+                    <p class="form-control-plaintext text-break">
+                        {% if detalle_solicitud["estado_wishlist"] == 0 %}
+                        <span class="badge badge-primary">{{detalle_solicitud["nombre_estado"]}}</span>
+                        {% elif detalle_solicitud["estado_wishlist"] == 8 %}
+                        <span class="badge badge-success">{{detalle_solicitud["nombre_estado"]}}</span>
+                        {% elif detalle_solicitud["estado_wishlist"] == 5 %}
+                        <span class="badge badge-danger">{{detalle_solicitud["nombre_estado"]}}</span>
+                        {% endif %}
+                    </p>
+                </div>
+                <label class="col-md-4 col-form-label texto-gris-eit">
+                    <strong>Fecha de registro de la solicitud:</strong>
+                </label>
+                <div class="col-md-2">
+                    <p class="form-control-plaintext
+							 text-break">
+                        {{detalle_solicitud["fecha_solicitud"]}}
+                    </p>
+                </div>
+                <label class="col-md-2 col-form-label texto-gris-eit">
+                    {% if detalle_solicitud["motivo"] != None %}
+                    <strong>Motivo de rechazo:</strong>
+                    {% endif %}
+                </label>
+                <div class="col-md-4">
+                    <p class="form-control-plaintext
+                             text-break">
+                    {% if detalle_solicitud["motivo"] != None %}
+                        {{detalle_solicitud["motivo"]}}
+                    {% endif %}
+                    </p>
+                </div>
+                <label class="col-md-4 col-form-label texto-gris-eit">
+                    <strong>Fecha de revisión de la solicitud:</strong>
+                </label>
+                <div class="col-md-2">
+                    {% if detalle_solicitud["fecha_revision"] != None %}
+                    <p class="form-control-plaintext
+							 text-break">
+                        {{detalle_solicitud["fecha_revision"]}}
+                    </p>
+                    {% else %}
+                    <p class="form-control-plaintext
+							 text-break">
+                        Sin revisión
+                    </p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card-header border-0 rounded-0" style="background:#0db26b;">
+        <h5 class="card-title my-auto text-white"><i class="fas fa-user mr-2"></i>Información del solicitante
+        </h5>
+    </div>
+    <div class="card-body rounded-0" style="background:#ECF0F1;">
+        <div class="form-group row">
+            <label class="col-md-2 col-form-label texto-gris-eit">
+                <strong>Nombre:</strong>
+            </label>
+            <div class="col-md-4">
+                <p class="form-control-plaintext
+							 text-break">
+                    {{detalle_solicitud["nombres"]}} {{detalle_solicitud["apellidos"]}}
+                </p>
+            </div>
+            <label class="col-md-4 col-form-label texto-gris-eit">
+                <strong>RUT de alumno solicitante:</strong>
+            </label>
+            <div class="col-md-2">
+                <p class="form-control-plaintext text-break">
+                    <a href="/gestion_usuarios/ver_usuario?rut={{detalle_solicitud["rut_solicitante"]}}"
+                        title="Ver perfil del usuario"
+                        style="text-decoration:none;">{{detalle_solicitud["rut_solicitante"]|formato_rut}}</a>
+                </p>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-md-2 col-form-label texto-gris-eit">
+                <strong>Correo electrónico:</strong>
+            </label>
+            <div class="col-md-8">
+                <p class="form-control-plaintext text-break">
+                    <a href="mailto:{{detalle_solicitud["email"]}}?subject=feedback">{{detalle_solicitud["email"]}}</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="card-header border-0 rounded-0" style="background:#0db26b;">
+        <h5 class="card-title my-auto text-white"><i class="fas fa-laptop mr-2"></i>Equipo solicitado</h5>
+    </div>
+    <div class="card-body rounded-0" style="background:#ECF0F1;">
+
+        <div class="form-group row">
+            <label class="col-md-2 col-form-label texto-gris-eit">
+                <strong>Nombre:</strong>
+            </label>
+            <div class="col-md-4">
+                <p class="form-control-plaintext
+							 text-break">
+                    {{detalle_solicitud["nombre_equipo"]}}
+                </p>
+            </div>
+            <label class="col-md-2 col-form-label texto-gris-eit">
+                <strong>Marca:</strong>
+            </label>
+            <div class="col-md-4">
+                <p class="form-control-plaintext text-break">
+                    {{detalle_solicitud["marca_equipo"]}}
+                </p>
+            </div>
+        </div>
+
+        <div class="form-group row">
+
+            <label class="col-md-2 col-form-label texto-gris-eit">
+                <strong>Modelo:</strong>
+            </label>
+            <div class="col-md-4">
+                <p class="form-control-plaintext
+							 text-break">
+                    {{detalle_solicitud["modelo_equipo"]}}
+                </p>
+            </div>
+
+        </div>
+    </div>
+    <div class="card-header border-0 rounded-0" style="background:#0db26b;">
+        <h5 class="card-title my-auto text-white"><i class="fas fa-paperclip mr-2"></i>Links</h5>
+    </div>
+    <div class="card-body rounded-0" style="background:#ECF0F1;">
+        {% for url in url_solicitud["url"] %}
+        <div class="form-group row">
+            <label class="col-md-2 col-form-label texto-gris-eit">
+                <strong>Url {{ loop.index }}:</strong>
+            </label>
+            <div class="col-md-10">
+                <p class="form-control-plaintext
+                                 text-break">
+                    <a href="{{ url }}" target="_blank">
+                        {{ url }}
+                    </a>
+                </p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    <div class="card-footer rounded-0 text-right" style="background:#ECF0F1;">
+        <span class="btn-group flex-wrap">
+            {% if detalle_solicitud["estado_wishlist"] == 0 %}
+            <button type="button" class="btn btn-danger mr-1" data-toggle="modal"
+                data-target="#confirmacion_rechazo_wishlist"><i class="fas fa-times-circle mr-1"></i>Rechazar
+                solicitud</button>
+            <button type="button" class="btn btn-success" data-toggle="modal"
+                data-target="#confirmacion_aceptacion_solicitud"><i class="fas fa-clipboard-check mr-1"></i>Aceptar
+                solicitud</button>
+            {% elif detalle_solicitud["estado_wishlist"] == 5 %}
+            <button type="button" class="btn btn-success" data-toggle="modal"
+                data-target="#confirmacion_aceptacion_solicitud"><i class="fas fa-clipboard-check mr-1"></i>Aceptar
+                solicitud</button>
+            {% elif detalle_solicitud["estado_wishlist"] == 8 %}
+            <button type="button" class="btn btn-danger mr-1" data-toggle="modal"
+                data-target="#confirmacion_rechazo_wishlist"><i class="fas fa-times-circle mr-1"></i>Rechazar
+                solicitud</button>
+            {% endif %}
+        </span>
+    </div>
+</div>
+</div>
+
+{% endblock %}
