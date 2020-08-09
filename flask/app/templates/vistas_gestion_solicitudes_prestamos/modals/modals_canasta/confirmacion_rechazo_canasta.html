@@ -1,4 +1,4 @@
-<div class="modal fade" id="confirmacion_rechazo_solicitud" tabindex="-1" role="dialog" aria-hidden="true">
+<div class="modal fade" id="confirmacion_rechazo_solicitud_{{detalle_solicitud["id"]}}" tabindex="-1" role="dialog" aria-hidden="true">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header bg-gris-eit">
@@ -7,7 +7,7 @@
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
-      <form  action="/rechazar_solicitud/{{datos_detalle_solicitud["id"]}}" method="post">
+      <form  action="/rechazar_solicitud/{{detalle_solicitud["id"]}}" method="post">
         <div class="modal-body">
           <p>La solicitud de préstamo será marcada automáticamente como <strong>rechazada</strong> y el usuario solicitante será notificado.</p>
 
