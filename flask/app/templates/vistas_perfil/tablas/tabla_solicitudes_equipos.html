@@ -7,20 +7,22 @@
     <table id="tabla_equipos" class="table">
       <thead class="text-white" style="background:#4D4D4D;">
         <tr>
-            <th>Código</th>
-            <th>Equipo</th>
-            <th>Modelo</th>
-            <th>Marca</th>
-            <th>Fecha inicio</th>
-            <th>Fecha término</th>
-            <th>Fecha devolucion</th>
-            <th>Estado</th>
-
+          <th>ID</th>
+          <th>Código</th>
+          <th>Equipo</th>
+          <th>Modelo</th>
+          <th>Marca</th>
+          <th>Fecha inicio</th>
+          <th>Fecha término</th>
+          <th>Fecha devolucion</th>
+          <th>Estado</th>
+          <th>Opciones</th>
         </tr>
       </thead>
       <tbody>
-        {% for elemento in solicitudes_equipos %}
+{% for elemento in solicitudes_equipos %}
         <tr>
+          <td>{{elemento.id}}</td>
           <td>{{elemento.codigo}}</td>
           <td>{{elemento.nombre}}</td>
           <td>{{elemento.modelo}}</td>
@@ -28,9 +30,30 @@
           <td>{{elemento.fecha_inicio if elemento.fecha_inicio}}</td>
           <td>{{elemento.fecha_termino if elemento.fecha_termino}}</td>
           <td>{{elemento.fecha_devolucion if elemento.fecha_devolucion}}</td>
-          <td><span>{{elemento.estado}}</span></td>
+
+  {% if elemento.estado == "Pendiente" %}
+          <td>Pendiente</td>
+          <td>
+            <form action="/perfil/cancelar_solicitud" method="POST">
+              <input type="hidden" name=id_solicitud_detalle value="{{elemento.id}}" >
+              <button type="submit" class="btn btn-danger btn-sm">Cancelar</button>
+            </form>
+          </td>
+
+  {% elif elemento.estado == "En posesión" %}
+          <td>En posesión</td>
+          <td>
+            <form action="/perfil/extender_prestamo" method="POST">
+              <input type="hidden" name=id_solicitud_detalle value="{{elemento.id}}" >
+              <button type="submit" class="btn btn-info btn-sm">Extender</button>
+            </form>
+          </td>
+  {% else %}
+          <td></td>
+          <td></td>
+  {% endif %}
         </tr>
-        {% endfor %}
+{% endfor %}
       </tbody>
     </table>
   </div>
