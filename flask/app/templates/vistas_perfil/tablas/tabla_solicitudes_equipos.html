@@ -16,7 +16,10 @@
           <th>Fecha término</th>
           <th>Fecha devolucion</th>
           <th>Estado</th>
+          {% if admin_inspeccionar_perfil == False%}
           <th>Opciones</th>
+          {% endif %}
+
         </tr>
       </thead>
       <tbody>
@@ -30,9 +33,12 @@
           <td>{{elemento.fecha_inicio if elemento.fecha_inicio}}</td>
           <td>{{elemento.fecha_termino if elemento.fecha_termino}}</td>
           <td>{{elemento.fecha_devolucion if elemento.fecha_devolucion}}</td>
+          <td>{{elemento.estado}}</td>
+
+{% if admin_inspeccionar_perfil == False%}
 
   {% if elemento.estado == "Pendiente" %}
-          <td>Pendiente</td>
+
           <td>
             <form action="/perfil/cancelar_solicitud" method="POST">
               <input type="hidden" name=id_solicitud_detalle value="{{elemento.id}}" >
@@ -41,7 +47,6 @@
           </td>
 
   {% elif elemento.estado == "En posesión" %}
-          <td>En posesión</td>
           <td>
             <form action="/perfil/extender_prestamo" method="POST">
               <input type="hidden" name=id_solicitud_detalle value="{{elemento.id}}" >
@@ -49,9 +54,11 @@
             </form>
           </td>
   {% else %}
-          <td>{{elemento.estado}}</td>
+          
           <td></td>
   {% endif %}
+
+{% endif %}
         </tr>
 {% endfor %}
       </tbody>
