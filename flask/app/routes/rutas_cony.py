@@ -277,9 +277,6 @@ def consultar_curso_secciones(codigo):
 def secciones_curso(codigo_udp):
     curso = consultar_curso(codigo_udp)
     secciones = consultar_curso_secciones(codigo_udp)
-    print(curso)
-    print("XD")
-    print(secciones)
     return render_template("/gestion_cursos/detalles_curso.html", curso=curso, secciones=secciones)
 # == VISTA PRINCIPAL/MODAL "AGREGAR CURSO" ==
 
@@ -489,3 +486,60 @@ def consultar_curso_descripcion(codigo_curso):
 def detalle_info_curso(codigo_udp):
     curso_desc = consultar_curso_descripcion(codigo_udp)
     return render_template("/gestion_cursos/detalles_curso.html", curso_desc=curso_desc)
+
+# GESTION ALUMNOS Seccion
+def obtener_seccion_id(codigo_udp,codigo_seccion):
+    query = ('''
+        SELECT Seccion.id FROM Seccion
+        LEFT JOIN Curso ON Curso.id = Seccion.id_curso
+        WHERE Curso.codigo_udp = %s AND Seccion.codigo = %s
+    ''')
+    cursor.execute(query,(codigo_udp,codigo_seccion,))
+    seccion_id = cursor.fetchone()
+    return seccion_id
+def consultar_alumnos_seccion(id_seccion):
+    if "usuario" not in session.keys():
+        return redirect("/")
+    if session["usuario"]["id_credencial"] != 3:
+        return redirect("/")
+    query = ('''
+        SELECT
+            Seccion_alumno.rut_alumno AS rut_alumno,
+            Usuario.nombres AS nombres_alumno,
+            Usuario.apellidos AS apellidos_alumno
+            FROM Seccion_alumno
+            LEFT JOIN Usuario ON Usuario.rut = Seccion_alumno.rut_alumno
+            WHERE Seccion_alumno.id_seccion = %s
+    ''')
+    cursor.execute(query,(id_seccion,))
+    alumnos = cursor.fetchall()
+    return alumnos
+
+@mod.route("/gestion_cursos/detalles_curso/<string:codigo_udp>/<string:codigo_seccion>",methods=["GET"])
+def alumnos_seccion(codigo_udp,codigo_seccion):
+    seccion_id = obtener_seccion_id(codigo_udp,codigo_seccion)
+    alumnos = consultar_alumnos_seccion(seccion_id['id'])
+    print(alumnos)
+    return render_template("gestion_cursos/detalles_seccion.html",seccion_id=seccion_id,alumnos=alumnos)
+
+@mod.route('/gestion_cursos/editar_alumno', methods = ['POST'])
+def editar_alumno_form():
+    if "usuario" not in session.keys():
+        return redirect("/")
+    if session["usuario"]["id_credencial"] != 3:
+        return redirect("/")
+    if request.method=='POST':
+        val=request.form.to_dict()
+        print(val)
+        query = ('''
+            UPDATE Seccion_alumno
+            SET Seccion_alumno.rut_alumno = %s
+            WHERE Seccion_alumno.id_seccion = %s
+        ''')
+        cursor.execute(query, (
+            val['rut_alumno'],
+            val['id']
+            ))
+        db.commit()
+        flash("El alumno se ha actualizado correctamente")
+        return back()

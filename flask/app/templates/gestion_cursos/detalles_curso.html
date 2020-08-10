@@ -78,7 +78,7 @@
 										<td>{{seccion.rut_profesor}}</td>
 										<td class="text-center">
 											 <button type="button" title="Editar información" data-target="#editar_seccion_{{seccion['id']}}" class= "btn btn-sm btn-warning" data-toggle="modal"><i class="fas fa-edit"></i></button>
-											 <!---<a href="gestion_cursos/detalles_curso/{{curso.codigo_udp}}"><button type="button" title="Ver detalles del curso" data-toggle="modal" class="btn btn-sm btn-info mr-1"><i class="fas fa-search-plus"></i></button></a>--->
+											 <a href="{{curso.codigo_udp}}/{{seccion.codigo_seccion}}"><button type="button" title="Ver detalles de la sección" data-toggle="modal" class="btn btn-sm btn-info mr-1"><i class="fas fa-search-plus"></i></button></a>
 											 <button type="submit" title="Eliminar curso" data-target="#eliminar_seccion_{{seccion['id']}}" class="btn btn-sm btn-danger" data-toggle="modal"><i class="fas fa-trash-alt"></i></button>
 											 {% include 'gestion_cursos/editar_seccion.html' %}
 											 {% include 'gestion_cursos/eliminar_seccion.html' %}

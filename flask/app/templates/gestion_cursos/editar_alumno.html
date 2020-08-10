@@ -1,0 +1,27 @@
+<div id="editar_alumno_{{seccion_id['id']}}"  class="modal fade in" tabindex="-1" role="dialog"  aria-hidden="true" data-keyboard="true" data-backdrop="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-gris-eit">
+                <h5 class="modal-title text-white" id="editar_informacion_label"><i class="fas fa-user-edit mr-2"></i>Editar información del curso</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
+                <span aria-hidden="true">&times; </span>
+                </button>
+            </div>
+            <form id="editar_alumno" action="/gestion_cursos/editar_alumno" method="POST">
+              <div class="modal-body">
+                <input class="form-control" type="text" name="id" value="{{seccion_id['id']}}" id="editar-seccion-hidden-id" hidden>
+              </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="rut_alumno">RUT alumno:</label>
+                        <input type="text" id="rut_alumno" name="rut_alumno" class="form-control" value="{{alumnos['rut_alumno']}}" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="boton_cerrar" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                    <button type="submit" id="boton_guardar" class="btn btn-info">Guardar cambios</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
