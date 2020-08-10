@@ -135,20 +135,26 @@
                             data-parent="#accordion">
                             <div class="card-body">
                                 <div class="form-group">
-                                    <label for="url1">Url 1</label>
-                                    <input name="url" type="url" class="form-control" id="url1"
-                                        aria-describedby="ejemploUrl" style="width : 850px;" required>
-                                    <small id="ejemploUrl" class="form-text text-muted">
-                                        Por ejemplo: https://www.mcielectronics.cl/shop/product/arduino-uno-wifi-r2-28297
-                                    </small>
+                                    <label for="url">URL:</label>
+                                    <div class="field_wrapper">
+                                        <div class="input-group">
+                                            <input name="url[0]" type="url" class="form-control" id="url"
+                                                aria-describedby="ejemploUrl" style=" width: 850px;" required>
+                                            <a href="javascript:void(0);" style="height: 36px;" class="add_button"
+                                                title="Añadir URL"><i style="color: blue;" class="btn fa fa-plus-circle mr-2"></i></a>
+                                        </div>
+                                        <small style="margin-bottom: 5px;" id="ejemploUrl" class="form-text text-muted">
+                                            Por ejemplo:
+                                            https://www.mcielectronics.cl/shop/product/arduino-uno-wifi-r2-28297
+                                        </small>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
-                <div class="col mt-4" align="center">
-                    <button type="submit" class="btn btn-success">Enviar</button>
-                </div>
+                    <div class="col mt-4" align="center">
+                        <button type="submit" class="btn btn-success">Enviar</button>
+                    </div>
             </form>
         </div>
     </div>
@@ -164,4 +170,31 @@
         {% include "/wishlist/user_wishlist_tabla.html" %}
     </div>
 </div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        var maxField = 10; //Input fields increment limitation
+        var addButton = $('.add_button'); //Add button selector
+        var wrapper = $('.field_wrapper'); //Input field wrapper
+        var fieldHTML = '<div class="form-group"><div class="input-group"><input name="url[';
+        var x = 1; //Initial field counter is 1
+        //Once add button is clicked
+        $(addButton).click(function () {
+            //Check maximum number of input fields
+            if (x < maxField) {
+                x++; //Increment field counter
+                index = x-1
+                $(wrapper).append(fieldHTML+index.toString()+']" type="url" class="form-control" id="url" aria-describedby="ejemploUrl" style=" width: 850px; margin-top: 5px;" required><a href="javascript:void(0);" style="height: 36px;" class="remove_button" title="Eliminar URL"><i style="color: red;" class="btn fa fa-minus-circle mr-2"></i></a></div></div>'); //Add field html
+            }
+        });
+
+        //Once remove button is clicked
+        $(wrapper).on('click', '.remove_button', function (e) {
+            e.preventDefault();
+            $(this).parent('div').remove(); //Remove field html
+            x--; //Decrement field counter
+        });
+    });
+</script>
+
 {% endblock %}
