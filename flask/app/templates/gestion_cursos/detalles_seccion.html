@@ -1,15 +1,27 @@
 {% extends "layout_in.html"%}
 {%block body%}
 
+{% include 'gestion_cursos/agregar_alumno.html' %}
+
 <div class="container-fluid mt-2">
+
+	<nav aria-label="breadcrumb">
+		<ol class="breadcrumb">
+			<li class="breadcrumb-item"><a href="/gestion_cursos">Gestión de cursos</a></li>
+			<li class="breadcrumb-item"><a href="/gestion_cursos/detalle_curso/{{seccion_id["id"]}}">Detalle de curso</a></li>
+			<li class="breadcrumb-item active" aria-current="page">Lista de alumnos inscritos</li>
+		</ol>
+	</nav>
+
 			<div class="card-header mt-2" style="background:#0db26b;">
-				<h5 class="card-title text-white my-auto">Lista de alumnos:</h5>
-			</div>
-			<div class="row float-right mt-2 mb-2">
-					<div class="col-md-12">
-					<button type="button" data-target=" #agregar_alumno_{{seccion_id['id']}}" class= "btn btn-success" data-toggle="modal"><i class="fas fa-user-plus mr-2"></i>Agregar alumno</button>
-					 {% include 'gestion_cursos/agregar_alumno.html' %}
-				 </div>
+				<div class="row">
+					<div class="col my-auto">
+						<h5 class="card-title text-white my-auto"><i class="fas fa-users mr-2"></i>Lista de alumnos inscritos</h5>
+					</div>
+					<div class="col my-auto text-right">
+						<button type="button" data-target=" #agregar_alumno_{{seccion_id['id']}}" class= "btn btn-secondary" data-toggle="modal"><i class="fas fa-user-plus mr-2"></i>Agregar alumnos</button>
+					</div>
+				</div>
 			</div>
 				<div class="table-responsive mt-2">
 					<div class="table-wrapper-scroll-y" style="position: relative;
@@ -31,9 +43,7 @@
 										<td>{{alumno['nombres_alumno']}}</td>
                     <td>{{alumno['apellidos_alumno']}}</td>
 										<td class="text-center">
-											 <button type="button" title="Editar información" data-target="#editar_alumno_{{alumno['rut_alumno']}}" class= "btn btn-sm btn-warning" data-toggle="modal"><i class="fas fa-edit"></i></button>
 											 <button type="submit" title="Eliminar alumno" data-target="#eliminar_alumno_{{alumno['rut_alumno']}}" class="btn btn-sm btn-danger" data-toggle="modal"><i class="fas fa-trash-alt"></i></button>
-											 {% include 'gestion_cursos/editar_alumno.html' %}
 											 {% include 'gestion_cursos/eliminar_alumno.html' %}
 										</td>
 									</tr>

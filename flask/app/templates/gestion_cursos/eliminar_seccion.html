@@ -8,20 +8,20 @@
         </button>
       </div>
       <form action="/gestion_cursos/eliminar_seccion" method="POST">
-        <div class="modal-body">
-          <input class="form-control" type="text" name="id_curso" value="{{curso['curso_id']}}" id="id_curso" hidden>
-        </div>
+        <input class="form-control" type="text" name="id_curso" value="{{curso['curso_id']}}" id="id_curso" hidden>
         <div class="modal-body">
           <p>Al eliminar la sección, los registros asociados serán eliminados automáticamente.</p>
-          <p>Curso: {{curso['codigo_udp']}} Código sección: {{seccion['codigo_seccion']}}</p>
-          <p>RUT Profesor: {{seccion['rut_profesor']}}</p>
+          <p><strong>Curso:</strong> {{curso['codigo_udp']}}</p>
+          <p><strong>Código de sección:</strong> {{seccion['codigo_seccion']}}</p>
+          <p><strong>Profesor encargado:</strong> {{seccion['rut_profesor']}}</p>
           <input class="form-control" type="text" name="id" value="{{seccion['id']}}" hidden>
         </div>
         <div class="modal-footer">
           <button type="button" id="boton_cerrar"  class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
-          <button type="submit" id="boton_guardar" class="btn btn-success">Eliminar</button>
+          <button type="submit" id="boton_guardar" class="btn btn-danger">Eliminar</button>
         </div>
       </form>
+
   </div>
 </div>
 </div>
