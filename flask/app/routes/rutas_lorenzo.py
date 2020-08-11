@@ -38,7 +38,7 @@ def enviar_correo_notificacion(archivo,str_para,str_asunto,correo_usuario):
 def tabla_wishlist():
     if "usuario" not in session.keys():
         return redirect("/")
-        
+
     if request.method == "POST":
         fecha_solicitud_wishlist = datetime.now()
         form = request.form.to_dict()
@@ -85,7 +85,7 @@ def tabla_wishlist():
     """
     cursor.execute(sql_query,(session["usuario"]["rut"],))
     lista_solicitudes_wishlist = cursor.fetchall()
-    
+
     return render_template("/wishlist/user_wishlist.html",
         lista_wishlist_aceptada=lista_wishlist_aceptada,
         lista_solicitudes_wishlist=lista_solicitudes_wishlist)
@@ -177,7 +177,11 @@ def aceptar_solicitud(id_detalle):
     """
     cursor.execute(sql_query,(datos_solicitud["rut_solicitante"],))
     datos_usuario = cursor.fetchone()
+<<<<<<< HEAD
     
+=======
+
+>>>>>>> master
     direccion_template = os.path.normpath(os.path.join(os.getcwd(), "app/templates/wishlist/templates_mail/aceptacion_solicitud.html"))
     archivo_html = open(direccion_template,encoding="utf-8").read()
 
@@ -200,7 +204,7 @@ def rechazar_solicitud(id_detalle):
         return redirect("/")
 
     fecha_revision_solicitud = str(datetime.now().replace(microsecond=0))
-    
+
     razon_rechazo = request.form.to_dict()["razon_rechazo"]
     razon_rechazo = razon_rechazo.replace("\n", "<br>")
 
@@ -262,7 +266,7 @@ def rechazar_solicitud(id_detalle):
 
 @mod.route("/eliminar_solicitud_w/<string:id_detalle>",methods=["POST"])
 def eliminar_solicitud(id_detalle):
-    
+
     sql_query = """
         DELETE FROM
             Url_wishlist

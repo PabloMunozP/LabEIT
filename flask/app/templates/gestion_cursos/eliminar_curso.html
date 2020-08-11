@@ -10,8 +10,8 @@
       <form action="/gestion_cursos/eliminar_curso" method="POST">
         <div class="modal-body">
           <p>Al eliminar el curso, los registros asociados serán eliminados automáticamente.</p>
-          <p>Código: {{curso['codigo_udp']}}. Nombre: {{curso['nombre']}}</p>
-          <p>Descripción: {{curso['descripcion']}}</p>
+          <p><strong>Código:</strong> {{curso['codigo_udp']}}. <strong>Nombre:</strong> {{curso['nombre']}}</p>
+          <p><strong>Descripción:</strong> {{curso['descripcion']}}</p>
           <input class="form-control" type="text" name="codigo_udp" value="{{curso['codigo_udp']}}" hidden>
         </div>
         <div class="modal-footer">

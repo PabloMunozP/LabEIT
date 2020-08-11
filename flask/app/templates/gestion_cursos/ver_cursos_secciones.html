@@ -4,7 +4,7 @@
       {% for msg in msgs %}
         {% if msg == "La seccion se ha actualizado correctamente"%}
           <div class="alert alert-success alert-dismissible fade show" role="alert">
-            <i class="fas fa-check-circle mr-2"></i>Se ha modificado correctamente.
+            <i class="fas fa-check-circle mr-2"></i>La sección se ha actualizado correctamente.
             <button type="button" class="close" data-dismiss="alert" aria-label="Close">
             <span aria-hidden="true">&times;</span>
             </button>
@@ -12,7 +12,7 @@
         {%endif%}
         {% if msg == "La seccion fue agregada correctamente"%}
           <div class="alert alert-success alert-dismissible fade show" role="alert">
-            <i class="fas fa-check-circle mr-2"></i>Se ha agregado correctamente.
+            <i class="fas fa-check-circle mr-2"></i>La sección se ha agregado correctamente.
             <button type="button" class="close" data-dismiss="alert" aria-label="Close">
             <span aria-hidden="true">&times;</span>
             </button>
@@ -20,7 +20,7 @@
         {%endif%}
         {% if msg == "La seccion fue eliminada correctamente"%}
           <div class="alert alert-success alert-dismissible fade show" role="alert">
-            <i class="fas fa-check-circle mr-2"></i>Se ha eliminado correctamente.
+            <i class="fas fa-check-circle mr-2"></i>La sección se ha eliminado correctamente.
             <button type="button" class="close" data-dismiss="alert" aria-label="Close">
             <span aria-hidden="true">&times;</span>
             </button>
@@ -50,8 +50,9 @@
               <tr>
                   <th scope="col">Código UDP</th>
                   <th scope="col">Número sección</th>
-                  <th scope="col">Nombre</th>
-                  <th scope="col">Rut Profesor</th>
+                  <th scope="col">Nombre del curso</th>
+                  <th scope="col">Rut del profesor</th>
+                  <th scope="col">Nombre del profesor</th>
                   <th scope="col" class="text-center">Acciones</th>
               </tr>
           </thead>
@@ -62,9 +63,12 @@
                       <td>{{seccion['codigo_seccion']}}</td>
                       <td>{{seccion['nombre']}}</td>
                       <td>{{seccion['rut_profesor']}}</td>
+                      <td></td>
                       <td class="text-center">
-                         <button type="button" title="Editar información" data-target="#editar_seccion_{{seccion['id']}}" class= "btn btn-sm btn-warning" data-toggle="modal"><i class="fas fa-edit"></i></button>
-                         <button type="submit" title="Eliminar seccion" data-target="#eliminar_seccion_{{seccion['id']}}" class="btn btn-sm btn-danger" data-toggle="modal"><i class="fas fa-trash-alt"></i></button>
+                        <span class="btn-group">
+                          <button type="button" title="Editar información" data-target="#editar_seccion_{{seccion['id']}}" class= "btn btn-sm btn-warning" data-toggle="modal"><i class="fas fa-edit"></i></button>
+                          <button type="submit" title="Eliminar seccion" data-target="#eliminar_seccion_{{seccion['id']}}" class="btn btn-sm btn-danger" data-toggle="modal"><i class="fas fa-trash-alt"></i></button>
+                        </span>
                       </td>
                       {% include 'gestion_cursos/agregar_curso_seccion.html' %}
                       {% include 'gestion_cursos/editar_curso_seccion.html' %}
