@@ -178,7 +178,7 @@ def aceptar_solicitud(id_detalle):
     cursor.execute(sql_query,(datos_solicitud["rut_solicitante"],))
     datos_usuario = cursor.fetchone()
     
-    direccion_template = os.path.normpath(os.path.join(os.getcwd(), "flask/app/templates/wishlist/templates_mail/aceptacion_solicitud.html"))
+    direccion_template = os.path.normpath(os.path.join(os.getcwd(), "app/templates/wishlist/templates_mail/aceptacion_solicitud.html"))
     archivo_html = open(direccion_template,encoding="utf-8").read()
 
     archivo_html = archivo_html.replace("%id_solicitud%",str(id_detalle))
@@ -231,7 +231,7 @@ def rechazar_solicitud(id_detalle):
     cursor.execute(sql_query,(datos_solicitud["rut_solicitante"],))
     datos_usuario = cursor.fetchone()
 
-    direccion_template = os.path.normpath(os.path.join(os.getcwd(), "flask/app/templates/wishlist/templates_mail/rechazo_solicitud.html"))
+    direccion_template = os.path.normpath(os.path.join(os.getcwd(), "app/templates/wishlist/templates_mail/rechazo_solicitud.html"))
     archivo_html = open(direccion_template,encoding="utf-8").read()
 
     archivo_html = archivo_html.replace("%id_solicitud%",str(id_detalle))
