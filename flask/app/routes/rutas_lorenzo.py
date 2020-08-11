@@ -177,11 +177,7 @@ def aceptar_solicitud(id_detalle):
     """
     cursor.execute(sql_query,(datos_solicitud["rut_solicitante"],))
     datos_usuario = cursor.fetchone()
-<<<<<<< HEAD
     
-=======
-
->>>>>>> master
     direccion_template = os.path.normpath(os.path.join(os.getcwd(), "app/templates/wishlist/templates_mail/aceptacion_solicitud.html"))
     archivo_html = open(direccion_template,encoding="utf-8").read()
 
