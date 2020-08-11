@@ -3,173 +3,168 @@
 
 {% include "/wishlist/modals/mi_wishlist.html" %}
 
-<div class="container-fluid">
-    <div class="row mt-4">
-        <div class="col-md-12">
-            <button type="button" class="btn btn-info float-right" data-toggle="modal"
-                data-target="#mi_wishlist">Revisar mi Wishlist</button>
-        </div>
-    </div>
-</div>
+<div class="container-fluid mt-2">
 
-<div class="container-fluid">
-    <div class="card-header mt-4" style="background:#0db26b;">
-        <div class="tab-content" id="nav-tabContent">
-            <h3 class="card-title text-white my-auto">Sugerir un equipo</h3>
-            <p class="text-white my-auto"><i class="fas fa-info-circle mr-2"></i>Info.</p>
-        </div>
-    </div>
-</div>
+  <div class="card-header mt-4" style="background:#0db26b;">
+  	<h5 class="card-title text-white my-auto">Sugerencias de equipos</h5>
+  	<p class="text-white my-auto mt-1"><i class="fas fa-info-circle mr-2"></i>En esta sección podrás realizar sugerencias a la coordinación del laboratorio, acerca de equipos que podrían ser útiles para tu desarrollo personal y/o académico.</p>
+    <button type="button" class="btn btn-sm btn-secondary mt-2" data-toggle="modal"
+        data-target="#mi_wishlist">Revisar mi wishlist
+    </button>
+  </div>
 
-<div class="container-fluid">
-
-    {% with msgs = get_flashed_messages() %}
+  {% with msgs = get_flashed_messages() %}
     {% if msgs %}
-    {% for msg in msgs %}
-    {% if msg == "solicitud-registrada" %}
-    <div class="alert alert-success mt-2 alert-dismissible fade show" role="alert">
-        <i class="fas fa-check-circle mr-2"></i>Su solicitud de Wishlist ha sido registrada correctamente.
-        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-        </button>
-    </div>
-    {% endif %}
-    {%endfor%}
+      {% for msg in msgs %}
+        {% if msg == "solicitud-registrada" %}
+          <div class="alert alert-success mt-2 alert-dismissible fade show" role="alert">
+              <i class="fas fa-check-circle mr-2"></i>Tu solicitud de Wishlist ha sido registrada correctamente.
+              <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+              </button>
+          </div>
+        {% endif %}
+      {%endfor%}
     {%endif%}
-    {%endwith%}
+  {%endwith%}
 
-    <div class="col mt-4">
-        <div id="accordion" style="width : 1000px; margin-left: 10%;">
-            <form action="#" method="post">
-                <div class="col-md-12">
-                    <div class="card">
-                        <div class="card-header" id="headingOne">
-                            <h5 class="mb-0">
-                                <button type="button" class="btn btn-link" style="text-decoration:none"
-                                    data-toggle="collapse" data-target="#collapseOne" aria-expanded="false"
-                                    aria-controls="collapseOne">
-                                    <h5 class="texto-gris-eit text-center">Datos del equipo</h5>
-                                </button>
-                            </h5>
-                        </div>
-                        <div id="collapseOne" class="collapse show" aria-labelledby="headingOne"
-                            data-parent="#accordion">
-                            <div class="card-body">
-                                <div class="form-group">
-                                    <label for="nombreEquipoWishlist">Nombre</label>
-                                    <input name="nombre" type="name" class="form-control" id="nombreEquipoWishlist"
-                                        aria-describedby="ejemploNombre" style="width : 500px;" required>
-                                    <small id="ejemploNombre" class="form-text text-muted">Por ejemplo: Smartphone,
-                                        Router,
-                                        Arduino, Webcam.</small>
-                                </div>
-                                <div class="form-group">
-                                    <label for="marcaEquipoWishlist">Marca</label>
-                                    <input name="marca" type="name" class="form-control" id="marcaEquipoWishlist"
-                                        aria-describedby="ejemploMarca" style="width : 500px;" required>
-                                    <small id="ejemploMarca" class="form-text text-muted">Por ejemplo: Arduino UNO,
-                                        BlackBerry,
-                                        Sony, TP-LINK.</small>
-                                </div>
-                                <div class="form-group">
-                                    <label for="modeloEquipoWishlist">Modelo</label>
-                                    <input name="modelo" type="name" class="form-control" id="modeloEquipoWishlist"
-                                        aria-describedby="ejemploModelo" style="width : 500px;" required>
-                                    <small id="ejemploModelo" class="form-text text-muted">Por ejemplo: Uno R2, 9530,
-                                        BCG-34HLD
-                                        , TL-WR1043ND.</small>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+      <form action="#" method="post">
 
-                    <div class="card">
-                        <div class="card-header" id="headingTwo">
-                            <h5 class="mb-0">
-                                <button type="button" class="btn btn-link collapsed" style="text-decoration:none"
-                                    data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false"
-                                    aria-controls="collapseTwo">
-                                    <h5 class="texto-gris-eit text-center">Cuestionario</h5>
-                                </button>
-                            </h5>
-                        </div>
-                        <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordion">
-                            <div class="card-body">
-                                <fieldset class="form-group">
-                                    <div class="row">
-                                        <legend class="col-form-label col-sm-2 pt-0">Motivo de solicitud:</legend>
-                                        <div class="col-sm-10">
-                                            <div class="form-check">
-                                                <input onclick="close()" class="form-check-input" type="radio"
-                                                    name="motivo" id="gridRadios1" value=0 required>
-                                                <label class="form-check-label" for="opcion1">
-                                                    Personal
-                                                </label>
-                                                <div id="ramos"></div>
-                                            </div>
-                                            <div class="form-check">
-                                                <input onclick="asignaturas()" class="form-check-input" type="radio"
-                                                    name="motivo" id="gridRadios2" value=1 required>
-                                                <label class="form-check-label" for="opcion2">
-                                                    Académico
-                                                </label>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </fieldset>
-                            </div>
-                        </div>
+        <div class="card mt-2">
+            <div class="card-header" style="background:#4D4D4D;" id="headingOne">
+                <h5 class="mb-0">
+                    <button type="button" class="btn btn-link" style="text-decoration:none"
+                        data-toggle="collapse" data-target="#collapseOne" aria-expanded="false"
+                        aria-controls="collapseOne">
+                        <h5 class="text-center text-white my-auto">Datos del equipo</h5>
+                    </button>
+                </h5>
+            </div>
+            <div id="collapseOne" class="collapse show" aria-labelledby="headingOne"
+                data-parent="#accordion">
+                <div class="card-body">
+                    <div class="form-group">
+                        <label for="nombreEquipoWishlist">Nombre</label>
+                        <input name="nombre" type="name" class="form-control" id="nombreEquipoWishlist"
+                            aria-describedby="ejemploNombre" style="width : 500px;" required>
+                        <small id="ejemploNombre" class="form-text text-muted">Por ejemplo: Smartphone,
+                            Router,
+                            Arduino, Webcam.</small>
                     </div>
-
-                    <div class="card">
-                        <div class="card-header" id="headingThree">
-                            <h5 class="mb-0">
-                                <button type="button" class="btn btn-link collapsed" style="text-decoration:none"
-                                    data-toggle="collapse" data-target="#collapseThree" aria-expanded="false"
-                                    aria-controls="collapseThree">
-                                    <h5 class="texto-gris-eit text-center">Links</h5>
-                                </button>
-                            </h5>
-                        </div>
-                        <div id="collapseThree" class="collapse" aria-labelledby="headingThree"
-                            data-parent="#accordion">
-                            <div class="card-body">
-                                <div class="form-group">
-                                    <label for="url">URL:</label>
-                                    <div class="field_wrapper">
-                                        <div class="input-group">
-                                            <input name="url[0]" type="url" class="form-control" id="url"
-                                                aria-describedby="ejemploUrl" style=" width: 850px;" required>
-                                            <a href="javascript:void(0);" style="height: 36px;" class="add_button"
-                                                title="Añadir URL"><i style="color: blue;" class="btn fa fa-plus-circle mr-2"></i></a>
-                                        </div>
-                                        <small style="margin-bottom: 5px;" id="ejemploUrl" class="form-text text-muted">
-                                            Por ejemplo:
-                                            https://www.mcielectronics.cl/shop/product/arduino-uno-wifi-r2-28297
-                                        </small>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                    <div class="form-group">
+                        <label for="marcaEquipoWishlist">Marca</label>
+                        <input name="marca" type="name" class="form-control" id="marcaEquipoWishlist"
+                            aria-describedby="ejemploMarca" style="width : 500px;" required>
+                        <small id="ejemploMarca" class="form-text text-muted">Por ejemplo: Arduino UNO,
+                            BlackBerry,
+                            Sony, TP-LINK.</small>
                     </div>
-                    <div class="col mt-4" align="center">
-                        <button type="submit" class="btn btn-success">Enviar</button>
+                    <div class="form-group">
+                        <label for="modeloEquipoWishlist">Modelo</label>
+                        <input name="modelo" type="name" class="form-control" id="modeloEquipoWishlist"
+                            aria-describedby="ejemploModelo" style="width : 500px;" required>
+                        <small id="ejemploModelo" class="form-text text-muted">Por ejemplo: Uno R2, 9530,
+                            BCG-34HLD
+                            , TL-WR1043ND.</small>
                     </div>
-            </form>
+                </div>
+            </div>
         </div>
-    </div>
-</div>
 
-<div class="container-fluid">
-    <div class="tab-content" id="nav-tabContent">
-        <div class="card-header mt-4" style="background:#0db26b;">
-            <h3 class="card-title text-white my-auto">Wishlist de LabEIT UDP</h3>
-            <p class="text-white my-auto"><i class="fas fa-info-circle mr-2"></i>La siguiente lista muestra las últimas
-                solicitudes de Wishlist hechas por alumnos de la escuela y que han sido aceptadas.</p>
+        <div class="card">
+            <div class="card-header" style="background:#4D4D4D;" id="headingTwo">
+                <h5 class="mb-0">
+                    <button type="button" class="btn btn-link collapsed" style="text-decoration:none"
+                        data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false"
+                        aria-controls="collapseTwo">
+                        <h5 class="text-center text-white my-auto">Cuestionario</h5>
+                    </button>
+                </h5>
+            </div>
+            <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordion">
+                <div class="card-body">
+                    <fieldset class="form-group">
+                        <div class="row">
+                          <div class="col-4">
+                            <legend class="col-form-label">Motivo de solicitud:</legend>
+                          </div>
+                            <div class="col-8">
+                                <div class="form-check">
+                                    <input onclick="close()" class="form-check-input" type="radio"
+                                        name="motivo" id="gridRadios1" value=0 required>
+                                    <label class="form-check-label" for="opcion1">
+                                        Personal
+                                    </label>
+                                    <div id="ramos"></div>
+                                </div>
+                                <div class="form-check">
+                                    <input onclick="asignaturas()" class="form-check-input" type="radio"
+                                        name="motivo" id="gridRadios2" value=1 required>
+                                    <label class="form-check-label" for="opcion2">
+                                        Académico
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+            </div>
         </div>
-        {% include "/wishlist/user_wishlist_tabla.html" %}
-    </div>
-</div>
+
+        <div class="card">
+            <div class="card-header" style="background:#4D4D4D;" id="headingThree">
+                <h5 class="mb-0">
+                    <button type="button" class="btn btn-link collapsed" style="text-decoration:none"
+                        data-toggle="collapse" data-target="#collapseThree" aria-expanded="false"
+                        aria-controls="collapseThree">
+                        <h5 class="text-center text-white my-auto">Links</h5>
+                    </button>
+                </h5>
+            </div>
+            <div id="collapseThree" class="collapse" aria-labelledby="headingThree"
+                data-parent="#accordion">
+                <div class="card-body">
+                    <div class="form-group">
+                        <label for="url">URL:</label>
+                        <div class="field_wrapper">
+                            <div class="input-group">
+                                <input name="url[0]" type="url" class="form-control" id="url"
+                                    aria-describedby="ejemploUrl" style=" width: 850px;" required>
+                                <a href="javascript:void(0);" style="height: 36px;" class="add_button"
+                                    title="Añadir URL"><i style="color: green;" class="btn fa fa-plus-circle mr-2"></i></a>
+                            </div>
+                            <small style="margin-bottom: 5px;" id="ejemploUrl" class="form-text text-muted">
+                                Por ejemplo:
+                                https://www.mcielectronics.cl/shop/product/arduino-uno-wifi-r2-28297
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-2">
+          <div class="col text-center">
+            <button type="submit" class="btn btn-success">Enviar formulario</button>
+          </div>
+        </div>
+
+      </form>
+
+      <div class="tab-content" id="nav-tabContent">
+          <div class="card-header mt-4" style="background:#0db26b;">
+              <h5 class="card-title text-white my-auto">Wishlist de LabEIT UDP</h5>
+              <p class="text-white my-auto"><i class="fas fa-info-circle mr-2"></i>La siguiente lista muestra las últimas
+                  solicitudes de Wishlist hechas por alumnos de la escuela y que han sido aceptadas.</p>
+          </div>
+          {% include "/wishlist/user_wishlist_tabla.html" %}
+      </div>
+
+
+  </div>
+
+  <div id="accordion"></div>
+
 
 <script type="text/javascript">
     $(document).ready(function () {
