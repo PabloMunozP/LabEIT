@@ -333,10 +333,8 @@ def agregar_curso_seccion_form():
         return redirect("/")
     if request.method == 'POST':
         valores = request.form.to_dict()
-        print(valores)
         agregar_curso_seccion(valores)
         curso = redirigir_detalle(valores["id_curso"])
-        print(curso['codigo_udp'])
         flash("La seccion fue agregada correctamente")
         return redirect('/gestion_cursos/detalles_curso/'+curso['codigo_udp'])
 
@@ -357,8 +355,6 @@ def editar_curso(val):
         val['descripcion'],
         val['codigo_udp']
         ))
-    print("editar")
-    print(val)
     db.commit()
     return val
 
@@ -370,7 +366,6 @@ def editar_curso_form():
         return redirect("/")
     if request.method=='POST':
         val=request.form.to_dict()
-        print(val)
         query = ('''
             UPDATE Curso
             SET Curso.codigo_udp = %s,
@@ -396,7 +391,6 @@ def editar_curso_form2():
         return redirect("/")
     if request.method == 'POST':
         valores = request.form.to_dict()
-        print(valores)
         editar_curso(valores)
         flash("El curso se ha actualizado correctamente")
         return redirect("/gestion_cursos")
@@ -409,7 +403,6 @@ def editar_seccion_form():
         return redirect("/")
     if request.method=='POST':
         val=request.form.to_dict()
-        print(val)
         query = ('''
             UPDATE Seccion
             SET Seccion.rut_profesor = %s,
@@ -423,7 +416,6 @@ def editar_seccion_form():
             ))
         db.commit()
         curso = redirigir_detalle(val["id_curso"])
-        print(curso['codigo_udp'])
         flash("La sección se ha actualizado correctamente")
         return redirect('/gestion_cursos/detalles_curso/'+curso['codigo_udp'])
 
@@ -445,7 +437,6 @@ def eliminar_curso_form():
         return redirect("/")
     if request.method == 'POST':
         curso_por_eliminar = request.form.to_dict()
-        print(curso_por_eliminar)
         eliminar_curso(curso_por_eliminar)
         flash("El curso fue eliminado correctamente")
         return redirect("/gestion_cursos")
@@ -466,11 +457,9 @@ def eliminar_seccion_form():
         return redirect("/")
     if request.method == 'POST':
         seccion_por_eliminar = request.form.to_dict()
-        print(seccion_por_eliminar)
         eliminar_seccion(seccion_por_eliminar)
         curso = redirigir_detalle(seccion_por_eliminar["id_curso"])
-        print(curso['codigo_udp'])
-        flash("La sección se ha actualizado correctamente")
+        flash("La sección se ha eliminado correctamente")
         return redirect('/gestion_cursos/detalles_curso/'+curso['codigo_udp'])
 # == VISTA DETALLES CURSO ==
 def consultar_curso_descripcion(codigo_curso):
@@ -519,9 +508,47 @@ def consultar_alumnos_seccion(id_seccion):
 def alumnos_seccion(codigo_udp,codigo_seccion):
     seccion_id = obtener_seccion_id(codigo_udp,codigo_seccion)
     alumnos = consultar_alumnos_seccion(seccion_id['id'])
-    print(alumnos)
     return render_template("gestion_cursos/detalles_seccion.html",seccion_id=seccion_id,alumnos=alumnos)
 
+def agregar_alumno(val):
+    query = ('''
+    INSERT INTO Seccion_alumno (id_seccion, rut_alumno)
+    VALUES (%s,%s);
+    ''')
+    cursor.execute(query, (val['id'],val['rut_alumno']))
+    db.commit()
+    return 'OK'
+
+@mod.route("/gestion_cursos/agregar_alumno", methods = ['POST'])
+def agregar_alumno_form():
+    if "usuario" not in session.keys():
+        return redirect("/")
+    if session["usuario"]["id_credencial"] != 3:
+        return redirect("/")
+    if request.method == 'POST':
+        valores = request.form.to_dict()
+        agregar_alumno(valores)
+        seccion = obtener_seccion(valores['id'])
+        curso = obtener_curso(seccion['id_curso'])
+        flash("El alumno se ha agregado correctamente")
+        return redirect('/gestion_cursos/detalles_curso/'+curso['codigo_udp']+'/'+str(seccion['codigo']))
+
+def obtener_seccion(id):
+    query = ('''
+        SELECT * FROM Seccion
+        WHERE Seccion.id = %s
+    ''')
+    cursor.execute(query,(id,))
+    seccion = cursor.fetchone()
+    return seccion
+def obtener_curso(id):
+    query = ('''
+        SELECT * FROM Curso
+        WHERE Curso.id = %s
+    ''')
+    cursor.execute(query,(id,))
+    curso = cursor.fetchone()
+    return curso
 @mod.route('/gestion_cursos/editar_alumno', methods = ['POST'])
 def editar_alumno_form():
     if "usuario" not in session.keys():
@@ -530,16 +557,40 @@ def editar_alumno_form():
         return redirect("/")
     if request.method=='POST':
         val=request.form.to_dict()
-        print(val)
         query = ('''
             UPDATE Seccion_alumno
             SET Seccion_alumno.rut_alumno = %s
-            WHERE Seccion_alumno.id_seccion = %s
+            WHERE Seccion_alumno.id_seccion = %s AND Seccion_alumno.rut_alumno = %s
         ''')
         cursor.execute(query, (
             val['rut_alumno'],
-            val['id']
+            val['id'],
+            val['rut_original']
             ))
         db.commit()
+        seccion = obtener_seccion(val['id'])
+        curso = obtener_curso(seccion['id_curso'])
         flash("El alumno se ha actualizado correctamente")
-        return back()
+        return redirect('/gestion_cursos/detalles_curso/'+curso['codigo_udp']+'/'+str(seccion['codigo']))
+
+def eliminar_alumno(alumno):
+    query = ('''
+        DELETE Seccion_alumno FROM Seccion_alumno WHERE Seccion_alumno.rut_alumno = %s
+    ''')
+    cursor.execute(query,(alumno['rut_alumno'],))
+    db.commit()
+    return 'OK'
+
+@mod.route("/gestion_cursos/eliminar_alumno",methods=["POST"])
+def eliminar_alumno_form():
+    if "usuario" not in session.keys():
+        return redirect("/")
+    if session["usuario"]["id_credencial"] != 3:
+        return redirect("/")
+    if request.method == 'POST':
+        val = request.form.to_dict()
+        eliminar_alumno(val)
+        seccion = obtener_seccion(val['id'])
+        curso = obtener_curso(seccion['id_curso'])
+        flash("El alumno se ha eliminado correctamente")
+        return redirect('/gestion_cursos/detalles_curso/'+curso['codigo_udp']+'/'+str(seccion['codigo']))
