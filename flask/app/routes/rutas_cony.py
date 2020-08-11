@@ -294,6 +294,11 @@ def consultar_curso_secciones(codigo):
 
 @mod.route("/gestion_cursos/detalles_curso/<string:codigo_udp>",methods=["GET"])
 def secciones_curso(codigo_udp):
+    if "usuario" not in session.keys():
+        return redirect("/")
+    if session["usuario"]["id_credencial"] != 3: # El usuario debe ser un administrador (Credencial = 3)
+        return redirect("/")
+
     curso = consultar_curso(codigo_udp)
     secciones = consultar_curso_secciones(codigo_udp)
     return render_template("/gestion_cursos/detalles_curso.html", curso=curso, secciones=secciones)
@@ -492,6 +497,11 @@ def consultar_curso_descripcion(codigo_curso):
     return curso_detalle
 @mod.route("/gestion_cursos/detalles_curso/<string:codigo_udp>",methods=["GET"])
 def detalle_info_curso(codigo_udp):
+    if "usuario" not in session.keys():
+        return redirect("/")
+    if session["usuario"]["id_credencial"] != 3: # El usuario debe ser un administrador (Credencial = 3)
+        return redirect("/")
+
     curso_desc = consultar_curso_descripcion(codigo_udp)
     return render_template("/gestion_cursos/detalles_curso.html", curso_desc=curso_desc)
 
@@ -525,6 +535,11 @@ def consultar_alumnos_seccion(id_seccion):
 
 @mod.route("/gestion_cursos/detalles_curso/<string:codigo_udp>/<string:codigo_seccion>",methods=["GET"])
 def alumnos_seccion(codigo_udp,codigo_seccion):
+    if "usuario" not in session.keys():
+        return redirect("/")
+    if session["usuario"]["id_credencial"] != 3: # El usuario debe ser un administrador (Credencial = 3)
+        return redirect("/")
+
     seccion_id = obtener_seccion_id(codigo_udp,codigo_seccion)
     alumnos = consultar_alumnos_seccion(seccion_id['id'])
     return render_template("gestion_cursos/detalles_seccion.html",seccion_id=seccion_id,alumnos=alumnos)
