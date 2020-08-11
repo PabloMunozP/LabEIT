@@ -66,6 +66,7 @@
                 <th scope="col">Nombre</th>
                 <th scope="col">Modelo</th>
                 <th scope="col">Marca</th>
+                <th scope="col" class="text-center">Disponibles</th>
                 <th scope="col" class="text-center">Total</th>
               </tr>
             </thead>
@@ -76,6 +77,7 @@
                   <td> {{elemento.nombre}} </td>
                   <td> {{elemento.modelo}} </td>
                   <td> {{elemento.marca}} </td>
+                  <td class="text-center"> {{elemento.disponibles}}</td>
                   <td class="text-center"> {{elemento.total_equipos}}</td>
                 </tr>
               {% endfor %}
@@ -86,7 +88,7 @@
 
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
-<script src="https://rawgit.com/unconditional/jquery-table2excel/master/src/jquery.table2excel.js"></script>
+<script src="//cdn.rawgit.com/rainabba/jquery-table2excel/1.1.0/dist/jquery.table2excel.min.js"></script>
   <script>
     jQuery(document).ready(function() {
         $('#export-btn').on('click', function(e){
@@ -96,8 +98,10 @@
 
         function ResultsToTable(){
             $("#tabla_equipos_general_descarga").table2excel({
-                exclude: ".noExl",
-                name: "Results"
+              exclude: ".excludeThisClass",
+                name: "Results",
+                filename: "Equipos.xls",
+                preserveColors: false
             });
         }
     });
