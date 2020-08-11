@@ -1117,8 +1117,18 @@ def estadisticas_generales():
     cursor.execute(sql_query)
     cantidades_solicitudes_estados["rechazadas_canceladas"] = cursor.fetchone()["cantidad_rechazadas_canceladas"]
 
+    # Se obtiene la lista de usuarios registrados
+    sql_query = """
+        SELECT rut,nombres,apellidos
+            FROM Usuario
+                ORDER BY apellidos,nombres
+    """
+    cursor.execute(sql_query)
+    lista_usuarios = cursor.fetchall()
+
     return render_template("/estadisticas/estadisticas_generales.html",
-        cantidades_solicitudes_estados=cantidades_solicitudes_estados)
+        cantidades_solicitudes_estados=cantidades_solicitudes_estados,
+        lista_usuarios=lista_usuarios)
 
 @mod.route("/consultar_estadisticas_solicitudes",methods=["POST"])
 def consultar_estadisticas_solicitudes():

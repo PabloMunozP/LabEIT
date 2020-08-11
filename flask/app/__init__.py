@@ -180,7 +180,7 @@ def revisar_18_30():
 
 #sched = APScheduler()
 #sched.add_job(id="revisar_tokens_password",func=revisar_tokens_password,trigger='cron',hour=23,minute=59)
-#sched.add_job(id="revisar_18_30",func=revisar_18_30,trigger='cron',hour=13,minute=50)
+#sched.add_job(id="revisar_18_30",func=revisar_18_30,trigger='cron',hour=19,minute=15)
 #sched.start()
 # ============================================================================
 
