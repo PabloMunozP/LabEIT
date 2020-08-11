@@ -18,31 +18,40 @@
 					<div class="card-body" style="background:#ECF0F1;">
 						<p>Actualmente tienes una sanción activa de <strong>{{sancion["cantidad_dias"]}}</strong> día(s). Mientras no cumplas con el tiempo respectivo, no podrás acceder a las solicitudes de préstamo.</p>
 						<p>Recuerda entregar los equipos que has pedido dentro de las fechas señaladas, de lo contrario tu sanción aumentará por cada día de atraso conforme a lo establecido en el reglamento interno del laboratorio.</p>
-						<p>Si tienes dudas o crees que has sido sancionado injustificadamente, contáctanos vía correo electrónico (<a href="mailto:labeit@mail.udp.cl?subject=Duda/Problema-LabEIT">labeit@mail.udp.cl</a>) o acercándote al laboratorio de telemática (5to piso).</p>
-						<hr>
-						<p>Los equipos prestados que presentan atraso y que debes devolver lo antes posible, son los siguientes:</p>
-						<div class="table-responsive mt-2">
-							<div class="table-wrapper-scroll-y" style="position: relative;
-													max-height: 450px;
-													overflow:auto;">
-													<table class="table">
-														<thead class="text-white" style="background:#4D4D4D;">
-															<tr>
-																<th scope="col">Equipo a devolver</th>
-																<th scope="col">Código</th>
-															</tr>
-														</thead>
-														<tbody>
-															{% for detalle_solicitud in lista_detalles_sancionados %}
-																<tr style="background:#FFFFFF;">
-																	<td>{{detalle_solicitud["nombre_equipo"]}} {{detalle_solicitud["marca_equipo"]}} {{detalle_solicitud["modelo_equipo"]}}</td>
-																	<td>{{detalle_solicitud["codigo_equipo"]}}-{{detalle_solicitud["codigo_sufijo_equipo"]}}</td>
+						<p>Si tienes dudas o crees que has sido sancionado injustificadamente, puedes contactarnos vía correo electrónico (<a href="mailto:labeit@mail.udp.cl?subject=Duda/Problema-LabEIT">labeit@mail.udp.cl</a>) o acercándote al laboratorio de telemática (5to piso).</p>
+						{% if lista_detalles_sancionados %}
+							<hr>
+							<p>Los equipos prestados que presentan atraso y que debes devolver lo antes posible, son los siguientes:</p>
+							<div class="table-responsive mt-2">
+								<div class="table-wrapper-scroll-y" style="position: relative;
+														max-height: 450px;
+														overflow:auto;">
+														<table class="table">
+															<thead class="text-white" style="background:#4D4D4D;">
+																<tr>
+																	<th scope="col">Equipo a devolver</th>
+																	<th scope="col">Código</th>
 																</tr>
-															{% endfor %}
-														</tbody>
-													</table>
+															</thead>
+															<tbody>
+																{% for detalle_solicitud in lista_detalles_sancionados %}
+																	<tr style="background:#FFFFFF;">
+																		<td>{{detalle_solicitud["nombre_equipo"]}} {{detalle_solicitud["marca_equipo"]}} {{detalle_solicitud["modelo_equipo"]}}</td>
+																		<td>{{detalle_solicitud["codigo_equipo"]}}-{{detalle_solicitud["codigo_sufijo_equipo"]}}</td>
+																	</tr>
+																{% endfor %}
+															</tbody>
+														</table>
+								</div>
 							</div>
+						{% else %}
+						<div class="alert alert-success mt-2 alert-dismissible fade show" role="alert">
+								<i class="fas fa-check-circle mr-2"></i>Has devuelto todos los equipos asociados a solicitudes marcadas con atraso.
+								<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+										<span aria-hidden="true">&times;</span>
+								</button>
 						</div>
+						{% endif %}
 					</div>
 				</div>
 			</div>

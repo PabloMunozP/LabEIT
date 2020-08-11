@@ -93,6 +93,14 @@
 						</button>
 				</div>
 				{% endif %}
+				{% if msg == "detalle-eliminado" %}
+				<div class="alert alert-success mt-2 alert-dismissible fade show" role="alert">
+						<i class="fas fa-check-circle mr-2"></i>El detalle de solicitud ha sido eliminado correctamente.
+						<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+								<span aria-hidden="true">&times;</span>
+						</button>
+				</div>
+				{% endif %}
 				{%endfor%}
 			{%endif%}
 		{%endwith%}
@@ -415,7 +423,7 @@
 					{% elif datos_detalle_solicitud["estado"] == 1 %}
 						<button type="button" class="btn btn-danger mr-1" data-toggle="modal" data-target="#confirmacion_cancelacion_solicitud"><i class="fas fa-times-circle mr-1"></i>Cancelar solicitud</button>
 						<button type="button" class="btn btn-info" data-toggle="modal" data-target="#formulario_retiro_equipo"><i class="fas fa-clipboard-check mr-1"></i>Marcar como entregado</button>
-					{% elif datos_detalle_solicitud["estado"] == 2 %}
+					{% elif datos_detalle_solicitud["estado"] == 2 or datos_detalle_solicitud["estado"] == 3 %}
 						<button type="button" class="btn btn-info" data-toggle="modal" data-target="#confirmacion_devolucion_equipo">Registrar devolución</button>
 					{% elif datos_detalle_solicitud["estado"] >= 5 %}
 						<button type="button" class="btn btn-danger mr-1" data-toggle="modal" data-target="#confirmacion_eliminacion_solicitud"><i class="fas fa-minus-circle mr-1"></i>Eliminar solicitud</button>

@@ -42,20 +42,30 @@ def tabla_wishlist():
     if request.method == "POST":
         fecha_solicitud_wishlist = datetime.now()
         form = request.form.to_dict()
+
         sql_query= """
             INSERT INTO Wishlist
                 (rut_solicitante,nombre_equipo,marca_equipo,modelo_equipo,motivo_academico,fecha_solicitud)
                     VALUES (%s,%s,%s,%s,%s,%s)
         """
         cursor.execute(sql_query,(session["usuario"]["rut"],form["nombre"],form["marca"],form["modelo"],form["motivo"],fecha_solicitud_wishlist))
+
         cursor.execute("SELECT MAX(id) FROM Wishlist")
         last_id = cursor.lastrowid
-        sql_query= """
-            INSERT INTO Url_wishlist (url,id_wishlist)
-                VALUES (%s,%s)
-        """
+
+        for i in range(10):
+            if 'url[{}]'.format(str(i)) in form:
+                call = 'url[{}]'.format(str(i))
+                url = form[call]
+                sql_query= """
+                    INSERT INTO Url_wishlist (url,id_wishlist)
+                        VALUES (%s,%s)
+                """
+                cursor.execute(sql_query,(url,last_id))
+            else:
+                break
+
         flash("solicitud-registrada")
-        cursor.execute(sql_query,(form["url"],last_id))
 
     sql_query = """
         SELECT *

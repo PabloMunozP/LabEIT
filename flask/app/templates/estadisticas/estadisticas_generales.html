@@ -47,7 +47,7 @@
 				<form id="formulario-consulta-equipos-solicitados">
 					<div class="row my-auto">
 						<div class="col">
-							Revisar cantidad de equipos solicitados.
+							Revisar equipos solicitados.
 						</div>
 						<div class="col">
 							<div class="input-group mb-3">
@@ -66,9 +66,10 @@
 							</div>
 						</div>
 						<div class="col">
-							<button type="submit" id="boton-consulta-equipos-solicitados" class="btn btn-verde-eit">Consultar</button>
+							<button type="submit" id="boton-consulta-equipos-solicitados" class="btn btn-verde-eit btn-consulta-estadisticas">Consultar</button>
 						</div>
 					</div>
+
 					<div id="fila_boton_eliminar_grafico_1" hidden class="row my-auto">
 						<div class="col mt-2 text-right">
 							<button type="button" id="boton_eliminacion_grafico_1" class="btn btn-sm btn-danger">Borrar gráfico</button>
@@ -82,6 +83,7 @@
 					</div>
 					<div id="seccion_grafico_1"></div>
 				</div>
+
 
 			</div>
 			<div class="card-body" style="background:#fff;">
@@ -112,7 +114,7 @@
 							</div>
 						</div>
 						<div class="col">
-							<button type="submit" id="boton-consulta-2" class="btn btn-verde-eit">Consultar</button>
+							<button type="submit" id="boton-consulta-2" class="btn btn-verde-eit btn-consulta-estadisticas">Consultar</button>
 						</div>
 					</div>
 				</form>
@@ -143,8 +145,22 @@
 							alert("La fecha de inicio seleccionada debe ser menor a la fecha de término.");
 					    return false;
 						}
+
+						// Se verifica que el intervalo de fechas no sea mayor a 1 mes
+						var fecha_limite_inferior = new Date(limite_inferior);
+						var fecha_limite_superior = new Date(limite_superior);
+						var diffTiempo = Math.abs(fecha_limite_superior-fecha_limite_inferior);
+						var diffDias = Math.ceil(diffTiempo / (1000*60*60*24))
+
+						if(diffDias > 31){
+							alert("La diferencia entre las fechas seleccionadas no debe superar los 31 días.");
+							$("#fecha_desde_equipos_solicitados").val("");
+							$("#fecha_hasta_equipos_solicitados").val("");
+							return false;
+						}
+
 						// Se desactiva el botón submit
-						$("#boton-consulta-equipos-solicitados").prop('disabled', true);
+						$(".btn-consulta-estadisticas").prop('disabled', true);
 						$.ajax({
 								data: {
 									limite_inferior: limite_inferior,
@@ -155,7 +171,7 @@
 								url: "/consultar_estadisticas_solicitudes"
 						})
 						 .done(function(data){
-							 $("#boton-consulta-equipos-solicitados").prop('disabled', false);
+							 $(".btn-consulta-estadisticas").prop('disabled', false);
 							 // Se verifica que existan resultados
 							 // En caso de que existan, se crea el gráfico
 							 // En caso contrario, se activa la notificación
@@ -172,38 +188,23 @@
 							 $("#notificacion_consulta_cantidad_equipos_solicitados").prop("hidden",true);
 							 $("#seccion_consulta_1").prop("hidden",false);
 							 $("#seccion_grafico_1").empty();
-							 google.charts.load("current", {packages:['bar']});
+							 google.charts.load("current", {packages:['corechart']});
     			 		 google.charts.setOnLoadCallback(function(){
 								 drawChart(data);
 							 });
 
 							 function drawChart(resultados) {
-
-								 datos_grafico = [];
-								 datos_grafico.push(['Equipos solicitados', 'Cantidad solicitada']);
-
-								 for(var i = 0 ; i < resultados.length ; i++){
-									 datos_grafico.push(resultados[i])
-								 }
-
-								 var data = new google.visualization.arrayToDataTable(datos_grafico);
-
-					        var options = {
-					          title: 'Equipos solicitados desde '+limite_inferior+" hasta "+limite_superior+"",
-										height: 350,
-					          legend: { position: 'none' },
-					          chart: { title: 'Equipos solicitados desde '+limite_inferior+" hasta "+limite_superior+"",
-					                   subtitle: 'Los resultados consideran las solicitudes independientemente del estado en el que se encuentren.' },
-					          bars: 'horizontal', // Required for Material Bar Charts.
-					          axes: {
-					            x: {
-					              0: { side: 'top', label: 'Cantidad solicitada'} // Top x-axis.
-					            }
-					          },
-					          bar: { groupWidth: "100%" }
-					        };
-						      var chart = new google.charts.Bar(document.getElementById("seccion_grafico_1"));
-						      chart.draw(data, options);
+								 var data_grafico = google.visualization.arrayToDataTable(resultados);
+								 var titulo_grafico = "Equipos solicitados entre los días "+limite_inferior+" y "+limite_superior+"";
+								 var options = {
+										title: titulo_grafico,
+										height: 450,
+										legend: { position: 'none' },
+										bar: { groupWidth: '75%' },
+										isStacked: true,
+									};
+								 var chart = new google.visualization.ColumnChart(document.getElementById('seccion_grafico_1'));
+								 chart.draw(data_grafico, options);
 						  }
 						 });
 						event.preventDefault();
@@ -229,7 +230,7 @@
 							}
 
 							// Se desactiva el botón submit
-							$("#boton-consulta-2").prop('disabled', true);
+							$(".btn-consulta-estadisticas").prop('disabled', true);
 							$.ajax({
 									data: {
 										limite_inferior: limite_inferior,
@@ -240,7 +241,7 @@
 									url: "/consultar_estadisticas_solicitudes"
 							})
 							 .done(function(data){
-								 $("#boton-consulta-2").prop('disabled', false);
+								 $(".btn-consulta-estadisticas").prop('disabled', false);
 								 // Se verifica que existan resultados
 								 // En caso de que existan, se crea el gráfico
 								 // En caso contrario, se activa la notificación
@@ -265,9 +266,8 @@
 								 });
 
 								 function drawChart(resultados){
-									 console.log(resultados);
 									 var data_grafico = google.visualization.arrayToDataTable(resultados);
-									 let titulo_grafico = "Cantidad de equipos por estado de solicitudes registradas entre "+limite_inferior+" y "+limite_superior+"";
+									 var titulo_grafico = "Cantidad de equipos por estado de solicitudes registradas entre "+limite_inferior+" y "+limite_superior+"";
 									 var options = {
 										 	title: titulo_grafico,
 							        height: 450,
@@ -291,6 +291,17 @@
 					$("#fecha_hasta_consulta_2").val("");
 				});
 
+		</script>
+		<script type="text/javascript">
+			$(document).ready(function(){
+
+			 var multipleCancelButton = new Choices('#choices-multiple-remove-button', {
+			 removeItemButton: true,
+			 renderChoiceLimit:5
+			 });
+
+
+			 });
 		</script>
 
 	</div>

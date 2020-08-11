@@ -6,7 +6,7 @@ import mysql.connector
 import rut_chile
 import glob
 import platform
-
+from datetime import datetime, timedelta
 PATH = BASE_DIR # obtiene la ruta del directorio actual
 PROFILE_PICS_PATH = PATH.replace(os.sep, '/')+'/app/static/imgs/profile_pics/' #  remplaza [\\] por [/] en windows 
 
@@ -14,7 +14,7 @@ def redirect_url(default='index'): # Redireccionamiento desde donde vino la requ
     return request.args.get('next') or \
            request.referrer or \
            url_for(default)
-
+    
 mod = Blueprint('rutas_perfil',__name__)
 
 
@@ -25,7 +25,7 @@ def get_id_from_list_of_dictionary(list_of_dictionaries): # Funcion para almacen
         result.append(element["id"])
     return result
 
-def consultar_solicitudes_alumno(rut_alumno): # Query para poder consultar las solicitudes
+def consultar_solicitudes(rut): # Query para poder consultar las solicitudes
     query = ('''
             SELECT Solicitud.id,
                 Usuario.nombres AS responsable_nombres,    
@@ -38,17 +38,18 @@ def consultar_solicitudes_alumno(rut_alumno): # Query para poder consultar las s
             LEFT JOIN Usuario AS Usuario_profesor ON Usuario_profesor.rut = Solicitud.rut_profesor
             WHERE Solicitud.rut_alumno = %s
         ''')
-    cursor.execute(query,(rut_alumno,))
+    cursor.execute(query,(rut,))
     query_solicitud = cursor.fetchall()
     return query_solicitud
 
-def consultar_equipos_solicitudes_alumno(list_id_solicitudes): # Query para consultar todos los equipos en relacion a las solicitudes
-    if len(list_id_solicitudes) < 1:
+def consultar_equipos_por_id_solicitudes(list_id_solicitudes): # Query para consultar todos los equipos en relacion a las solicitudes
+    if len(list_id_solicitudes) < 1:                           
         return []
         
     format_strings = ','.join(['%s'] * len(list_id_solicitudes)) # Genera un string para la query
     query = ('''
         SELECT Detalle_solicitud.id_solicitud,
+            Detalle_solicitud.id,
             Detalle_solicitud.fecha_inicio,
             Detalle_solicitud.fecha_termino,
             Detalle_solicitud.fecha_devolucion,
@@ -82,7 +83,7 @@ def consultar_informacion_perfil(rut_perfil): # Query para consultar la informac
                 direccion,
                 celular,
                 fecha_registro      
-            FROM Usuario
+            FROM Usuario    
             LEFT JOIN Credencial
             ON Credencial.id = Usuario.id_credencial
             WHERE rut = %s
@@ -90,6 +91,37 @@ def consultar_informacion_perfil(rut_perfil): # Query para consultar la informac
     cursor.execute(query,(rut_perfil,))
     resultado_perfil = cursor.fetchone()
     return resultado_perfil
+
+def obtener_foto_perfil(rut_usuario): # Función para obtener el archivo de la foto de perfil
+    if glob.glob(PROFILE_PICS_PATH + rut_usuario +'.*'): # Si la foto existe
+        filename = glob.glob(PROFILE_PICS_PATH + rut_usuario +'.*') # Nombre del archivo + extension
+        head, tail = os.path.split(filename[0]) 
+        return tail # Retorna nombre del archivo + extension de la foto de perfil
+    else: # Si la foto no existe
+        return 'default_pic.png' # Retorna la foto default
+
+
+# session['usuario']['rut']
+# ************ Perfil ***************************
+@mod.route('/gestion_usuarios/usuario/<string:rut_perfil>',  methods =['GET','POST']) # ** Importante PERFIL** #
+def ver_usuario_gestion(rut_perfil):
+    if 'usuario' not in session or session["usuario"]["id_credencial"] != 3:
+        return redirect('/')
+    resultado_perfil = consultar_informacion_perfil(rut_perfil)
+    archivo_foto_perfil = obtener_foto_perfil(rut_perfil)
+    solicitudes = consultar_solicitudes(rut_perfil) # Consulta las solicitudes a partir del rut
+    ids = get_id_from_list_of_dictionary(solicitudes) # Obtiene las id de las solicitudes
+    solicitudes_equipos = consultar_equipos_por_id_solicitudes(ids) # Obtiene todas las solicitudes de los equipos por la ID
+    return render_template(
+                'vistas_perfil/perfil.html',
+                solicitudes = solicitudes,
+                solicitudes_equipos = solicitudes_equipos,
+                perfil_info = resultado_perfil,
+                dir_foto_perfil = url_for('static',filename='imgs/profile_pics/'+archivo_foto_perfil),
+                completar_info = False,
+                admin_inspeccionar_perfil = True)
+    
+
 
 @mod.route('/perfil',  methods =['GET','POST']) # ** Importante PERFIL** #
 def perfil():
@@ -105,18 +137,12 @@ def perfil():
             if resultado_perfil[key] == None:
                 validar_completar = True
                 break
-        # Funcion que verifica si existe la foto de perfil
-        # Las fotos puedes estar guardadas en cualquier tipo de extension
-        # Si existe una foto para del usuario obtiene el nombre del archivo + extension
-        if glob.glob(PROFILE_PICS_PATH + session['usuario']['rut'] +'.*'):
-            filename = glob.glob(PROFILE_PICS_PATH + session['usuario']['rut'] +'.*')
-            head, tail = os.path.split(filename[0])
-            archivo_foto_perfil = tail
-        else:
-            archivo_foto_perfil = 'default_pic.png'
-        solicitudes = consultar_solicitudes_alumno(session['usuario']['rut']) # Consulta las solicitudes a partir del rut
+            
+        archivo_foto_perfil = obtener_foto_perfil(session['usuario']['rut']) # obitiene la foto de perfil
+        
+        solicitudes = consultar_solicitudes(session['usuario']['rut']) # Consulta las solicitudes a partir del rut
         ids = get_id_from_list_of_dictionary(solicitudes) # Obtiene las id de las solicitudes
-        solicitudes_equipos = consultar_equipos_solicitudes_alumno(ids) # Obtiene todas las solicitudes de los equipos
+        solicitudes_equipos = consultar_equipos_por_id_solicitudes(ids) # Obtiene todas las solicitudes de los equipos por la ID
 
         return render_template(
             'vistas_perfil/perfil.html',
@@ -124,10 +150,11 @@ def perfil():
             solicitudes_equipos = solicitudes_equipos,
             perfil_info = resultado_perfil,
             dir_foto_perfil = url_for('static',filename='imgs/profile_pics/'+archivo_foto_perfil),
-            completar_info = validar_completar)
+            completar_info = validar_completar,
+            admin_inspeccionar_perfil = False)
     
  
-# Configurar perfil # ** Importante MODAL PERFIl ** #
+# ************Acciones de información de perfil****************
 @mod.route('/perfil/actualizar_informacion', methods = ['POST']) # ** Importante CONFIGURAR PERFIL** #
 def configurar_perfil():
     if 'usuario' not in session:
@@ -158,11 +185,6 @@ def configurar_perfil():
         return redirect('/')
 
 
-@mod.route('/debug')
-def debug():
-    return 'XD'
-
-
 
 EXTENSIONES_PERMITIDAS = ["PNG","JPG","JPEG","GIF"]
 def allowed_image(filename): # funcion que valida la extension de la imagen
@@ -176,7 +198,7 @@ def allowed_image(filename): # funcion que valida la extension de la imagen
         return False
 
 
-
+# ************Acciones de fotos de perfil****************
 @mod.route('/perfil/subir_foto',methods = ['GET','POST'])
 def subir_foto():
     if request.method == "POST":
@@ -189,12 +211,63 @@ def subir_foto():
             if glob.glob(PROFILE_PICS_PATH + session['usuario']['rut'] +'.*'): # Si existe alguna foto del usuario
                 filename = glob.glob(PROFILE_PICS_PATH + session['usuario']['rut'] +'.*') # Obtiene la direccion de la foto del usuario
                 head, tail = os.path.split(filename[0]) # separa el nombre del archivo
-                os.remove(PROFILE_PICS_PATH + tail ) 
+                os.remove(PROFILE_PICS_PATH + tail ) # elimina el archivo
             
             image.filename = session['usuario']['rut'] +"." +image.filename.split('.')[1].lower() # Le da a la imagen el nombre del rut
             
             image.save( os.path.join( PATH+'/app/static/imgs/profile_pics', secure_filename(image.filename) ) ) # guarda la imagen en la direccion /app/static/imgs/profile_pics/
 
             return redirect('/')
+    
+    return redirect('/')
+
+
+
+
+# ************Acciones de solicitudes de perfil****************
+@mod.route('/perfil/cancelar_solicitud',methods = ['GET','POST']) # funcion para cancelar una solicitud
+def cancelar_solicitud():
+    if request.method == "POST":
+        solicitud = request.form.to_dict()
+        query = ('''
+                UPDATE Detalle_solicitud
+                SET Detalle_solicitud.estado = 7 
+                WHERE Detalle_solicitud.id = %s
+                    AND Detalle_solicitud.estado = 0
+                ''') # 7 == cancelado
+        cursor.execute(query,(solicitud["id_solicitud_detalle"],))
+        db.commit()
+        return redirect('/')
+    
+    return redirect('/')
+
+
+
+@mod.route('/perfil/extender_prestamo',methods = ['GET','POST']) # funcion para cancelar una solicitud
+def extender_prestamo():
+    if request.method == "POST":
+        solicitud_detalle_a_extender = request.form.to_dict()
+        
+        query = ("""
+                UPDATE Detalle_solicitud
+                SET Detalle_solicitud.fecha_termino = DATE_ADD(Detalle_solicitud.fecha_termino, INTERVAL 7 DAY),
+                Detalle_solicitud.renovaciones = Detalle_solicitud.renovaciones + 1
+                WHERE Detalle_solicitud.id = %s
+                    AND Detalle_solicitud.estado = 2
+                """)
+        
+        cursor.execute(query,(solicitud_detalle_a_extender["id_solicitud_detalle"],))
+        db.commit()
+        
+        return redirect('/')
+
+    return redirect('/')
+
+
+@mod.route('/perfil/resolicitar_equipo',methods = ['GET','POST'])
+def resolicitar_equipo():
+    if request.method == "POST":
+        print("equipo por solicitar")
+        return redirect('/')
     
     return redirect('/')
