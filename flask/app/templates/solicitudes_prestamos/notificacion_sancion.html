@@ -44,6 +44,13 @@
 														</table>
 								</div>
 							</div>
+						{% else %}
+						<div class="alert alert-success mt-2 alert-dismissible fade show" role="alert">
+								<i class="fas fa-check-circle mr-2"></i>Has devuelto todos los equipos asociados a solicitudes marcadas con atraso.
+								<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+										<span aria-hidden="true">&times;</span>
+								</button>
+						</div>
 						{% endif %}
 					</div>
 				</div>

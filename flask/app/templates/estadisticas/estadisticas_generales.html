@@ -47,7 +47,7 @@
 				<form id="formulario-consulta-equipos-solicitados">
 					<div class="row my-auto">
 						<div class="col">
-							Revisar cantidad de equipos solicitados.
+							Revisar equipos solicitados.
 						</div>
 						<div class="col">
 							<div class="input-group mb-3">
@@ -66,9 +66,10 @@
 							</div>
 						</div>
 						<div class="col">
-							<button type="submit" id="boton-consulta-equipos-solicitados" class="btn btn-verde-eit">Consultar</button>
+							<button type="submit" id="boton-consulta-equipos-solicitados" class="btn btn-verde-eit btn-consulta-estadisticas">Consultar</button>
 						</div>
 					</div>
+
 					<div id="fila_boton_eliminar_grafico_1" hidden class="row my-auto">
 						<div class="col mt-2 text-right">
 							<button type="button" id="boton_eliminacion_grafico_1" class="btn btn-sm btn-danger">Borrar gráfico</button>
@@ -82,6 +83,7 @@
 					</div>
 					<div id="seccion_grafico_1"></div>
 				</div>
+
 
 			</div>
 			<div class="card-body" style="background:#fff;">
@@ -112,7 +114,7 @@
 							</div>
 						</div>
 						<div class="col">
-							<button type="submit" id="boton-consulta-2" class="btn btn-verde-eit">Consultar</button>
+							<button type="submit" id="boton-consulta-2" class="btn btn-verde-eit btn-consulta-estadisticas">Consultar</button>
 						</div>
 					</div>
 				</form>
@@ -158,7 +160,7 @@
 						}
 
 						// Se desactiva el botón submit
-						$("#boton-consulta-equipos-solicitados").prop('disabled', true);
+						$(".btn-consulta-estadisticas").prop('disabled', true);
 						$.ajax({
 								data: {
 									limite_inferior: limite_inferior,
@@ -169,7 +171,7 @@
 								url: "/consultar_estadisticas_solicitudes"
 						})
 						 .done(function(data){
-							 $("#boton-consulta-equipos-solicitados").prop('disabled', false);
+							 $(".btn-consulta-estadisticas").prop('disabled', false);
 							 // Se verifica que existan resultados
 							 // En caso de que existan, se crea el gráfico
 							 // En caso contrario, se activa la notificación
@@ -228,7 +230,7 @@
 							}
 
 							// Se desactiva el botón submit
-							$("#boton-consulta-2").prop('disabled', true);
+							$(".btn-consulta-estadisticas").prop('disabled', true);
 							$.ajax({
 									data: {
 										limite_inferior: limite_inferior,
@@ -239,7 +241,7 @@
 									url: "/consultar_estadisticas_solicitudes"
 							})
 							 .done(function(data){
-								 $("#boton-consulta-2").prop('disabled', false);
+								 $(".btn-consulta-estadisticas").prop('disabled', false);
 								 // Se verifica que existan resultados
 								 // En caso de que existan, se crea el gráfico
 								 // En caso contrario, se activa la notificación
@@ -289,6 +291,17 @@
 					$("#fecha_hasta_consulta_2").val("");
 				});
 
+		</script>
+		<script type="text/javascript">
+			$(document).ready(function(){
+
+			 var multipleCancelButton = new Choices('#choices-multiple-remove-button', {
+			 removeItemButton: true,
+			 renderChoiceLimit:5
+			 });
+
+
+			 });
 		</script>
 
 	</div>
