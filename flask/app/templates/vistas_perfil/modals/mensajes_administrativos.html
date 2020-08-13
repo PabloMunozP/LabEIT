@@ -1,0 +1,40 @@
+<div class="modal fade" id="modal_mensajes_administrativos" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header bg-gris-eit">
+        <h5 class="modal-title text-white"><i class="fas fa-info-circle mr-2"></i>Mensajes administrativos registrados</h5>
+        <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close" style="outline:none;">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+        <div class="modal-body">
+          <p>Se han registrado los siguientes mensajes por parte del laboratorista o la coordinación del laboratorio.</p>
+					
+					<div class="table-responsive mt-2">
+						<div class="table-wrapper-scroll-y" style="position: relative;
+												max-height: 450px;
+												overflow:auto;">
+							<div class="list-group mt-1">
+								{% for mensaje_administrativo in lista_mensajes_administrativos %}
+										<a class="list-group-item mt-1 list-group-item-action flex-column align-items-start">
+											<div class="d-flex w-100 justify-content-between">
+												<h5 class="mb-1">{{mensaje_administrativo["titulo"]}}</h5>
+												<!--<small class="text-muted">{{mensaje_administrativo["timeago_mensaje"]}}</small>-->
+											</div>
+											{% autoescape false %}
+												<p class="mb-1 mt-1">{{mensaje_administrativo["mensaje"]|nl2br}}</p>
+											{% endautoescape %}
+											<small class="text-muted">{{mensaje_administrativo["fecha_registro"]}} ({{mensaje_administrativo["timeago_mensaje"]}})</small>
+										</a>
+								{% endfor %}
+							</div>
+						</div>
+					</div>
+
+				</div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+        </div>
+    </div>
+  </div>
+</div>

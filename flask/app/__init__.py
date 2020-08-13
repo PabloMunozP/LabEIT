@@ -33,6 +33,17 @@ def enviar_correo_notificacion(archivo,str_para,str_asunto,correo_usuario): # En
 
 # ============= Funciones programadas ======================
 
+# Función para eliminar mensajes administrativos que cumplan con la fecha de eliminación indicada
+# Revisión a las 23:59 todos los días
+def revisar_mensajes_administrativos():
+    fecha_actual = datetime.now().replace(microsecond=0)
+    sql_query = """
+        DELETE FROM
+            Mensaje_administrativo
+                WHERE datediff(fecha_eliminacion,%s) <= -1
+    """
+    cursor.execute(sql_query,(fecha_actual,))
+
 # Función para eliminar tokens de passwords que hayan vencido (máx 1 día para usarlo)
 # Revisión a las 23:59 todos los días
 def revisar_tokens_password():
@@ -168,6 +179,13 @@ def descontar_dias_sanciones():
     """
     cursor.execute(sql_query)
 
+def revisar_23_59():
+    # Eliminación de mensajes administrativos
+    revisar_mensajes_administrativos()
+
+    # Eliminación de tokens de password
+    revisar_tokens_password()
+
 def revisar_18_30():
     # Eliminación de solicitudes vencidas
     eliminar_detalles_vencidos()
@@ -179,8 +197,8 @@ def revisar_18_30():
     descontar_dias_sanciones()
 
 #sched = APScheduler()
-#sched.add_job(id="revisar_tokens_password",func=revisar_tokens_password,trigger='cron',hour=23,minute=59)
-#sched.add_job(id="revisar_18_30",func=revisar_18_30,trigger='cron',hour=19,minute=15)
+#sched.add_job(id="revisar_23_59",func=revisar_23_59,trigger='cron',hour=12,minute=44)
+#sched.add_job(id="revisar_18_30",func=revisar_18_30,trigger='cron',hour=12,minute=54)
 #sched.start()
 # ============================================================================
 
@@ -227,12 +245,9 @@ def internal_server_error(error):
 # ------------------------------------------- TEMPLATE FILTERS
 @app.template_filter('nl2br') # Permite cambiar el formato de los saltos de línea en textarea
 def nl2br(s):
-    return s.replace("\n", "<br />")
-@app.template_filter('rem_com') # Permite reemplazar comillas simples (Error JS al pasar un input con '' a JS)
-def rem_com(s):
-    s = s.replace("'","\\'")
-    s = s.replace('"','\\"')
-    return s
+    s = s.strip()
+    s = s.replace("\r","")
+    return s.replace("\n", "<br/>")
 @app.template_filter('underscore_espacio') # Permite reemplazar espacios por '_'
 def underscore_espacio(s):
     return s.replace(" ","_")

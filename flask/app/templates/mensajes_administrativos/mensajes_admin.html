@@ -1,0 +1,76 @@
+{% extends "layout_in.html" %}
+	{% block body %}
+
+	{% include "/mensajes_administrativos/modals/creacion_mensaje_administrativo.html" %}
+
+	<div class="container-fluid">
+
+		{% with msgs = get_flashed_messages() %}
+			{% if msgs %}
+				{% for msg in msgs %}
+					{% if msg == "mensaje-borrado" %}
+					<div class="alert alert-success mt-2 alert-dismissible fade show" role="alert">
+							<i class="fas fa-check-circle mr-2"></i>El mensaje administrativo ha sido eliminado correctamente.
+							<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+									<span aria-hidden="true">&times;</span>
+							</button>
+					</div>
+					{% endif %}
+					{% if msg == "mensaje-modificado" %}
+					<div class="alert alert-success mt-2 alert-dismissible fade show" role="alert">
+							<i class="fas fa-check-circle mr-2"></i>El mensaje administrativo ha sido modificado correctamente.
+							<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+									<span aria-hidden="true">&times;</span>
+							</button>
+					</div>
+					{% endif %}
+				{% endfor %}
+			{% endif %}
+		{% endwith %}
+
+		<div class="card-header mt-4" style="background:#0db26b;">
+			<h5 class="card-title text-white my-auto">Mensajes administrativos</h5>
+			<p class="text-white my-auto"><i class="fas fa-info-circle mr-2"></i>En esta sección podrá gestionar los mensajes administrativos que se han registrado en el sistema.</p>
+			<button type="button" class="btn btn-sm btn-secondary mt-2" data-toggle="modal" data-target="#formulario_mensaje_administrativo"><i class="fas fa-comment-medical mr-2"></i>Crear nuevo mensaje</button>
+		</div>
+
+		{% if lista_mensajes_administrativos %}
+
+			<div class="table-responsive mt-2">
+				<div class="table-wrapper-scroll-y" style="position: relative;
+										max-height: 450px;
+										overflow:auto;">
+					<div class="list-group mt-1">
+					{% for mensaje_administrativo in lista_mensajes_administrativos %}
+							<a class="list-group-item mt-1 list-group-item-action flex-column align-items-start">
+								<div class="d-flex w-100 justify-content-between">
+									<h5 class="mb-1">{{mensaje_administrativo["titulo"]}}</h5>
+									<span class="btn-group">
+										<button type="button" class="btn btn-sm btn-warning mr-1" name="button" title="Editar mensaje" data-toggle="modal" data-target="#modificacion_mensaje_administrativo_{{mensaje_administrativo["id"]}}"><i class="fas fa-edit"></i></button>
+										<form action="/eliminar_mensaje_administrativo/{{mensaje_administrativo["id"]}}" method="post">
+											<button type="submit" class="btn btn-sm btn-danger mr-1" name="button" title="Eliminar mensaje"><i class="fas fa-minus-circle"></i></button>
+										</form>
+									</span>
+									<!--<small class="text-muted">{{mensaje_administrativo["timeago_mensaje"]}}</small>-->
+								</div>
+								{% autoescape false %}
+									<p class="mb-1 mt-1">{{mensaje_administrativo["mensaje"]|nl2br}}</p>
+								{% endautoescape %}
+								<small class="text-muted">{{mensaje_administrativo["fecha_registro"]}} ({{mensaje_administrativo["timeago_mensaje"]}})</small>
+							</a>
+
+						{% include "/mensajes_administrativos/modals/modificacion_mensaje_administrativo.html" %}
+					{% endfor %}
+					</div>
+				</div>
+			</div>
+		{% else %}
+			<div class="alert alert-warning alert-dismissible fade show text-center mt-2" role="alert">
+				<i class="fas fa-exclamation-triangle mr-2"></i>No se han encontrado mensajes administrativos registrados.
+			</div>
+		{% endif %}
+
+	</div>
+
+
+	{% endblock %}
