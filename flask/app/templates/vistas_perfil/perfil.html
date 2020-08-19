@@ -5,7 +5,7 @@
 
     <div class="section-red-card" style="margin-top: 0px;">
         <h3>
-            Tu información personal
+            Perfil
         </h3>
     </div>
     <div class="container-fluid">
@@ -16,28 +16,26 @@
 
             <div class="col-md-4 justify-content-center">
                 <div id="inner-div" style="width: 200px; margin-bottom: 30px; ">
-
-                {% if admin_inspeccionar_perfil == False%}
                     <div class="pic__container" style="cursor: pointer;" onclick="open_modal_subir_foto()">
-                {% else %}
-                    <div class="pic__container">
-                {% endif %}
                         <img src="{{dir_foto_perfil}}" class="profile__image"/>
-                    {% if admin_inspeccionar_perfil == False%}
                         <div class="middle">
                             <div class="text"><i class="fas fa-upload"></i></div>
                             Cambiar foto de perfil
                         </div>
-                    {% endif %}
                     </div>
 
 
 
                     <h6 class="profile-subtext"> Credencial: {{perfil_info.credencial_nombre}} </h6>
-                    <h6 class="profile-subtext"> <span>Sanción activa:</span>    <span style="color: #96d37c;">No</span></h6>
-                    {% if admin_inspeccionar_perfil == False%}
+                {% if sancionado == False %}
+                    <h6 class="profile-subtext"> <span>Sanción activa:</span>    <span style="color: #339900;">No</span></h6>
+                {% else %}
+                    <h6 class="profile-subtext"> <span>Sanción activa:</span>    <span style="color: #cc3300;">Si</span></h6>
+                {% endif %}
+
+                {% if admin_inspeccionar_perfil == False%}
                     <button type="button" onclick="Cargar_informacion()" data-target="#editar_informacion" class="btn btn-info" data-toggle="modal" style="margin-left: 10px;">Editar información</button>
-                    {% endif %}
+                {% endif %}
 
                 </div>
             </div>
@@ -75,11 +73,7 @@
                     -ms-transform: translate(-50%, -50%);
                     text-align: center;
                   }
-                </style>
 
-                {% if admin_inspeccionar_perfil == False%}
-
-                <style>
                     .pic__container:hover .profile__image{
                         opacity: 0.3;
                         border-radius: 50%;
@@ -90,8 +84,8 @@
 
                       }
 
-                </style>
-                {% endif %}
+            </style>
+
 
 
 

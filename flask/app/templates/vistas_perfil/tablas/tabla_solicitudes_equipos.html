@@ -46,7 +46,7 @@
             </form>
           </td>
 
-  {% elif elemento.estado == "En posesión" %}
+  {% elif elemento.estado == "En posesión" and sancionado == False %}
           <td>
             <form action="/perfil/extender_prestamo" method="POST">
               <input type="hidden" name=id_solicitud_detalle value="{{elemento.id}}" >

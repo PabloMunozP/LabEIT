@@ -7,14 +7,21 @@
         <form action="/perfil/subir_foto" method="POST" enctype="multipart/form-data">
 
             <div class="modal-body">
+                {% if admin_inspeccionar_perfil == False%}
                 <div class="custom-file">
-                    <input type="file" class="custom-file-input" name="image" id="image" lang="es"accept="image/png,image/gif,image/jpeg" required value="asdasd">
+                    <input type="file" class="custom-file-input" name="image" id="image" accept="image/png,image/jpeg,image/jpg" required value="asdasd">
                     <label class="custom-file-label" for="image">Seleccionar Archivo</label>
                 </div>
+                {% endif %}
             </div>
             <div class="modal-footer">
+            {% if foto == True %}
+                <a class="btn btn-light mr-auto" href="/perfil/borrar_foto/{{perfil_info.rut}}"> Eliminar </a>
+            {% endif %}
+            {% if admin_inspeccionar_perfil == False%}
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
-                <button type="summit" id="boton_subir" class="btn btn-info">Subir imagen</button>
+                <button type="submit" id="boton_subir" class="btn btn-info">Subir imagen</button>
+            {% endif %}
             </div>
         </form>
     </div>
