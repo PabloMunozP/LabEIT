@@ -105,6 +105,15 @@
 			{%endif%}
 		{%endwith%}
 
+		{% if usuario_sancionado and datos_detalle_solicitud["estado"] in [1,2,3] %}
+			<div class="alert alert-warning alert-dismissible fade show mt-2" role="alert">
+				<i class="fas fa-exclamation-triangle mr-2"></i>El usuario solicitante presenta una sanción activa.
+				<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+			    <span aria-hidden="true">&times;</span>
+			  </button>
+			</div>
+		{% endif %}
+
 		<div class="card border-1 rounded-0" style="border-color:#0db26b;">
 			<div class="card-header border-0 rounded-0" style="background:#0db26b;">
 				<h5 class="card-title my-auto text-white"><i class="fas fa-file-invoice mr-2"></i>Información de la solicitud de préstamo</h5>
@@ -422,7 +431,9 @@
 						<button type="button" class="btn btn-success" data-toggle="modal" data-target="#confirmacion_aprobacion_solicitud"><i class="fas fa-clipboard-check mr-1"></i>Aprobar solicitud</button>
 					{% elif datos_detalle_solicitud["estado"] == 1 %}
 						<button type="button" class="btn btn-danger mr-1" data-toggle="modal" data-target="#confirmacion_cancelacion_solicitud"><i class="fas fa-times-circle mr-1"></i>Cancelar solicitud</button>
-						<button type="button" class="btn btn-info" data-toggle="modal" data-target="#formulario_retiro_equipo"><i class="fas fa-clipboard-check mr-1"></i>Marcar como entregado</button>
+						{% if not usuario_sancionado %}
+							<button type="button" class="btn btn-info" data-toggle="modal" data-target="#formulario_retiro_equipo"><i class="fas fa-clipboard-check mr-1"></i>Marcar como entregado</button>
+						{% endif %}
 					{% elif datos_detalle_solicitud["estado"] == 2 or datos_detalle_solicitud["estado"] == 3 %}
 						<button type="button" class="btn btn-info" data-toggle="modal" data-target="#confirmacion_devolucion_equipo">Registrar devolución</button>
 					{% elif datos_detalle_solicitud["estado"] == 4 %}
