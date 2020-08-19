@@ -40,7 +40,7 @@ def revisar_mensajes_administrativos():
     sql_query = """
         DELETE FROM
             Mensaje_administrativo
-                WHERE datediff(fecha_eliminacion,%s) <= -1
+                WHERE datediff(fecha_eliminacion,%s) <= 0
     """
     cursor.execute(sql_query,(fecha_actual,))
 
@@ -48,6 +48,7 @@ def revisar_mensajes_administrativos():
 # Revisión a las 23:59 todos los días
 def revisar_tokens_password():
     fecha_actual = datetime.now().replace(microsecond=0)
+    
     sql_query = """
         DELETE FROM
             Token_recuperacion_password
@@ -197,8 +198,8 @@ def revisar_18_30():
     descontar_dias_sanciones()
 
 #sched = APScheduler()
-#sched.add_job(id="revisar_23_59",func=revisar_23_59,trigger='cron',hour=12,minute=44)
-#sched.add_job(id="revisar_18_30",func=revisar_18_30,trigger='cron',hour=12,minute=54)
+#sched.add_job(id="revisar_23_59",func=revisar_23_59,trigger='cron',hour=23,minute=59)
+#sched.add_job(id="revisar_18_30",func=revisar_18_30,trigger='cron',hour=18,minute=30)
 #sched.start()
 # ============================================================================
 
