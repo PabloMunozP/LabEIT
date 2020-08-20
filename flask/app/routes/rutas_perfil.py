@@ -254,15 +254,19 @@ def subir_foto():
         return redirect('/')
     return redirect('/')
 
-@mod.route('/perfil/borrar_foto/<string:rut_perfil>', methods = ['GET','POST'])
-def borrar_foto(rut_perfil):
-    if session['usuario']['rut'] == rut_perfil: # Si el rut es igual al de la session
-        borrar_foto_usuario(rut_perfil) # borra la foto del usuario
-    elif session["usuario"]["id_credencial"] == 3: # Si es administrador
-        borrar_foto_usuario(rut_perfil) # borra la foto del usuario
-    else:
-        print("no esta parmitido borrar esta foto")
+@mod.route('/perfil/borrar_foto', methods = ['GET','POST'])
+def borrar_foto_perfil():
+    borrar_foto_usuario(session['usuario']['rut']) # borra la foto del usuario
+    return redirect('/perfil')
+
+@mod.route('/gestion_usuarios/usuario/borrar_foto/<string:rut_perfil>', methods = ['GET','POST'])
+def borrar_foto_perfil_gestion(rut_perfil):
+    if 'usuario' not in session or session["usuario"]["id_credencial"] != 3: # si no es administrador
+        return redirect('/')
+    borrar_foto_usuario(rut_perfil) # borra la foto del usuario
     return redirect('/gestion_usuarios/usuario/' + rut_perfil)
+
+    
 
 # ************Acciones de solicitudes de perfil****************
 @mod.route('/perfil/cancelar_solicitud', methods = ['GET','POST']) # funcion para cancelar una solicitud

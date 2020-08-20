@@ -12,10 +12,10 @@
 
 
         <div class="row row-profile">
-
-
             <div class="col-md-4 justify-content-center">
+                
                 <div id="inner-div" style="width: 200px; margin-bottom: 30px; ">
+{% if admin_inspeccionar_perfil == False%}
                     <div class="pic__container" style="cursor: pointer;" onclick="open_modal_subir_foto()">
                         <img src="{{dir_foto_perfil}}" class="profile__image"/>
                         <div class="middle">
@@ -23,9 +23,15 @@
                             Cambiar foto de perfil
                         </div>
                     </div>
-
-
-
+{% else%}
+                    <div class="pic__container" style="cursor: pointer;" onclick="open_modal_eliminar_foto()">
+                        <img src="{{dir_foto_perfil}}" class="profile__image"/>
+                        <div class="middle">
+                            <div class="text"><i class="fas fa-ban"></i></div>
+                            Eliminar foto
+                        </div>
+                    </div>
+{% endif %}
                     <h6 class="profile-subtext"> Credencial: {{perfil_info.credencial_nombre}} </h6>
                 {% if sancionado == False %}
                     <h6 class="profile-subtext"> <span>Sanción activa:</span>    <span style="color: #339900;">No</span></h6>
@@ -72,17 +78,14 @@
                     transform: translate(-50%, -50%);
                     -ms-transform: translate(-50%, -50%);
                     text-align: center;
-                  }
-
+                }
                     .pic__container:hover .profile__image{
                         opacity: 0.3;
                         border-radius: 50%;
                     }
-
                     .pic__container:hover .middle {
                         opacity: 1;
-
-                      }
+                }
 
             </style>
 
@@ -181,7 +184,12 @@
           });
         </script>
 
-    {% include "vistas_perfil/modals/subir_foto.html" %}
-    {% include "vistas_perfil/modals/editar_perfil.html" %}
+    
+	{% if admin_inspeccionar_perfil == False%}
+		{% include "vistas_perfil/modals/subir_foto.html" %}
+		{% include "vistas_perfil/modals/editar_perfil.html" %}
+	{% else %}
+	{% include "vistas_perfil/modals/confirmar_eliminar_foto.html" %}
+	{% endif %}
     {% include "vistas_perfil/modals/detalle_solicitud.html" %}
-  {% endblock %}
+{% endblock %}

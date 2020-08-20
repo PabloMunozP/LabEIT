@@ -1,0 +1,31 @@
+<div id="modal_eliminar_foto" class="modal fade in" tabindex="-1" role="dialog" aria-labelledby="subir_foto" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content ">
+        <div class="modal-header bg-gris-eit">
+          <h5 class="modal-title text-white" id="editar_informacion_label"><i class="fas fa-user-edit mr-2"></i>Confirmación</h5>
+        </div>
+            <div class="modal-body">
+               
+                Está a punto de eliminar la foto de {{perfil_info.nombres}} {{perfil_info.apellidos}}
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                <a class="btn btn-danger" href="/gestion_usuarios/usuario/borrar_foto/{{perfil_info.rut}}"> Eliminar foto </a> 
+            </div>
+    </div>
+  </div>
+</div>
+
+{% if admin_inspeccionar_perfil == False%}
+
+{% endif %}
+
+{% if foto == True %}  
+{% endif %}
+<script>
+    function open_modal_eliminar_foto(){
+        $('#modal_eliminar_foto').modal('show');
+    }
+    
+</script>
