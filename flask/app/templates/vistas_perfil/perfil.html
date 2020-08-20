@@ -164,9 +164,9 @@
                     "order": [[ 0, "desc" ]],
                     "language": {
                         "lengthMenu": "Mostrar _MENU_ registros por página",
-                        "zeroRecords": "Nothing found - sorry",
+                        "zeroRecords": "No se han encontrado registros.",
                         "info": "Mostrando página _PAGE_ de _PAGES_",
-                        "infoEmpty": "Sin registros disponibles",
+                        "infoEmpty": "Sin registros disponibles.",
                         "search":         "Buscar",
                         "paginate": {
                             "next":       "Siguiente",
@@ -182,7 +182,7 @@
             let lista_mensajes_admin = {{lista_mensajes_administrativos|tojson}};
             // Si existen mensajes administrativos, se muestra el modal correspondiente
             if(lista_mensajes_admin.length != 0){
-              $('#modal_mensajes_administrativos').modal('show');  
+              $('#modal_mensajes_administrativos').modal('show');
             }
           });
         </script>

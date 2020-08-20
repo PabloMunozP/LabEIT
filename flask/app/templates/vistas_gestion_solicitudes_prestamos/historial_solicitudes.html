@@ -2,28 +2,14 @@
 <div class="card-header mt-4" style="background:#0db26b;">
 	<h5 class="card-title text-white my-auto">Historial de solicitudes de préstamos</h5>
 	<p class="text-white my-auto"><i class="fas fa-info-circle mr-2"></i>En esta sección podrá encontrar las solicitudes que se encuentran rechazadas y/o finalizadas.</p>
+	<a href="/exportar_solicitudes/3">
+		<button type="button" title="Exportar historial de solicitudes" class="btn btn-sm btn-secondary"><i class="fas fa-file-excel mr-2"></i>Exportar registros</button>
+	</a>
 </div>
 
 {% if lista_historial_solicitudes %}
-<div class="row mt-2">
-	<div class="col-md-6">
-		<div class="input-group">
-		<div class="input-group-prepend">
-			<div class="input-group-text"><i class="fas fa-search"></i></div>
-		</div>
-		<input type="text" class="form-control" id="filtro_busqueda_historial_solicitudes" placeholder="Buscar por RUT de solicitante, equipo solicitado, IDs, etc.">
-	</div>
-	</div>
-	<div class="col-md-6 my-auto text-right">
-		<a href="/exportar_solicitudes/3">
-			<button type="button" title="Exportar historial de solicitudes" class="btn btn-sm btn-secondary"><i class="fas fa-file-excel mr-2"></i>Exportar registros</button>
-		</a>
-	</div>
-</div>
-	<div class="table-responsive mt-2">
-		<div class="table-wrapper-scroll-y" style="position: relative;
-								max-height: 450px;
-								overflow:auto;">
+<div class="table-responsive mt-2">
+  <div class="table-wrapper-scroll-y" style="position: relative; overflow:auto;">
 			<table class="table" id="tabla_historial_solicitudes">
 				<thead class="text-white" style="background:#4D4D4D;">
 					<tr>
@@ -84,13 +70,3 @@
 		<i class="fas fa-exclamation-triangle mr-2"></i>El historial de solicitudes de préstamos se encuentra vacío.
 	</div>
 {% endif %}
-
-<script type="text/javascript">
-	$(function() { // Filtro de historial de solicitudes
-	  $("#filtro_busqueda_historial_solicitudes").on("keyup", function() {
-	    var value = $(this).val().toLowerCase();
-	    $("#tabla_historial_solicitudes > tbody > tr").filter(function() {      $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
-	    });
-	  });
-	});
-</script>

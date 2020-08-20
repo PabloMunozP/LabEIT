@@ -155,6 +155,8 @@ def perfil():
 
         for mensaje_administrativo in lista_mensajes_administrativos:
             mensaje_administrativo["timeago_mensaje"] = timeago.format(mensaje_administrativo["fecha_registro"], datetime.now(), 'es')
+            if mensaje_administrativo["fecha_actualizacion"] is not None:
+                mensaje_administrativo["timeago_ultima_actualizacion"] = timeago.format(mensaje_administrativo["fecha_actualizacion"],datetime.now(),'es')
 
         return render_template(
             'vistas_perfil/perfil.html',

@@ -1,9 +1,7 @@
 {% if session["carro_pedidos"] %}
-		<div class="table-responsive mt-2">
-			<div class="table-wrapper-scroll-y" style="position: relative;
-									max-height: 350px;
-									overflow:auto;">
-				<table class="table">
+<div class="table-responsive">
+	<div class="table-wrapper-scroll-y" style="position: relative; overflow:auto;">
+				<table class="table" id="tabla_carro_pedidos">
 					<thead class="text-white" style="background:#4D4D4D;">
 						<tr>
 							<th scope="col">Equipos agregados a tu carro de pedidos</th>
