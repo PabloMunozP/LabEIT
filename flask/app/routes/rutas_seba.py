@@ -98,7 +98,7 @@ def iniciar_sesion():
     """
     cursor.execute(sql_query,(session["usuario"]["rut"],))
     sancion_usuario = cursor.fetchone()
-
+ 
     if sancion_usuario is not None:
         session["usuario"]["sancionado"] = True
     else: # Si no se recibe nada de la consulta, no tiene sanciones
