@@ -42,9 +42,9 @@
       <div class="row float-right mt-2 mb-2">
           <div class="col-md-12">
               <button type="button" data-target=" #agregar_usuario" class= "btn btn-success" data-toggle="modal"><i class="fas fa-user-plus mr-2"></i>Agregar nuevo usuario</button>
-               {% include 'pablo/añadir_usuario.html' %}
+               {% include 'vistas_gestion_usuarios/añadir_usuario.html' %}
                <button type="button" data-target=" #agregar_masivo" class= "btn btn-info" data-toggle="modal"><i class="fas fa-file-csv mr-2"></i>Carga masiva</button>
-               {% include 'pablo/añadir_masivo.html' %}
+               {% include 'vistas_gestion_usuarios/añadir_masivo.html' %}
               </div>
       </div>
 
@@ -74,8 +74,8 @@
                              <a class="btn btn-sm btn-info" title="Ver información detallada" href="/gestion_usuarios/ver_usuario/{{usuario['rut']}}"><i class="fas fa-search-plus"></i></a>
                              <button type="button" title="Eliminar usuario" data-target="#eliminar_{{usuario['rut']}}" class="btn btn-sm btn-danger" data-toggle="modal"><i class="fas fa-trash-alt"></i></button>
                           </td>
-                          {% include 'pablo/editar_usuario.html' %}
-                          {% include 'pablo/eliminar_usuario.html' %}
+                          {% include 'vistas_gestion_usuarios/editar_usuario.html' %}
+                          {% include 'vistas_gestion_usuarios/eliminar_usuario.html' %}
                       </tr>
                   {%endfor%}
               </tbody>

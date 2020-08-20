@@ -33,7 +33,7 @@ def ver_usuarios():
     cursor.execute(query)
     usuarios=cursor.fetchall()
 
-    return render_template("/pablo/ver_usuarios.html",usuarios=usuarios)
+    return render_template("/vistas_gestion_usuarios/ver_usuarios.html",usuarios=usuarios)
 
 @mod.route("/gestion_usuarios/anadir_usuario",methods=["POST"])
 def añadir_usuario():
@@ -162,7 +162,7 @@ def detalle_usuario(rut):
         sancion=cursor.fetchone()
     
 
-        return render_template("/pablo/detalle_usuario.html",usuario=usuario,solicitudes=solicitudes,cursos=cursos,sancion=sancion)
+        return render_template("/vistas_gestion_usuarios/detalle_usuario.html",usuario=usuario,solicitudes=solicitudes,cursos=cursos,sancion=sancion)
 
 @mod.route("/anadir_masivo",methods=["POST","GET"])
 def masivo():
