@@ -8,6 +8,8 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from jinja2 import Environment
 from uuid import uuid4 # Token
+import csv
+from werkzeug.utils import secure_filename
 
 mod = Blueprint("rutas_pablo",__name__)
 
@@ -129,19 +131,79 @@ def eliminar():
         flash('eliminar-correcto')
         return redirect("/gestion_usuarios")
 
-@mod.route("/gestion_usuarios/ver_usuario",methods=["GET"])
-def ver_usuario_unico():
+@mod.route("/gestion_usuarios/ver_usuario/<string:rut>" ,methods=["GET"])
+def detalle_usuario(rut):
     if "usuario" not in session.keys():
         return redirect("/")
     if session["usuario"]["id_credencial"] != 3:
         return redirect("/")
-    
+
     if request.method=='GET':
-        rut=request.args.get('rut')
         print(rut)
         query=''' Select Usuario.nombres as nombres, Usuario.apellidos as apellidos, Credencial.nombre as credencial,
-            Usuario.email as correo, Usuario.region as region, Usuario.comuna as comuna, 
+            Usuario.email as correo, Usuario.region as region, Usuario.comuna as comuna, Usuario.rut as rut,
             Usuario.direccion as direccion, Usuario.celular as celular FROM Usuario,Credencial WHERE Credencial.id=Usuario.id_credencial AND Usuario.rut=%s '''
         cursor.execute(query,(rut,))
         usuario=cursor.fetchone()
-        return render_template("/pablo/ver_usuario_unico.html",usuario=usuario)
+        
+        query=''' Select Solicitud.id as id, Solicitud.rut_profesor as profesor, Solicitud.rut_alumno as alumno, Solicitud.motivo as motivo, Solicitud.fecha_registro as registro,
+            Detalle_solicitud.estado as estado, Detalle_solicitud.id as id_detalle, Equipo.nombre as equipo, Equipo.modelo as modelo  
+            FROM Solicitud, Detalle_solicitud, Equipo
+            WHERE Solicitud.id = Detalle_solicitud.id_solicitud AND Solicitud.rut_alumno= %s AND Equipo.id = Detalle_solicitud.id_equipo '''
+        cursor.execute(query,(rut,))
+        solicitudes=cursor.fetchall()
+
+        query='''Select Curso.id as id , Curso.codigo_udp as codigo , Curso.nombre as nombre FROM Curso, Seccion_alumno,Seccion WHERE Seccion_alumno.rut_alumno= %s'''
+        cursor.execute(query,(rut,))
+        cursos=cursor.fetchall()
+        
+        query= '''SELECT * FROM Sanciones WHERE rut_alumno = %s'''
+        cursor.execute(query,(rut,))
+        sancion=cursor.fetchone()
+    
+
+        return render_template("/pablo/detalle_usuario.html",usuario=usuario,solicitudes=solicitudes,cursos=cursos,sancion=sancion)
+
+@mod.route("/anadir_masivo",methods=["POST","GET"])
+def masivo():
+    
+    if request.method=='GET':   
+        #data=request.files["file"]
+        #data.save(secure_filename(data.filename))
+        with open("datos.csv") as csv_file:
+            reader=csv.reader(csv_file,delimeter=",")
+            query = ''' INSERT INTO Usuario(rut, id_credencial, email, nombres, apellidos)
+            VALUES '''
+            for row in reader:
+                query += '''(%s,%s,%s,%s,%s),'''
+    #query[0,-1] la query desde el inicio hasta el final, se borra la ultima coma,
+    #Hay que recorrer el reader para agregar los valores al execute, dictReader no se puede recorrer. 
+    #cursor.execute(query[0:-1],['rut'], datos_usuario['credencial'], datos_usuario['correo'], datos_usuario['nombres'], datos_usuario['apellidos']))
+    print(reader["rut"])
+    return "ok"
+
+
+@mod.route("/gestion_usuarios/sancion",methods=["POST"])
+def sancion():
+    data=request.form.to_dict()
+    if data['cant_sancion']!=0:
+        query= ''' SELECT cantidad_dias FROM Sanciones WHERE rut_alumno= %s'''
+        cursor.execute(query,(data['rut'],))
+        dias=cursor.fetchone()
+        dias=dias['cantidad_dias']
+        if data['op_sancion'] == '1' :#Aumentar dias de sancion
+            dias=dias+int(data['cant_sancion'])
+        elif data['op_sancion']== '2' : #Disminuir dias de sancion
+            dias=dias-int(data['cant_sancion'])
+            print(dias)
+            if dias < 0:
+                print("error")
+                flash("Error")
+                return redirect(url_for("rutas_pablo.detalle_usuario",rut=data['rut']))
+            flash("cambio-realizado")
+            return redirect(url_for("rutas_pablo.detalle_usuario",rut=data['rut']))
+        #Se actualiza el registro y se comprueba si se debe eliminar.
+        query= ''' UPDATE Sanciones SET cantidad_dias = %s WHERE rut_alumno = %s'''
+        cursor.execute(query,(dias,data['rut']))
+        flash("cambio-realizado")
+    return redirect(url_for("rutas_pablo.detalle_usuario",rut=data['rut']))
