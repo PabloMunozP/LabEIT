@@ -1633,10 +1633,10 @@ def modificar_mensaje_administrativo(id_mensaje):
 
     sql_query = """
         UPDATE Mensaje_administrativo
-            SET titulo=%s,mensaje=%s,fecha_eliminacion=%s
+            SET titulo=%s,mensaje=%s,fecha_eliminacion=%s,fecha_actualizacion=%s
                 WHERE id=%s
     """
-    cursor.execute(sql_query,(datos_formulario["titulo"],datos_formulario["mensaje"],datos_formulario["fecha_eliminacion"],id_mensaje))
+    cursor.execute(sql_query,(datos_formulario["titulo"],datos_formulario["mensaje"],datos_formulario["fecha_eliminacion"],str(datetime.now()),id_mensaje))
 
     flash("mensaje-modificado")
     return redirect(redirect_url())
