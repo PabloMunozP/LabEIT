@@ -158,6 +158,14 @@ def perfil():
             if mensaje_administrativo["fecha_actualizacion"] is not None:
                 mensaje_administrativo["timeago_ultima_actualizacion"] = timeago.format(mensaje_administrativo["fecha_actualizacion"],datetime.now(),'es')
 
+        # Se obtienen los datos de la red Wifi
+        sql_query = """
+            SELECT ssid,password
+                FROM Wifi
+        """
+        cursor.execute(sql_query)
+        datos_wifi = cursor.fetchone()
+
         return render_template(
             'vistas_perfil/perfil.html',
             solicitudes = solicitudes,
@@ -166,7 +174,8 @@ def perfil():
             dir_foto_perfil = url_for('static',filename='imgs/profile_pics/'+archivo_foto_perfil),
             completar_info = validar_completar,
             admin_inspeccionar_perfil = False,
-            lista_mensajes_administrativos=lista_mensajes_administrativos)
+            lista_mensajes_administrativos=lista_mensajes_administrativos,
+            datos_wifi=datos_wifi)
 
 
 # ************Acciones de información de perfil****************

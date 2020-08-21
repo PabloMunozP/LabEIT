@@ -20,6 +20,7 @@
 						<th scope="col">Equipo solicitado</th>
 						<th scope="col" class="text-center">Estado</th>
 						<th scope="col">Fecha de registro</th>
+						<th scope="col">Fecha de término</th>
 						<th scope="col">Acciones</th>
 					</tr>
 				</thead>
@@ -49,8 +50,17 @@
 							{% elif detalle_solicitud["estado"] == 7 %}
 								<td class="text-center"><span class="badge badge-danger">{{detalle_solicitud["nombre_estado"]}}</span></td>
 							{% endif %}
-
 							<td>{{detalle_solicitud["fecha_registro"]}}</td>
+							{% if detalle_solicitud["fecha_devolucion"] %}
+								<td>{{detalle_solicitud["fecha_devolucion"]}}</td>
+							{% elif detalle_solicitud["fecha_rechazo"] %}
+								<td>{{detalle_solicitud["fecha_rechazo"]}}</td>
+							{% elif detalle_solicitud["fecha_cancelacion"] %}
+								<td>{{detalle_solicitud["fecha_cancelacion"]}}</td>
+							{% else %}
+								<td></td>
+							{% endif %}
+
 							<td>
 								<span class="btn-group">
 									<a href="gestion_solicitudes_prestamos/detalle_solicitud/{{detalle_solicitud["id"]}}">
