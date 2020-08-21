@@ -3,6 +3,7 @@
 
     {% include "/vistas_perfil/modals/mensajes_administrativos.html" %}
 
+
     <div class="section-red-card" style="margin-top: 0px;">
         <h3>
             Tu información personal
@@ -10,9 +11,7 @@
     </div>
     <div class="container-fluid">
 
-
         <div class="row row-profile">
-
 
             <div class="col-md-4 justify-content-center">
                 <div id="inner-div" style="width: 200px; margin-bottom: 30px; ">
@@ -126,6 +125,14 @@
 
  <br>
 
+ {% if datos_wifi %}
+   <div class="alert alert-info alert-dismissible fade show" role="alert">
+     <i class="fas fa-wifi mr-2"></i>Red Wifi: <strong>{{datos_wifi["ssid"]}}</strong> - Contraseña: <strong>{{datos_wifi["password"]}}</strong>
+     <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+      <span aria-hidden="true">&times;</span>
+    </button>
+   </div>
+ {% endif %}
 
         <nav>
             <div class="nav nav-tabs" id="nav-tab" role="tablist">

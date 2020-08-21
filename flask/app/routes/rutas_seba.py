@@ -10,7 +10,7 @@ from jinja2 import Environment
 from uuid import uuid4 # Token
 from datetime import datetime,timedelta
 from openpyxl import Workbook
-from openpyxl.styles import Font, PatternFill
+from openpyxl.styles import Font, PatternFill, Alignment
 from openpyxl.styles.borders import Border, Side, BORDER_THIN
 
 mod = Blueprint("rutas_seba",__name__)
@@ -337,7 +337,7 @@ def gestion_solicitudes_prestamos():
                 AND Solicitud.rut_alumno = Usuario.rut
                 AND Detalle_solicitud.estado != 0
                 AND Detalle_solicitud.estado >= 5
-                ORDER BY Solicitud.fecha_registro DESC
+                ORDER BY Detalle_solicitud.fecha_devolucion DESC,Detalle_solicitud.fecha_rechazo DESC,Detalle_solicitud.fecha_cancelacion DESC
     """
     cursor.execute(sql_query)
     lista_historial_solicitudes = cursor.fetchall()
@@ -551,10 +551,10 @@ def rechazar_solicitud(id_detalle):
     # Si existe la solicitud, es marcada como rechazada (Historial)
     sql_query = """
         UPDATE Detalle_solicitud
-            SET estado = 5
+            SET estado = 5,fecha_rechazo = %s
                 WHERE id = %s
     """
-    cursor.execute(sql_query,(id_detalle,))
+    cursor.execute(sql_query,(datetime.now().replace(microsecond=0),id_detalle))
 
     # Por último, se notifica al usuario sobre el rechazo de la solicitud
     # Se obtienen los datos del usuario
@@ -750,10 +750,10 @@ def cancelar_solicitud(id_detalle):
     # Se libera el codigo de sufijo de equipo del detalle de solicitud y se modifica el estado
     sql_query = """
         UPDATE Detalle_solicitud
-            SET estado = 7,codigo_sufijo_equipo = NULL
+            SET estado = 7,codigo_sufijo_equipo = NULL,fecha_cancelacion = %s
                 WHERE id = %s
     """
-    cursor.execute(sql_query,(id_detalle,))
+    cursor.execute(sql_query,(datetime.now().replace(microsecond=0),id_detalle))
 
     # Se obtienen los datos necesarios para el correo
 
@@ -1023,7 +1023,8 @@ def exportar_solicitudes(id_exportacion):
                 Usuario.rut AS 'RUT del solicitante',
                 CONCAT(Usuario.nombres," ",Usuario.apellidos) AS 'Nombre del solicitante',
                 CONCAT(Equipo.nombre," ",Equipo.marca," ",Equipo.modelo) AS 'Equipo solicitado',
-                Solicitud.fecha_registro AS 'Fecha de registro de solicitud'
+                Equipo.codigo AS 'Código de equipo',
+                Solicitud.fecha_registro AS 'Fecha de registro'
                     FROM Detalle_solicitud,Solicitud,Equipo,Usuario
                         WHERE Detalle_solicitud.id_solicitud = Solicitud.id
                         AND Detalle_solicitud.id_equipo = Equipo.id
@@ -1041,13 +1042,15 @@ def exportar_solicitudes(id_exportacion):
                 Usuario.rut AS 'RUT del solicitante',
                 CONCAT(Usuario.nombres," ",Usuario.apellidos) AS 'Nombre del solicitante',
                 CONCAT(Equipo.nombre," ",Equipo.marca," ",Equipo.modelo) AS 'Equipo solicitado',
+                Equipo.codigo AS 'Código de equipo',
+                Detalle_solicitud.codigo_sufijo_equipo AS 'Código sufijo de equipo',
                 Estado_detalle_solicitud.nombre AS Estado,
+                Solicitud.fecha_registro AS 'Fecha de registro',
                 Detalle_solicitud.fecha_inicio AS 'Fecha de inicio',
                 Detalle_solicitud.fecha_termino AS 'Fecha de término',
                 Detalle_solicitud.fecha_devolucion AS 'Fecha de devolución',
                 Detalle_solicitud.fecha_vencimiento AS 'Fecha de vencimiento',
-                Detalle_solicitud.renovaciones AS 'Cantidad de renovaciones',
-                Detalle_solicitud.codigo_sufijo_equipo AS 'Código sufijo de equipo'
+                Detalle_solicitud.renovaciones AS 'Cantidad de renovaciones'
                     FROM Detalle_solicitud,Solicitud,Equipo,Usuario,Estado_detalle_solicitud
                         WHERE Detalle_solicitud.id_solicitud = Solicitud.id
                         AND Detalle_solicitud.id_equipo = Equipo.id
@@ -1067,13 +1070,16 @@ def exportar_solicitudes(id_exportacion):
                 Usuario.rut AS 'RUT del solicitante',
                 CONCAT(Usuario.nombres," ",Usuario.apellidos) AS 'Nombre del solicitante',
                 CONCAT(Equipo.nombre," ",Equipo.marca," ",Equipo.modelo) AS 'Equipo solicitado',
+                Equipo.codigo AS 'Código de equipo',
                 Estado_detalle_solicitud.nombre AS Estado,
+                Solicitud.fecha_registro AS 'Fecha de registro',
                 Detalle_solicitud.fecha_inicio AS 'Fecha de inicio',
                 Detalle_solicitud.fecha_termino AS 'Fecha de término',
                 Detalle_solicitud.fecha_devolucion AS 'Fecha de devolución',
                 Detalle_solicitud.fecha_vencimiento AS 'Fecha de vencimiento',
-                Detalle_solicitud.renovaciones AS 'Cantidad de renovaciones',
-                Detalle_solicitud.codigo_sufijo_equipo AS 'Código sufijo de equipo'
+                Detalle_solicitud.fecha_rechazo AS 'Fecha de rechazo',
+                Detalle_solicitud.fecha_cancelacion AS 'Fecha de cancelación',
+                Detalle_solicitud.renovaciones AS 'Cantidad de renovaciones'
                     FROM Detalle_solicitud,Solicitud,Equipo,Usuario,Estado_detalle_solicitud
                         WHERE Detalle_solicitud.id_solicitud = Solicitud.id
                         AND Detalle_solicitud.id_equipo = Equipo.id
@@ -1118,6 +1124,7 @@ def exportar_solicitudes(id_exportacion):
         celda.font = Font(bold=True,color="FFFFFF")
         celda.border = borde_delgado
         celda.fill = PatternFill("solid", fgColor="4D4D4D")
+        celda.alignment = Alignment(horizontal="left")
         celda.value = lista_columnas[i]
 
     # Se agregan los registros
@@ -1128,6 +1135,7 @@ def exportar_solicitudes(id_exportacion):
             celda = ws.cell(row=index_row,column=index_column)
             celda.value = detalle[key]
             celda.border = borde_delgado
+            celda.alignment = Alignment(horizontal="left")
             index_column += 1
         index_column = 1
         index_row += 1

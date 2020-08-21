@@ -105,7 +105,7 @@
 			{%endif%}
 		{%endwith%}
 
-		{% if usuario_sancionado and datos_detalle_solicitud["estado"] in [1,2,3] %}
+		{% if usuario_sancionado and datos_detalle_solicitud["estado"] in [0,1,2,3] %}
 			<div class="alert alert-warning alert-dismissible fade show mt-2" role="alert">
 				<i class="fas fa-exclamation-triangle mr-2"></i>El usuario solicitante presenta una sanción activa.
 				<button type="button" class="close" data-dismiss="alert" aria-label="Close">
@@ -215,16 +215,40 @@
 
 				{% if datos_detalle_solicitud["fecha_vencimiento"] %}
 					<div class="form-group row">
-						<label class="col-md-4 col-form-label texto-gris-eit">
-							<strong>Fecha de vencimiento de solicitud:</strong>
+						<label class="col col-form-label texto-gris-eit">
+							<strong>Fecha de vencimiento:</strong>
 						</label>
-						<div class="col-md-3">
+						<div class="col">
 							<p class="form-control-plaintext text-break">
 								{{datos_detalle_solicitud["fecha_vencimiento"]}}
 							</p>
 						</div>
+						{% if datos_detalle_solicitud["fecha_cancelacion"] %}
+						<label class="col col-form-label texto-gris-eit">
+							<strong>Fecha de cancelación:</strong>
+						</label>
+						<div class="col">
+							<p class="form-control-plaintext text-break">
+								{{datos_detalle_solicitud["fecha_cancelacion"]}}
+							</p>
+						</div>
+						{% endif %}
 					</div>
 				{% endif %}
+
+				{% if datos_detalle_solicitud["fecha_rechazo"] %}
+					<div class="form-group row">
+						<label class="col-md-4 col-form-label texto-gris-eit">
+							<strong>Fecha de rechazo:</strong>
+						</label>
+						<div class="col-md-3">
+							<p class="form-control-plaintext text-break">
+								{{datos_detalle_solicitud["fecha_rechazo"]}}
+							</p>
+						</div>
+					</div>
+				{% endif %}
+
 
 			</div>
 
@@ -428,7 +452,12 @@
 				<span class="btn-group flex-wrap">
 					{% if datos_detalle_solicitud["estado"] == 0 %}
 						<button type="button" class="btn btn-danger mr-1" data-toggle="modal" data-target="#confirmacion_rechazo_solicitud"><i class="fas fa-times-circle mr-1"></i>Rechazar solicitud</button>
-						<button type="button" class="btn btn-success" data-toggle="modal" data-target="#confirmacion_aprobacion_solicitud"><i class="fas fa-clipboard-check mr-1"></i>Aprobar solicitud</button>
+						{% if not usuario_sancionado %}
+							<button type="button" class="btn btn-success mr-1" data-toggle="modal" data-target="#confirmacion_aprobacion_solicitud"><i class="fas fa-clipboard-check mr-1"></i>Aprobar solicitud</button>
+						{% endif %}
+						<form class="" action="/eliminar_solicitud/{{datos_detalle_solicitud["id"]}}" method="post">
+							<button type="submit" class="btn btn-danger mr-1"><i class="fas fa-minus-circle mr-1"></i>Eliminar solicitud</button>
+						</form>
 					{% elif datos_detalle_solicitud["estado"] == 1 %}
 						<button type="button" class="btn btn-danger mr-1" data-toggle="modal" data-target="#confirmacion_cancelacion_solicitud"><i class="fas fa-times-circle mr-1"></i>Cancelar solicitud</button>
 						{% if not usuario_sancionado %}

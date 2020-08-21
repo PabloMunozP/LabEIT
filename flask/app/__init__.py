@@ -48,7 +48,7 @@ def revisar_mensajes_administrativos():
 # Revisión a las 23:59 todos los días
 def revisar_tokens_password():
     fecha_actual = datetime.now().replace(microsecond=0)
-    
+
     sql_query = """
         DELETE FROM
             Token_recuperacion_password
