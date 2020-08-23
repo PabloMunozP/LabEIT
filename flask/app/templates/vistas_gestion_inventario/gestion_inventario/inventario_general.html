@@ -1,20 +1,13 @@
 <div class="card-header mt-4" style="background:#0db26b;">
     <h5 class="card-title text-white my-auto">Gestión de inventario general</h5>
     <p class="text-white my-auto"><i class="fas fa-info-circle mr-2"></i>A continuación encontrará la lista agrupada de los equipos registrados en el laboratorio.</p>
-</div>
-<div class="row" style="display: flex; justify-content: flex-end">
-    <div class="mt-2 mb-2">
-      <div class="col-md-12">
-        <button type="button" data-target="#agregar_equipo" class="btn btn-success" data-toggle="modal"><i class="fas fa-plus-circle mr-2"></i>Agregar equipo</button>
-        <button type="button" id="export-btn" title="Descargar planilla" class="btn btn-info"><i class="fas fa-file-excel mr-2"></i>Descargar planilla</button>
-      </div>
-    </div>
+    <span class="btn-group">
+      <button type="button" data-target="#agregar_equipo" class="btn btn-sm btn-secondary mr-1" data-toggle="modal"><i class="fas fa-plus-circle mr-2"></i>Agregar equipo</button>
+      <button type="button" id="export-btn" title="Descargar planilla" class="btn btn-sm btn-secondary"><i class="fas fa-file-excel mr-2"></i>Descargar planilla</button>
+    </span>
 </div>
 
-
-
-
-      <div class="table-responsive">
+      <div class="table-responsive mt-2">
         <div class="table-wrapper-scroll-y" style="position: relative; overflow:auto;">
           <table class="table table-hover" id="tabla_equipos_general">
             <thead class="text-white" style="background:#4D4D4D;">

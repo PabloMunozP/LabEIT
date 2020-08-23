@@ -116,7 +116,9 @@
                     <p class="form-control-plaintext
                              text-break">
                     {% if detalle_solicitud["motivo"] != None %}
+                      {% autoescape false %}
                         {{detalle_solicitud["motivo"]}}
+                      {% endautoescape %}
                     {% endif %}
                     </p>
                 </div>
