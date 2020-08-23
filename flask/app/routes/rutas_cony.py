@@ -489,11 +489,11 @@ def eliminar_seccion_form():
 def consultar_curso_descripcion(codigo_curso):
     query = ('''
         SELECT *
-        FROM CURSO
+        FROM Curso
         WHERE Curso.codigo_udp = %s
     ''')
     cursor.execute(query,(codigo_curso,))
-    curso_detalle = cursos.fetchone()
+    curso_detalle = cursor.fetchone()
     return curso_detalle
 @mod.route("/gestion_cursos/detalles_curso/<string:codigo_udp>",methods=["GET"])
 def detalle_info_curso(codigo_udp):
@@ -542,7 +542,8 @@ def alumnos_seccion(codigo_udp,codigo_seccion):
 
     seccion_id = obtener_seccion_id(codigo_udp,codigo_seccion)
     alumnos = consultar_alumnos_seccion(seccion_id['id'])
-    return render_template("gestion_cursos/detalles_seccion.html",seccion_id=seccion_id,alumnos=alumnos)
+    curso = consultar_curso_descripcion(codigo_udp)
+    return render_template("gestion_cursos/detalles_seccion.html",seccion_id=seccion_id,alumnos=alumnos,curso=curso)
 
 def agregar_alumno(val):
     query = ('''
