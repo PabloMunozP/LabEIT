@@ -1,9 +1,19 @@
 {% extends "layout_in.html"%}
 {%block body%}
 
+{% include 'gestion_cursos/agregar_seccion.html' %}
+
 <div class="container-fluid mt-2">
+
+	<nav aria-label="breadcrumb">
+		<ol class="breadcrumb">
+			<li class="breadcrumb-item"><a href="/gestion_cursos">Gestión de cursos</a></li>
+			<li class="breadcrumb-item active" aria-current="page">Detalle del curso: {{curso.nombre}} ({{curso.codigo_udp}})</li>
+		</ol>
+	</nav>
+
 			<div class="card-header mt-2" style="background:#0db26b;">
-				<h5 class="card-title text-white my-auto">Información del curso:</h5>
+				<h5 class="card-title text-white my-auto"><i class="fas fa-chalkboard-teacher mr-2"></i>Información del curso</h5>
 			</div>
 			<div class="card-body rounded-0" style="background:#ECF0F1;">
 				<div class="form-group row">
@@ -47,17 +57,19 @@
 						</p>
 					</div>
 				</div>
-				<hr>
+
 			</div>
 
 			<div class="card-header mt-2" style="background:#0db26b;">
-				<h5 class="card-title text-white my-auto">Secciones:</h5>
-			</div>
-			<div class="row float-right mt-2 mb-2">
-					<div class="col-md-12">
-					<button type="button" data-target=" #agregar_seccion_{{curso['curso_id']}}" class= "btn btn-success" data-toggle="modal"><i class="fas fa-user-plus mr-2"></i>Agregar sección</button>
-					 {% include 'gestion_cursos/agregar_seccion.html' %}
-				 </div>
+				<div class="row">
+					<div class="col my-auto">
+						<h5 class="card-title text-white my-auto"><i class="fas fa-project-diagram mr-2"></i>Secciones registradas</h5>
+					</div>
+					<div class="col my-auto text-right">
+						<button type="button" data-target=" #agregar_seccion_{{curso['curso_id']}}" class= "btn btn-secondary" data-toggle="modal"><i class="fas fa-plus-circle mr-2"></i>Agregar sección</button>
+					</div>
+
+				</div>
 			</div>
 				<div class="table-responsive mt-2">
 					<div class="table-wrapper-scroll-y" style="position: relative;
@@ -66,8 +78,9 @@
 						<table class="table">
 						  <thead class="text-white" style="background:#4D4D4D;">
 						    <tr>
-						      <th scope="col">Código sección</th>
-						      <th scope="col">RUT profesor</th>
+						      <th scope="col">Código de sección</th>
+						      <th scope="col">RUT del profesor</th>
+									<th scope="col">Nombre del profesor</th>
 									<th scope="col" class="text-center">Acciones</th>
 						    </tr>
 						  </thead>
@@ -76,14 +89,17 @@
 									<tr style="background:#ECF0F1;">
 										<td>{{seccion.codigo_seccion}}</td>
 										<td>{{seccion.rut_profesor}}</td>
+										<td>{{seccion.nombre_profesor}}</td>
 										<td class="text-center">
-											 <button type="button" title="Editar información" data-target="#editar_seccion_{{seccion['id']}}" class= "btn btn-sm btn-warning" data-toggle="modal"><i class="fas fa-edit"></i></button>
-											 <a href="{{curso.codigo_udp}}/{{seccion.codigo_seccion}}"><button type="button" title="Ver detalles de la sección" data-toggle="modal" class="btn btn-sm btn-info mr-1"><i class="fas fa-search-plus"></i></button></a>
-											 <button type="submit" title="Eliminar curso" data-target="#eliminar_seccion_{{seccion['id']}}" class="btn btn-sm btn-danger" data-toggle="modal"><i class="fas fa-trash-alt"></i></button>
-											 {% include 'gestion_cursos/editar_seccion.html' %}
-											 {% include 'gestion_cursos/eliminar_seccion.html' %}
+											<span class="btn-group">
+											 <button type="button" title="Editar información" data-target="#editar_seccion_{{seccion['id']}}" class= "btn btn-sm btn-warning mr-1" data-toggle="modal"><i class="fas fa-edit"></i></button>
+ 											 <a href="{{curso.codigo_udp}}/{{seccion.codigo_seccion}}"><button type="button" title="Ver detalles de la sección" data-toggle="modal" class="btn btn-sm btn-info mr-1"><i class="fas fa-search-plus"></i></button></a>
+ 											 <button type="submit" title="Eliminar curso" data-target="#eliminar_seccion_{{seccion['id']}}" class="btn btn-sm btn-danger" data-toggle="modal"><i class="fas fa-trash-alt"></i></button>
+											</span>
 										</td>
 									</tr>
+									{% include 'gestion_cursos/editar_seccion.html' %}
+									{% include 'gestion_cursos/eliminar_seccion.html' %}
 								{% endfor %}
 						  </tbody>
 						</table>
