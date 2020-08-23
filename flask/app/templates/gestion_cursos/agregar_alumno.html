@@ -14,10 +14,11 @@
             <div class="modal-body">
               <input class="form-control" type="text" name="id" value="{{seccion_id['id']}}" id="id" hidden>
             </div>
-            <div class="form-group">
-              <label for="rut_alumno">Rut alumno:</label>
-              <input class="form-control" type="text" name="rut_alumno" id="rut_alumno" onchange="validar_informacion_perfil()" value="">
-            </div>
+            <select class=""  id="rut_alumno" name = "rut_alumno">
+              {% for alumno in lista_alumnos %}
+                <option id="rut_alumno" name = "rut_alumno" value="{{alumno['rut']}}">{{alumno['rut']}} - {{alumno["nombres"]}} {{alumno["apellidos"]}} </option>
+              {% endfor %}
+            </select>
 
       </div>
       <div class="modal-footer">

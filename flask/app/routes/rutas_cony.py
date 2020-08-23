@@ -261,23 +261,40 @@ def consultar_curso_secciones(codigo):
         SELECT
             Seccion.id,
             Seccion.rut_profesor,
+            Usuario.nombres AS nombres_profesor, Usuario.apellidos AS apellidos_profesor,
             Seccion.codigo AS codigo_seccion,
             Seccion.id_curso,
             Curso.codigo_udp,
             Curso.nombre
             FROM Seccion
             LEFT JOIN Curso ON Curso.id = Seccion.id_curso
+            LEFT JOIN Usuario On Usuario.rut = Seccion.rut_profesor
             WHERE Curso.codigo_udp = %s
     ''')
     cursor.execute(query,(codigo,))
     secciones = cursor.fetchall()
     return secciones
 
+def consultar_profesores():
+    if "usuario" not in session.keys():
+        return redirect("/")
+    if session["usuario"]["id_credencial"] != 3:
+        return redirect("/")
+    query = ('''
+        SELECT *
+            FROM Usuario
+            WHERE Usuario.id_credencial = 2
+    ''')
+    cursor.execute(query)
+    profesores = cursor.fetchall()
+    return profesores
+
 @mod.route("/gestion_cursos/detalles_curso/<string:codigo_udp>",methods=["GET"])
 def secciones_curso(codigo_udp):
     curso = consultar_curso(codigo_udp)
     secciones = consultar_curso_secciones(codigo_udp)
-    return render_template("/gestion_cursos/detalles_curso.html", curso=curso, secciones=secciones)
+    profesores = consultar_profesores()
+    return render_template("/gestion_cursos/detalles_curso.html", curso=curso, secciones=secciones,profesores=profesores)
 # == VISTA PRINCIPAL/MODAL "AGREGAR CURSO" ==
 
 def agregar_curso(val):
@@ -507,9 +524,24 @@ def consultar_alumnos_seccion(id_seccion):
 @mod.route("/gestion_cursos/detalles_curso/<string:codigo_udp>/<string:codigo_seccion>",methods=["GET"])
 def alumnos_seccion(codigo_udp,codigo_seccion):
     seccion_id = obtener_seccion_id(codigo_udp,codigo_seccion)
-    alumnos = consultar_alumnos_seccion(seccion_id['id'])
+    alumnos_seccion = consultar_alumnos_seccion(seccion_id['id'])
+    todos_los_alumnos = consultar_alumnos()
     curso = consultar_curso_descripcion(codigo_udp)
-    return render_template("gestion_cursos/detalles_seccion.html",seccion_id=seccion_id,alumnos=alumnos,curso=curso)
+    return render_template("gestion_cursos/detalles_seccion.html",seccion_id=seccion_id,alumnos=alumnos_seccion,lista_alumnos=todos_los_alumnos,curso=curso)
+
+def consultar_alumnos():
+    if "usuario" not in session.keys():
+        return redirect("/")
+    if session["usuario"]["id_credencial"] != 3:
+        return redirect("/")
+    query = ('''
+        SELECT *
+            FROM Usuario
+            WHERE Usuario.id_credencial = 1
+    ''')
+    cursor.execute(query)
+    alumnos = cursor.fetchall()
+    return alumnos
 
 def agregar_alumno(val):
     query = ('''
