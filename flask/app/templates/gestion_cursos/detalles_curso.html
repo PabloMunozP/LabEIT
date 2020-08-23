@@ -66,16 +66,14 @@
 						<h5 class="card-title text-white my-auto"><i class="fas fa-project-diagram mr-2"></i>Secciones registradas</h5>
 					</div>
 					<div class="col my-auto text-right">
-						<button type="button" data-target=" #agregar_seccion_{{curso['curso_id']}}" class= "btn btn-secondary" data-toggle="modal"><i class="fas fa-plus-circle mr-2"></i>Agregar sección</button>
+						<button type="button" data-target=" #agregar_seccion_{{curso['curso_id']}}" class= "btn btn-sm btn-secondary" data-toggle="modal"><i class="fas fa-plus-circle mr-2"></i>Agregar sección</button>
 					</div>
 
 				</div>
 			</div>
-				<div class="table-responsive mt-2">
-					<div class="table-wrapper-scroll-y" style="position: relative;
-											max-height: 450px;
-											overflow:auto;">
-						<table class="table">
+			<div class="table-responsive mt-2">
+				<div class="table-wrapper-scroll-y" style="position: relative; overflow:auto;">
+						<table class="table" id="tabla_secciones">
 						  <thead class="text-white" style="background:#4D4D4D;">
 						    <tr>
 						      <th scope="col">Código de sección</th>
@@ -108,6 +106,24 @@
 
 </div>
 
+<script type="text/javascript">
+	$(document).ready(function() {
+		$('#tabla_secciones').DataTable( {
+					"language": {
+							"lengthMenu": "Mostrar _MENU_ registros por página",
+							"zeroRecords": "Nothing found - sorry",
+							"info": "Mostrando página _PAGE_ de _PAGES_",
+							"infoEmpty": "Sin registros disponibles",
+							"search":         "Buscar",
+							"paginate": {
+									"next":       "Anterior",
+									"previous":   "Siguiente"
+							},
+							"infoFiltered": "(filtrado de _MAX_ registros totales)"
+					}
+			} );
+	} );
+</script>
 
 
 {% endblock %}

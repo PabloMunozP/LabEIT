@@ -8,7 +8,7 @@
 	<nav aria-label="breadcrumb">
 		<ol class="breadcrumb">
 			<li class="breadcrumb-item"><a href="/gestion_cursos">Gestión de cursos</a></li>
-			<li class="breadcrumb-item"><a href="/gestion_cursos/detalle_curso/{{seccion_id["id"]}}">Detalle de curso</a></li>
+			<li class="breadcrumb-item"><a href="/gestion_cursos">Detalle de curso</a></li>
 			<li class="breadcrumb-item active" aria-current="page">Lista de alumnos inscritos</li>
 		</ol>
 	</nav>
@@ -19,15 +19,13 @@
 						<h5 class="card-title text-white my-auto"><i class="fas fa-users mr-2"></i>Lista de alumnos inscritos</h5>
 					</div>
 					<div class="col my-auto text-right">
-						<button type="button" data-target=" #agregar_alumno_{{seccion_id['id']}}" class= "btn btn-secondary" data-toggle="modal"><i class="fas fa-user-plus mr-2"></i>Agregar alumnos</button>
+						<button type="button" data-target=" #agregar_alumno_{{seccion_id['id']}}" class= "btn btn-sm btn-secondary" data-toggle="modal"><i class="fas fa-user-plus mr-2"></i>Agregar alumnos</button>
 					</div>
 				</div>
 			</div>
-				<div class="table-responsive mt-2">
-					<div class="table-wrapper-scroll-y" style="position: relative;
-											max-height: 450px;
-											overflow:auto;">
-						<table class="table">
+			<div class="table-responsive mt-2">
+				<div class="table-wrapper-scroll-y" style="position: relative; overflow:auto;">
+						<table class="table" id="tabla_alumnos_seccion">
 						  <thead class="text-white" style="background:#4D4D4D;">
 						    <tr>
 						      <th scope="col">RUT</th>
@@ -54,6 +52,25 @@
 				</div>
 
 </div>
+
+<script type="text/javascript">
+	$(document).ready(function() {
+		$('#tabla_alumnos_seccion').DataTable( {
+					"language": {
+							"lengthMenu": "Mostrar _MENU_ registros por página",
+							"zeroRecords": "Nothing found - sorry",
+							"info": "Mostrando página _PAGE_ de _PAGES_",
+							"infoEmpty": "Sin registros disponibles",
+							"search":         "Buscar",
+							"paginate": {
+									"next":       "Anterior",
+									"previous":   "Siguiente"
+							},
+							"infoFiltered": "(filtrado de _MAX_ registros totales)"
+					}
+			} );
+	} );
+</script>
 
 
 

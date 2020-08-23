@@ -11,7 +11,7 @@ from uuid import uuid4 # Token
 import csv
 from werkzeug.utils import secure_filename
 
-mod = Blueprint("rutas_pablo",__name__)
+mod = Blueprint("rutas_gestion_usuarios",__name__)
 
 def redirect_url(default='index'): # Redireccionamiento desde donde vino la request
     return request.args.get('next') or \
@@ -33,7 +33,7 @@ def ver_usuarios():
     cursor.execute(query)
     usuarios=cursor.fetchall()
 
-    return render_template("/pablo/ver_usuarios.html",usuarios=usuarios)
+    return render_template("/gestion_usuarios/ver_usuarios.html",usuarios=usuarios)
 
 @mod.route("/gestion_usuarios/anadir_usuario",methods=["POST"])
 def añadir_usuario():
@@ -123,10 +123,10 @@ def eliminar():
     if session["usuario"]["id_credencial"] != 3:
         return redirect("/")
 
-    if request.method=='POST':   
+    if request.method=='POST':
         rut=request.form['rut']
         query=''' DELETE FROM Usuario WHERE rut= %s'''
-        
+
         cursor.execute(query,(rut,))
         flash('eliminar-correcto')
         return redirect("/gestion_usuarios")
@@ -145,9 +145,9 @@ def detalle_usuario(rut):
             Usuario.direccion as direccion, Usuario.celular as celular FROM Usuario,Credencial WHERE Credencial.id=Usuario.id_credencial AND Usuario.rut=%s '''
         cursor.execute(query,(rut,))
         usuario=cursor.fetchone()
-        
+
         query=''' Select Solicitud.id as id, Solicitud.rut_profesor as profesor, Solicitud.rut_alumno as alumno, Solicitud.motivo as motivo, Solicitud.fecha_registro as registro,
-            Detalle_solicitud.estado as estado, Detalle_solicitud.id as id_detalle, Equipo.nombre as equipo, Equipo.modelo as modelo  
+            Detalle_solicitud.estado as estado, Detalle_solicitud.id as id_detalle, Equipo.nombre as equipo, Equipo.modelo as modelo
             FROM Solicitud, Detalle_solicitud, Equipo
             WHERE Solicitud.id = Detalle_solicitud.id_solicitud AND Solicitud.rut_alumno= %s AND Equipo.id = Detalle_solicitud.id_equipo '''
         cursor.execute(query,(rut,))
@@ -156,18 +156,18 @@ def detalle_usuario(rut):
         query='''Select Curso.id as id , Curso.codigo_udp as codigo , Curso.nombre as nombre FROM Curso, Seccion_alumno,Seccion WHERE Seccion_alumno.rut_alumno= %s'''
         cursor.execute(query,(rut,))
         cursos=cursor.fetchall()
-        
+
         query= '''SELECT * FROM Sanciones WHERE rut_alumno = %s'''
         cursor.execute(query,(rut,))
         sancion=cursor.fetchone()
-    
 
-        return render_template("/pablo/detalle_usuario.html",usuario=usuario,solicitudes=solicitudes,cursos=cursos,sancion=sancion)
+
+        return render_template("/gestion_usuarios/detalle_usuario.html",usuario=usuario,solicitudes=solicitudes,cursos=cursos,sancion=sancion)
 
 @mod.route("/anadir_masivo",methods=["POST","GET"])
 def masivo():
-    
-    if request.method=='GET':   
+
+    if request.method=='GET':
         #data=request.files["file"]
         #data.save(secure_filename(data.filename))
         with open("datos.csv") as csv_file:
@@ -177,7 +177,7 @@ def masivo():
             for row in reader:
                 query += '''(%s,%s,%s,%s,%s),'''
     #query[0,-1] la query desde el inicio hasta el final, se borra la ultima coma,
-    #Hay que recorrer el reader para agregar los valores al execute, dictReader no se puede recorrer. 
+    #Hay que recorrer el reader para agregar los valores al execute, dictReader no se puede recorrer.
     #cursor.execute(query[0:-1],['rut'], datos_usuario['credencial'], datos_usuario['correo'], datos_usuario['nombres'], datos_usuario['apellidos']))
     print(reader["rut"])
     return "ok"
@@ -199,11 +199,11 @@ def sancion():
             if dias < 0:
                 print("error")
                 flash("Error")
-                return redirect(url_for("rutas_pablo.detalle_usuario",rut=data['rut']))
+                return redirect(url_for("rutas_gestion_usuarios.detalle_usuario",rut=data['rut']))
             flash("cambio-realizado")
-            return redirect(url_for("rutas_pablo.detalle_usuario",rut=data['rut']))
+            return redirect(url_for("rutas_gestion_usuarios.detalle_usuario",rut=data['rut']))
         #Se actualiza el registro y se comprueba si se debe eliminar.
         query= ''' UPDATE Sanciones SET cantidad_dias = %s WHERE rut_alumno = %s'''
         cursor.execute(query,(dias,data['rut']))
         flash("cambio-realizado")
-    return redirect(url_for("rutas_pablo.detalle_usuario",rut=data['rut']))
+    return redirect(url_for("rutas_gestion_usuarios.detalle_usuario",rut=data['rut']))

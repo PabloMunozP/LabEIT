@@ -13,14 +13,12 @@
   <div class="card-header mt-4" style="background:#0db26b;">
     <h5 class="card-title text-white my-auto">{{equipos_descripcion.marca}} {{equipos_descripcion.modelo}}</h5>
     <p class="text-white my-auto"><i class="fas fa-info-circle mr-2"></i>En esta sección se muestran las unidades registradas del equipo en el inventario.</p>
-  </div>
-
-  <div class="mt-2 mb-2 float-right">
-    <button type="button" data-target="#agregar_equipo_similar" class="btn btn-success" data-toggle="modal"><i class="fas fa-plus-circle mr-2"></i>Agregar unidades</button>
-
-    <a href="/gestion_inventario_admin/detalles_equipo/{{equipos_descripcion.codigo}}">
-      <button type="button" class="btn btn-info"><i class="fas fa-search-plus mr-2"></i>Ver detalle de equipo</button>
-    </a>
+    <span class="btn-group">
+      <button type="button" data-target="#agregar_equipo_similar" class="btn btn-sm btn-secondary mr-1" data-toggle="modal"><i class="fas fa-plus-circle mr-2"></i>Agregar unidades</button>
+      <a href="/gestion_inventario_admin/detalles_equipo/{{equipos_descripcion.codigo}}">
+        <button type="button" class="btn btn-sm btn-secondary"><i class="fas fa-search-plus mr-2"></i>Ver detalle de equipo</button>
+      </a>
+    </span>
   </div>
 
   <div class="table-responsive mt-2">
@@ -29,9 +27,9 @@
         <thead class="text-white" style="background:#4D4D4D;">
             <tr>
               <th scope="col">Código</th>
-              <th scope="col">Código activo</th>
-              <th scope="col">Estado</th>
-              <th scope="col">Acciones</th>
+              <th scope="col">Código de activo</th>
+              <th scope="col" class="text-center">Estado</th>
+              <th scope="col" class="text-center">Acciones</th>
             </tr>
           </thead>
           <tbody>
@@ -40,11 +38,11 @@
                 <td>{{elemento.codigo_equipo}}-{{elemento.codigo_sufijo}} </td>
                 <td>{{elemento.codigo_activo}} </td>
                   {% if elemento.activo == 1 %}
-                  <td ><span class="badge badge-success">Activo</span></td>
+                  <td class="text-center"><span class="badge badge-success">Activo</span></td>
                   {% elif elemento.activo == 0 %}
-                  <td ><span class="badge badge-danger">No disponible</span></td>
+                  <td class="text-center"><span class="badge badge-danger">No disponible</span></td>
                   {% endif %}
-                <td>
+                <td class="text-center">
                   <span class="btn-group">
                     <button type="button" onclick="cargar_datos_equipo_dif_modal('{{elemento.codigo_equipo}}','{{elemento.codigo_sufijo}}', '{{elemento.fecha_compra}}', '{{elemento.activo}}','{{elemento.codigo_activo}}' , '{{elemento.razon_inactivo}}')" data-target="#editar_equipo_similar" title="Editar equipo" class="btn btn-sm btn-warning mr-1" data-toggle="modal"><i class="fas fa-edit"></i></button>
                     <button type="button" onclick="cargar_codigo_delete_equipo_diferenciado_modal('{{elemento.codigo_equipo}}','{{elemento.codigo_sufijo}}')" title="Eliminar equipo"  data-target="#eliminar_equipo_similar" data-toggle="modal" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
