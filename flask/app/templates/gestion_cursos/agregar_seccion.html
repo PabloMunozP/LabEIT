@@ -15,10 +15,13 @@
               <label for="codigo">Código de sección</label>
               <input class="form-control" type="text" name="codigo" id="codigo" onchange="validar_informacion_perfil()" value="">
             </div>
-            <div class="form-group">
-              <label for="rut_profesor">Profesor encargado</label>
-              <input class="form-control" type="text" name="rut_profesor" id="rut_profesor" onchange="validar_informacion_perfil()" value="">
-            </div>
+            <label for="rut_profesor">Profesor: </label>
+            <select class=""  id="rut_profesor" name = "rut_profesor">
+              {% for profesor in profesores %}
+                <option id="rut_profesor" name = "rut_profesor" value="{{profesor['rut']}}">{{profesor['rut']}} - {{profesor["nombres"]}} {{profesor["apellidos"]}} </option>
+              {% endfor %}
+            </select>
+
 
       </div>
       <div class="modal-footer">
