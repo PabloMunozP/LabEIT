@@ -9,6 +9,11 @@ import platform
 from datetime import datetime, timedelta
 PATH = BASE_DIR # obtiene la ruta del directorio actual
 PROFILE_PICS_PATH = PATH.replace(os.sep, '/')+'/app/static/imgs/profile_pics/' #  remplaza [\\] por [/] en windows
+EXTENSIONES_PERMITIDAS = ["PNG","JPG","JPEG"]
+TAMAÑO_MAX_ARCHIVO = 500000 # 500kb
+
+
+
 
 def redirect_url(default='index'): # Redireccionamiento desde donde vino la request
     return request.args.get('next') or \
@@ -114,7 +119,7 @@ def consultar_sancion(rut_usuario): # Función para consultar si un usuario esta
 
     if sancion_usuario is not None: # Si hay una sancion
         return True
-    else: # Si no hay una sancion
+    else: # Si no hay una sancion 
         return False
 
 
@@ -223,11 +228,9 @@ def configurar_perfil():
 
 
 
-EXTENSIONES_PERMITIDAS = ["PNG","JPG","JPEG"]
 def allowed_image(filename): # funcion que valida la extension de la imagen
     if not "." in filename:
         return False
-
     ext = filename.rsplit(".",1)[1]
     if ext.upper() in EXTENSIONES_PERMITIDAS:
         return True
@@ -242,11 +245,16 @@ def borrar_foto_usuario(rut_usuario):
         head, tail = os.path.split(filename[0]) # separa el nombre del archivo
         os.remove(PROFILE_PICS_PATH + tail ) # elimina el archivo
 
-@mod.route('/perfil/subir_foto',methods = ['GET','POST'])
+@mod.route('/perfil/subir_foto', methods = ['GET','POST'])
 def subir_foto():
     if request.method == "POST":
         image = request.files["image"] # obtiene la imagen del formulario
+        print(request.content_length)
+        if request.content_length > TAMAÑO_MAX_ARCHIVO: # Si el tamaño del archivo es muy grande
+            print('el tamaño de la imagen es muy grande')
+            return 'muy grande\n' + request.content_length + '\n' + str(TAMAÑO_MAX_ARCHIVO)
         if not allowed_image(image.filename): # Si la extension no está permitida lo redirige al perfil
+            print('not allowed image')
             return redirect('/')
         borrar_foto_usuario(session['usuario']['rut'])
         image.filename = session['usuario']['rut'] + "." + image.filename.split('.')[1].lower() # Le da a la imagen el nombre del rut

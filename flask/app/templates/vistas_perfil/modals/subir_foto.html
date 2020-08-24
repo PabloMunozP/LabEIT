@@ -7,10 +7,13 @@
         <form action="/perfil/subir_foto" method="POST" enctype="multipart/form-data">
 
             <div class="modal-body">
+                
                 <div class="custom-file">
-                    <input type="file" class="custom-file-input" name="image" id="image" accept="image/png,image/jpeg,image/jpg" required value="asdasd">
+                    <input type="file" oninput="file_size(this);" class="custom-file-input" name="image" id="image" accept="image/png,image/jpeg,image/jpg" required value="asdasd">
                     <label class="custom-file-label" for="image">Seleccionar Archivo</label>
                 </div>
+                <small style="color:darkgrey;">El archivo no debe superar los 500KB</small>
+
             </div>
             <div class="modal-footer">
 
@@ -27,6 +30,12 @@
 <script>
     function open_modal_subir_foto(){
         $('#modal_subir_foto').modal('show');
+    }
+    function file_size(elem){
+        if(elem.files[0].size>500000){
+            alert("El tamaño del archivo supera los 500KB");
+            document.getElementById("image").value = "";
+        }
     }
     
 </script>
