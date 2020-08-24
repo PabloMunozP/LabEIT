@@ -206,6 +206,7 @@ def revisar_18_30():
 # Define the WSGI application object
 app = Flask(__name__)
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 
 # Blueprints (Routes)
 from app.routes.rutas_seba import mod
