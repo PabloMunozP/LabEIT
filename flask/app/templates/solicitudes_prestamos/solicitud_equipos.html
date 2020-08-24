@@ -35,20 +35,8 @@
 		<div class="card-header mt-3" style="background:#4D4D4D;">
 			<h5 class="text-white my-auto text-center"><i class="fas fa-laptop mr-2"></i>Lista de equipos del laboratorio</h5>
 		</div>
-		<div class="row mt-2">
-	    <div class="col-md-4">
-				<div class="input-group">
-        <div class="input-group-prepend">
-          <div class="input-group-text"><i class="fas fa-search"></i></div>
-        </div>
-        <input type="text" class="form-control" id="filtro_busqueda_solicitud_equipos" placeholder="Buscar por marca, modelo, etc.">
-      </div>
-	    </div>
-	  </div>
-			<div class="table-responsive mt-2">
-				<div class="table-wrapper-scroll-y" style="position: relative;
-										max-height: 350px;
-										overflow:auto;">
+		<div class="table-responsive mt-2">
+		  <div class="table-wrapper-scroll-y" style="position: relative; overflow:auto;">
 					<table class="table" id="tabla_equipos_solicitud">
 					  <thead class="text-white" style="background:#4D4D4D;">
 					    <tr>
@@ -88,11 +76,9 @@
 
 		<div id="carro_pedidos">
 			{% if session["carro_pedidos"] %}
-			<div class="table-responsive mt-2">
-				<div class="table-wrapper-scroll-y" style="position: relative;
-										max-height: 350px;
-										overflow:auto;">
-					<table class="table">
+			<div class="table-responsive">
+			  <div class="table-wrapper-scroll-y" style="position: relative; overflow:auto;">
+					<table class="table" id="tabla_carro_pedidos">
 						<thead class="text-white" style="background:#4D4D4D;">
 							<tr>
 								<th scope="col">Equipos agregados a tu carro de pedidos</th>
@@ -116,6 +102,8 @@
 					</table>
 				</div>
 			</div>
+		</div>
+	</div>
 
 			<div class="card-header text-right mt-1">
 				<button type="button" id="boton-vaciar-carro" onclick="vaciar_carro()" class="btn my-auto btn-danger"><i class="fas fa-trash-alt mr-2"></i>Vaciar carro</button>
@@ -127,20 +115,8 @@
 					<i class="fas fa-exclamation-triangle mr-2"></i>Actualmente tu carro de pedidos se encuentra vacío.
 				</div>
 			{% endif %}
-		</div>
-
-
-	</div>
 
 	<script type="text/javascript">
-
-		$(function() { // Filtro de búsqueda para lista de equipos
-		  $("#filtro_busqueda_solicitud_equipos").on("keyup", function() {
-		    var value = $(this).val().toLowerCase();
-		    $("#tabla_equipos_solicitud > tbody > tr").filter(function() {      $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
-		    });
-		  });
-		});
 
 		$(document).ready( () =>{
 				// AJAX para agregar pedido al carro de pedidos
@@ -166,10 +142,25 @@
 							 $("#carro_pedidos").html(data);
 								 // Se activa el botón submit
 							 $(".submit-agregar-pedido").prop('disabled', false);
-							 alert("El pedido ha sido agregado correctamente a tu carro de pedidos.");
 						 });
 						event.preventDefault();
 				});
+
+				$('#tabla_equipos_solicitud').DataTable( {
+						"order": [[ 0, "desc" ]],
+						"language": {
+								"lengthMenu": "Mostrar _MENU_ registros por página",
+								"zeroRecords": "No se han encontrado registros.",
+								"info": "Mostrando página _PAGE_ de _PAGES_",
+								"infoEmpty": "Sin registros disponibles.",
+								"search":         "Buscar",
+								"paginate": {
+										"next":       "Siguiente",
+										"previous":   "Anterior"
+								},
+								"infoFiltered": "(filtrado de _MAX_ registros totales)"
+							}
+					} );
 
 		});
 
@@ -188,7 +179,6 @@
 				 $("#carro_pedidos").html(data);
 					 // Se activa el botón submit
 				 $(".boton-eliminar-pedido-carro").prop('disabled', false);
-				 alert("El pedido ha sido eliminado correctamente de tu carro de pedidos.");
 			 });
 			event.preventDefault();
 		}
@@ -206,7 +196,6 @@
 				 $("#carro_pedidos").html(data);
 					 // Se activa el botón submit
 				 $("#boton-vaciar-carro").prop('disabled', false);
-				 alert("El carro de pedidos ha sido vaciado correctamente.");
 			 });
 			event.preventDefault();
 		}

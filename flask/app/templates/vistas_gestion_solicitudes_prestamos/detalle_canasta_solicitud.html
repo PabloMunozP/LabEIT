@@ -133,6 +133,15 @@
 			{%endif%}
 		{%endwith%}
 
+		{% if usuario_sancionado %}
+			<div class="alert alert-warning alert-dismissible fade show mt-2" role="alert">
+				<i class="fas fa-exclamation-triangle mr-2"></i>El usuario solicitante presenta una sanción activa.
+				<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+			    <span aria-hidden="true">&times;</span>
+			  </button>
+			</div>
+		{% endif %}
+
 		<div class="card border-1 rounded-0" style="border-color:#0db26b;">
 			<div class="card-header border-0 rounded-0" style="background:#0db26b;">
 				<h5 class="card-title my-auto text-white"><i class="fas fa-file-invoice mr-2"></i>Información de la solicitud de préstamo</h5>
@@ -310,14 +319,21 @@
 														<span class="btn-group" role="group">
 															{% if detalle_solicitud["estado"] == 0 %}
 																<button type="button" class="btn btn-sm btn-danger mr-1" data-toggle="modal" data-target="#confirmacion_rechazo_solicitud_{{detalle_solicitud["id"]}}"><i class="fas fa-times-circle mr-1"></i>Rechazar solicitud</button>
-																<button type="button" class="btn btn-sm btn-success" data-toggle="modal" data-target="#confirmacion_aprobacion_solicitud_{{detalle_solicitud["id"]}}"><i class="fas fa-clipboard-check mr-1"></i>Aprobar solicitud</button>
+																{% if not usuario_sancionado %}
+																	<button type="button" class="btn btn-sm btn-success mr-1" data-toggle="modal" data-target="#confirmacion_aprobacion_solicitud_{{detalle_solicitud["id"]}}"><i class="fas fa-clipboard-check mr-1"></i>Aprobar solicitud</button>
+																{% endif %}
+																<button type="button" class="btn btn-sm btn-danger" data-toggle="modal" data-target="#confirmacion_eliminacion_detalle_{{detalle_solicitud["id"]}}"><i class="fas fa-minus-circle mr-1"></i>Eliminar</button>
 															{% elif detalle_solicitud["estado"] == 1 %}
 																<button type="button" class="btn btn-sm btn-danger mr-1" data-toggle="modal" data-target="#confirmacion_cancelacion_solicitud_{{detalle_solicitud["id"]}}"><i class="fas fa-times-circle mr-1"></i>Cancelar solicitud</button>
-																<button type="button" class="btn btn-sm btn-info mr-1" data-toggle="modal" data-target="#formulario_retiro_equipo_{{detalle_solicitud["id"]}}"><i class="fas fa-clipboard-check mr-1"></i>Marcar como entregado</button>
+																{% if not usuario_sancionado %}
+																	<button type="button" class="btn btn-sm btn-info mr-1" data-toggle="modal" data-target="#formulario_retiro_equipo_{{detalle_solicitud["id"]}}"><i class="fas fa-clipboard-check mr-1"></i>Marcar como entregado</button>
+																{% endif %}
 															{% elif detalle_solicitud["estado"] == 2 or detalle_solicitud["estado"] == 3 %}
 																<button type="button" class="btn btn-sm btn-info mr-1" data-toggle="modal" data-target="#confirmacion_devolucion_equipo_{{detalle_solicitud["id"]}}">Registrar devolución</button>
 															{% elif detalle_solicitud["estado"] == 4 %}
-																<button type="button" class="btn btn-sm btn-success mr-1"><i class="fas fa-check-circle mr-1"></i>Marcar como finalizada</button>
+																<a href="/finalizar_solicitud/{{detalle_solicitud["id"]}}">
+																	<button type="button" class="btn btn-sm btn-success mr-1"><i class="fas fa-check-circle mr-1"></i>Marcar como finalizada</button>
+																</a>
 															{% elif detalle_solicitud["estado"] == 5 or detalle_solicitud["estado"] == 6 or detalle_solicitud["estado"] == 7 %}
 																<button type="button" class="btn btn-sm btn-danger mr-1" data-toggle="modal" data-target="#confirmacion_eliminacion_solicitud_{{detalle_solicitud["id"]}}"><i class="fas fa-minus-circle mr-1"></i>Eliminar solicitud</button>
 															{% endif %}
@@ -346,6 +362,7 @@
 		{% if detalle_solicitud["estado"] == 0 %}
 			{% include "/vistas_gestion_solicitudes_prestamos/modals/modals_canasta/confirmacion_rechazo_canasta.html" %}
 			{% include "/vistas_gestion_solicitudes_prestamos/modals/modals_canasta/confirmacion_aprobacion_canasta.html" %}
+			{% include "/vistas_gestion_solicitudes_prestamos/modals/modals_canasta/eliminacion_detalle.html" %}
 		{% elif detalle_solicitud["estado"] == 1 %}
 			{% include "/vistas_gestion_solicitudes_prestamos/modals/modals_canasta/confirmacion_cancelacion_canasta.html" %}
 			{% include "/vistas_gestion_solicitudes_prestamos/modals/modals_canasta/formulario_retiro_equipo_canasta.html" %}

@@ -14,8 +14,8 @@
           <th>Marca</th>
           <th>Fecha inicio</th>
           <th>Fecha término</th>
-          <th>Fecha devolucion</th>
-          <th>Estado</th>
+          <th>Fecha de devolución</th>
+          <th class="text-center">Estado</th>
           {% if admin_inspeccionar_perfil == False%}
           <th>Opciones</th>
           {% endif %}
@@ -33,7 +33,7 @@
           <td>{{elemento.fecha_inicio if elemento.fecha_inicio}}</td>
           <td>{{elemento.fecha_termino if elemento.fecha_termino}}</td>
           <td>{{elemento.fecha_devolucion if elemento.fecha_devolucion}}</td>
-          <td>{{elemento.estado}}</td>
+          <td class="text-center"><span class="badge badge-secondary">{{elemento.estado}}</span></td>
 
 {% if admin_inspeccionar_perfil == False%}
 
@@ -54,7 +54,7 @@
             </form>
           </td>
   {% else %}
-          
+
           <td></td>
   {% endif %}
 

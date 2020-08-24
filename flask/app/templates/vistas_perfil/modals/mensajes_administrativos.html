@@ -9,7 +9,7 @@
       </div>
         <div class="modal-body">
           <p>Se han registrado los siguientes mensajes por parte del laboratorista o la coordinación del laboratorio.</p>
-					
+
 					<div class="table-responsive mt-2">
 						<div class="table-wrapper-scroll-y" style="position: relative;
 												max-height: 450px;
@@ -25,7 +25,11 @@
 												<p class="mb-1 mt-1">{{mensaje_administrativo["mensaje"]|nl2br}}</p>
 											{% endautoescape %}
 											<small class="text-muted">{{mensaje_administrativo["fecha_registro"]}} ({{mensaje_administrativo["timeago_mensaje"]}})</small>
-										</a>
+                      <br>
+                      {% if mensaje_administrativo["fecha_actualizacion"] %}
+                        <small class="text-muted">* Última modificación: {{mensaje_administrativo["timeago_ultima_actualizacion"]}}</small>
+                      {% endif %}
+                    </a>
 								{% endfor %}
 							</div>
 						</div>

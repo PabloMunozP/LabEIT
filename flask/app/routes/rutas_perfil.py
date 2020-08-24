@@ -197,8 +197,6 @@ def perfil():
         ids = get_id_from_list_of_dictionary(solicitudes) # Obtiene las id de las solicitudes
         solicitudes_equipos = consultar_equipos_por_id_solicitudes(ids) # Obtiene todas las solicitudes de los equipos por la ID
 
-
-
         return render_template(
             'vistas_perfil/perfil.html',
             solicitudes = solicitudes,
@@ -211,7 +209,9 @@ def perfil():
             lista_mensajes_administrativos = consultar_mensajes_administrativos(),
             sancionado = session["usuario"]["sancionado"],
             datos_wifi = consultar_red_wifi())
-
+      
+      
+      
 # ************Acciones de información de perfil****************
 @mod.route('/perfil/actualizar_informacion', methods = ['POST']) # ** Importante CONFIGURAR PERFIL** #
 def configurar_perfil():

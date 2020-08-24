@@ -74,6 +74,14 @@
 												</button>
 											</div>
 										{%endif%}
+										{% if msg == "usuario-sancionado"%}
+											<div class="alert alert-danger alert-dismissible fade show" role="alert">
+												<i class="fas fa-times-circle mr-2"></i>El usuario seleccionado se encuentra sancionado actualmente.
+												<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+												<span aria-hidden="true">&times;</span>
+												</button>
+											</div>
+										{%endif%}
 			            {%endfor%}
 			          {%endif%}
 			        {%endwith%}
@@ -102,6 +110,26 @@
                 </div>
             </div>
         </section>
+
+<script type="text/javascript">
+	$(document).ready(function() {
+			$('#tabla_solicitudes_por_revisar, #tabla_solicitudes_activas, #tabla_historial_solicitudes, #tabla_solicitudes_canastas').DataTable( {
+					"order": [[ 0, "desc" ]],
+					"language": {
+							"lengthMenu": "Mostrar _MENU_ registros por página",
+							"zeroRecords": "No se han encontrado registros.",
+							"info": "Mostrando página _PAGE_ de _PAGES_",
+							"infoEmpty": "Sin registros disponibles.",
+							"search":         "Buscar",
+							"paginate": {
+									"next":       "Siguiente",
+									"previous":   "Anterior"
+							},
+							"infoFiltered": "(filtrado de _MAX_ registros totales)"
+						}
+				} );
+		} );
+</script>
 
 
 	{% endblock %}

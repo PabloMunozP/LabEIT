@@ -6,22 +6,8 @@
 </div>
 
 {% if lista_solicitud_canasta %}
-<div class="row mt-2">
-	<div class="col-md-6">
-		<div class="input-group">
-		<div class="input-group-prepend">
-			<div class="input-group-text"><i class="fas fa-search"></i></div>
-		</div>
-		<input type="text" class="form-control" id="filtro_solicitudes_canasta" placeholder="Buscar por ID de solicitud, RUT, nombre, etc.">
-	</div>
-	</div>
-	<div class="col-md-6 my-auto text-right">
-	</div>
-</div>
-	<div class="table-responsive mt-2">
-		<div class="table-wrapper-scroll-y" style="position: relative;
-								max-height: 450px;
-								overflow:auto;">
+<div class="table-responsive mt-2">
+  <div class="table-wrapper-scroll-y" style="position: relative; overflow:auto;">
 			<table class="table" id="tabla_solicitudes_canastas">
 				<thead class="text-white" style="background:#4D4D4D;">
 					<tr>
@@ -59,14 +45,3 @@
 		<i class="fas fa-exclamation-triangle mr-2"></i>No se han encontrado solicitudes registradas en el sistema.
 	</div>
 {% endif %}
-
-
-<script type="text/javascript">
-	$(function() { // Filtro de historial de solicitudes
-	  $("#filtro_solicitudes_canasta").on("keyup", function() {
-	    var value = $(this).val().toLowerCase();
-	    $("#tabla_solicitudes_canastas > tbody > tr").filter(function() {      $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
-	    });
-	  });
-	});
-</script>
