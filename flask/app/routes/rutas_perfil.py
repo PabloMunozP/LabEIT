@@ -134,9 +134,23 @@ def consultar_mensajes_administrativos(): # Se obtienen los mensajes administrat
 
     for mensaje_administrativo in lista_mensajes_administrativos:
         mensaje_administrativo["timeago_mensaje"] = timeago.format(mensaje_administrativo["fecha_registro"], datetime.now(), 'es')
-        
+        if mensaje_administrativo["fecha_actualizacion"] is not None:
+            mensaje_administrativo["timeago_ultima_actualizacion"] = timeago.format(mensaje_administrativo["fecha_actualizacion"],datetime.now(),'es')
+ 
     return lista_mensajes_administrativos      
 
+
+def consultar_red_wifi():
+    # Se obtienen los datos de la red Wifi
+        sql_query = ("""
+            SELECT ssid,password
+            FROM Wifi
+        """)
+        cursor.execute(sql_query)
+        datos_wifi = cursor.fetchone()
+        return datos_wifi
+
+    
 # session['usuario']['rut']
 # ************ Perfil ***************************
 @mod.route('/gestion_usuarios/usuario/<string:rut_perfil>',  methods =['GET','POST']) # ** Importante PERFIL** #
@@ -182,7 +196,9 @@ def perfil():
         solicitudes = consultar_solicitudes(session['usuario']['rut']) # Consulta las solicitudes a partir del rut
         ids = get_id_from_list_of_dictionary(solicitudes) # Obtiene las id de las solicitudes
         solicitudes_equipos = consultar_equipos_por_id_solicitudes(ids) # Obtiene todas las solicitudes de los equipos por la ID
-        
+
+
+
         return render_template(
             'vistas_perfil/perfil.html',
             solicitudes = solicitudes,
@@ -193,8 +209,8 @@ def perfil():
             completar_info = validar_completar,
             admin_inspeccionar_perfil = False,
             lista_mensajes_administrativos = consultar_mensajes_administrativos(),
-            sancionado = session["usuario"]["sancionado"])
-
+            sancionado = session["usuario"]["sancionado"],
+            datos_wifi = consultar_red_wifi())
 
 # ************Acciones de información de perfil****************
 @mod.route('/perfil/actualizar_informacion', methods = ['POST']) # ** Importante CONFIGURAR PERFIL** #
