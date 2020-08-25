@@ -21,7 +21,7 @@
 				</thead>
 				<tbody>
 					{% for solicitud in lista_solicitud_canasta %}
-						<tr>
+						<tr style="background:#ECF0F1;">
 							<td>{{solicitud["id"]}}</td>
 							<td>{{solicitud["rut_alumno"]}}</td>
 							<td>{{solicitud["nombre_solicitante"]}}</td>
@@ -32,6 +32,11 @@
 									<a href="gestion_solicitudes_prestamos/canasta_solicitud/{{solicitud["id"]}}">
 										<button type="button" title="Ver detalle de canasta" class="btn btn-sm btn-secondary mr-1"><i class="fas fa-clipboard-list"></i></button>
 									</a>
+									{% if solicitud["cantidad_detalles"] == 0 %}
+									<form action="/eliminar_solicitud_canasta/{{solicitud["id"]}}" method="post">
+										<button type="submit" title="Eliminar solicitud" class="btn btn-sm btn-danger"><i class="fas fa-minus-circle"></i></button>
+									</form>
+									{% endif %}
 								</span>
 							</td>
 						</tr>
