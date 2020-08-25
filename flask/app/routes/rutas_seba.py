@@ -98,7 +98,7 @@ def iniciar_sesion():
     """
     cursor.execute(sql_query,(session["usuario"]["rut"],))
     sancion_usuario = cursor.fetchone()
- 
+
     if sancion_usuario is not None:
         session["usuario"]["sancionado"] = True
     else: # Si no se recibe nada de la consulta, no tiene sanciones
@@ -582,7 +582,7 @@ def rechazar_solicitud(id_detalle):
 
     archivo_html = archivo_html.replace("%razon_rechazo%",razon_rechazo)
 
-    enviar_correo_notificacion(archivo_html,datos_usuario["email"],"Rechazo de solicitud de préstamo",datos_usuario["email"])
+    enviar_correo_notificacion(archivo_html,datos_usuario["email"],"Rechazo de solicitud de préstamo [IDD:"+str(id_detalle)+"]",datos_usuario["email"])
 
     flash("solicitud-rechazada-correctamente")
     return redirect(redirect_url())
@@ -683,7 +683,7 @@ def aprobar_solicitud(id_detalle):
     fecha_revision_solicitud = str(fecha_revision_solicitud.date())+" "+str(fecha_revision_solicitud.hour)+":"+str(fecha_revision_solicitud.minute)
     archivo_html = archivo_html.replace("%fecha_revision_solicitud%",fecha_revision_solicitud)
 
-    enviar_correo_notificacion(archivo_html,datos_usuario["email"],"Aprobación de solicitud de préstamo",datos_usuario["email"])
+    enviar_correo_notificacion(archivo_html,datos_usuario["email"],"Aprobación de solicitud de préstamo [IDD:"+str(id_detalle)+"]",datos_usuario["email"])
 
     flash("solicitud-aprobada-correctamente")
     return redirect(redirect_url())
@@ -736,6 +736,18 @@ def eliminar_solicitud(id_detalle):
 
     flash("detalle-eliminado")
     return redirect(redirect_url())
+
+@mod.route("/eliminar_solicitud_canasta/<string:id_solicitud>",methods=["POST"])
+def eliminar_solicitud_canasta(id_solicitud):
+    # Permite eliminar un encabezado de solicitud según id_solicitud en caso de que queden 0 detalles
+    # asociados a la solicitud correspondiente
+    sql_query = """
+        DELETE FROM
+            Solicitud
+                WHERE id = %s
+    """
+    cursor.execute(sql_query,(id_solicitud,))
+    return redirect("/gestion_solicitudes_prestamos")
 
 @mod.route("/cancelar_solicitud/<string:id_detalle>",methods=["POST"])
 def cancelar_solicitud(id_detalle):
@@ -805,7 +817,7 @@ def cancelar_solicitud(id_detalle):
 
     archivo_html = archivo_html.replace("%razon_cancelacion%",razon_cancelacion)
 
-    enviar_correo_notificacion(archivo_html,datos_usuario["email"],"Cancelación de solicitud de préstamo",datos_usuario["email"])
+    enviar_correo_notificacion(archivo_html,datos_usuario["email"],"Cancelación de solicitud de préstamo [IDD:"+str(id_detalle)+"]",datos_usuario["email"])
 
     flash("solicitud-cancelada")
     return redirect(redirect_url())
@@ -886,7 +898,7 @@ def entregar_equipo(id_detalle):
     archivo_html = archivo_html.replace("%fecha_inicio_prestamo%",fecha_inicio_prestamo)
     archivo_html = archivo_html.replace("%fecha_termino_prestamo%",fecha_termino_prestamo)
 
-    enviar_correo_notificacion(archivo_html,datos_usuario["email"],"Comprobante de retiro de equipo",datos_usuario["email"])
+    enviar_correo_notificacion(archivo_html,datos_usuario["email"],"Comprobante de retiro de equipo [IDD:"+str(id_detalle)+"]",datos_usuario["email"])
 
     flash("retiro-correcto")
     return redirect(redirect_url())
@@ -979,7 +991,7 @@ def devolucion_equipo(id_detalle):
     archivo_html = archivo_html.replace("%codigo_sufijo%",datos_generales_solicitud["codigo_sufijo_equipo"])
     archivo_html = archivo_html.replace("%fecha_devolucion_equipo%",str(fecha_devolucion_equipo))
 
-    enviar_correo_notificacion(archivo_html,datos_usuario["email"],"Comprobante de devolución de equipo",datos_usuario["email"])
+    enviar_correo_notificacion(archivo_html,datos_usuario["email"],"Comprobante de devolución de equipo [IDD:"+str(id_detalle)+"]",datos_usuario["email"])
     flash("equipo-devuelto")
     return redirect(redirect_url())
 

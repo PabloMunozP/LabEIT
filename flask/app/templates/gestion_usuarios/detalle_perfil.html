@@ -1,5 +1,5 @@
 <section>
-    
+
         {% with msg = get_flashed_messages() %}
         <div class="col md-3">
         {% if msg == "Error" %}
@@ -14,7 +14,7 @@
             {%elif msg == "cambio-realizado"%}
             <p>Hola, prueba cambio </p>
             <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                <i class="fas fa-times-circle mr-2"></i>Se cambio la sancion. 
+                <i class="fas fa-times-circle mr-2"></i>Se cambio la sancion.
                 <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                  <span aria-hidden="true">&times;</span>
                 </button>
@@ -29,28 +29,27 @@
         <p> Correo: {{usuario['correo']}} </p>
         <table>
             <tr>
-                <th rowspan="1">Rut: </th> 
+                <th rowspan="1">Rut: </th>
                 <td>{{usuario['rut']}}</td>
             </tr>
             <tr>
-                <th rowspan="3">Direccion: </th> 
+                <th rowspan="3">Direccion: </th>
                 <td>{{usuario['direccion']}}, {{usuario['comuna']}}, {{usuario['region']}}.</td>
             </tr>
         </table>
         <hr>
         {%if sancion %}
-            <p>Sancionado desde el {{sancion['fecha_registro'].day}}/{{sancion['fecha_registro'].month}}/{{sancion['fecha_registro'].year}} <br> 
+            <p>Sancionado desde el {{sancion['fecha_registro'].day}}/{{sancion['fecha_registro'].month}}/{{sancion['fecha_registro'].year}} <br>
             durante <strong> {{sancion['cantidad_dias']}} </strong> dias mas.
             {%if sancion['activa']== 1 %}
             <br> Debe equipos.
             {%endif%}
             </p>
-            
+
             <button type="button" title="Modificar Sancion" data-target="#sancion_{{usuario['rut']}}" class="btn btn-sm btn-secondary" data-toggle="modal">Editar Sancion</button>
-            {%include '/pablo/modificar_sancion.html'%}
+            {%include '/gestion_usuarios/modificar_sancion.html'%}
         {%endif%}
-        
+
     </div>
 </div>
 </section>
-   

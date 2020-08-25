@@ -103,22 +103,29 @@
 				</div>
 			</div>
 		</div>
+
+		{% else %}
+			<div class="alert alert-warning alert-dismissible fade show text-center mt-2" role="alert">
+				<i class="fas fa-exclamation-triangle mr-2"></i>Actualmente tu carro de pedidos se encuentra vacío.
+			</div>
+		{% endif %}
+
 	</div>
 
-			<div class="card-header text-right mt-1">
+			<div id="seccion-botones-carro-pedidos" hidden class="card-header text-right mt-1">
 				<button type="button" id="boton-vaciar-carro" onclick="vaciar_carro()" class="btn my-auto btn-danger"><i class="fas fa-trash-alt mr-2"></i>Vaciar carro</button>
 				<button type="button" class="btn my-auto btn-success" data-toggle="modal" data-target="#confirmacion_pedido"><i class="fas fa-clipboard-check mr-2"></i>Confirmar pedido</button>
 			</div>
 
-			{% else %}
-				<div class="alert alert-warning alert-dismissible fade show text-center mt-2" role="alert">
-					<i class="fas fa-exclamation-triangle mr-2"></i>Actualmente tu carro de pedidos se encuentra vacío.
-				</div>
-			{% endif %}
-
 	<script type="text/javascript">
 
 		$(document).ready( () =>{
+
+				var lista_carro_pedidos = {{lista_carro|tojson}};
+				if(lista_carro_pedidos.length){
+					$("#seccion-botones-carro-pedidos").prop("hidden",false);
+				}
+
 				// AJAX para agregar pedido al carro de pedidos
 				$(".formulario-agregar-equipo-carro").on("submit",function(event){
 						var elements = this.elements; // Elementos HTML del form
@@ -142,6 +149,8 @@
 							 $("#carro_pedidos").html(data);
 								 // Se activa el botón submit
 							 $(".submit-agregar-pedido").prop('disabled', false);
+
+							 $("#seccion-botones-carro-pedidos").prop("hidden",false);
 						 });
 						event.preventDefault();
 				});
@@ -179,6 +188,11 @@
 				 $("#carro_pedidos").html(data);
 					 // Se activa el botón submit
 				 $(".boton-eliminar-pedido-carro").prop('disabled', false);
+
+				 if($('#tabla_carro_pedidos').find('tr').length == 0){
+					 $("#seccion-botones-carro-pedidos").prop("hidden",true);
+				 }
+
 			 });
 			event.preventDefault();
 		}
@@ -196,6 +210,7 @@
 				 $("#carro_pedidos").html(data);
 					 // Se activa el botón submit
 				 $("#boton-vaciar-carro").prop('disabled', false);
+				 $("#seccion-botones-carro-pedidos").prop("hidden",true);
 			 });
 			event.preventDefault();
 		}
