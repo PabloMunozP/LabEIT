@@ -12,7 +12,7 @@ from email.mime.base import MIMEBase
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
-def enviar_correo_notificacion(archivo,str_para,str_asunto,correo_usuario): # Envío de correo (notificaciones de solicitudes de préstamo)
+def enviar_correo_notificacion(archivo,str_para,str_asunto,correo_usuario): # Envío de notificaciones vía correo electrónico
     # Se crea el mensaje
     correo = MIMEText(archivo,"html")
     correo.set_charset("utf-8")
@@ -84,14 +84,19 @@ def eliminar_detalles_vencidos():
 def revisar_solicitudes_atrasadas():
     fecha_actual = datetime.now().replace(microsecond=0)
     sql_query = """
-        SELECT Detalle_solicitud.*,Solicitud.rut_alumno
-            FROM Detalle_solicitud,Solicitud
+        SELECT Detalle_solicitud.*,Solicitud.rut_alumno,Usuario.email AS email_usuario,CONCAT(Usuario.nombres,' ',Usuario.apellidos) AS nombre_usuario
+            FROM Detalle_solicitud,Solicitud,Usuario
                 WHERE Detalle_solicitud.id_solicitud = Solicitud.id
+                AND Solicitud.rut_alumno = Usuario.rut
                 AND (Detalle_solicitud.estado = 2 OR Detalle_solicitud.estado = 3)
                 AND datediff(Detalle_solicitud.fecha_termino,%s) <= 0
     """
     cursor.execute(sql_query,(fecha_actual,))
     lista_detalles_con_atraso = cursor.fetchall()
+
+    # Diccionario para almacenar personas que recibirán correo por sanción nueva
+    # La llave corresponde al RUT y se almacena una tupla (nombre_usuario,email_usuario) para posteriormente enviar los correos
+    usuarios_sancionados = {}
 
     for detalle_solicitud in lista_detalles_con_atraso:
         # Se verifica si se encuentra registrada una sanción
@@ -115,9 +120,6 @@ def revisar_solicitudes_atrasadas():
             """
             cursor.execute(sql_query,(fecha_actual,sancion["id"]))
         else:
-            # [!] Falta verificar cuando se está descontando tiempo de una inactiva
-            # Se verifica si existe alguna sanción inactiva (activa=0) con tiempo de multa restante
-
             sql_query = """
                 SELECT id,cantidad_dias
                     FROM Sanciones
@@ -146,6 +148,10 @@ def revisar_solicitudes_atrasadas():
             """
             cursor.execute(sql_query,(detalle_solicitud["rut_alumno"],cantidad_dias,fecha_actual,fecha_actual))
 
+            # En caso de que no se haya agregado el usuario al diccionario de sancionados, se agrega
+            if detalle_solicitud["rut_alumno"] not in usuarios_sancionados.keys():
+                usuarios_sancionados[detalle_solicitud["rut_alumno"]] = (detalle_solicitud["nombre_usuario"],detalle_solicitud["email_usuario"])
+
         # Se modifica el estado de la sanción, en caso de que esté 'en posesión'
         if detalle_solicitud["estado"] == 2:
             sql_query = """
@@ -163,6 +169,17 @@ def revisar_solicitudes_atrasadas():
                         WHERE id = %s
             """
             cursor.execute(sql_query,(detalle_solicitud["id"],))
+
+    # Se envían los correos a los usuarios que han recibido una nueva sanción
+    for rut_usuario in usuarios_sancionados.keys():
+        direccion_template = os.path.normpath(os.path.join(os.getcwd(), "app/templates/vistas_gestion_solicitudes_prestamos/templates_mail/notificacion_sancion.html"))
+        archivo_html = open(direccion_template,encoding="utf-8").read()
+
+        # Se reemplazan los datos correspondientes en el archivo html
+        nombre_usuario = usuarios_sancionados[rut_usuario][0]
+        correo_usuario = usuarios_sancionados[rut_usuario][1]
+        archivo_html = archivo_html.replace("%nombre_usuario%",str(nombre_usuario))
+        enviar_correo_notificacion(archivo_html,str(correo_usuario),"[LabEIT] Notificación de sanción",correo_usuario)
 
 def descontar_dias_sanciones():
     # Se descuentan los días de sanción de las sanciones inactivas
@@ -273,7 +290,6 @@ def formato_rut(rut_entrada):
 def make_session_permanent():
     session.permanent = True
     app.permanent_session_lifetime = timedelta(minutes=60)
-
 
 @app.after_request
 def add_header(response):

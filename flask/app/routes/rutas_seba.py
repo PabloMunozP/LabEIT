@@ -1,5 +1,5 @@
 from flask import Flask,Blueprint,render_template,request,redirect,url_for,flash,session,jsonify,send_file
-from config import db,cursor
+from config import db,cursor,BASE_DIR
 import os,time,bcrypt,random,timeago
 import smtplib
 from email import encoders
@@ -582,7 +582,7 @@ def rechazar_solicitud(id_detalle):
 
     archivo_html = archivo_html.replace("%razon_rechazo%",razon_rechazo)
 
-    enviar_correo_notificacion(archivo_html,datos_usuario["email"],"Rechazo de solicitud de préstamo [IDD:"+str(id_detalle)+"]",datos_usuario["email"])
+    enviar_correo_notificacion(archivo_html,datos_usuario["email"],"[LabEIT] Rechazo de solicitud de préstamo [IDD:"+str(id_detalle)+"]",datos_usuario["email"])
 
     flash("solicitud-rechazada-correctamente")
     return redirect(redirect_url())
@@ -593,8 +593,6 @@ def aprobar_solicitud(id_detalle):
         return redirect("/")
     if session["usuario"]["id_credencial"] != 3: # El usuario debe ser un administrador (Credencial = 3)
         return redirect("/")
-
-    fecha_revision_solicitud = datetime.now()
 
     datos_formulario = request.form.to_dict()
 
@@ -680,10 +678,10 @@ def aprobar_solicitud(id_detalle):
     fecha_vencimiento = datetime.strptime(datos_formulario["fecha_vencimiento_solicitud"],"%Y-%m-%d %H:%M:%S").strftime("%d-%m-%Y %H:%M:%S")
     archivo_html = archivo_html.replace("%fecha_vencimiento_solicitud%",str(fecha_vencimiento))
 
-    fecha_revision_solicitud = str(fecha_revision_solicitud.date())+" "+str(fecha_revision_solicitud.hour)+":"+str(fecha_revision_solicitud.minute)
+    fecha_revision_solicitud = str(datetime.now().replace(microsecond=0))
     archivo_html = archivo_html.replace("%fecha_revision_solicitud%",fecha_revision_solicitud)
 
-    enviar_correo_notificacion(archivo_html,datos_usuario["email"],"Aprobación de solicitud de préstamo [IDD:"+str(id_detalle)+"]",datos_usuario["email"])
+    enviar_correo_notificacion(archivo_html,datos_usuario["email"],"[LabEIT] Aprobación de solicitud de préstamo [IDD:"+str(id_detalle)+"]",datos_usuario["email"])
 
     flash("solicitud-aprobada-correctamente")
     return redirect(redirect_url())
@@ -817,7 +815,7 @@ def cancelar_solicitud(id_detalle):
 
     archivo_html = archivo_html.replace("%razon_cancelacion%",razon_cancelacion)
 
-    enviar_correo_notificacion(archivo_html,datos_usuario["email"],"Cancelación de solicitud de préstamo [IDD:"+str(id_detalle)+"]",datos_usuario["email"])
+    enviar_correo_notificacion(archivo_html,datos_usuario["email"],"[LabEIT] Cancelación de solicitud de préstamo [IDD:"+str(id_detalle)+"]",datos_usuario["email"])
 
     flash("solicitud-cancelada")
     return redirect(redirect_url())
@@ -898,7 +896,7 @@ def entregar_equipo(id_detalle):
     archivo_html = archivo_html.replace("%fecha_inicio_prestamo%",fecha_inicio_prestamo)
     archivo_html = archivo_html.replace("%fecha_termino_prestamo%",fecha_termino_prestamo)
 
-    enviar_correo_notificacion(archivo_html,datos_usuario["email"],"Comprobante de retiro de equipo [IDD:"+str(id_detalle)+"]",datos_usuario["email"])
+    enviar_correo_notificacion(archivo_html,datos_usuario["email"],"[LabEIT] Comprobante de retiro de equipo [IDD:"+str(id_detalle)+"]",datos_usuario["email"])
 
     flash("retiro-correcto")
     return redirect(redirect_url())
@@ -991,7 +989,7 @@ def devolucion_equipo(id_detalle):
     archivo_html = archivo_html.replace("%codigo_sufijo%",datos_generales_solicitud["codigo_sufijo_equipo"])
     archivo_html = archivo_html.replace("%fecha_devolucion_equipo%",str(fecha_devolucion_equipo))
 
-    enviar_correo_notificacion(archivo_html,datos_usuario["email"],"Comprobante de devolución de equipo [IDD:"+str(id_detalle)+"]",datos_usuario["email"])
+    enviar_correo_notificacion(archivo_html,datos_usuario["email"],"[LabEIT] Comprobante de devolución de equipo [IDD:"+str(id_detalle)+"]",datos_usuario["email"])
     flash("equipo-devuelto")
     return redirect(redirect_url())
 
@@ -1157,7 +1155,7 @@ def exportar_solicitudes(id_exportacion):
         length = max(len(str(cell.value)) for cell in column_cells)
         ws.column_dimensions[column_cells[0].column_letter].width = length
 
-    direccion_archivo = os.path.normpath(os.path.join(os.getcwd(), "app/static/files/"+nombre_archivo))
+    direccion_archivo = os.path.normpath(os.path.join(BASE_DIR, "app/static/files/exportaciones/"+nombre_archivo))
     wb.save(direccion_archivo)
 
     return send_file(direccion_archivo,as_attachment=True)
@@ -1660,3 +1658,11 @@ def modificar_mensaje_administrativo(id_mensaje):
 
     flash("mensaje-modificado")
     return redirect(redirect_url())
+
+@mod.route("/reglamento_interno_labeit",methods=["GET"])
+def descargar_reglamento_interno():
+    if "usuario" not in session.keys():
+        return redirect("/")
+
+    ruta_reglamento_labeit = os.path.normpath(os.path.join(BASE_DIR,"app/static/files/reglamentos/reglamento_labeit.pdf"))
+    return send_file(ruta_reglamento_labeit,as_attachment=True)
