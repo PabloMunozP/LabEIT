@@ -32,16 +32,16 @@
               <td>{{elemento.fecha_compra}}</td>
               <td>
                 {% if elemento.estado == 'No disponible' %}
-                  <span class="badge badge-warning">No disponible</span>
+                  <span class="badge badge-danger">No disponible</span>
                 {% elif elemento.estado == 'Disponible' %}
-                  <span class="badge badge-primary">Disponible</span>
+                  <span class="badge badge-success">Disponible</span>
                 {% elif elemento.estado == 'Por retirar' %}
-                  <span class="badge badge-info">Por retirar</span>
+                  <span class="badge badge-secondary">Por retirar</span>
                 {% elif elemento.estado == 'En posesión' %}
-                  <span class="badge badge-success">En posesión</span>
+                  <span class="badge badge-info">En posesión</span>
                 {% elif elemento.estado == 'Con atraso' %}
-                  <span class="badge badge-danger">Con atraso</span>
-                {% else %} 
+                  <span class="badge badge-warning">Con atraso</span>
+                {% else %}
                   <span>Inesperado</span>
                 {% endif %}
               </td>
@@ -49,7 +49,7 @@
                   <span class="btn-group">
                     <button type="button" onclick="cargar_datos_equipo_dif_modal('{{elemento.codigo_equipo}}','{{elemento.codigo_sufijo}}', '{{elemento.fecha_compra}}', '{{elemento.activo}}','{{elemento.codigo_activo}}' , '{{elemento.razon_inactivo}}')" data-target="#editar_equipo_similar" title="Editar equipo" class="btn btn-sm btn-warning mr-1" data-toggle="modal"><i class="fas fa-edit"></i></button>
                     <button type="button" onclick="cargar_codigo_delete_equipo_diferenciado_modal('{{elemento.codigo_equipo}}','{{elemento.codigo_sufijo}}')" title="Eliminar equipo"  data-target="#eliminar_equipo_similar" data-toggle="modal" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
-                  
+
                   </span>
               </td>
             </tr>
@@ -58,5 +58,3 @@
     </table>
   </div>
 </div>
-
-

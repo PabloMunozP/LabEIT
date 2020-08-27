@@ -16,7 +16,6 @@ mod = Blueprint("rutas_nico",__name__)
 
 # ***** Importante VISTA PRINCIPAL GESTION INVENTARIO **** #
 
-
 # Consulta una lista con los equipos
 # Es usada en la vista general de todos los equipos
 def consultar_lista_equipos_general():
@@ -75,13 +74,6 @@ def consultar_lista_equipos(): # funcion para poder conusultar toda la lista de 
     cursor.execute(query)
     resultado = cursor.fetchall()
     return resultado
-@mod.route("/debug_query")
-def debug_query():
-    debug_equipos = consultar_lista_equipos()
-    for i in debug_equipos:
-        print(i)
-    return 'xD'
-
 
 @mod.route("/gestion_inventario_admin")
 def gestion_inventario_admin():
@@ -131,11 +123,10 @@ def funcion_añadir_equipo_form():
         equipos = consultar_lista_equipos_general()
         for val in equipos:
             if (val["codigo"]==informacion_a_insertar["codigo"]):
-                print("el codigo",informacion_a_insertar["codigo"] ,"ya existe")
+                flash("equipo-existente")
                 return redirect('/gestion_inventario_admin')
-        print("el codigo",informacion_a_insertar["codigo"] ,"no existe")
         insertar_lista_equipos_general(informacion_a_insertar)
-        flash("El equipo fue agregado correctamente")
+        flash("equipo-agregado")
         equipos = consultar_lista_equipos_general()
         return redirect('/gestion_inventario_admin')
 
@@ -203,9 +194,7 @@ def editar_equipo_especifico(informacion_a_actualizar):
 def funcion_editar_equipo_diferenciado_form():
     if request.method == 'POST':
         informacion_a_actualizar = request.form.to_dict()
-        print('Información a actualizar:', informacion_a_actualizar)
         equipos = consultar_lista_equipos_detalle(informacion_a_actualizar["codigo_equipo"])
-        print(informacion_a_actualizar["codigo_sufijo"])
         for val in equipos:
             if (val["codigo_sufijo"]==informacion_a_actualizar["codigo_sufijo"]):
                     print("codigo ya existe")
@@ -223,11 +212,11 @@ def funcion_editar_equipo():
         equipos = consultar_lista_equipos_general()
         for val in equipos:
             if (val["codigo"]==informacion_a_actualizar["codigo"]):
-                    print("codigo ya existe")
+                    flash("codigo-equipo-existente")
                     return redirect('/gestion_inventario_admin')
-        print("codigo no existe")
-        # print('Información a actualizar:', informacion_a_actualizar)
+
         editar_equipo_general(informacion_a_actualizar)
+        flash("equipo-editado")
         return redirect("/gestion_inventario_admin")
 
 # **** VISTA_PRINCIPAL/MODAL "BORRAR EQUIPO" **** #
@@ -250,7 +239,7 @@ def funcion_eliminar_equipo():
     if request.method == 'POST':
         equipo_a_eliminar = request.form.to_dict()
         eliminar_equipo_general(equipo_a_eliminar)
-        #dejar comentario en flash
+        flash("equipo-eliminado")
         return redirect("/gestion_inventario_admin")
 
 
