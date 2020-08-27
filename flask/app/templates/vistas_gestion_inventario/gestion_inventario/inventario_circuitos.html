@@ -18,8 +18,11 @@
       <thead class="text-white" style="background:#4D4D4D;">
           <tr>
               <th scope="col">Nombre</th>
-              <th scope="col">Cantidad</th>
               <th scope="col">Descripción</th>
+              <th scope="col">Cantidad</th>
+              <th scope="col">Prestados</th>
+              <th scope="col">Días de prestamo</th>
+              <th scope="col">Días para renovar</th>
               <th scope="col">Acciones</th>
           </tr>
       </thead>
@@ -27,11 +30,14 @@
           {% for elemento in lista_circuitos %}
           <tr style="background:#ECF0F1;">
               <td>{{elemento.nombre}}</td>
-              <td>{{elemento.cantidad}}</td>
               <td>{{elemento.descripcion}}</td>
+              <td>{{elemento.cantidad}}</td>
+              <td>{{elemento.prestados}}</td>
+              <td>{{elemento.dias_max_prestamo}}</td>
+              <td>{{elemento.dias_renovacion}}</td>
               <td>
                   <span class="btn-group">
-                    <button type="button" onclick="cargar_datos_equipo_circuito('{{elemento.nombre}}','{{elemento.cantidad}}', '{{elemento.descripcion}}')" data-target="#editar_circuito" title="Editar equipo" class="btn btn-sm btn-warning mr-1" data-toggle="modal"><i class="fas fa-edit"></i></button>
+                    <button type="button" onclick="cargar_datos_equipo_circuito('{{elemento.nombre}}','{{elemento.cantidad}}', '{{elemento.descripcion}}', '{{elemento.dias_max_prestamo}}', '{{elemento.dias_renovacion}}')" data-target="#editar_circuito" title="Editar equipo" class="btn btn-sm btn-warning mr-1" data-toggle="modal"><i class="fas fa-edit"></i></button>
                     <button type="button" onclick="cargar_codigo_delete_circuito('{{elemento.nombre}}','{{elemento.descripcion}}')" title="Eliminar equipo"  data-target="#eliminar_circuito" data-toggle="modal" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
                   </span>
               </td>

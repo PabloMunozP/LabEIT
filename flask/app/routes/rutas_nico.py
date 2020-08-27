@@ -35,6 +35,7 @@ def consultar_lista_equipos_general():
                 Equipo.marca,
                 Equipo.descripcion,
                 Equipo.dias_max_prestamo,
+                Equipo.dias_renovacion,
                 Equipo.imagen,
                 COUNT(CASE WHEN Equipo_diferenciado.activo = 1 THEN 1 ELSE NULL END) AS disponibles,
                 COUNT(Equipo_diferenciado.activo) AS total_equipos
@@ -111,8 +112,8 @@ def gestion_inventario_admin():
 
 def insertar_lista_equipos_general(valores_a_insertar):
     query = ('''
-        INSERT INTO Equipo (codigo, nombre, modelo, marca, descripcion, imagen, dias_max_prestamo)
-        VALUES (%s, %s, %s, %s, %s, %s,%s);
+        INSERT INTO Equipo (codigo, nombre, modelo, marca, descripcion, imagen, dias_max_prestamo, dias_renovacion)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s);
     ''')
     cursor.execute(query,(
         valores_a_insertar['codigo'],
@@ -121,7 +122,8 @@ def insertar_lista_equipos_general(valores_a_insertar):
         valores_a_insertar['marca'],
         valores_a_insertar['descripcion'],
         valores_a_insertar['imagen'],
-        valores_a_insertar['dias_maximo_prestamo']))
+        valores_a_insertar['dias_maximo_prestamo'],
+        valores_a_insertar['dias_renovacion']))
     db.commit()
     return valores_a_insertar['codigo']
 
@@ -155,6 +157,7 @@ def editar_equipo_general(informacion_a_actualizar):  # Query UPDATE
                     Equipo.imagen = %s,
                     Equipo.descripcion = %s,
                     Equipo.dias_max_prestamo = %s,
+                    Equipo.dias_renovacion = %s
                 WHERE
                     Equipo.codigo = %s
 
@@ -168,6 +171,7 @@ def editar_equipo_general(informacion_a_actualizar):  # Query UPDATE
                 informacion_a_actualizar['imagen'],
                 informacion_a_actualizar['descripcion'],
                 informacion_a_actualizar['dias_max_prestamo'],
+                informacion_a_actualizar['dias_renovacion'],
                 informacion_a_actualizar['codigo_original']
                 ))
             db.commit()
@@ -422,13 +426,15 @@ def consultar_lista_circuito():
 #Consulta para insertar circuito
 def insertar_lista_circuitos(valores_a_insertar):
     query = ('''
-        INSERT INTO Circuito (nombre, cantidad, descripcion)
-        VALUES (%s, %s, %s);
+        INSERT INTO Circuito (nombre, cantidad, descripcion, dias_max_prestamo, dias_renovacion)
+        VALUES (%s, %s, %s, %s, %s);
     ''')
     cursor.execute(query,(
         valores_a_insertar['nombre_circuito'],
         valores_a_insertar['cantidad_circuito'],
-        valores_a_insertar['descripcion_circuito']))
+        valores_a_insertar['descripcion_circuito'],
+        valores_a_insertar['dias_max_prestamo'],
+        valores_a_insertar['dias_renovacion']))
     db.commit()
     return 'OK'
 
@@ -447,7 +453,9 @@ def editar_circuito(informacion_a_actualizar):  # Query UPDATE
                 UPDATE Circuito
                 SET Circuito.nombre = %s,
                     Circuito.cantidad = %s,
-                    Circuito.descripcion = %s
+                    Circuito.descripcion = %s,
+                    Circuito.dias_max_prestamo= %s,
+                    Circuito.dias_renovacion= %s
                 WHERE Circuito.nombre= %s
                 AND Circuito.descripcion = %s
 
@@ -456,6 +464,8 @@ def editar_circuito(informacion_a_actualizar):  # Query UPDATE
                 informacion_a_actualizar['nombre_circuito'],
                 informacion_a_actualizar['cantidad_circuito'],
                 informacion_a_actualizar['descripcion_circuito'],
+                informacion_a_actualizar['dias_max_prestamo'],
+                informacion_a_actualizar['dias_renovacion'],
                 informacion_a_actualizar['nombre_circuito_original'],
                 informacion_a_actualizar['descripcion_circuito_original']
                 ))
@@ -523,30 +533,47 @@ def modificar_wifi():
 
 def editar_datos_wifi(informacion_a_actualizar):  # Query UPDATE
             query = ('''
-                UPDATE Wifi
-                SET Wifi.ssid = %s,
-                    Wifi.bssid = %s,
-                    Wifi.password = %s
-                WHERE Wifi.ssid = %s
-                AND Wifi.bssid = %s
-
-            ''')
-            cursor.execute(query,(
+                SELECT *
+                FROM Wifi
+            '''
+            )
+            cursor.execute(query)
+            wifi = cursor.fetchone()
+            if wifi is None:
+                query = ('''
+                    INSERT INTO Wifi (ssid, bssid, password)
+                    VALUES (%s, %s, %s);
+                    ''')
+                cursor.execute(query,(
+                    informacion_a_actualizar['ssid'],
+                    informacion_a_actualizar['bssid'],
+                    informacion_a_actualizar['contraseña']))
+                db.commit()
+                return "OK"
+            else:
+                query = ('''
+                    UPDATE Wifi
+                    SET Wifi.ssid = %s,
+                        Wifi.bssid = %s,
+                        Wifi.password = %s
+                        WHERE Wifi.ssid = %s
+                        AND Wifi.bssid = %s
+                        ''')
+                cursor.execute(query,(
                 informacion_a_actualizar['ssid'],
                 informacion_a_actualizar['bssid'],
                 informacion_a_actualizar['contraseña'],
                 informacion_a_actualizar['ssid_original'],
                 informacion_a_actualizar['bssid_original']
                 ))
-            db.commit()
-            return informacion_a_actualizar
+                db.commit()
+                return "OK"
 
 @mod.route('/modificar_wifi/actualizar', methods = ['POST'])
 def funcion_editar_wifi():
     if request.method == 'POST':
         informacion_a_actualizar = request.form.to_dict()
         editar_datos_wifi(informacion_a_actualizar)
-        print(informacion_a_actualizar)
         return redirect("/modificar_wifi")
 
 @mod.route('/download_test')
