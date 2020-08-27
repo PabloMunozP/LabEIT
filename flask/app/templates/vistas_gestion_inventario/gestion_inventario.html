@@ -3,6 +3,46 @@
 
 <br>
 <div class="container-fluid">
+
+  {% with msgs = get_flashed_messages() %}
+    {% if msgs %}
+      {% for msg in msgs %}
+      {% if msg == "equipo-agregado" %}
+      <div class="alert alert-success alert-dismissible fade show" role="alert">
+          <i class="fas fa-check-circle mr-2"></i>El equipo ha sido registrado correctamente.
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+          </button>
+      </div>
+      {% endif %}
+      {% if msg == "equipo-eliminado" %}
+      <div class="alert alert-success alert-dismissible fade show" role="alert">
+          <i class="fas fa-check-circle mr-2"></i>El equipo ha sido eliminado correctamente.
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+          </button>
+      </div>
+      {% endif %}
+      {% if msg == "equipo-editado" %}
+      <div class="alert alert-success alert-dismissible fade show" role="alert">
+          <i class="fas fa-check-circle mr-2"></i>La información del equipo se ha modificado correctamente.
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+          </button>
+      </div>
+      {% endif %}
+      {% if msg == "equipo-existente" or msg == "codigo-equipo-existente" %}
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+          <i class="fas fa-times-circle mr-2"></i>El código de equipo ingresado ya se encuentra registrado.
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+      {%endif%}
+      {%endfor%}
+    {%endif%}
+  {%endwith%}
+
     <nav>
         <ul class="nav nav-tabs" id="myTab" role="tablist">
             <li class="nav-item"><a class="nav-link active" id="tab_inventario_general" data-toggle="tab" href="#inventario_general" role="tab" aria-controls="home" aria-selected="true">Inventario general</a></li>
