@@ -55,3 +55,9 @@ def agregar_al_carro_circuito():
 
     # return render_template("/solicitudes_prestamos/seccion_carro_pedidos.html",
     #     lista_carro=lista_carro)
+    
+@mod.route("/confirmar_al_carro_circuito",methods=['POST'])
+def confirmar_carro_circuito():
+    for i in session["carro_pedidos_circuito"]:
+        print(i)
+    return 'xD'
