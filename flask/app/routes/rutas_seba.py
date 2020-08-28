@@ -286,6 +286,8 @@ def cerrar_sesion():
     # Se elimina el carro de pedidos en caso de existir
     if "carro_pedidos" in session.keys():
         del session["carro_pedidos"]
+    if "carro_pedidos_circuito" in session.keys():
+        del session["carro_pedidos_circuito"]
 
     # Se redirecciona al login una vez eliminada la sesión de usuario
     return redirect("/")

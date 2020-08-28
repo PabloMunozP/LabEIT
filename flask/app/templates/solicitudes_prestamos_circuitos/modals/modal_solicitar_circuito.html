@@ -1,0 +1,88 @@
+<div class="modal fade" id="modal_info_circuito" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-modal="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header bg-gris-eit">
+          <h5 class="modal-title text-white"><i class="fas fa-file-invoice mr-2"></i>Información detallada del componente</h5>
+          <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close" style="outline:none;">
+            <span aria-hidden="true">×</span>
+          </button>
+      </div>
+
+      <form id="formulario-agregar-equipo-carro-circuito" method="POST" action="/agregar_al_carro_circuito">
+        <input type="hidden" name="id_circuito" id="id_circuito">
+        <div class="modal-body">
+          <div class="form-group row">
+            <label class="col-md-2 col-form-label"><strong>Nombre:</strong></label>
+              <div class="col-md-4">
+                <p class="form-control-plaintext text-break" id="modal_circuito_nombre"></p>
+              </div>
+        </div>
+  
+                      <div class="form-group row">
+                      <label class="col-md-4 col-form-label"><strong>Días de préstamo establecidos:</strong></label>
+                      <div class="col-md-2">
+                              <p class="form-control-plaintext text-break" id="modal_circuito_dias_prestamo"></p>
+                      </div>
+  
+                          <label class="col-md-4 col-form-label"><strong>Cantidad de unidades:</strong></label>
+                      <div class="col-md-2">
+                              <p class="form-control-plaintext text-break" id="modal_circuito_unidades"></p>
+                      </div>
+                    </div>
+  
+                      
+                      <div class="form-group row">
+                      <label class="col-md-2 col-form-label"><strong>Descripción:</strong></label>
+                    </div>
+                          <div class="form-group row">
+                              <div class="col-md-8">
+                                  <p class="text-justify" id="modal_circuito_descripcion"></p>
+                              </div>
+                
+                  <div class="col-md-4">
+                    <!-- <img style="max-width:80%;" class="img-fluid" src="https://i.blogs.es/b44a52/samsung-20galaxy-20s4/200_200.jpg"> -->
+                  </div>
+                
+                          </div>
+                      
+  
+                      <hr>
+  
+                      <div class="form-group row">
+                      <label class="col-md-8 col-form-label"><i class="fas fa-info-circle mr-2"></i>Selecciona la cantidad de unidades que deseas pedir:</label>
+  
+                          <div class="col-md-4">
+                              <input type="number" min="1" max="5" class="form-control" value="1" name="cantidad_unidades_solicitadas" id="cantidad_unidades_solicitadas">
+                          </div>
+                    </div>
+  
+  
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary waves-effect waves-light" data-dismiss="modal">Cerrar</button>
+            <button type="submit" class="btn btn-success submit-agregar-pedido-circuito waves-effect waves-light"><i class="fas fa-cart-plus mr-2"></i>Agregar al carro</button>
+          </div>
+      </form>
+    </div>
+  </div>
+</div>
+  
+  <script type="text/javascript">
+      function cargar_info_modal_circuito(id_circuito, nombre, dias, unidades, descripcion){
+        document.getElementById("id_circuito").value = id_circuito;
+        document.getElementById("modal_circuito_nombre").textContent = nombre;
+        document.getElementById("modal_circuito_dias_prestamo").textContent = dias;
+        document.getElementById("modal_circuito_unidades").textContent = unidades;
+        document.getElementById("modal_circuito_descripcion").textContent = descripcion;
+        $("#modal_info_circuito").modal("show");
+      }
+      
+
+      $(document).ready( () =>{
+
+      })
+      
+
+
+
+  </script>
