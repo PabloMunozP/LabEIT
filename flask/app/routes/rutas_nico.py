@@ -208,14 +208,15 @@ def editar_equipo_especifico(informacion_a_actualizar):
 def funcion_editar_equipo_diferenciado_form():
     if request.method == 'POST':
         informacion_a_actualizar = request.form.to_dict()
-        print('Información a actualizar:', informacion_a_actualizar)
         equipos = consultar_lista_equipos_detalle(informacion_a_actualizar["codigo_equipo"])
-        print(informacion_a_actualizar["codigo_sufijo"])
+        if(informacion_a_actualizar["codigo_sufijo_original"]==informacion_a_actualizar["codigo_sufijo"]):
+            print("codigo sin modificar")
+            editar_equipo_especifico(informacion_a_actualizar)
         for val in equipos:
             if (val["codigo_sufijo"]==informacion_a_actualizar["codigo_sufijo"]):
                     print("codigo ya existe")
                     return redirect("/gestion_inventario_admin/lista_equipo_diferenciado/"+informacion_a_actualizar["codigo_equipo"])
-        print("codigo no existe")
+        print("codigo cambiado con exito")
         editar_equipo_especifico(informacion_a_actualizar)
         return redirect("/gestion_inventario_admin/lista_equipo_diferenciado/"+informacion_a_actualizar["codigo_equipo"])
 
@@ -226,12 +227,16 @@ def funcion_editar_equipo():
     if request.method == 'POST':
         informacion_a_actualizar = request.form.to_dict()
         equipos = consultar_lista_equipos_general()
+        if (informacion_a_actualizar["codigo"]==informacion_a_actualizar["codigo_original"]):
+            print("codigo sin modificar")
+            editar_equipo_general(informacion_a_actualizar)
+            return redirect("/gestion_inventario_admin")
         for val in equipos:
             if (val["codigo"]==informacion_a_actualizar["codigo"]):
                     print("codigo ya existe")
                     return redirect('/gestion_inventario_admin')
-        print("codigo no existe")
-        # print('Información a actualizar:', informacion_a_actualizar)
+
+        print("codigo cambiado con exito")
         editar_equipo_general(informacion_a_actualizar)
         return redirect("/gestion_inventario_admin")
 
@@ -254,8 +259,13 @@ def eliminar_equipo_general(equipo):
 def funcion_eliminar_equipo():
     if request.method == 'POST':
         equipo_a_eliminar = request.form.to_dict()
+        equipos = consultar_lista_equipos_detalle_estado(equipo_a_eliminar["codigo"])
+        for val in equipos:
+            if (val["estado"]!=5 or val["estado"]!=6 or val["estado"]!=7):
+                print("Existe una solicitud asociada a este equipo")
+                return redirect("/gestion_inventario_admin")
         eliminar_equipo_general(equipo_a_eliminar)
-        #dejar comentario en flash
+        flash("El equipo con código" + equipo_a_eliminar["codigo"] + "se a eliminado con exito")
         return redirect("/gestion_inventario_admin")
 
 
@@ -359,7 +369,6 @@ def detalle_info_equipo(codigo_equipo):
 def validar_form_añadir_equipo_espeficio(codigo_equipo):
     if request.method == 'POST':
         informacion_a_insertar = request.form.to_dict()
-        insertar_lista_equipos_detalle(codigo_equipo, informacion_a_insertar)
         equipos = consultar_lista_equipos_detalle(codigo_equipo)
         print(informacion_a_insertar["codigo_sufijo"])
         for val in equipos:
@@ -367,6 +376,7 @@ def validar_form_añadir_equipo_espeficio(codigo_equipo):
                     print("codigo ya existe")
                     return redirect("/gestion_inventario_admin/lista_equipo_diferenciado/"+codigo_equipo)
         print("codigo no existe")
+        insertar_lista_equipos_detalle(codigo_equipo, informacion_a_insertar)
         return redirect("/gestion_inventario_admin/lista_equipo_diferenciado/"+codigo_equipo)
 
 
