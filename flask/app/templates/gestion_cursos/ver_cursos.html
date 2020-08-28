@@ -2,7 +2,8 @@
 {%block body%}
   <div class="container-fluid mt-2">
 
-  
+    {% include 'gestion_cursos/agregar_curso.html' %}
+
     {% with msgs = get_flashed_messages() %}
       {% if msgs %}
         {% for msg in msgs %}
@@ -37,20 +38,15 @@
     <div class="card-header mt-4" style="background:#0db26b;">
     	<h5 class="card-title text-white my-auto">Gestión de cursos</h5>
     	<p class="text-white my-auto"><i class="fas fa-info-circle mr-2"></i>En esta sección encontrará los cursos registrados en el sistema, además de poder realizar nuevos registros, consultar y editar información.</p>
+      <span class="btn-group">
+        <button type="button" data-target=" #agregar_curso" class= "btn btn-sm btn-secondary mr-1" data-toggle="modal"><i class="fas fa-user-plus mr-2"></i>Agregar nuevo curso</button>
+        <button type="button" data-target=" #agregar_masivo" class= "btn btn-sm btn-secondary" data-toggle="modal"><i class="fas fa-file-csv mr-2"></i>Carga masiva</button>
+      </span>
     </div>
 
-    <div class="row float-right mt-2 mb-2">
-        <div class="col-md-12">
-            <button type="button" data-target=" #agregar_curso" class= "btn btn-success" data-toggle="modal"><i class="fas fa-user-plus mr-2"></i>Agregar nuevo curso</button>
-             {% include 'gestion_cursos/agregar_curso.html' %}
-             <button type="button" data-target=" #agregar_masivo" class= "btn btn-info" data-toggle="modal"><i class="fas fa-file-csv mr-2"></i>Carga masiva</button>
-        </div>
-    </div>
-    <div class="table-responsive">
-  		<div class="table-wrapper-scroll-y" style="position: relative;
-  								max-height: 450px;
-  								overflow:auto;">
-        <table class="table" style="background:#ECF0F1;">
+    <div class="table-responsive mt-2">
+      <div class="table-wrapper-scroll-y" style="position: relative; overflow:auto;">
+        <table class="table" style="background:#ECF0F1;" id="tabla_cursos">
   			  <thead class="text-white" style="background:#4D4D4D;">
                 <tr>
                     <th scope="col">Código UDP</th>
@@ -82,4 +78,25 @@
       </div>
     </div>
   </div>
+
+  <script type="text/javascript">
+    $(document).ready(function() {
+      $('#tabla_cursos').DataTable( {
+            "language": {
+                "lengthMenu": "Mostrar _MENU_ registros por página",
+                "zeroRecords": "Nothing found - sorry",
+                "info": "Mostrando página _PAGE_ de _PAGES_",
+                "infoEmpty": "Sin registros disponibles",
+                "search":         "Buscar",
+                "paginate": {
+                    "next":       "Anterior",
+                    "previous":   "Siguiente"
+                },
+                "infoFiltered": "(filtrado de _MAX_ registros totales)"
+            }
+        } );
+    } );
+  </script>
+
+
   {% endblock %}

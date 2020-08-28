@@ -133,6 +133,15 @@
 			{%endif%}
 		{%endwith%}
 
+		{% if usuario_sancionado %}
+			<div class="alert alert-warning alert-dismissible fade show mt-2" role="alert">
+				<i class="fas fa-exclamation-triangle mr-2"></i>El usuario solicitante presenta una sanción activa.
+				<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+			    <span aria-hidden="true">&times;</span>
+			  </button>
+			</div>
+		{% endif %}
+
 		<div class="card border-1 rounded-0" style="border-color:#0db26b;">
 			<div class="card-header border-0 rounded-0" style="background:#0db26b;">
 				<h5 class="card-title my-auto text-white"><i class="fas fa-file-invoice mr-2"></i>Información de la solicitud de préstamo</h5>
@@ -200,141 +209,164 @@
 			</div>
 
 			<div class="card-body" style="background:#ECF0F1;">
-				<div class="table-responsive mt-2">
-					<div class="table-wrapper-scroll-y" style="position: relative;
-											max-height: 500px;
-											overflow:auto;">
 
-						<div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+				{% if lista_detalles_solicitud %}
 
-							{% for detalle_solicitud in lista_detalles_solicitud %}
+					<div class="table-responsive mt-2">
+						<div class="table-wrapper-scroll-y" style="position: relative;
+												max-height: 500px;
+												overflow:auto;">
 
-								<div class="panel panel-default">
-									<div class="panel-heading" style="background:#4D4D4D;" role="tab" id="encabezado_detalle_{{detalle_solicitud["id"]}}">
-										<h4 class="panel-title text-white">
-										  <a role="button" style="color:inherit;" data-toggle="collapse" data-parent="#accordion" href="#detalle_{{detalle_solicitud["id"]}}" aria-expanded="true">
-										    <strong>[IDD {{detalle_solicitud["id"]}}]</strong> {{detalle_solicitud["nombre_equipo"]}} {{detalle_solicitud["marca_equipo"]}} {{detalle_solicitud["modelo_equipo"]}}
+							<div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
 
-												{% if detalle_solicitud["estado"] == 0 %}
-													<td class="text-center"><span class="badge float-right badge-primary">{{detalle_solicitud["nombre_estado"]}}</span></td>
-												{% elif detalle_solicitud["estado"] == 1 %}
-													<td class="text-center"><span class="badge float-right badge-info">{{detalle_solicitud["nombre_estado"]}}</span></td>
-												{% elif detalle_solicitud["estado"] == 2 %}
-													<td class="text-center"><span class="badge float-right badge-success">{{detalle_solicitud["nombre_estado"]}}</span></td>
-												{% elif detalle_solicitud["estado"] == 3 %}
-													<td class="text-center"><span class="badge float-right badge-danger">{{detalle_solicitud["nombre_estado"]}}</span></td>
-												{% elif detalle_solicitud["estado"] == 4 %}
-													<td class="text-center"><span class="badge float-right badge-success">{{detalle_solicitud["nombre_estado"]}}</span></td>
-												{% elif detalle_solicitud["estado"] == 5 or detalle_solicitud["estado"] == 7 %}
-													<td class="text-center"><span class="badge float-right badge-danger">{{detalle_solicitud["nombre_estado"]}}</span></td>
-												{% elif detalle_solicitud["estado"] == 6 %}
-													<td class="text-center"><span class="badge float-right badge-secondary">{{detalle_solicitud["nombre_estado"]}}</span></td>
-												{% endif %}
+								{% for detalle_solicitud in lista_detalles_solicitud %}
 
-										  </a>
-										</h4>
-									</div>
-									<div id="detalle_{{detalle_solicitud["id"]}}" class="panel-collapse collapse" role="tabpanel">
-										<div class="panel-body" style="background:#fff;">
+									<div class="panel panel-default">
+										<div class="panel-heading" style="background:#4D4D4D;" role="tab" id="encabezado_detalle_{{detalle_solicitud["id"]}}">
+											<h4 class="panel-title text-white">
+											  <a role="button" style="color:inherit;" data-toggle="collapse" data-parent="#accordion" href="#detalle_{{detalle_solicitud["id"]}}" aria-expanded="true">
+											    <strong>[IDD {{detalle_solicitud["id"]}}]</strong> {{detalle_solicitud["nombre_equipo"]}} {{detalle_solicitud["marca_equipo"]}} {{detalle_solicitud["modelo_equipo"]}}
 
-											<div class="form-group row">
-												<label class="col-md-2 col-form-label texto-gris-eit">
-													<strong>Equipo solicitado:</strong>
-												</label>
-												<div class="col-md-4">
-													<p class="form-control-plaintext text-break">
-														{{detalle_solicitud["nombre_equipo"]}} {{detalle_solicitud["marca_equipo"]}} {{detalle_solicitud["modelo_equipo"]}}
-													</p>
-												</div>
-												<label class="col-md-3 col-form-label texto-gris-eit">
-													<strong>Código de equipo:</strong>
-												</label>
-												<div class="col-md-3">
-													<p class="form-control-plaintext
-														 text-break">
-														 {{detalle_solicitud["codigo_equipo"]}}
-														 {% if detalle_solicitud["codigo_sufijo_equipo"] %}
-														 	- {{detalle_solicitud["codigo_sufijo_equipo"]}}
-														 {% endif %}
-													</p>
-												</div>
-											</div>
+													{% if detalle_solicitud["estado"] == 0 %}
+														<td class="text-center"><span class="badge float-right badge-primary">{{detalle_solicitud["nombre_estado"]}}</span></td>
+													{% elif detalle_solicitud["estado"] == 1 %}
+														<td class="text-center"><span class="badge float-right badge-info">{{detalle_solicitud["nombre_estado"]}}</span></td>
+													{% elif detalle_solicitud["estado"] == 2 %}
+														<td class="text-center"><span class="badge float-right badge-success">{{detalle_solicitud["nombre_estado"]}}</span></td>
+													{% elif detalle_solicitud["estado"] == 3 %}
+														<td class="text-center"><span class="badge float-right badge-danger">{{detalle_solicitud["nombre_estado"]}}</span></td>
+													{% elif detalle_solicitud["estado"] == 4 %}
+														<td class="text-center"><span class="badge float-right badge-success">{{detalle_solicitud["nombre_estado"]}}</span></td>
+													{% elif detalle_solicitud["estado"] == 5 or detalle_solicitud["estado"] == 7 %}
+														<td class="text-center"><span class="badge float-right badge-danger">{{detalle_solicitud["nombre_estado"]}}</span></td>
+													{% elif detalle_solicitud["estado"] == 6 %}
+														<td class="text-center"><span class="badge float-right badge-secondary">{{detalle_solicitud["nombre_estado"]}}</span></td>
+													{% endif %}
 
-												{% if detalle_solicitud["estado"] == 1 %}
+											  </a>
+											</h4>
+										</div>
+										<div id="detalle_{{detalle_solicitud["id"]}}" class="panel-collapse collapse" role="tabpanel">
+											<div class="panel-body" style="background:#fff;">
+
 												<div class="form-group row">
-													<label class="col-md-4 col-form-label texto-gris-eit">
-														<strong>Fecha de vencimiento de solicitud:</strong>
+													<label class="col-md-2 col-form-label texto-gris-eit">
+														<strong>Equipo solicitado:</strong>
 													</label>
 													<div class="col-md-4">
 														<p class="form-control-plaintext text-break">
-															{{detalle_solicitud["fecha_vencimiento"]}}
-														</p>
-													</div>
-												</div>
-												{% endif %}
-												{% if detalle_solicitud["estado"] in [2,3,4,6] %}
-												<div class="form-group row">
-													<label class="col-md-3 col-form-label texto-gris-eit">
-														<strong>Fecha de inicio:</strong>
-													</label>
-													<div class="col-md-3">
-														<p class="form-control-plaintext text-break">
-															{{detalle_solicitud["fecha_inicio"]}}
+															{{detalle_solicitud["nombre_equipo"]}} {{detalle_solicitud["marca_equipo"]}} {{detalle_solicitud["modelo_equipo"]}}
 														</p>
 													</div>
 													<label class="col-md-3 col-form-label texto-gris-eit">
-														<strong>Fecha de término:</strong>
+														<strong>Código de equipo:</strong>
 													</label>
 													<div class="col-md-3">
-														<p class="form-control-plaintext text-break">
-															{{detalle_solicitud["fecha_termino"]}}
+														<p class="form-control-plaintext
+															 text-break">
+															 {{detalle_solicitud["codigo_equipo"]}}
+															 {% if detalle_solicitud["codigo_sufijo_equipo"] %}
+															 	- {{detalle_solicitud["codigo_sufijo_equipo"]}}
+															 {% endif %}
 														</p>
 													</div>
 												</div>
-												{% endif %}
-												{% if detalle_solicitud["estado"] in [4,6] %}
+
+													{% if detalle_solicitud["estado"] == 1 %}
 													<div class="form-group row">
-														<label class="col-md-3 col-form-label texto-gris-eit">
-															<strong>Fecha de devolución:</strong>
+														<label class="col-md-4 col-form-label texto-gris-eit">
+															<strong>Fecha de vencimiento de solicitud:</strong>
 														</label>
-														<div class="col-md-3">
+														<div class="col-md-4">
 															<p class="form-control-plaintext text-break">
-																{{detalle_solicitud["fecha_devolucion"]}}
+																{{detalle_solicitud["fecha_vencimiento"]}}
 															</p>
 														</div>
 													</div>
-												{% endif %}
-
-												<div class="form-group row text-right">
-													<div class="col-md-12 mb-2">
-														<span class="btn-group" role="group">
-															{% if detalle_solicitud["estado"] == 0 %}
-																<button type="button" class="btn btn-sm btn-danger mr-1" data-toggle="modal" data-target="#confirmacion_rechazo_solicitud_{{detalle_solicitud["id"]}}"><i class="fas fa-times-circle mr-1"></i>Rechazar solicitud</button>
-																<button type="button" class="btn btn-sm btn-success" data-toggle="modal" data-target="#confirmacion_aprobacion_solicitud_{{detalle_solicitud["id"]}}"><i class="fas fa-clipboard-check mr-1"></i>Aprobar solicitud</button>
-															{% elif detalle_solicitud["estado"] == 1 %}
-																<button type="button" class="btn btn-sm btn-danger mr-1" data-toggle="modal" data-target="#confirmacion_cancelacion_solicitud_{{detalle_solicitud["id"]}}"><i class="fas fa-times-circle mr-1"></i>Cancelar solicitud</button>
-																<button type="button" class="btn btn-sm btn-info mr-1" data-toggle="modal" data-target="#formulario_retiro_equipo_{{detalle_solicitud["id"]}}"><i class="fas fa-clipboard-check mr-1"></i>Marcar como entregado</button>
-															{% elif detalle_solicitud["estado"] == 2 or detalle_solicitud["estado"] == 3 %}
-																<button type="button" class="btn btn-sm btn-info mr-1" data-toggle="modal" data-target="#confirmacion_devolucion_equipo_{{detalle_solicitud["id"]}}">Registrar devolución</button>
-															{% elif detalle_solicitud["estado"] == 4 %}
-																<button type="button" class="btn btn-sm btn-success mr-1"><i class="fas fa-check-circle mr-1"></i>Marcar como finalizada</button>
-															{% elif detalle_solicitud["estado"] == 5 or detalle_solicitud["estado"] == 6 or detalle_solicitud["estado"] == 7 %}
-																<button type="button" class="btn btn-sm btn-danger mr-1" data-toggle="modal" data-target="#confirmacion_eliminacion_solicitud_{{detalle_solicitud["id"]}}"><i class="fas fa-minus-circle mr-1"></i>Eliminar solicitud</button>
-															{% endif %}
-														</span>
+													{% endif %}
+													{% if detalle_solicitud["estado"] in [2,3,4,6] %}
+													<div class="form-group row">
+														<label class="col-md-3 col-form-label texto-gris-eit">
+															<strong>Fecha de inicio:</strong>
+														</label>
+														<div class="col-md-3">
+															<p class="form-control-plaintext text-break">
+																{{detalle_solicitud["fecha_inicio"]}}
+															</p>
+														</div>
+														<label class="col-md-3 col-form-label texto-gris-eit">
+															<strong>Fecha de término:</strong>
+														</label>
+														<div class="col-md-3">
+															<p class="form-control-plaintext text-break">
+																{{detalle_solicitud["fecha_termino"]}}
+															</p>
+														</div>
 													</div>
-												</div>
+													{% endif %}
+													{% if detalle_solicitud["estado"] in [4,6] %}
+														<div class="form-group row">
+															<label class="col-md-3 col-form-label texto-gris-eit">
+																<strong>Fecha de devolución:</strong>
+															</label>
+															<div class="col-md-3">
+																<p class="form-control-plaintext text-break">
+																	{{detalle_solicitud["fecha_devolucion"]}}
+																</p>
+															</div>
+														</div>
+													{% endif %}
 
+													<div class="form-group row text-right">
+														<div class="col-md-12 mb-2">
+															<span class="btn-group" role="group">
+																{% if detalle_solicitud["estado"] == 0 %}
+																	<button type="button" class="btn btn-sm btn-danger mr-1" data-toggle="modal" data-target="#confirmacion_rechazo_solicitud_{{detalle_solicitud["id"]}}"><i class="fas fa-times-circle mr-1"></i>Rechazar solicitud</button>
+																	{% if not usuario_sancionado %}
+																		<button type="button" class="btn btn-sm btn-success mr-1" data-toggle="modal" data-target="#confirmacion_aprobacion_solicitud_{{detalle_solicitud["id"]}}"><i class="fas fa-clipboard-check mr-1"></i>Aprobar solicitud</button>
+																	{% endif %}
+																	<button type="button" class="btn btn-sm btn-danger" data-toggle="modal" data-target="#confirmacion_eliminacion_detalle_{{detalle_solicitud["id"]}}"><i class="fas fa-minus-circle mr-1"></i>Eliminar</button>
+																{% elif detalle_solicitud["estado"] == 1 %}
+																	<button type="button" class="btn btn-sm btn-danger mr-1" data-toggle="modal" data-target="#confirmacion_cancelacion_solicitud_{{detalle_solicitud["id"]}}"><i class="fas fa-times-circle mr-1"></i>Cancelar solicitud</button>
+																	{% if not usuario_sancionado %}
+																		<button type="button" class="btn btn-sm btn-info mr-1" data-toggle="modal" data-target="#formulario_retiro_equipo_{{detalle_solicitud["id"]}}"><i class="fas fa-clipboard-check mr-1"></i>Marcar como entregado</button>
+																	{% endif %}
+																{% elif detalle_solicitud["estado"] == 2 or detalle_solicitud["estado"] == 3 %}
+																	<button type="button" class="btn btn-sm btn-info mr-1" data-toggle="modal" data-target="#confirmacion_devolucion_equipo_{{detalle_solicitud["id"]}}">Registrar devolución</button>
+																{% elif detalle_solicitud["estado"] == 4 %}
+																	<a href="/finalizar_solicitud/{{detalle_solicitud["id"]}}">
+																		<button type="button" class="btn btn-sm btn-success mr-1"><i class="fas fa-check-circle mr-1"></i>Marcar como finalizada</button>
+																	</a>
+																{% elif detalle_solicitud["estado"] == 5 or detalle_solicitud["estado"] == 6 or detalle_solicitud["estado"] == 7 %}
+																	<button type="button" class="btn btn-sm btn-danger mr-1" data-toggle="modal" data-target="#confirmacion_eliminacion_solicitud_{{detalle_solicitud["id"]}}"><i class="fas fa-minus-circle mr-1"></i>Eliminar solicitud</button>
+																{% endif %}
+															</span>
+														</div>
+													</div>
+
+											</div>
 										</div>
 									</div>
-								</div>
 
-							{% endfor %}
+								{% endfor %}
 
-						</div><!-- panel-group -->
+							</div><!-- panel-group -->
 
+						</div>
 					</div>
-				</div>
+
+				{% else %}
+					<div class="alert alert-warning alert-dismissible fade show text-center mt-2" role="alert">
+						<i class="fas fa-exclamation-triangle mr-2"></i>No se han encontrado detalles asociados a la solicitud.
+					</div>
+				{% endif %}
+
+				{% if not lista_detalles_solicitud %}
+					<form action="/eliminar_solicitud_canasta/{{solicitud["id"]}}" method="post">
+						<button type="submit" class="btn btn-danger float-right"><i class="fas fa-minus-circle mr-1"></i>Eliminar solicitud</button>
+					</form>
+				{% endif %}
+
 			</div>
 		</div>
 
@@ -346,6 +378,7 @@
 		{% if detalle_solicitud["estado"] == 0 %}
 			{% include "/vistas_gestion_solicitudes_prestamos/modals/modals_canasta/confirmacion_rechazo_canasta.html" %}
 			{% include "/vistas_gestion_solicitudes_prestamos/modals/modals_canasta/confirmacion_aprobacion_canasta.html" %}
+			{% include "/vistas_gestion_solicitudes_prestamos/modals/modals_canasta/eliminacion_detalle.html" %}
 		{% elif detalle_solicitud["estado"] == 1 %}
 			{% include "/vistas_gestion_solicitudes_prestamos/modals/modals_canasta/confirmacion_cancelacion_canasta.html" %}
 			{% include "/vistas_gestion_solicitudes_prestamos/modals/modals_canasta/formulario_retiro_equipo_canasta.html" %}
