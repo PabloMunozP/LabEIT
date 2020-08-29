@@ -316,7 +316,7 @@ def extender_prestamo():
                 SET Detalle_solicitud.fecha_termino = DATE_ADD(Detalle_solicitud.fecha_termino, INTERVAL 7 DAY),
                 Detalle_solicitud.renovaciones = Detalle_solicitud.renovaciones + 1
                 WHERE Detalle_solicitud.id = %s
-                    AND Detalle_solicitud.estado = 2
+                    AND Detalle_solicitud.estado = 2;
                 """)
         # comprobar que la solicitud sea de de la secion
         cursor.execute(query,(solicitud_detalle_a_extender["id_solicitud_detalle"],))
@@ -324,4 +324,49 @@ def extender_prestamo():
 
         return redirect('/')
 
+    return redirect('/')
+
+# Cambio de contraseña
+def consultar_contraseña_usuario(rut):
+    sql_query = ('''
+                SELECT contraseña
+                FROM Usuario
+                WHERE rut = %s;
+                ''')
+    cursor.execute(sql_query,(rut,))
+    resultado = cursor.fetchone()
+    return resultado["contraseña"]
+    
+    
+    
+@mod.route('/perfil/cambiar_contraseña')
+def render_cambiar_contraseña():
+    if 'usuario' not in session: # si no es administrador
+        return redirect('/')
+    return render_template('/vistas_perfil/cambio_contraseña.html')
+
+
+@mod.route('/perfil/validar_cambiar_contraseña', methods = ['GET','POST'])
+def cambiar_contraseña():
+    if request.method == "POST":
+        form = request.form.to_dict() # obtiene los datos del request {password_actual, password_nueva1, password_nueva2}
+        print(form)
+        if form["password_nueva1"] != form["password_nueva2"]: # Compara las contraseñas
+            flash('contraseñas-no-coinciden') # Envia un mensaje flash de que las contraseñas con coinciden
+            return redirect ('/perfil/cambiar_contraseña')
+        contraseña_encriptada = consultar_contraseña_usuario(session["usuario"]["rut"]) # obtiene la contraseña de la base
+        
+        if not bcrypt.checkpw(form["password_actual"].encode(encoding="UTF-8"),contraseña_encriptada.encode(encoding="UTF-8")): # compara la contraseña de la base y el form
+            flash('contraseñas-error') # Envia un mensaje flash de que la contraseña no corresponde
+        else:
+            hashpass = bcrypt.hashpw(form["password_nueva1"].encode(encoding="UTF-8"), bcrypt.gensalt()) # hashea la contraseña
+            sql_query = ('''
+                UPDATE Usuario
+                SET contraseña = %s
+                WHERE rut = %s
+            ''') # update de la contraseña donde coincida el rut
+            cursor.execute(sql_query,(hashpass.decode("UTF-8"),session["usuario"]["rut"]))
+            db.commit()
+            flash('success')
+        return redirect ('/perfil/cambiar_contraseña') # Retorna al formulario
     return redirect('/')
