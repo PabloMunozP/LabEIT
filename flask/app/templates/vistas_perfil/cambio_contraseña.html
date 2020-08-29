@@ -51,7 +51,7 @@
                     <h2 class="text-center text-white"><i class="fas fa-unlock-alt"></i> Cambiar contraseña</h2>
                 </div>
 
-                <form action="/perfil/validar_cambiar_contraseña" method="POST" id="FORM">
+                <form action="/perfil/validar_cambiar_contraseña" method="POST" id="FORM" onSubmit="return checkPassword(this)">
 
                     <div class="card-body">
 
@@ -105,12 +105,6 @@
 
 
 
-    
-
-
-   
-
-
 
 
 
@@ -129,6 +123,31 @@
                   e.preventDefault();
               }
           });
+    // Function to check Whether both passwords 
+            // is same or not. 
+            function checkPassword(form) { 
+                password1 = form.password_nueva1.value; 
+                password2 = form.password_nueva2.value; 
+  
+                // If password not entered 
+                if (password1 == '') 
+                    alert ("Please enter Password"); 
+                      
+                // If confirm password not entered 
+                else if (password2 == '') 
+                    alert ("Please enter confirm password"); 
+                      
+                // If Not same return False.     
+                else if (password1 != password2) { 
+                    alert ("\nLas contraseñas no coinciden") 
+                    return false; 
+                } 
+  
+                // If same return True. 
+                else{ 
+                    return true; 
+                } 
+            } 
 
 </script>
 
