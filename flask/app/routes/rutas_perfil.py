@@ -119,11 +119,11 @@ def consultar_sancion(rut_usuario): # Función para consultar si un usuario esta
 
     if sancion_usuario is not None: # Si hay una sancion
         return True
-    else: # Si no hay una sancion 
+    else: # Si no hay una sancion
         return False
 
 
-def consultar_mensajes_administrativos(): # Se obtienen los mensajes administrativos registrados 
+def consultar_mensajes_administrativos(): # Se obtienen los mensajes administrativos registrados
     sql_query = ('''
             SELECT * FROM
             Mensaje_administrativo
@@ -136,8 +136,8 @@ def consultar_mensajes_administrativos(): # Se obtienen los mensajes administrat
         mensaje_administrativo["timeago_mensaje"] = timeago.format(mensaje_administrativo["fecha_registro"], datetime.now(), 'es')
         if mensaje_administrativo["fecha_actualizacion"] is not None:
             mensaje_administrativo["timeago_ultima_actualizacion"] = timeago.format(mensaje_administrativo["fecha_actualizacion"],datetime.now(),'es')
- 
-    return lista_mensajes_administrativos      
+
+    return lista_mensajes_administrativos
 
 
 def consultar_red_wifi():
@@ -149,20 +149,19 @@ def consultar_red_wifi():
         cursor.execute(sql_query)
         datos_wifi = cursor.fetchone()
         return datos_wifi
-
-    
+        
 # session['usuario']['rut']
 # ************ Perfil ***************************
 @mod.route('/gestion_usuarios/usuario/<string:rut_perfil>',  methods =['GET','POST']) # ** Importante PERFIL** #
 def ver_usuario_gestion(rut_perfil):
     if 'usuario' not in session or session["usuario"]["id_credencial"] != 3: # Si no es administrador
         return redirect('/')
-    
+
     archivo_foto_perfil, foto_perfil = obtener_foto_perfil(rut_perfil) # Obtiene la foto y si es que tiene foto
     solicitudes = consultar_solicitudes(rut_perfil) # Consulta las solicitudes a partir del rut
     ids = get_id_from_list_of_dictionary(solicitudes) # Obtiene las id de las solicitudes
     solicitudes_equipos = consultar_equipos_por_id_solicitudes(ids) # Obtiene todas las solicitudes de los equipos por la ID
-    
+
     return render_template(
                 'vistas_perfil/perfil.html',
                 solicitudes = solicitudes,
@@ -174,8 +173,6 @@ def ver_usuario_gestion(rut_perfil):
                 admin_inspeccionar_perfil = True,
                 lista_mensajes_administrativos = [],
                 sancionado = consultar_sancion(rut_perfil))
-
-
 
 @mod.route('/perfil',  methods =['GET','POST']) # ** Importante PERFIL** #
 def perfil():
@@ -209,9 +206,9 @@ def perfil():
             lista_mensajes_administrativos = consultar_mensajes_administrativos(),
             sancionado = session["usuario"]["sancionado"],
             datos_wifi = consultar_red_wifi())
-      
-      
-      
+
+
+
 # ************Acciones de información de perfil****************
 @mod.route('/perfil/actualizar_informacion', methods = ['POST']) # ** Importante CONFIGURAR PERFIL** #
 def configurar_perfil():
@@ -290,7 +287,7 @@ def borrar_foto_perfil_gestion(rut_perfil):
     borrar_foto_usuario(rut_perfil) # borra la foto del usuario
     return redirect('/gestion_usuarios/usuario/' + rut_perfil)
 
-    
+
 
 # ************Acciones de solicitudes de perfil****************
 @mod.route('/perfil/cancelar_solicitud', methods = ['GET','POST']) # funcion para cancelar una solicitud
@@ -328,8 +325,6 @@ def extender_prestamo():
         return redirect('/')
 
     return redirect('/')
-
-
 
 # Cambio de contraseña
 def consultar_contraseña_usuario(rut):

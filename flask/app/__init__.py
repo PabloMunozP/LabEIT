@@ -1,4 +1,4 @@
-from flask import Flask,Blueprint,render_template,request,redirect,url_for,flash,session,jsonify
+from flask import Flask,Blueprint,render_template,request,redirect,url_for,flash,session,jsonify,abort
 from werkzeug.utils import secure_filename
 from config import db,cursor
 import bcrypt
@@ -53,6 +53,19 @@ def revisar_tokens_password():
         DELETE FROM
             Token_recuperacion_password
                 WHERE datediff(fecha_registro,%s) <= -1
+    """
+    cursor.execute(sql_query,(fecha_actual,))
+
+# Función para revisar los bloqueos de ip y eliminarlos en caso de que se cumplan las condiciones
+# (Se desbloquea al finalizar el día en el que fue bloqueado)
+# Revisión a las 23:59 todos los días
+def revisar_bloqueos_ips():
+    fecha_actual = datetime.now().replace(microsecond=0)
+
+    sql_query = """
+        DELETE FROM
+            Bloqueos_IP
+                WHERE datediff(fecha_bloqueo,%s) <= 0
     """
     cursor.execute(sql_query,(fecha_actual,))
 
@@ -203,6 +216,9 @@ def revisar_23_59():
 
     # Eliminación de tokens de password
     revisar_tokens_password()
+
+    # Revisar bloqueos de IPs
+    revisar_bloqueos_ips()
 
 def revisar_18_30():
     # Eliminación de solicitudes vencidas
