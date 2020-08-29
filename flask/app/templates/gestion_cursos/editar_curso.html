@@ -1,4 +1,4 @@
-<div id="editar_curso_{{curso['codigo_udp']}}"  class="modal fade in" tabindex="-1" role="dialog"  aria-hidden="true" data-keyboard="true" data-backdrop="true">
+<div id="editar_curso_{{curso['id']}}"  class="modal fade in" tabindex="-1" role="dialog"  aria-hidden="true" data-keyboard="true" data-backdrop="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header bg-gris-eit">
@@ -9,7 +9,7 @@
             </div>
             <form id="editar_curso" action="/gestion_cursos/editar_curso" method="POST">
               <div class="modal-body">
-                <input class="form-control" type="text" name="codigo_udp" value="{{curso['codigo_udp']}}" id="editar-curso-hidden-id" hidden>
+                <input class="form-control" type="text" name="id" value="{{curso['id']}}" id="editar-curso-hidden-id" hidden>
               </div>
                 <div class="modal-body">
                     <div class="form-group">

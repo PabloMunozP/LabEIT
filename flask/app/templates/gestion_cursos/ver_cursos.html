@@ -40,7 +40,6 @@
         <div class="col-md-12">
             <button type="button" data-target=" #agregar_curso" class= "btn btn-success" data-toggle="modal"><i class="fas fa-user-plus mr-2"></i>Agregar nuevo curso</button>
              {% include 'gestion_cursos/agregar_curso.html' %}
-             <button type="button" data-target=" #agregar_masivo" class= "btn btn-info" data-toggle="modal"><i class="fas fa-file-csv mr-2"></i>Carga masiva</button>
         </div>
     </div>
     <div class="table-responsive">
@@ -63,9 +62,9 @@
                         <td>{{curso['nombre']}}</td>
                         <td>{{curso['descripcion']}}</td>
                         <td class="text-center">
-                           <button type="button" title="Editar información" data-target="#editar_curso_{{curso['codigo_udp']}}" class= "btn btn-sm btn-warning" data-toggle="modal"><i class="fas fa-edit"></i></button>
+                           <button type="button" title="Editar información" data-target="#editar_curso_{{curso['id']}}" class= "btn btn-sm btn-warning" data-toggle="modal"><i class="fas fa-edit"></i></button>
                            <a href="gestion_cursos/detalles_curso/{{curso.codigo_udp}}"><button type="button" title="Ver detalles del curso" data-toggle="modal" class="btn btn-sm btn-info mr-1"><i class="fas fa-search-plus"></i></button></a>
-                           <button type="submit" title="Eliminar curso" data-target="#eliminar_curso_{{curso['codigo_udp']}}" class="btn btn-sm btn-danger" data-toggle="modal"><i class="fas fa-trash-alt"></i></button>
+                           <button type="submit" title="Eliminar curso" data-target="#eliminar_curso_{{curso['id']}}" class="btn btn-sm btn-danger" data-toggle="modal"><i class="fas fa-trash-alt"></i></button>
                         </td>
                         {% include 'gestion_cursos/agregar_curso.html' %}
                         {% include 'gestion_cursos/editar_curso.html' %}
