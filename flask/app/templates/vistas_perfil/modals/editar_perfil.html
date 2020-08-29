@@ -28,6 +28,7 @@
         </div>
         <div class="modal-footer">
                 {% if completar_info == False %}
+                <a href="/perfil/cambiar_contraseña" class="mr-auto">Cambiar contraseña</a>
                 <button type="button" id="boton_cerrar" class="btn btn-secondary" data-dismiss="modal" onclick="Cargar_informacion()">Cancelar</button>
                 {% else %}
                 <button type="button" id="boton_cerrar" class="btn btn-secondary" data-dismiss="modal" onclick="Cargar_informacion()" hidden>Cancelar</button>
