@@ -46,7 +46,24 @@ def enviar_correo_notificacion(archivo,str_para,str_asunto,correo_usuario): # En
 # En caso contrario, se mantiene en el login.
 @mod.route("/",methods=["GET"])
 def principal():
+
+    # Se verifican las IPs bloqueadas
+    sql_query = """
+        SELECT COUNT(*) AS cantidad_bloqueos
+            FROM Bloqueos_IP
+                WHERE ip = %s
+                AND activo = 1
+    """
+    cursor.execute(sql_query,(request.remote_addr,))
+    registro_bloqueo_activo = bool(cursor.fetchone()["cantidad_bloqueos"])
+
+    if registro_bloqueo_activo:
+        return render_template("/vistas_errores/403_externo.html"), 403
+
     if "usuario" not in session.keys():
+        # Se crea (en caso de no existir) la cantidad de intentos para ingresar
+        if "intentos_login" not in session.keys():
+            session["intentos_login"] = 10
         return render_template("/vistas_exteriores/login.html")
     else:
         return redirect('/perfil')
@@ -71,6 +88,23 @@ def iniciar_sesion():
     # Si no se obtiene un registro, entonces el rut no se encuentra registrado en el sistema
     if datos_usuario_registrado is None:
         flash("credenciales-invalidas") # Se notifica al front-end acerca del error para alertar al usuario
+        session["intentos_login"] -= 1 # Se descuenta el intento correspondiente
+
+        if session["intentos_login"] == 1:
+            # Se notifica acerca del último intento
+            flash("ultimo-intento-login")
+
+        if session["intentos_login"] == 0:
+            # Se registra el bloqueo en la base de datos
+            fecha_bloqueo = datetime.now()
+            # Se establece la fecha de término del bloqueo
+            fecha_termino = fecha_bloqueo + timedelta(days=1)
+            sql_query = """
+                INSERT INTO Bloqueos_IP (ip,fecha_bloqueo)
+                    VALUES (%s,%s)
+            """
+            cursor.execute(sql_query,(request.remote_addr,fecha_bloqueo))
+
         return redirect(url_for("rutas_seba.principal"))
 
     # En caso de que la cuenta exista, se comprueban las contraseñas
@@ -80,6 +114,23 @@ def iniciar_sesion():
     # Si las contraseñas no coinciden, entonces se devuelve al login y se notifica el error
     if not bcrypt.checkpw(datos_solicitante["password"],datos_usuario_registrado["contraseña"].encode(encoding="UTF-8")):
         flash("credenciales-invalidas") # Se notifica al front-end acerca del error para alertar al usuario
+        session["intentos_login"] -= 1 # Se descuenta el intento correspondiente
+
+        if session["intentos_login"] == 1:
+            # Se notifica acerca del último intento
+            flash("ultimo-intento-login")
+
+        if session["intentos_login"] == 0:
+            # Se registra el bloqueo en la base de datos
+            fecha_bloqueo = datetime.now()
+            # Se establece la fecha de término del bloqueo
+            fecha_termino = fecha_bloqueo + timedelta(days=1)
+            sql_query = """
+                INSERT INTO Bloqueos_IP (ip,fecha_bloqueo)
+                    VALUES (%s,%s)
+            """
+            cursor.execute(sql_query,(request.remote_addr,fecha_bloqueo))
+
         return redirect(url_for("rutas_seba.principal"))
 
     # En caso de que se compruebe la validez de la contraseña, se crea la sesión
@@ -103,6 +154,9 @@ def iniciar_sesion():
         session["usuario"]["sancionado"] = True
     else: # Si no se recibe nada de la consulta, no tiene sanciones
         session["usuario"]["sancionado"] = False
+
+    # Se elimina el registro de los intentos de login
+    del session["intentos_login"]
 
     return redirect('/perfil')
 

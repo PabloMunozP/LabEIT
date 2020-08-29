@@ -28,7 +28,7 @@
             {% for msg in msgs %}
               {% if msg == "credenciales-invalidas"%}
                 <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                  <i class="fas fa-times-circle mr-2"></i>El usuario y/o la contraseña que ingresaste no coinciden con nuestros registros. Por favor, revisa e inténtalo nuevamente.
+                  <i class="fas fa-times-circle mr-2"></i>El usuario o la contraseña que ingresaste no coinciden con nuestros registros. Por favor, revisa e inténtalo nuevamente.
                   <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                   <span aria-hidden="true">&times;</span>
                   </button>
@@ -45,6 +45,14 @@
               {% if msg == "contraseña-actualizada" %}
               <div class="alert alert-success mt-2 alert-dismissible fade show" role="alert">
                   <i class="fas fa-check-circle mr-2"></i>La contraseña ha sido modificada correctamente.
+                  <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                  </button>
+              </div>
+              {% endif %}
+              {% if msg == "ultimo-intento-login" %}
+              <div class="alert alert-warning alert-dismissible fade show mt-2" role="alert">
+            		<i class="fas fa-exclamation-triangle mr-2"></i>Al próximo error de autentificación será bloqueado por motivos de seguridad.
                   <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                       <span aria-hidden="true">&times;</span>
                   </button>
