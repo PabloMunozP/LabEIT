@@ -10,14 +10,11 @@
 
           <form action="/gestion_cursos/agregar_alumno" method="POST">
           <div class="modal-body">
-
-            <div class="modal-body">
-              <input class="form-control" type="text" name="id" value="{{seccion_id['id']}}" id="id" hidden>
-            </div>
-            <label for="rut_profesor">Alumno: </label>
-            <select class=""  id="rut_alumno" name = "rut_alumno">
+            <input class="form-control" type="text" name="id" value="{{seccion_id['id']}}" id="id" hidden>
+            <label for="rut_profesor">Alumno</label>
+            <select class="form-control"  id="rut_alumno" name = "rut_alumno">
               {% for alumno in lista_alumnos %}
-                <option id="rut_alumno" name = "rut_alumno" value="{{alumno['rut']}}">{{alumno['rut']}} - {{alumno["nombres"]}} {{alumno["apellidos"]}} </option>
+                <option id="rut_alumno" name = "rut_alumno" value="{{alumno['rut']}}">{{alumno["apellidos"]}} {{alumno["nombres"]}} </option>
               {% endfor %}
             </select>
 
