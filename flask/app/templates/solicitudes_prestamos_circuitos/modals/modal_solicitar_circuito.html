@@ -75,12 +75,36 @@
         document.getElementById("modal_circuito_unidades").textContent = unidades;
         document.getElementById("modal_circuito_descripcion").textContent = descripcion;
         $("#modal_info_circuito").modal("show");
-      }
+      };
       
+      $(document).ready(function(){
 
-      $(document).ready( () =>{
+        $('form').on('submit', function(event){
+          
+          $.ajax({
+            data : {
+              id_circuito : $('#id_circuito').val() ,
+              cantidad : $('#cantidad_unidades_solicitadas').val()
+            },
+            type : 'POST',
+            url : '/agregar_al_carro_circuito'
+          })
+          .done(function(data){
 
-      })
+            if(data.error){
+              console.log('error');
+            }
+            else{
+              console.log('success');
+              console.log(data);
+            }
+
+          });
+          
+          event.preventDefault();
+
+        });
+      });
       
 
 

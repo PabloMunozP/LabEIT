@@ -37,21 +37,56 @@ def debug_circuito():
     return 'xD'
 
 
+
+def generar_solicitud_alumno(rut_alumno, motivo): # funcion para generar la solicitud de circuitos
+    # generar Detalle_solicitud_circuito
+    # generar Solicitud_circuito
+    query_solicitud_circuito('''
+                            INSERT INTO Solicitud_circuito (rut_alumno,motivo)
+                            VALUES (%s, %s)
+                             ''')
+    
+    id_solicitud = cursor.lastrowid # Se obtiene el id de solicitud recién creada
+    
+    return
+
 @mod.route("/agregar_al_carro_circuito",methods=['POST'])
 def agregar_al_carro_circuito():
-    datos_circuito_pedido = request.form.to_dict()
+    if request.method == "POST":
+        id_circuito = request.form["id_circuito"]
+        cantidad = request.form["cantidad"]
+        
+        if id_circuito and cantidad:
+            if 'carro_circuito' not in session: # si no hay carrito
+                session["carro_circuito"] = {}
+            
+            if id_circuito not in session["carro_circuito"].keys(): # Si el circuito no esta
+                session["carro_circuito"][id_circuito] = {} # Crea un diccionario carro = { id : {}}
+                session["carro_circuito"][id_circuito]['id'] = str(id_circuito) # carro = { id : {'id': 'id'}}
+                session["carro_circuito"][id_circuito]['cantidad'] = int(cantidad)  # carro = { id : {'id': str , 'cantidad' : int}}
+                print(session["carro_circuito"])            
+                return jsonify({id_circuito : {'id_circuito': id_circuito, 'cantidad' : cantidad }})
+            else:
+                session["carro_circuito"][id_circuito]['cantidad'] = int(session["carro_circuito"][id_circuito]['cantidad']) + int(cantidad) 
+                return jsonify({id_circuito : {'id_circuito': id_circuito, 'cantidad' : cantidad }})
+                print(session["carro_circuito"])    
+                # carro = { id : {'id': str , 'cantidad' : int + int}}
+        else:
+            return jsonify({'error':'missing data!'})
     
-    print(datos_circuito_pedido)
-    if "carro_pedidos_circuito" not in session.keys(): # crea la sesion
-        session["carro_pedidos_circuito"] = {}
+    return None
     
-    if str(datos_circuito_pedido["id_circuito"]) in session["carro_pedidos_circuito"].keys(): # si ya hay le suma
-        session["carro_pedidos_circuito"][str(datos_circuito_pedido["id_circuito"])] = int(datos_circuito_pedido["cantidad_unidades_solicitadas"]) + int(session["carro_pedidos_circuito"][str(datos_circuito_pedido["id_circuito"])])
-    else:
-        session["carro_pedidos_circuito"][str(datos_circuito_pedido["id_circuito"])] = int(datos_circuito_pedido["cantidad_unidades_solicitadas"]) # si no se crea y le agrega un valor
-    print(session["carro_pedidos_circuito"])
+    # print(datos_circuito_pedido)
+    # if "carro_pedidos_circuito" not in session.keys(): # crea la sesion
+    #     session["carro_pedidos_circuito"] = {}
     
-    return render_template("/solicitudes_prestamos_circuitos/tablas/lista_carro_circuito.html")
+    # if str(datos_circuito_pedido["id_circuito"]) in session["carro_pedidos_circuito"].keys(): # si ya hay le suma
+    #     session["carro_pedidos_circuito"][str(datos_circuito_pedido["id_circuito"])] = int(datos_circuito_pedido["cantidad_unidades_solicitadas"]) + int(session["carro_pedidos_circuito"][str(datos_circuito_pedido["id_circuito"])])
+    # else:
+    #     session["carro_pedidos_circuito"][str(datos_circuito_pedido["id_circuito"])] = int(datos_circuito_pedido["cantidad_unidades_solicitadas"]) # si no se crea y le agrega un valor
+    # print(session["carro_pedidos_circuito"])
+    
+    # return render_template("/solicitudes_prestamos_circuitos/tablas/lista_carro_circuito.html")
 
     # return render_template("/solicitudes_prestamos/seccion_carro_pedidos.html",
     #     lista_carro=lista_carro)
