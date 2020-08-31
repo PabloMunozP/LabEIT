@@ -46,7 +46,6 @@ def enviar_correo_notificacion(archivo,str_para,str_asunto,correo_usuario): # En
 # En caso contrario, se mantiene en el login.
 @mod.route("/",methods=["GET"])
 def principal():
-
     # Se verifican las IPs bloqueadas
     sql_query = """
         SELECT COUNT(*) AS cantidad_bloqueos
@@ -184,7 +183,7 @@ def enviar_recuperacion_password():
 
     # Si el correo o el rut no se encuentran registrados, se alerta al usuario
     if datos_usuario is None:
-        flash("recuperacion-invalida") # Se notifica al front-end acerca del error para alertar al usuario
+        flash("notificacion-recuperacion")
         return redirect(url_for("rutas_seba.recuperacion_password"))
 
     # En caso de existir registro, se envía el correo de recuperación y se alerta al usuario
@@ -230,12 +229,11 @@ def enviar_recuperacion_password():
                     VALUES (%s,%s,%s)
         """
         cursor.execute(sql_query,(str(token),datos_usuario["rut"],fecha_actual))
-        flash("correo-recuperacion-exito") # Notificación de éxito al enviar el correo
 
     except Exception as e:
         print(e)
-        flash("correo-recuperacion-fallido") # Notificación de fallo al enviar el correo
 
+    flash("notificacion-recuperacion")
     return redirect(url_for("rutas_seba.recuperacion_password"))
 
 # Se redirecciona al formulario con el token respectivo al recuperar contraseña
