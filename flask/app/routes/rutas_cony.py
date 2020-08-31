@@ -437,10 +437,14 @@ def editar_seccion_form():
 # == VISTA PRINCIPAL/MODAL "BORRAR CURSO" ==
 
 def eliminar_curso(curso):
-    query = ('''
+    query1 = ('''
+        DELETE Seccion_alumno, Seccion FROM Seccion_alumno, Seccion WHERE Seccion.id_curso = %s AND Seccion.id = Seccion_alumno.id_seccion
+    ''')
+    query2 = ('''
         DELETE Curso FROM Curso WHERE Curso.id = %s
     ''')
-    cursor.execute(query,(curso['id'],))
+    cursor.execute(query1,(curso['id'],))
+    cursor.execute(query2,(curso['id'],))
     db.commit()
     return 'OK'
 
@@ -457,10 +461,16 @@ def eliminar_curso_form():
         return redirect("/gestion_cursos")
 
 def eliminar_seccion(seccion):
-    query = ('''
+    print(seccion['id'])
+    query1 = ('''
+        DELETE Seccion_alumno FROM Seccion_alumno WHERE Seccion_alumno.id_seccion = %s
+    ''')
+
+    query2 = ('''
         DELETE Seccion FROM Seccion WHERE Seccion.id = %s
     ''')
-    cursor.execute(query,(seccion['id'],))
+    cursor.execute(query1,(seccion['id'],))
+    cursor.execute(query2,(seccion['id'],))
     db.commit()
     return 'OK'
 
