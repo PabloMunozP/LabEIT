@@ -461,12 +461,16 @@ def editar_seccion_form():
 # == VISTA PRINCIPAL/MODAL "BORRAR CURSO" ==
 
 def eliminar_curso(curso):
+    query0 = ('''
+        DELETE Seccion_alumno FROM Seccion_alumno, Seccion WHERE Seccion.id_curso = %s AND Seccion.id = Seccion_alumno.id_seccion
+    ''')
     query1 = ('''
-        DELETE Seccion_alumno, Seccion FROM Seccion_alumno, Seccion WHERE Seccion.id_curso = %s AND Seccion.id = Seccion_alumno.id_seccion
+        DELETE Seccion FROM Seccion WHERE Seccion.id_curso = %s
     ''')
     query2 = ('''
         DELETE Curso FROM Curso WHERE Curso.id = %s
     ''')
+    cursor.execute(query0,(curso['id'],))
     cursor.execute(query1,(curso['id'],))
     cursor.execute(query2,(curso['id'],))
     db.commit()
