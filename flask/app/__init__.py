@@ -305,7 +305,7 @@ def formato_rut(rut_entrada):
 @app.before_request
 def make_session_permanent():
     session.permanent = True
-    app.permanent_session_lifetime = timedelta(minutes=60)
+    app.permanent_session_lifetime = timedelta(minutes=30)
 
 @app.after_request
 def add_header(response):
