@@ -10,11 +10,8 @@
 
           <form action="/gestion_cursos/agregar_seccion" method="POST">
           <div class="modal-body">
-
-            <div class="modal-body">
-              <input class="form-control" type="text" name="id_curso" value="{{curso['curso_id']}}" id="id_curso" hidden>
-            </div>
             <div class="form-group">
+              <input class="form-control" type="text" name="id_curso" value="{{curso['curso_id']}}" id="id_curso" hidden>
               <label for="codigo">Número sección</label>
               <input class="form-control" type="text" name="codigo" id="codigo" value="" required>
             </div>

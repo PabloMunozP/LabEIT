@@ -10,8 +10,6 @@
       <form action="/gestion_cursos/eliminar_curso" method="POST">
         <div class="modal-body">
           <input class="form-control" type="text" name="id" value="{{curso['id']}}" id="editar-curso-hidden-id" hidden>
-        </div>
-        <div class="modal-body">
           <p>Al eliminar el curso, los registros asociados serán eliminados automáticamente.</p>
           <p>Código: {{curso['codigo_udp']}}. Nombre: {{curso['nombre']}}</p>
           <p>Descripción: {{curso['descripcion']}}</p>
