@@ -10,11 +10,13 @@
 
           <form action="/gestion_cursos/agregar_alumno" method="POST">
           <div class="modal-body">
+            <label for="rut_alumno">Alumno: </label>
             <input class="form-control" type="text" name="id" value="{{seccion_id['id']}}" id="id" hidden>
-            <div class="form-group">
-              <label for="rut_alumno">Seleccione los alumnos a inscribir</label>
-              <input class="form-control" type="text" name="rut_alumno" id="rut_alumno" onchange="validar_informacion_perfil()" value="">
-            </div>
+            <select class=""  id="rut_alumno" name = "rut_alumno">
+              {% for alumno in lista_alumnos %}
+                <option id="rut_alumno" name = "rut_alumno" value="{{alumno['rut']}}">{{alumno["apellidos"]}} {{alumno["nombres"]}} </option>
+              {% endfor %}
+            </select>
 
       </div>
       <div class="modal-footer">

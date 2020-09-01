@@ -18,7 +18,7 @@ PATH = BASE_DIR # obtiene la ruta del directorio actual
 PROFILE_PICS_PATH = PATH.replace(os.sep, '/')+'/app/static/imgs/profile_pics/' #  remplaza [\\] por [/] en windows
 
 
-mod = Blueprint("rutas_pablo",__name__)
+mod = Blueprint("rutas_gestion_usuarios",__name__)
 
 def redirect_url(default='index'): # Redireccionamiento desde donde vino la request
     return request.args.get('next') or \
@@ -48,6 +48,7 @@ def ver_usuarios():
     cursor.execute(query)
     usuarios=cursor.fetchall()
 
+
     return render_template("/vistas_gestion_usuarios/ver_usuarios.html",usuarios=usuarios)
 
 def digito_verificador(rut):
@@ -59,7 +60,6 @@ def digito_verificador(rut):
         return str(ver)
     if ver == 10:
         return 'K'
-
 
 @mod.route("/gestion_usuarios/anadir_usuario",methods=["POST"])
 def añadir_usuario():
@@ -174,7 +174,7 @@ def eliminar():
     if session["usuario"]["id_credencial"] != 3:
         return redirect("/")
 
-    if request.method=='POST':   
+    if request.method=='POST':
         rut=request.form['rut']
         #Comprobar que el usuario no tenga equipos pendientes
         query= '''SELECT id FROM Solicitud Where rut_alumno = %s'''
@@ -227,9 +227,9 @@ def detalle_usuario(rut):
             Usuario.direccion as direccion, Usuario.celular as celular FROM Usuario,Credencial WHERE Credencial.id=Usuario.id_credencial AND Usuario.rut=%s '''
         cursor.execute(query,(rut,))
         usuario=cursor.fetchone()
-        
+
         query=''' Select Solicitud.id as id, Solicitud.rut_profesor as profesor, Solicitud.rut_alumno as alumno, Solicitud.motivo as motivo, Solicitud.fecha_registro as registro,
-            Detalle_solicitud.estado as estado, Detalle_solicitud.id as id_detalle, Equipo.nombre as equipo, Equipo.modelo as modelo  
+            Detalle_solicitud.estado as estado, Detalle_solicitud.id as id_detalle, Equipo.nombre as equipo, Equipo.modelo as modelo
             FROM Solicitud, Detalle_solicitud, Equipo
             WHERE Solicitud.id = Detalle_solicitud.id_solicitud AND Solicitud.rut_alumno= %s AND Equipo.id = Detalle_solicitud.id_equipo '''
         cursor.execute(query,(rut,))
@@ -238,11 +238,11 @@ def detalle_usuario(rut):
         query='''Select Curso.id as id , Curso.codigo_udp as codigo , Curso.nombre as nombre FROM Curso, Seccion_alumno,Seccion WHERE Seccion_alumno.rut_alumno= %s'''
         cursor.execute(query,(rut,))
         cursos=cursor.fetchall()
-        
+
         query= '''SELECT * FROM Sanciones WHERE rut_alumno = %s'''
         cursor.execute(query,(rut,))
         sancion=cursor.fetchone()
-
+        
         archivo_foto_perfil=obtener_foto_perfil(rut)
         
         return render_template("/vistas_gestion_usuarios/detalle_usuario.html",usuario=usuario,solicitudes=solicitudes,
@@ -254,30 +254,31 @@ def masivo():
         return redirect("/")
     if session["usuario"]["id_credencial"] != 3:
 
-    if request.method=='POST':   
-        archivo=request.files["file"]
-        if  not "." in archivo.filename:
-            flash("sin-extension")
-            return 'error extension'
-        ext= os.path.splitext(archivo.filename)[1]
-        
-        if ext  == '.csv' :
-            print('extension correcta')
-            archivo.filename = session['usuario']['rut'] + "." + archivo.filename.split('.')[1].lower()
-            archivo.save(os.path.join( PATH+'/app/static/files/uploads/', secure_filename(archivo.filename) ) )
-            with open(os.path.join( PATH+'/app/static/files/uploads/', secure_filename(archivo.filename)) , 'r')  as csvfile:
-                read = csv.reader(csvfile, delimiter=',')
-                lines = list(read)
-                query=''' INSERT INTO Usuario(rut,nombres,apellidos,id_credencial) 
-                        VALUES (%s,%s,%s,%s)'''
-                del lines[0]
-                for line in lines:
-                    print(line)
-                    id = 1 if line[3] == 'Alumno' else 2 if line[3] == 'Profesor' else 3
-                    cursor.execute(query,(line[0],line[1],line[2],id))
+      if request.method=='POST':   
+          archivo=request.files["file"]
+          if  not "." in archivo.filename:
+              flash("sin-extension")
+              return 'error extension'
+          ext= os.path.splitext(archivo.filename)[1]
 
-                flash('agregar-masivo-correcto')
-                return redirect("/gestion_usuarios")
+          if ext  == '.csv' :
+              print('extension correcta')
+              archivo.filename = session['usuario']['rut'] + "." + archivo.filename.split('.')[1].lower()
+              archivo.save(os.path.join( PATH+'/app/static/files/uploads/', secure_filename(archivo.filename) ) )
+              with open(os.path.join( PATH+'/app/static/files/uploads/', secure_filename(archivo.filename)) , 'r')  as csvfile:
+                  read = csv.reader(csvfile, delimiter=',')
+                  lines = list(read)
+                  query=''' INSERT INTO Usuario(rut,nombres,apellidos,id_credencial) 
+                          VALUES (%s,%s,%s,%s)'''
+                  del lines[0]
+                  for line in lines:
+                      print(line)
+                      id = 1 if line[3] == 'Alumno' else 2 if line[3] == 'Profesor' else 3
+                      cursor.execute(query,(line[0],line[1],line[2],id))
+
+                  flash('agregar-masivo-correcto')
+                  return redirect("/gestion_usuarios")
+
 
 
 @mod.route("/gestion_usuarios/sancion",methods=["POST"])
@@ -300,11 +301,9 @@ def sancion():
                 #print("error")
                 flash("Error")
                 return redirect(url_for("rutas_pablo.detalle_usuario",rut=data['rut']))
-        
         #Se actualiza el registro y se comprueba si se debe eliminar.
         query= ''' UPDATE Sanciones SET cantidad_dias = %s WHERE rut_alumno = %s'''
         cursor.execute(query,(dias,data['rut']))
         #print("cambio-realizado")
         flash("cambio-realizado")
     return redirect(url_for("rutas_pablo.detalle_usuario", rut=data['rut'] ))
-        

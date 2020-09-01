@@ -3,41 +3,46 @@
 
     {% include "/vistas_perfil/modals/mensajes_administrativos.html" %}
 
+
     <div class="section-red-card" style="margin-top: 0px;">
         <h3>
-            Tu información personal
+            Perfil
         </h3>
     </div>
     <div class="container-fluid">
 
-
         <div class="row row-profile">
 
-
             <div class="col-md-4 justify-content-center">
+                
                 <div id="inner-div" style="width: 200px; margin-bottom: 30px; ">
-
-                {% if admin_inspeccionar_perfil == False%}
+{% if admin_inspeccionar_perfil == False%}
                     <div class="pic__container" style="cursor: pointer;" onclick="open_modal_subir_foto()">
-                {% else %}
-                    <div class="pic__container">
-                {% endif %}
                         <img src="{{dir_foto_perfil}}" class="profile__image"/>
-                    {% if admin_inspeccionar_perfil == False%}
                         <div class="middle">
                             <div class="text"><i class="fas fa-upload"></i></div>
                             Cambiar foto de perfil
                         </div>
-                    {% endif %}
                     </div>
-
-
-
+{% else%}
+                    <div class="pic__container" style="cursor: pointer;" onclick="open_modal_eliminar_foto()">
+                        <img src="{{dir_foto_perfil}}" class="profile__image"/>
+                        <div class="middle">
+                            <div class="text"><i class="fas fa-ban"></i></div>
+                            Eliminar foto
+                        </div>
+                    </div>
+{% endif %}
                     <h6 class="profile-subtext"> Credencial: {{perfil_info.credencial_nombre}} </h6>
-                    <h6 class="profile-subtext"> <span>Sanción activa:</span>    <span style="color: #96d37c;">No</span></h6>
-                    {% if admin_inspeccionar_perfil == False%}
+                {% if sancionado == False %}
+                    <h6 class="profile-subtext"> <span>Sanción activa:</span>    <span style="color: #339900;">No</span></h6>
+                {% else %}
+                    <h6 class="profile-subtext"> <span>Sanción activa:</span>    <span style="color: #cc3300;">Si</span></h6>
+                {% endif %}
+
+                {% if admin_inspeccionar_perfil == False%}
                     <button type="button" onclick="Cargar_informacion()" data-target="#editar_informacion" class="btn btn-info" data-toggle="modal" style="margin-left: 10px;">Editar información</button>
-                    {% endif %}
+                {% endif %}
 
                 </div>
             </div>
@@ -74,24 +79,17 @@
                     transform: translate(-50%, -50%);
                     -ms-transform: translate(-50%, -50%);
                     text-align: center;
-                  }
-                </style>
-
-                {% if admin_inspeccionar_perfil == False%}
-
-                <style>
+                }
                     .pic__container:hover .profile__image{
                         opacity: 0.3;
                         border-radius: 50%;
                     }
-
                     .pic__container:hover .middle {
                         opacity: 1;
+                }
 
-                      }
+            </style>
 
-                </style>
-                {% endif %}
 
 
 
@@ -126,6 +124,14 @@
 
  <br>
 
+ {% if datos_wifi %}
+   <div class="alert alert-info alert-dismissible fade show" role="alert">
+     <i class="fas fa-wifi mr-2"></i>Red Wifi: <strong>{{datos_wifi["ssid"]}}</strong> - Contraseña: <strong>{{datos_wifi["password"]}}</strong>
+     <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+      <span aria-hidden="true">&times;</span>
+    </button>
+   </div>
+ {% endif %}
 
         <nav>
             <div class="nav nav-tabs" id="nav-tab" role="tablist">
@@ -187,7 +193,12 @@
           });
         </script>
 
-    {% include "vistas_perfil/modals/subir_foto.html" %}
-    {% include "vistas_perfil/modals/editar_perfil.html" %}
+    
+	{% if admin_inspeccionar_perfil == False%}
+		{% include "vistas_perfil/modals/subir_foto.html" %}
+		{% include "vistas_perfil/modals/editar_perfil.html" %}
+	{% else %}
+	{% include "vistas_perfil/modals/confirmar_eliminar_foto.html" %}
+	{% endif %}
     {% include "vistas_perfil/modals/detalle_solicitud.html" %}
-  {% endblock %}
+{% endblock %}

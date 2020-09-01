@@ -62,7 +62,7 @@
 							  <div class="input-group-prepend">
 							    <span class="input-group-text">Hasta</span>
 							  </div>
-							  <input type="date" required class="form-control" name="limite_superior" id="fecha_hasta_equipos_solicitados">
+							  <input type="date" required class="form-control input_fecha_hasta" name="limite_superior" id="fecha_hasta_equipos_solicitados">
 							</div>
 						</div>
 						<div class="col">
@@ -110,7 +110,7 @@
 								<div class="input-group-prepend">
 									<span class="input-group-text">Hasta</span>
 								</div>
-								<input type="date" required class="form-control" name="limite_superior" id="fecha_hasta_consulta_2">
+								<input type="date" required class="form-control input_fecha_hasta" name="limite_superior" id="fecha_hasta_consulta_2">
 							</div>
 						</div>
 						<div class="col">
@@ -136,6 +136,7 @@
 		</div>
 
 		<script type="text/javascript">
+
 			$("#formulario-consulta-equipos-solicitados").on("submit",function(event){
 						var elements = this.elements; // Elementos HTML del form
 						let limite_inferior = elements[0].value;
@@ -199,7 +200,7 @@
 								 var options = {
 										title: titulo_grafico,
 										height: 450,
-										legend: { position: 'none' },
+										legend: { position: 'none'},
 										bar: { groupWidth: '75%' },
 										isStacked: true,
 									};

@@ -72,7 +72,6 @@ def tabla_wishlist():
             FROM Wishlist
                 WHERE estado_wishlist = 8
                     ORDER BY Wishlist.fecha_solicitud DESC
-                        LIMIT 10
     """
     cursor.execute(sql_query)
     lista_wishlist_aceptada = cursor.fetchall()
@@ -82,6 +81,7 @@ def tabla_wishlist():
             FROM Wishlist,Estado_detalle_solicitud
                 WHERE rut_solicitante = %s
                 AND Wishlist.estado_wishlist = Estado_detalle_solicitud.id
+                ORDER BY Wishlist.fecha_solicitud DESC
     """
     cursor.execute(sql_query,(session["usuario"]["rut"],))
     lista_solicitudes_wishlist = cursor.fetchall()
@@ -177,13 +177,13 @@ def aceptar_solicitud(id_detalle):
     """
     cursor.execute(sql_query,(datos_solicitud["rut_solicitante"],))
     datos_usuario = cursor.fetchone()
-    
+
     direccion_template = os.path.normpath(os.path.join(os.getcwd(), "app/templates/wishlist/templates_mail/aceptacion_solicitud.html"))
     archivo_html = open(direccion_template,encoding="utf-8").read()
 
     archivo_html = archivo_html.replace("%id_solicitud%",str(id_detalle))
-    archivo_html = archivo_html.replace("%nombre_usuario%",datos_usuario["nombres"]+" "+datos_usuario["apellidos"])
-    archivo_html = archivo_html.replace("%equipo_solicitado%",datos_solicitud["nombre_equipo"]+" "+datos_solicitud["modelo_equipo"]+" "+datos_solicitud["marca_equipo"])
+    archivo_html = archivo_html.replace("%nombre_usuario%",datos_usuario["nombres"])
+    archivo_html = archivo_html.replace("%equipo_solicitado%",datos_solicitud["nombre_equipo"]+" "+datos_solicitud["marca_equipo"]+" "+datos_solicitud["modelo_equipo"])
     archivo_html = archivo_html.replace("%fecha_registro%",str(datos_solicitud["fecha_solicitud"]))
     archivo_html = archivo_html.replace("%fecha_revision_solicitud%",fecha_revision_solicitud)
 
@@ -235,8 +235,8 @@ def rechazar_solicitud(id_detalle):
     archivo_html = open(direccion_template,encoding="utf-8").read()
 
     archivo_html = archivo_html.replace("%id_solicitud%",str(id_detalle))
-    archivo_html = archivo_html.replace("%nombre_usuario%",datos_usuario["nombres"]+" "+datos_usuario["apellidos"])
-    archivo_html = archivo_html.replace("%equipo_solicitado%",datos_solicitud["nombre_equipo"]+" "+datos_solicitud["modelo_equipo"]+" "+datos_solicitud["marca_equipo"])
+    archivo_html = archivo_html.replace("%nombre_usuario%",datos_usuario["nombres"])
+    archivo_html = archivo_html.replace("%equipo_solicitado%",datos_solicitud["nombre_equipo"]+" "+datos_solicitud["marca_equipo"]+" "+datos_solicitud["modelo_equipo"])
     archivo_html = archivo_html.replace("%fecha_registro%",str(datos_solicitud["fecha_solicitud"]))
     archivo_html = archivo_html.replace("%fecha_revision_solicitud%",fecha_revision_solicitud)
 

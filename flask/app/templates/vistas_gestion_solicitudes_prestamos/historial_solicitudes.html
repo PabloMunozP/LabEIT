@@ -2,9 +2,11 @@
 <div class="card-header mt-4" style="background:#0db26b;">
 	<h5 class="card-title text-white my-auto">Historial de solicitudes de préstamos</h5>
 	<p class="text-white my-auto"><i class="fas fa-info-circle mr-2"></i>En esta sección podrá encontrar las solicitudes que se encuentran rechazadas y/o finalizadas.</p>
-	<a href="/exportar_solicitudes/3">
-		<button type="button" title="Exportar historial de solicitudes" class="btn btn-sm btn-secondary"><i class="fas fa-file-excel mr-2"></i>Exportar registros</button>
-	</a>
+	{% if lista_historial_solicitudes %}
+		<a href="/exportar_solicitudes/3">
+			<button type="button" title="Exportar historial de solicitudes" class="btn btn-sm btn-secondary"><i class="fas fa-file-excel mr-2"></i>Exportar registros</button>
+		</a>
+	{% endif %}
 </div>
 
 {% if lista_historial_solicitudes %}
@@ -20,6 +22,7 @@
 						<th scope="col">Equipo solicitado</th>
 						<th scope="col" class="text-center">Estado</th>
 						<th scope="col">Fecha de registro</th>
+						<th scope="col">Fecha de término</th>
 						<th scope="col">Acciones</th>
 					</tr>
 				</thead>
@@ -49,8 +52,17 @@
 							{% elif detalle_solicitud["estado"] == 7 %}
 								<td class="text-center"><span class="badge badge-danger">{{detalle_solicitud["nombre_estado"]}}</span></td>
 							{% endif %}
-
 							<td>{{detalle_solicitud["fecha_registro"]}}</td>
+							{% if detalle_solicitud["fecha_devolucion"] %}
+								<td>{{detalle_solicitud["fecha_devolucion"]}}</td>
+							{% elif detalle_solicitud["fecha_rechazo"] %}
+								<td>{{detalle_solicitud["fecha_rechazo"]}}</td>
+							{% elif detalle_solicitud["fecha_cancelacion"] %}
+								<td>{{detalle_solicitud["fecha_cancelacion"]}}</td>
+							{% else %}
+								<td></td>
+							{% endif %}
+
 							<td>
 								<span class="btn-group">
 									<a href="gestion_solicitudes_prestamos/detalle_solicitud/{{detalle_solicitud["id"]}}">

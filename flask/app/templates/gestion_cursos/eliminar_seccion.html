@@ -8,8 +8,8 @@
         </button>
       </div>
       <form action="/gestion_cursos/eliminar_seccion" method="POST">
-        <input class="form-control" type="text" name="id_curso" value="{{curso['curso_id']}}" id="id_curso" hidden>
         <div class="modal-body">
+          <input class="form-control" type="text" name="id_curso" value="{{curso['curso_id']}}" id="id_curso" hidden>
           <p>Al eliminar la sección, los registros asociados serán eliminados automáticamente.</p>
           <p><strong>Curso:</strong> {{curso['codigo_udp']}}</p>
           <p><strong>Código de sección:</strong> {{seccion['codigo_seccion']}}</p>

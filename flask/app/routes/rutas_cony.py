@@ -223,10 +223,7 @@ def consultar_lista_cursos():
     if session["usuario"]["id_credencial"] != 3:
         return redirect("/")
     query = ('''
-    SELECT
-        Curso.codigo_udp,
-        Curso.nombre,
-        Curso.descripcion
+    SELECT *
         FROM Curso
     ''')
     cursor.execute(query)
@@ -280,17 +277,33 @@ def consultar_curso_secciones(codigo):
         SELECT
             Seccion.id,
             Seccion.rut_profesor,
+            Usuario.nombres AS nombres_profesor, Usuario.apellidos AS apellidos_profesor,
             Seccion.codigo AS codigo_seccion,
             Seccion.id_curso,
             Curso.codigo_udp,
             Curso.nombre
             FROM Seccion
             LEFT JOIN Curso ON Curso.id = Seccion.id_curso
+            LEFT JOIN Usuario On Usuario.rut = Seccion.rut_profesor
             WHERE Curso.codigo_udp = %s
     ''')
     cursor.execute(query,(codigo,))
     secciones = cursor.fetchall()
     return secciones
+
+def consultar_profesores():
+    if "usuario" not in session.keys():
+        return redirect("/")
+    if session["usuario"]["id_credencial"] != 3:
+        return redirect("/")
+    query = ('''
+        SELECT *
+            FROM Usuario
+            WHERE Usuario.id_credencial = 2
+    ''')
+    cursor.execute(query)
+    profesores = cursor.fetchall()
+    return profesores
 
 @mod.route("/gestion_cursos/detalles_curso/<string:codigo_udp>",methods=["GET"])
 def secciones_curso(codigo_udp):
@@ -301,7 +314,8 @@ def secciones_curso(codigo_udp):
 
     curso = consultar_curso(codigo_udp)
     secciones = consultar_curso_secciones(codigo_udp)
-    return render_template("/gestion_cursos/detalles_curso.html", curso=curso, secciones=secciones)
+    profesores = consultar_profesores()
+    return render_template("/gestion_cursos/detalles_curso.html", curso=curso, secciones=secciones,profesores=profesores)
 # == VISTA PRINCIPAL/MODAL "AGREGAR CURSO" ==
 
 def agregar_curso(val):
@@ -371,13 +385,13 @@ def editar_curso(val):
         SET codigo_udp = %s,
             nombre = %s,
             descripcion = %s
-        WHERE Curso.codigo_udp = %s
+        WHERE Curso.id = %s
     ''')
     cursor.execute(query, (
         val['codigo_udp'],
         val['nombre'],
         val['descripcion'],
-        val['codigo_udp']
+        val['id']
         ))
     db.commit()
     return val
@@ -390,18 +404,19 @@ def editar_curso_form():
         return redirect("/")
     if request.method=='POST':
         val=request.form.to_dict()
+        print(val)
         query = ('''
             UPDATE Curso
             SET Curso.codigo_udp = %s,
                 Curso.nombre = %s,
                 Curso.descripcion = %s
-            WHERE Curso.codigo_udp = %s
+            WHERE Curso.id = %s
         ''')
         cursor.execute(query, (
             val['nuevo_codigo_udp'],
             val['nombre'],
             val['descripcion'],
-            val['codigo_udp']
+            val['id']
             ))
         db.commit()
         flash("El curso se ha actualizado correctamente")
@@ -446,10 +461,18 @@ def editar_seccion_form():
 # == VISTA PRINCIPAL/MODAL "BORRAR CURSO" ==
 
 def eliminar_curso(curso):
-    query = ('''
-        DELETE Curso FROM Curso WHERE Curso.codigo_udp = %s
+    query0 = ('''
+        DELETE Seccion_alumno FROM Seccion_alumno, Seccion WHERE Seccion.id_curso = %s AND Seccion.id = Seccion_alumno.id_seccion
     ''')
-    cursor.execute(query,(curso['codigo_udp'],))
+    query1 = ('''
+        DELETE Seccion FROM Seccion WHERE Seccion.id_curso = %s
+    ''')
+    query2 = ('''
+        DELETE Curso FROM Curso WHERE Curso.id = %s
+    ''')
+    cursor.execute(query0,(curso['id'],))
+    cursor.execute(query1,(curso['id'],))
+    cursor.execute(query2,(curso['id'],))
     db.commit()
     return 'OK'
 
@@ -466,10 +489,16 @@ def eliminar_curso_form():
         return redirect("/gestion_cursos")
 
 def eliminar_seccion(seccion):
-    query = ('''
+    print(seccion['id'])
+    query1 = ('''
+        DELETE Seccion_alumno FROM Seccion_alumno WHERE Seccion_alumno.id_seccion = %s
+    ''')
+
+    query2 = ('''
         DELETE Seccion FROM Seccion WHERE Seccion.id = %s
     ''')
-    cursor.execute(query,(seccion['id'],))
+    cursor.execute(query1,(seccion['id'],))
+    cursor.execute(query2,(seccion['id'],))
     db.commit()
     return 'OK'
 
@@ -489,11 +518,11 @@ def eliminar_seccion_form():
 def consultar_curso_descripcion(codigo_curso):
     query = ('''
         SELECT *
-        FROM CURSO
+        FROM Curso
         WHERE Curso.codigo_udp = %s
     ''')
     cursor.execute(query,(codigo_curso,))
-    curso_detalle = cursos.fetchone()
+    curso_detalle = cursor.fetchone()
     return curso_detalle
 @mod.route("/gestion_cursos/detalles_curso/<string:codigo_udp>",methods=["GET"])
 def detalle_info_curso(codigo_udp):
@@ -541,8 +570,25 @@ def alumnos_seccion(codigo_udp,codigo_seccion):
         return redirect("/")
 
     seccion_id = obtener_seccion_id(codigo_udp,codigo_seccion)
-    alumnos = consultar_alumnos_seccion(seccion_id['id'])
-    return render_template("gestion_cursos/detalles_seccion.html",seccion_id=seccion_id,alumnos=alumnos)
+    alumnos_seccion = consultar_alumnos_seccion(seccion_id['id'])
+    todos_los_alumnos = consultar_alumnos(seccion_id['id'])
+    curso = consultar_curso_descripcion(codigo_udp)
+    return render_template("gestion_cursos/detalles_seccion.html",seccion_id=seccion_id,alumnos=alumnos_seccion,lista_alumnos=todos_los_alumnos,curso=curso)
+
+def consultar_alumnos(id_seccion):
+    if "usuario" not in session.keys():
+        return redirect("/")
+    if session["usuario"]["id_credencial"] != 3:
+        return redirect("/")
+    query = ('''
+        SELECT *
+            FROM Usuario
+            WHERE Usuario.id_credencial = 1
+            AND Usuario.rut NOT IN (SELECT Seccion_alumno.rut_alumno FROM Seccion_alumno WHERE Seccion_alumno.id_seccion=%s)
+    ''')
+    cursor.execute(query,(id_seccion,))
+    alumnos = cursor.fetchall()
+    return alumnos
 
 def agregar_alumno(val):
     query = ('''
