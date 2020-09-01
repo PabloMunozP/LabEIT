@@ -1,0 +1,77 @@
+<div id="editar_{{usuario['rut']}}" class="modal fade in" tabindex="-1" role="dialog"  aria-hidden="true" data-keyboard="true" data-backdrop="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-gris-eit">
+                <h5 class="modal-title text-white" id="editar_informacion_label"><i class="fas fa-user-edit mr-2"></i>Editar información de usuario</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
+                <span aria-hidden="true">&times; </span>
+                </button>
+            </div>
+            <form id="editar_usuario" action="/gestion_usuarios/editar_usuario" method="POST">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="nombres">Nombres:</label>
+                        <input type="text" id="nombres" name="nombres" title="Solo se permiten letras del lenguaje español. Formato Nombre1 Nombre2 " class="form-control" value="{{usuario['nombres']}}"  maxlength="30" pattern="[a-zA-Z\u00C0-\u00D6\u00D8-\u00f6\u00f8-\u00ff\s ]{0,30}\S" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="apellidos">Apellidos:</label>
+                        <input type="text" name="apellidos" id="apellidos" title="Solo se permiten letras del lenguaje español. Formato Apellido1 Apellido2" class="form-control" value="{{usuario['apellidos']}}" maxlength="30" pattern="[a-zA-Z\u00C0-\u00D6\u00D8-\u00f6\u00f8-\u00ff\s ]{0,30}\S" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="rut">Rut:</label>
+                        <input type="text" name="rut" id="rut" title="Ingrese un rut valido, sin puntos ni guion y K mayuscula. Formato 123456789K " class="form-control" value="{{usuario['rut']}}" maxlength="11"  pattern="[0-9]{8,10}[K]{0,1}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="correo">Correo:</label>
+                        <input type="email" name="correo" id="correo" title="Ingrese un correo valido. Formato nombre@mail.com "class="form-control"  value="{{usuario['correo']}}" maxlength="41" pattern="[a-zA-Z0-9.]{5,15}[@]{1}[a-zA-Z0-9.]{5,15}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="crendencial">Crendencial:</label>
+                        <select name="credencial" id="credencial" class="form-control" >
+                            <option selected hidden value="{{usuario['id_credencial']}}">{{usuario['credencial']}}</option>
+                            <option value="1">Alumno</option>
+                            <option value="2">Profesor</option>
+                            <option value="3">Administrador</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="region">Región:</label>
+                        <select name="regiones" id="regiones" class="form-control" onchange="Cargar_informacion()">
+                            <option selected value="{{usuario['region']}}">{{usuario['region']}}</option>
+                            <option value="Metropolitana">Metropolitana falso</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="comuna">Comuna:</label>
+                        <select name="comuna" id="comunas" class="form-control">
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="direccion">Dirección</label>
+                        <input type="text" name="direccion" id="direccion" title="Ingrese una direccion valida, solo se permiten letras del lenguaje español." class="form-control" value="{{usuario['direccion']}}" maxlength="30" pattern="[a-zA-Z\u00C0-\u00D6\u00D8-\u00f6\u00f8-\u00ff\s 0-9 ]{5,30}" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                    <button type="submit"  class="btn btn-info">Guardar cambios</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+  function Cargar_informacion() {
+    if('{{usuario.direccion}}' != 'None'){document.getElementById("direccion").value = '{{usuario.direccion}}';}
+    if('{{usuario.region}}' != 'None'){
+      $("#regiones").val("{{usuario.region}}").change();
+    }
+    if('{{usuario.comuna}}' != 'None'){
+      $("#comunas").val('{{usuario.comuna}}');
+    }
+  };
+  $(window).on('load',function(){
+    Cargar_informacion();
+  });
+</script>
+

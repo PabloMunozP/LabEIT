@@ -1,0 +1,168 @@
+        {% with msgs = get_flashed_messages() %}
+        {% if msgs %}
+          {% for msg in msgs %}
+            {% if msg == "Error"%}
+            
+                <meta http-equiv="refresh">
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="fas fa-times-circle mr-2"></i>La cantidad de dias ingresada es mayor a la disponible. por favor revisa los valores.
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                 <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            {%endif%}
+            {% if msg == "cambio-realizado" %}
+            <meta http-equiv="refresh">
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="fas fa-check-circle mr-2"></i>Se ha modificado correctamente la sancion.
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+            {%endif%}
+            {% if msg == "sin-cambio" %}
+            <meta http-equiv="refresh">
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="fas fa-check-circle mr-2"></i>No han habido cambios.
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+        {%endif%}
+          {%endfor%}
+        {%endif%}
+      {%endwith%}
+<hr>
+    <div class="row"> 
+        <div class="col-md-4 ">
+            <center>
+            <div>
+            
+                <div class="pic__container" style="cursor: pointer;" onclick="open_modal_subir_foto()">
+            
+                    <div class="pic__container">
+            
+                        <img src="{{dir_foto_perfil}}" class="profile__image"/>
+            
+                        <div class="middle">
+                            <div class="text"><i class="fas fa-upload"></i>
+                                Cambiar foto de perfil
+                            </div>
+                        </div>
+
+                        <div id="modal_subir_foto" class="modal fade in" tabindex="-1" role="dialog" aria-labelledby="subir_foto" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+                            <div class="modal-dialog" role="document">
+                              <div class="modal-content ">
+                                <div class="modal-header bg-gris-eit">
+                                  <h5 class="modal-title text-white" id="editar_informacion_label"><i class="fas fa-user-edit mr-2"></i>Subir foto de perfil</h5>
+                                </div>
+                                <form action="/perfil/subir_foto" method="POST" enctype="multipart/form-data">
+                        
+                                    <div class="modal-body">
+                                        <div class="custom-file">
+                                            <input type="file" class="custom-file-input" name="image" id="image" lang="es"accept="image/png,image/gif,image/jpeg" required>
+                                            <label class="custom-file-label" for="image">Seleccionar Archivo</label>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                                        <button type="summit" id="boton_subir" class="btn btn-info">Subir imagen</button>
+                                    </div>
+                                </form>
+                            </div>
+                          </div>
+                        </div>      
+                        
+                        <script>
+                            function open_modal_subir_foto(){
+                                $('#modal_subir_foto').modal('show');
+                            }
+                            
+                        </script>
+            
+                    </div>     
+                </div>
+            </div>
+            
+            <button type="button" title="Eliminar usuario" data-target="#eliminar_{{usuario['rut']}}" class="btn btn-sm btn-danger" data-toggle="modal"><i class="fas fa-trash-alt"></i> Eliminar </button>
+            </center>
+            {% include 'vistas_gestion_usuarios/eliminar_usuario.html' %}
+        </div>
+        <style>
+            .profile__image{
+                opacity: 1;
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                border-radius: 50%;
+                margin: 0 auto 20px auto;
+                display: block;
+                border: 1px solid #c5c5c5;
+                backface-visibility: hidden;
+                position: absolute;
+                top: 0px;
+                left: 0px;
+
+            }
+            .pic__container{
+                position: relative;
+                justify-content: center;
+                display: flex;
+                align-items: center;
+                border-radius: 50%;
+                width: 200px;
+                height: 200px;
+            }
+            .middle {
+                opacity: 0;
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                -ms-transform: translate(-50%, -50%);
+                text-align: center;
+              }
+        </style>
+            
+        <style>
+                .pic__container:hover .profile__image{
+                    opacity: 0.3;
+                    border-radius: 50%;
+                }
+
+                .pic__container:hover .middle {
+                    opacity: 1;
+
+                  }
+
+        </style>
+
+        <div class="col md-6">
+            <h3 > {{usuario['nombres']}} {{usuario['apellidos']}}</h3>
+            <p> Correo: {{usuario['correo']}} </p>
+            <table>
+                <tr>
+                    <th rowspan="1">Rut: </th> 
+                    <td>{{usuario['rut']}}</td>
+                </tr>
+                <tr>
+                    <th rowspan="3">Direccion: </th> 
+                    <td>{{usuario['direccion']}}, {{usuario['comuna']}}, {{usuario['region']}}.</td>
+                </tr>
+            </table>
+            {%if sancion %}
+            <hr>
+                <p>Sancionado desde el {{sancion['fecha_registro'].day}}/{{sancion['fecha_registro'].month}}/{{sancion['fecha_registro'].year}} <br> 
+                durante <strong> {{sancion['cantidad_dias']}} </strong> dias mas.
+                {%if sancion['activa']== 1 %}
+                <br> Debe equipos.
+                {%endif%}
+                </p>
+                
+                <button type="button" title="Modificar Sancion" data-target="#sancion_{{usuario['rut']}}" class="btn btn-sm btn-secondary" data-toggle="modal">Editar Sancion</button>
+                {%include '/vistas_gestion_usuarios/modificar_sancion.html'%}
+            {%endif%}
+            
+        </div>
+    </div>
+   
