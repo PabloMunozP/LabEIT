@@ -11,19 +11,19 @@
                 <div class="modal-body">
                     <div class="form-group">
                         <label for="nombres">Nombres:</label>
-                        <input type="text" id="nombres" name="nombres" class="form-control" value="{{usuario['nombres']}}" required>
+                        <input type="text" id="nombres" name="nombres" title="Solo se permiten letras del lenguaje español. Formato Nombre1 Nombre2 " class="form-control" value="{{usuario['nombres']}}"  maxlength="30" pattern="[a-zA-Z\u00C0-\u00D6\u00D8-\u00f6\u00f8-\u00ff\s ]{0,30}\S" required>
                     </div>
                     <div class="form-group">
                         <label for="apellidos">Apellidos:</label>
-                        <input type="text" name="apellidos" id="apellidos" class="form-control" value="{{usuario['apellidos']}}" required>
+                        <input type="text" name="apellidos" id="apellidos" title="Solo se permiten letras del lenguaje español. Formato Apellido1 Apellido2" class="form-control" value="{{usuario['apellidos']}}" maxlength="30" pattern="[a-zA-Z\u00C0-\u00D6\u00D8-\u00f6\u00f8-\u00ff\s ]{0,30}\S" required>
                     </div>
                     <div class="form-group">
                         <label for="rut">Rut:</label>
-                        <input type="text" name="rut" id="rut" class="form-control" value="{{usuario['rut']}}" required>
+                        <input type="text" name="rut" id="rut" title="Ingrese un rut valido, sin puntos ni guion y K mayuscula. Formato 123456789K " class="form-control" value="{{usuario['rut']}}" maxlength="11"  pattern="[0-9]{8,10}[K]{0,1}" required>
                     </div>
                     <div class="form-group">
                         <label for="correo">Correo:</label>
-                        <input type="email" name="correo" id="correo" class="form-control"  value="{{usuario['email']}}" required>
+                        <input type="email" name="correo" id="correo" title="Ingrese un correo valido. Formato nombre@mail.com "class="form-control"  value="{{usuario['correo']}}" maxlength="41" pattern="[a-zA-Z0-9.]{5,15}[@]{1}[a-zA-Z0-9.]{5,15}" required>
                     </div>
                     <div class="form-group">
                         <label for="crendencial">Crendencial:</label>
@@ -36,21 +36,19 @@
                     </div>
                     <div class="form-group">
                         <label for="region">Región:</label>
-                        <select name="region" id="region" class="form-control">
+                        <select name="regiones" id="regiones" class="form-control" onchange="Cargar_informacion()">
                             <option selected value="{{usuario['region']}}">{{usuario['region']}}</option>
                             <option value="Metropolitana">Metropolitana falso</option>
                         </select>
                     </div>
                     <div class="form-group">
                         <label for="comuna">Comuna:</label>
-                        <select name="comuna" id="comuna" class="form-control">
-                            <option selected value="{{usuario['comuna']}}">{{usuario['comuna']}} </option>
-                            <option value="Santiago">Santiago falso</option>
+                        <select name="comuna" id="comunas" class="form-control">
                         </select>
                     </div>
                     <div class="form-group">
                         <label for="direccion">Dirección</label>
-                        <input type="text" name="direccion" id="direccion" class="form-control" value="{{usuario['direccion']}}" required>
+                        <input type="text" name="direccion" id="direccion" title="Ingrese una direccion valida, solo se permiten letras del lenguaje español." class="form-control" value="{{usuario['direccion']}}" maxlength="30" pattern="[a-zA-Z\u00C0-\u00D6\u00D8-\u00f6\u00f8-\u00ff\s 0-9 ]{5,30}" required>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -61,3 +59,19 @@
         </div>
     </div>
 </div>
+
+<script>
+  function Cargar_informacion() {
+    if('{{usuario.direccion}}' != 'None'){document.getElementById("direccion").value = '{{usuario.direccion}}';}
+    if('{{usuario.region}}' != 'None'){
+      $("#regiones").val("{{usuario.region}}").change();
+    }
+    if('{{usuario.comuna}}' != 'None'){
+      $("#comunas").val('{{usuario.comuna}}');
+    }
+  };
+  $(window).on('load',function(){
+    Cargar_informacion();
+  });
+</script>
+

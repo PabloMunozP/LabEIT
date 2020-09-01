@@ -11,19 +11,19 @@
                 <div class="modal-body">
                     <div class="form-group">
                         <label for="Nombres">Nombres:</label>
-                        <input type="text" id="nombres" name="nombres" class="form-control" required>
+                        <input type="text" id="nombres" name="nombres" title="Solo se permiten letras del lenguaje español. Formato Nombre1 Nombre2" class="form-control" maxlength="30" pattern="[a-zA-Z\u00C0-\u00D6\u00D8-\u00f6\u00f8-\u00ff ]{0,30}\S"  required>
                     </div>
                     <div class="form-group">
                         <label for="apellidos">Apellidos:</label>
-                        <input type="text" name="apellidos" id="apellidos" class="form-control" required>
+                        <input type="text" name="apellidos" id="apellidos" title="Solo se permiten letras del lenguaje español. Formato Apellido1 Apellido2" class="form-control" maxlength="30" pattern="[a-zA-Z\u00C0-\u00D6\u00D8-\u00f6\u00f8-\u00ff ]{0,30}\S" required>
                     </div>
                     <div class="form-group">
                         <label for="rut">Rut:</label>
-                        <input type="text" name="rut" id="rut" class="form-control" required>
+                        <input type="text" name="rut" id="rut" itle="Ingrese un rut valido, sin puntos ni guion. Formato 1234567890 " class="form-control" maxlength="11"  pattern="[0-9]{8,10}[K]{0,1}" required>
                     </div>
                     <div class="form-group">
                         <label for="correo">Correo:</label>
-                        <input type="email" name="correo" id="correo" class="form-control" required>
+                        <input type="email" name="correo" id="correo" title="Ingrese un correo valido. Formato nombre@mail.com "class="form-control" maxlength="41" pattern="[a-zA-Z0-9.]{5,15}[@]{1}[a-zA-Z0-9.]{5,15}" required>
                     </div>
                     <div class="form-group">
                         <label for="crendencial">Crendencial:</label>
