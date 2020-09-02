@@ -404,7 +404,6 @@ def editar_curso_form():
         return redirect("/")
     if request.method=='POST':
         val=request.form.to_dict()
-        print(val)
         query = ('''
             UPDATE Curso
             SET Curso.codigo_udp = %s,
@@ -489,7 +488,6 @@ def eliminar_curso_form():
         return redirect("/gestion_cursos")
 
 def eliminar_seccion(seccion):
-    print(seccion['id'])
     query1 = ('''
         DELETE Seccion_alumno FROM Seccion_alumno WHERE Seccion_alumno.id_seccion = %s
     ''')
