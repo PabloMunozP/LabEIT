@@ -222,20 +222,20 @@ def detalle_usuario(rut):
 
     if request.method=='GET':
         #print(rut)
-        query=''' Select Usuario.nombres as nombres, Usuario.apellidos as apellidos, Credencial.nombre as credencial,
+        query=''' SELECT Usuario.nombres as nombres, Usuario.apellidos as apellidos, Credencial.nombre as credencial,
             Usuario.email as correo, Usuario.region as region, Usuario.comuna as comuna, Usuario.rut as rut,
             Usuario.direccion as direccion, Usuario.celular as celular FROM Usuario,Credencial WHERE Credencial.id=Usuario.id_credencial AND Usuario.rut=%s '''
         cursor.execute(query,(rut,))
         usuario=cursor.fetchone()
 
-        query=''' Select Solicitud.id as id, Solicitud.rut_profesor as profesor, Solicitud.rut_alumno as alumno, Solicitud.motivo as motivo, Solicitud.fecha_registro as registro,
+        query=''' SELECT Solicitud.id as id, Solicitud.rut_profesor as profesor, Solicitud.rut_alumno as alumno, Solicitud.motivo as motivo, Solicitud.fecha_registro as registro,
             Detalle_solicitud.estado as estado, Detalle_solicitud.id as id_detalle, Equipo.nombre as equipo, Equipo.modelo as modelo
             FROM Solicitud, Detalle_solicitud, Equipo
             WHERE Solicitud.id = Detalle_solicitud.id_solicitud AND Solicitud.rut_alumno= %s AND Equipo.id = Detalle_solicitud.id_equipo '''
         cursor.execute(query,(rut,))
         solicitudes=cursor.fetchall()
 
-        query='''Select Curso.id as id , Curso.codigo_udp as codigo , Curso.nombre as nombre FROM Curso, Seccion_alumno,Seccion WHERE Seccion_alumno.rut_alumno= %s'''
+        query='''SELECT Curso.id as id , Curso.codigo_udp as codigo , Curso.nombre as nombre FROM Curso, Seccion_alumno,Seccion WHERE Seccion_alumno.rut_alumno= %s'''
         cursor.execute(query,(rut,))
         cursos=cursor.fetchall()
 
@@ -297,13 +297,18 @@ def sancion():
         elif data['op_sancion']== '2' : #Disminuir dias de sancion
             dias=dias-int(data['cant_sancion'])
             #print(dias)
-            if dias < 0:
-                #print("error")
-                flash("Error")
-                return redirect(url_for("rutas_pablo.detalle_usuario",rut=data['rut']))
+        if dias < 0:
+            #print("error")
+            flash("Error")
+            return redirect(redirect_url())
+        elif dias == 0:
+            query= ''' DELETE FROM  Sanciones WHERE rut_alumno= %s '''
+            cursor.execute(query,(data['rut'],))
+            flash("cambio-realizado")
+            return redirect(redirect_url())
         #Se actualiza el registro y se comprueba si se debe eliminar.
         query= ''' UPDATE Sanciones SET cantidad_dias = %s WHERE rut_alumno = %s'''
         cursor.execute(query,(dias,data['rut']))
         #print("cambio-realizado")
         flash("cambio-realizado")
-    return redirect(url_for("rutas_pablo.detalle_usuario", rut=data['rut'] ))
+    return redirect(redirect_url())
