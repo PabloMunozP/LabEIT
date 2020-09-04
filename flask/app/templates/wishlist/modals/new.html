@@ -1,0 +1,32 @@
+<th scope="col ">
+    Marca</th>
+<th scope="col ">Modelo</th>
+<th scope="col ">Motivo</th>
+<th scope="col " class="text-center ">Estado</th>
+<th scope="col ">Fecha de solicitud</th>
+
+
+
+
+
+
+
+<td>{{detalle_solicitud["marca_equipo "]}}</td>
+<td>{{detalle_solicitud["modelo_equipo "]}}</td>
+{% if detalle_solicitud["motivo_academico "] %}
+<td>Académico</td>
+{% else %}
+<td>Personal</td>
+{% endif %}
+</td>
+{% if detalle_solicitud["estado_wishlist "] == 0 %}
+<td class="text-center "><span class="badge badge-primary ">{{detalle_solicitud["nombre_estado "]}}</span></td>
+{% elif detalle_solicitud["estado_wishlist "] == 5 %}
+<td class="text-center "><span class="badge badge-danger ">{{detalle_solicitud["nombre_estado "]}}</span>
+</td>
+{% elif detalle_solicitud["estado_wishlist "] == 8 %}
+<td class="text-center "><span class="badge badge-success ">{{detalle_solicitud["nombre_estado "]}}</span></td>
+{% endif %}
+<td>
+    {% if detalle_solicitud["fecha_solicitud "] %} {{detalle_solicitud["fecha_solicitud "]}} {% endif %}
+</td>

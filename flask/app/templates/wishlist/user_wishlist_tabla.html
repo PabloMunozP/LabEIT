@@ -1,38 +1,40 @@
-{% if lista_wishlist_aceptada %}
-
+{% if lista_wishlist_aceptada %} {% if count_wishlist["count(id)"] >= count_wishlist["mostrar"] %}
 <div class="table-responsive mt-2">
-	<div class="table-wrapper-scroll-y" style="position: relative;
+    <div class="table-wrapper-scroll-y" style="position: relative;
 								max-height: 450px;
 								overflow:auto;">
-		<table class="table" id="tabla_solicitudes_por_revisar">
-			<thead class="text-white" style="background:#4D4D4D;">
-				<tr>
-					<th scope="col">Nombre</th>
-					<th scope="col">Marca</th>
-					<th scope="col">Modelo</th>
-					<th scope="col">Motivo</th>
-				</tr>
-			</thead>
-			<tbody>
-				{% for detalle_solicitud in lista_wishlist_aceptada %}
-				<tr style="background:#ECF0F1;">
-					<td>{{detalle_solicitud["nombre_equipo"]}}</td>
-					<td>{{detalle_solicitud["marca_equipo"]}}</td>
-					<td>{{detalle_solicitud["modelo_equipo"]}}</td>
-					{% if detalle_solicitud["motivo_academico"] %}
-					<td>Académico</td>
-					{% else %}
-					<td>Personal</td>
-					{% endif %}
-				</tr>
-				{% endfor %}
-			</tbody>
-		</table>
-	</div>
+        <table class="table" id="tabla_solicitudes_por_revisar">
+            <thead class="text-white" style="background:#4D4D4D;">
+                <tr>
+                    <th scope="col">Nombre</th>
+                    <th scope="col">Marca</th>
+                    <th scope="col">Modelo</th>
+                    <th scope="col">Motivo</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for detalle_solicitud in lista_wishlist_aceptada %}
+                <tr style="background:#ECF0F1;">
+                    <td>{{detalle_solicitud["nombre_equipo"]}}</td>
+                    <td>{{detalle_solicitud["marca_equipo"]}}</td>
+                    <td>{{detalle_solicitud["modelo_equipo"]}}</td>
+                    {% if detalle_solicitud["motivo_academico"] %}
+                    <td>Académico</td>
+                    {% else %}
+                    <td>Personal</td>
+                    {% endif %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </div>
-
 {% else %}
 <div class="alert alert-warning alert-dismissible fade show text-center mt-2" role="alert">
-	<i class="fas fa-exclamation-triangle mr-2"></i>No existen solicitudes de Wishlist aprobadas en el laboratorio.
+    <i class="fas fa-exclamation-triangle mr-2"></i>No existen solicitudes de Wishlist aprobadas en el laboratorio. ¡Motívate a realizar la primera!
+</div>
+{% endif %} {% else %}
+<div class="alert alert-warning alert-dismissible fade show text-center mt-2" role="alert">
+    <i class="fas fa-exclamation-triangle mr-2"></i>No existen solicitudes de Wishlist aprobadas en el laboratorio. ¡Motívate a realizar la primera!
 </div>
 {% endif %}

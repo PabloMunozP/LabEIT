@@ -5,6 +5,7 @@ from datetime import datetime
 from email import encoders
 from email.mime.base import MIMEBase
 from email.mime.text import MIMEText
+TAMAÑO_MAX_PDF = 10000000
 
 mod = Blueprint("rutas_lorenzo",__name__)
 
@@ -43,7 +44,7 @@ def tabla_wishlist():
         fecha_solicitud_wishlist = datetime.now()
         form = request.form.to_dict()
 
-        sql_query= """
+        sql_query = """
             INSERT INTO Wishlist
                 (rut_solicitante,nombre_equipo,marca_equipo,modelo_equipo,motivo_academico,fecha_solicitud)
                     VALUES (%s,%s,%s,%s,%s,%s)
@@ -52,6 +53,13 @@ def tabla_wishlist():
 
         cursor.execute("SELECT MAX(id) FROM Wishlist")
         last_id = cursor.lastrowid
+
+        sql_query = """
+            INSERT INTO Motivo_academico_wishlist
+                (id_wishlist,id_curso)
+                VALUES (%s,%s)
+        """
+        cursor.execute(sql_query,(last_id,form["id"]))
 
         for i in range(10):
             if 'url[{}]'.format(str(i)) in form:
@@ -86,9 +94,28 @@ def tabla_wishlist():
     cursor.execute(sql_query,(session["usuario"]["rut"],))
     lista_solicitudes_wishlist = cursor.fetchall()
 
+    sql_query = """
+        SELECT count(id)
+            FROM Wishlist
+                WHERE estado_wishlist = 8
+    """
+    cursor.execute(sql_query)
+    count_wishlist = cursor.fetchone()
+
+    count_wishlist["mostrar"] = 10
+
+    sql_query = """
+        SELECT *
+            FROM Curso
+    """
+    cursor.execute(sql_query)
+    nombres_cursos = cursor.fetchall()
+
     return render_template("/wishlist/user_wishlist.html",
         lista_wishlist_aceptada=lista_wishlist_aceptada,
-        lista_solicitudes_wishlist=lista_solicitudes_wishlist)
+        lista_solicitudes_wishlist=lista_solicitudes_wishlist,
+        count_wishlist = count_wishlist,
+        nombres_cursos = nombres_cursos)
 
 @mod.route("/gestion_wishlist",methods=["GET"])
 def gestionar_wishlist():
@@ -118,10 +145,12 @@ def detalle_solicitud(id_detalle_solicitud):
         return redirect("/")
 
     sql_query = """
-        SELECT Wishlist.*,Estado_detalle_solicitud.nombre AS nombre_estado,Usuario.nombres AS nombres,Usuario.apellidos AS apellidos,Usuario.email AS email
-            FROM Wishlist,Estado_detalle_solicitud,Usuario
+        SELECT Wishlist.*,Estado_detalle_solicitud.nombre AS nombre_estado,Usuario.nombres AS nombres,Usuario.apellidos AS apellidos,Usuario.email AS email,Curso.nombre AS nombre_curso
+            FROM Wishlist,Estado_detalle_solicitud,Usuario,Motivo_academico_wishlist,Curso
                 WHERE Wishlist.estado_wishlist = Estado_detalle_solicitud.id
                 AND Wishlist.rut_solicitante = Usuario.rut
+                AND Wishlist.id = Motivo_academico_wishlist.id_wishlist
+                AND Motivo_academico_wishlist.id_curso = Curso.id
                 AND Wishlist.id = %s
     """
     cursor.execute(sql_query,(id_detalle_solicitud,))
@@ -178,7 +207,7 @@ def aceptar_solicitud(id_detalle):
     cursor.execute(sql_query,(datos_solicitud["rut_solicitante"],))
     datos_usuario = cursor.fetchone()
 
-    direccion_template = os.path.normpath(os.path.join(os.getcwd(), "app/templates/wishlist/templates_mail/aceptacion_solicitud.html"))
+    direccion_template = os.path.normpath(os.path.join(os.getcwd(), "flask/app/templates/wishlist/templates_mail/aceptacion_solicitud.html"))
     archivo_html = open(direccion_template,encoding="utf-8").read()
 
     archivo_html = archivo_html.replace("%id_solicitud%",str(id_detalle))
@@ -231,7 +260,7 @@ def rechazar_solicitud(id_detalle):
     cursor.execute(sql_query,(datos_solicitud["rut_solicitante"],))
     datos_usuario = cursor.fetchone()
 
-    direccion_template = os.path.normpath(os.path.join(os.getcwd(), "app/templates/wishlist/templates_mail/rechazo_solicitud.html"))
+    direccion_template = os.path.normpath(os.path.join(os.getcwd(), "flask/app/templates/wishlist/templates_mail/rechazo_solicitud.html"))
     archivo_html = open(direccion_template,encoding="utf-8").read()
 
     archivo_html = archivo_html.replace("%id_solicitud%",str(id_detalle))
