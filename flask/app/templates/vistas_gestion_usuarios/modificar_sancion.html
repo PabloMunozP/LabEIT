@@ -1,0 +1,38 @@
+<div id="sancion_{{usuario['rut']}}" class="modal fade in" tabindex="-1" role="dialog"  aria-hidden="true" data-keyboard="true" data-backdrop="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-gris-eit">
+                <h5 class="modal-title text-white" id="editar_informacion_label">Modificar sanción</h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar">
+                <span aria-hidden="true">&times; </span>
+                </button>
+            </div>
+            <form action="/gestion_usuarios/sancion" method="POST">
+                <div class="modal-body">
+
+                  <div class="form-group row">
+          					<label class="col-md-8 col-form-label">
+                      Cantidad de días a aumentar o disminuir:
+          					</label>
+          					<div class="col-md-4">
+                      <input type="number" min="1" max="31" name="cant_sancion" class="form-control" id="sancion">
+          					</div>
+          				</div>
+
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" required name="op_sancion" id="opcion1" value=1 >
+                        <label for="opcion1" class="form-check-label mr-3">Aumentar</label>
+
+                        <input class="form-check-input" type="radio" required name="op_sancion" id="opcion2" value=2>
+                        <label for="opcion2" class="form-check-label">Disminuir</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <input type="hidden" name="rut" value="{{usuario["rut"]}}">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                    <button type="submit"  class="btn btn-info">Guardar cambios</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

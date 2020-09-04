@@ -53,9 +53,14 @@
                           Sección de Wishlist
                         </a>
 
-                        <a class="nav-link" href="/faq">
+                        <!--<a class="nav-link" href="/faq">
                           <div class="sb-nav-link-icon"><i class="fas fa-question-circle mr-1"></i></div>
                           Preguntas frecuentes
+                        </a>-->
+
+                        <a class="nav-link" href="/reglamento_interno_labeit">
+                          <div class="sb-nav-link-icon"><i class="fas fa-book mr-1"></i></div>
+                          Reglamento interno
                         </a>
 
                         {% if session["usuario"]["id_credencial"] == 3 %}
@@ -90,6 +95,11 @@
                           <a class="nav-link" href="/estadisticas_generales">
                             <div class="sb-nav-link-icon"><i class="fas fa-chart-pie mr-1"></i></div>
                             Estadísticas generales
+                          </a>
+
+                          <a class="nav-link" href="/mensajes_administrativos">
+                            <div class="sb-nav-link-icon"><i class="fas fa-comment-alt mr-1"></i></div>
+                            Mensajes administrativos
                           </a>
 
                           <a class="nav-link" href="/modificar_wifi">

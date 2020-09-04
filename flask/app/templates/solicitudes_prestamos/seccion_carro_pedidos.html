@@ -1,9 +1,7 @@
 {% if session["carro_pedidos"] %}
-		<div class="table-responsive mt-2">
-			<div class="table-wrapper-scroll-y" style="position: relative;
-									max-height: 350px;
-									overflow:auto;">
-				<table class="table">
+<div class="table-responsive">
+	<div class="table-wrapper-scroll-y" style="position: relative; overflow:auto;">
+				<table class="table" id="tabla_carro_pedidos">
 					<thead class="text-white" style="background:#4D4D4D;">
 						<tr>
 							<th scope="col">Equipos agregados a tu carro de pedidos</th>
@@ -26,11 +24,6 @@
 					</tbody>
 				</table>
 			</div>
-		</div>
-
-		<div class="card-header text-right mt-1">
-			<button type="button" id="boton-vaciar-carro" onclick="vaciar_carro()" class="btn my-auto btn-danger"><i class="fas fa-trash-alt mr-2"></i>Vaciar carro</button>
-			<button type="button" class="btn my-auto btn-success" data-toggle="modal" data-target="#confirmacion_pedido"><i class="fas fa-clipboard-check mr-2"></i>Confirmar pedido</button>
 		</div>
 
 {% else %}

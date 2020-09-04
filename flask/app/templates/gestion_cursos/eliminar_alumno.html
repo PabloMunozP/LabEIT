@@ -8,9 +8,9 @@
         </button>
       </div>
       <form action="/gestion_cursos/eliminar_alumno" method="POST">
+        <div class="modal-body">
           <input class="form-control" type="text" name="id" value="{{seccion_id['id']}}" id="hidden-id" hidden>
           <input class="form-control" type="text" name="rut_alumno" value="{{alumno['rut_alumno']}}" id="rut_alumno" hidden>
-        <div class="modal-body">
           <p>El alumno será eliminado de la sección. Los registros asociados serán modificados automáticamente.</p>
         </div>
         <div class="modal-footer">

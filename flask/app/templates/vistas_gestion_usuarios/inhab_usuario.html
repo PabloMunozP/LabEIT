@@ -1,0 +1,23 @@
+<div id="inhab_{{usuario['rut']}}" class="modal fade in" tabindex="-1" role="dialog"  aria-hidden="true" data-keyboard="true" data-backdrop="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-gris-eit">
+                <h5 class="modal-title text-white"><i class="fas fa-question-circle mr-2"></i>Inhabilitar usuario</h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar">
+                <span aria-hidden="true">&times; </span>
+                </button>
+            </div>
+            <form action="/gestion_usuarios/inhabilitar" method="POST">
+                <div class="modal-body">
+                    <h6>El usuario será inhabilitado.</h6>
+                    <p>* {{usuario['nombres']}} {{usuario['apellidos']}}, RUT: {{usuario['rut']|formato_rut}} </p>
+                    <input type="hidden" name="rut" value="{{usuario['rut']}}">
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-danger">Confirmar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

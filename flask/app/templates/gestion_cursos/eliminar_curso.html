@@ -1,4 +1,4 @@
-<div class="modal fade" id="eliminar_curso_{{curso['codigo_udp']}}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal fade" id="eliminar_curso_{{curso['id']}}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header bg-gris-eit">
@@ -9,6 +9,7 @@
       </div>
       <form action="/gestion_cursos/eliminar_curso" method="POST">
         <div class="modal-body">
+          <input class="form-control" type="text" name="id" value="{{curso['id']}}" id="editar-curso-hidden-id" hidden>
           <p>Al eliminar el curso, los registros asociados serán eliminados automáticamente.</p>
           <p><strong>Código:</strong> {{curso['codigo_udp']}}. <strong>Nombre:</strong> {{curso['nombre']}}</p>
           <p><strong>Descripción:</strong> {{curso['descripcion']}}</p>

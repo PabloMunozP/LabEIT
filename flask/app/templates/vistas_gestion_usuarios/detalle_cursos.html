@@ -1,0 +1,26 @@
+
+      <div class="table-responsive mt-2">
+            <div class="table-wrapper-scroll-y" style="position: relative;
+                                    max-height: 450px;
+                                    overflow:auto;">
+          <table class="table" style="background:#ECF0F1;" id="tabla_cursos">
+            <thead class="text-white" style="background:#4D4D4D;">
+                <tr>
+                    <th scope="col">ID</th>
+                    <th scope="col">Código de curso</th>
+                    <th scope="col">Nombre</th>
+                </tr>
+            </thead>
+            <tbody>
+            {%for curso in cursos %}
+                <tr>
+                    <td>{{curso["id"]}}</td>
+                    <td>{{curso["codigo"]}}</td>
+                    <td>{{curso["nombre"]}}</td>
+                </tr>
+            {%endfor%}
+            </tbody>
+
+         </table>
+            </div>
+        </div>
