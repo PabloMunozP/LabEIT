@@ -2,23 +2,25 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header bg-gris-eit">
-                <h5 class="modal-title text-white" id="editar_informacion_label"><i class="fas fa-user-edit mr-2"></i>Importar Usuarios </h5>
+                <h5 class="modal-title text-white" id="editar_informacion_label"><i class="fas fa-file-upload mr-2"></i>Importar usuarios </h5>
                 <button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar">
                 <span aria-hidden="true">&times; </span>
                 </button>
             </div>
+            <form action="/gestion_usuarios/anadir_masivo" method="POST" enctype="multipart/form-data">
             <div class="modal-body">
-                <h6 class="modal-title text-black">Upload file</h6>
-                <p>Extension .csv</p>
-                <form action="/gestion_usuarios/anadir_masivo" method="POST" enctype="multipart/form-data">
-                    <p>Recuerde el formato de este archivo y su extension (.csv)</p>
+                <p>Extension solicitada: <strong>.csv</strong></p>
+                    <p>Recuerde el formato de este archivo y su extension antes de subir el archivo.</p>
                     <div class="custom-file">
                         <input type="file" class ="custom-file-input" id="CSV" name="file" accept=".csv">
-                        <label for="CSV" class="custom-file-label"> Elige un archivo</label>
-                        <button type="submit">Enviar</button>
+                        <label for="CSV" class="custom-file-label"> Elegir un archivo</label>
                     </div>
-                </form>
             </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+              <button class="btn btn-success" type="submit">Cargar usuarios</button>
+            </div>
+            </form>
         </div>
     </div>
 </div>

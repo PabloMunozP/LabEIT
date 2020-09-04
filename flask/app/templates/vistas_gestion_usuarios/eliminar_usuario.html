@@ -1,21 +1,19 @@
 <div id="eliminar_{{usuario['rut']}}" class="modal fade in" tabindex="-1" role="dialog"  aria-hidden="true" data-keyboard="true" data-backdrop="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
-            <div class="modal-header bg-rojo-udp">
-                <h5 class="modal-title text-white" ><i class="fas fa-trash-alt mr-2"></i>Eliminar {{usuario['nombres']}} {{usuario['apellidos']}} </h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar"></button>
+            <div class="modal-header bg-gris-eit">
+                <h5 class="modal-title text-white" ><i class="fas fa-trash-alt mr-2"></i>Eliminar usuario</h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar">
                 <span aria-hidden="true">&times; </span>
-                </button> 
+                </button>
             </div>
             <form action="/gestion_usuarios/eliminar_usuario" method="POST">
                 <div class="modal-body">
-                    <h4> Seguro que deseas eliminar al usuario:</h6>
-                    <p>{{usuario['nombres']}} {{usuario['apellidos']}} con Rut: {{usuario['rut']|formato_rut}} </p>
-                    <h6><strong>Esta accion no puede deshacerse</strong></h6>
+                    <p>El usuario será eliminado. Esta acción no puede deshacerse.</p>
                     <input type="hidden" name="rut" value="{{usuario['rut']}}">
                 </div>
                 <div class="modal-footer">
-                    <button class="btn btn-success" data-dismiss="modal">Cancelar</button>
+                    <button class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
                     <button type="submit" class="btn btn-danger">Confirmar</button>
                 </div>
             </form>

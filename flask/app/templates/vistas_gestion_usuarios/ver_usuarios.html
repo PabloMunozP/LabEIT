@@ -1,6 +1,10 @@
 {%extends 'layout_in.html' %}
 
 {% block body %}
+
+{% include 'vistas_gestion_usuarios/añadir_usuario.html' %}
+{% include 'vistas_gestion_usuarios/añadir_masivo.html' %}
+
     <div class="container-fluid">
 
       {% with msgs = get_flashed_messages() %}
@@ -80,7 +84,7 @@
             {%endif%}
             {% if msg == "error-digitoVerificador"%}
               <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                <i class="fas fa-times-circle mr-2"></i>El rut ingresado no es valido. 
+                <i class="fas fa-times-circle mr-2"></i>El rut ingresado no es valido.
                 <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
                 </button>
@@ -101,15 +105,10 @@
       <div class="card-header mt-4" style="background:#0db26b;">
       	<h5 class="card-title text-white my-auto">Gestión de usuarios</h5>
       	<p class="text-white my-auto"><i class="fas fa-info-circle mr-2"></i>En esta sección encontrará los usuarios registrados en el sistema, además de poder realizar nuevos registros, consultar y editar información.</p>
-      </div>
-
-      <div class="row float-right mt-2 mb-2">
-          <div class="col-md-12">
-              <button type="button" data-target=" #agregar_usuario" class= "btn btn-success" data-toggle="modal"><i class="fas fa-user-plus mr-2"></i>Agregar nuevo usuario</button>
-               {% include 'vistas_gestion_usuarios/añadir_usuario.html' %}
-               <button type="button" data-target=" #agregar_masivo" class= "btn btn-info" data-toggle="modal"><i class="fas fa-file-csv mr-2"></i>Carga masiva</button>
-               {% include 'vistas_gestion_usuarios/añadir_masivo.html' %}
-              </div>
+        <span class="btn-group">
+          <button type="button" data-target=" #agregar_usuario" class= "btn btn-sm btn-secondary mr-1" data-toggle="modal"><i class="fas fa-user-plus mr-2"></i>Agregar nuevo usuario</button>
+           <button type="button" data-target=" #agregar_masivo" class= "btn btn-sm btn-secondary" data-toggle="modal"><i class="fas fa-file-csv mr-2"></i>Carga masiva</button>
+        </span>
       </div>
 
       <div class="table-responsive mt-2">
@@ -163,7 +162,7 @@
                   } );
               } );
         </script>
-      
+
         </div>
       </div>
 
