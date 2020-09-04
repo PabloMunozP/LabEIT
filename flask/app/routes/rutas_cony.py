@@ -280,7 +280,7 @@ def consultar_profesores():
     query = ('''
         SELECT *
             FROM Usuario
-            WHERE Usuario.id_credencial = 2
+            WHERE Usuario.id_credencial = 2 AND Usuario.activo = 1
     ''')
     cursor.execute(query)
     profesores = cursor.fetchall()
@@ -547,7 +547,7 @@ def consultar_alumnos(id_seccion):
     query = ('''
         SELECT *
             FROM Usuario
-            WHERE Usuario.id_credencial = 1
+            WHERE Usuario.id_credencial = 1 AND Usuario.activo = 1
             AND Usuario.rut NOT IN (SELECT Seccion_alumno.rut_alumno FROM Seccion_alumno WHERE Seccion_alumno.id_seccion=%s)
     ''')
     cursor.execute(query,(id_seccion,))
