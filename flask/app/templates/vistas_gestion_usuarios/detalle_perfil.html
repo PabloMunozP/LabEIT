@@ -1,0 +1,229 @@
+      {% if sancion %}
+        {%include '/vistas_gestion_usuarios/modificar_sancion.html'%}
+      {% endif %}
+
+      <div id="modal_subir_foto" class="modal fade in" tabindex="-1" role="dialog" aria-labelledby="subir_foto" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+          <div class="modal-dialog" role="document">
+            <div class="modal-content ">
+              <div class="modal-header bg-gris-eit">
+                <h5 class="modal-title text-white" id="editar_informacion_label"><i class="fas fa-user-edit mr-2"></i>Subir foto de perfil</h5>
+              </div>
+              <form action="/perfil/subir_foto" method="POST" enctype="multipart/form-data">
+
+                  <div class="modal-body">
+                      <div class="custom-file">
+                          <input type="file" class="custom-file-input" name="image" id="image" lang="es"accept="image/png,image/gif,image/jpeg" required>
+                          <label class="custom-file-label" for="image">Seleccionar Archivo</label>
+                      </div>
+                  </div>
+                  <div class="modal-footer">
+                      <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                      <button type="summit" id="boton_subir" class="btn btn-info">Subir imagen</button>
+                  </div>
+              </form>
+          </div>
+        </div>
+      </div>
+
+        {% with msgs = get_flashed_messages() %}
+        {% if msgs %}
+          {% for msg in msgs %}
+            {% if msg == "Error"%}
+
+                <meta http-equiv="refresh">
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="fas fa-times-circle mr-2"></i>La cantidad de dias ingresada es mayor a la disponible. Por favor revise los valores nuevamente.
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                 <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            {%endif%}
+            {% if msg == "cambio-realizado" %}
+            <meta http-equiv="refresh">
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="fas fa-check-circle mr-2"></i>Se ha modificado correctamente la sanción.
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+            {%endif%}
+            {% if msg == "sin-cambio" %}
+            <meta http-equiv="refresh">
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="fas fa-check-circle mr-2"></i>No se han realizado cambios.
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+        {%endif%}
+          {%endfor%}
+        {%endif%}
+      {%endwith%}
+<hr>
+    <div class="row">
+        <div class="col-md-4 ">
+            <center>
+            <div>
+
+                <div class="pic__container" style="cursor: pointer;" onclick="open_modal_subir_foto()">
+
+                    <div class="pic__container">
+
+                        <img src="{{dir_foto_perfil}}" class="profile__image"/>
+
+                        <div class="middle">
+                            <div class="text"><i class="fas fa-upload"></i>
+                                Cambiar foto de perfil
+                            </div>
+                        </div>
+
+                        <script>
+                            function open_modal_subir_foto(){
+                                $('#modal_subir_foto').modal('show');
+                            }
+
+                        </script>
+
+                    </div>
+                </div>
+            </div>
+            </center>
+        </div>
+        <style>
+            .profile__image{
+                opacity: 1;
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                border-radius: 50%;
+                margin: 0 auto 20px auto;
+                display: block;
+                border: 1px solid #c5c5c5;
+                backface-visibility: hidden;
+                position: absolute;
+                top: 0px;
+                left: 0px;
+
+            }
+            .pic__container{
+                position: relative;
+                justify-content: center;
+                display: flex;
+                align-items: center;
+                border-radius: 50%;
+                width: 200px;
+                height: 200px;
+            }
+            .middle {
+                opacity: 0;
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                -ms-transform: translate(-50%, -50%);
+                text-align: center;
+              }
+        </style>
+
+        <style>
+                .pic__container:hover .profile__image{
+                    opacity: 0.3;
+                    border-radius: 50%;
+                }
+
+                .pic__container:hover .middle {
+                    opacity: 1;
+
+                  }
+
+        </style>
+
+        <div class="col md-6">
+
+            <div class="card">
+                <div class="card-body">
+                  <div class="form-group row">
+          					<label class="col-md-4 col-form-label texto-gris-eit">
+          						<i class="fas fa-user-circle mr-1"></i>
+                      <strong>Nombre:</strong>
+          					</label>
+          					<div class="col-md-8">
+          						<p class="form-control-plaintext">
+                        {{usuario['nombres']}} {{usuario['apellidos']}}
+          						</p>
+          					</div>
+          				</div>
+                  <div class="form-group row">
+          					<label class="col-md-4 col-form-label texto-gris-eit">
+          						<i class="fas fa-envelope mr-1"></i>
+                      <strong>Correo electrónico:</strong>
+          					</label>
+          					<div class="col-md-8">
+          						<p class="form-control-plaintext">
+                        <a href="mailto:{{usuario['correo']}}?subject=feedback">{{usuario['correo']}}</a>
+          						</p>
+          					</div>
+          				</div>
+                  <div class="form-group row">
+          					<label class="col-md-4 col-form-label texto-gris-eit">
+          						<i class="fas fa-id-card mr-1"></i>
+                      <strong>RUT:</strong>
+          					</label>
+          					<div class="col-md-8">
+          						<p class="form-control-plaintext">
+                        {{usuario['rut']|formato_rut}}
+          						</p>
+          					</div>
+          				</div>
+                  <div class="form-group row">
+          					<label class="col-md-4 col-form-label texto-gris-eit">
+          						<i class="fas fa-map mr-1"></i>
+                      <strong>Dirección:</strong>
+          					</label>
+          					<div class="col-md-8">
+          						<p class="form-control-plaintext">
+                        {{usuario['direccion']}}
+          						</p>
+          					</div>
+          				</div>
+                  <div class="form-group row">
+          					<label class="col-md-4 col-form-label texto-gris-eit">
+          						<i class="fas fa-map mr-1"></i>
+                      <strong>Comuna:</strong>
+          					</label>
+          					<div class="col-md-8">
+          						<p class="form-control-plaintext">
+                        {{usuario['comuna']}}
+          						</p>
+          					</div>
+          				</div>
+                  <div class="form-group row">
+          					<label class="col-md-4 col-form-label texto-gris-eit">
+          						<i class="fas fa-map mr-1"></i>
+                      <strong>Región:</strong>
+          					</label>
+          					<div class="col-md-8">
+          						<p class="form-control-plaintext">
+                        {{usuario['region']}}
+          						</p>
+          					</div>
+          				</div>
+
+                  <button type="button" title="Eliminar usuario" data-target="#eliminar_{{usuario['rut']}}" class="btn btn-sm btn-danger" data-toggle="modal"><i class="fas fa-trash-alt mr-1"></i>Eliminar usuario</button>
+                  {% include 'vistas_gestion_usuarios/eliminar_usuario.html' %}
+
+                  {% if sancion %}
+                    <hr>
+                    <div class="alert alert-warning alert-dismissible fade show mt-2" role="alert">
+                  		<i class="fas fa-exclamation-triangle mr-2"></i>El usuario se encuentra sancionado desde el día <strong>{{sancion['fecha_registro']}}</strong>.
+                      <p class="my-auto">* Días restantes para el término de la sanción: <strong>{{sancion['cantidad_dias']}}</strong></p>
+                      <button type="button" data-target="#sancion_{{usuario['rut']}}" class="btn btn-sm btn-secondary mt-2" data-toggle="modal">Modificar sanción</button>
+                    </div>
+                  {% endif %}
+
+                </div>
+
+            </div>
+
+        </div>
+    </div>

@@ -10,15 +10,15 @@
 
           <form action="/gestion_cursos/agregar_seccion" method="POST">
           <div class="modal-body">
-            <input class="form-control" type="text" name="id_curso" value="{{curso['curso_id']}}" id="id_curso" hidden>
             <div class="form-group">
+              <input class="form-control" type="text" name="id_curso" value="{{curso['curso_id']}}" id="id_curso" hidden>
               <label for="codigo">Código de sección</label>
-              <input class="form-control" type="text" name="codigo" id="codigo" onchange="validar_informacion_perfil()" value="">
+              <input class="form-control" type="text" name="codigo" id="codigo" value="" required>
             </div>
-            <label for="rut_profesor">Profesor: </label>
-            <select class=""  id="rut_profesor" name = "rut_profesor">
+            <label for="rut_profesor">Profesor</label>
+            <select class="form-control"  id="rut_profesor" name = "rut_profesor">
               {% for profesor in profesores %}
-                <option id="rut_profesor" name = "rut_profesor" value="{{profesor['rut']}}">{{profesor['rut']}} - {{profesor["nombres"]}} {{profesor["apellidos"]}} </option>
+                <option id="rut_profesor" name = "rut_profesor" value="{{profesor['rut']}}">{{profesor["apellidos"]}} {{profesor["nombres"]}} </option>
               {% endfor %}
             </select>
 
