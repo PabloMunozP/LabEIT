@@ -7,7 +7,7 @@
     <table id="tabla_equipos" class="table">
       <thead class="text-white" style="background:#4D4D4D;">
         <tr>
-          <th>ID</th>
+          <th>IDD</th>
           <th>Código</th>
           <th>Equipo</th>
           <th>Modelo</th>
@@ -33,7 +33,12 @@
           <td>{{elemento.fecha_inicio if elemento.fecha_inicio}}</td>
           <td>{{elemento.fecha_termino if elemento.fecha_termino}}</td>
           <td>{{elemento.fecha_devolucion if elemento.fecha_devolucion}}</td>
-          <td class="text-center"><span class="badge badge-secondary">{{elemento.estado}}</span></td>
+          {% if elemento.estado == 'Con atraso' %}
+            <td class="text-center"><span class="badge badge-danger">{{elemento.estado}}</span></td>
+          {% else %}
+            <td class="text-center"><span class="badge badge-secondary">{{elemento.estado}}</span></td>
+          {% endif %}
+
 
 {% if admin_inspeccionar_perfil == False%}
 

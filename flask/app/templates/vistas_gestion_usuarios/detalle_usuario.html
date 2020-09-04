@@ -3,37 +3,50 @@
 {%block title%}LabEIT- Añadir Usuario{% endblock %}
 
 {% block body %}
-<section id="tabs" class="project-tab mt-2">
-        <div class="container-fluid">
-            <div class="row align-items-center h-100">
-                <div class="card-body">
-                    <h3 class="texto-gris-eit text-center">Perfil de {{usuario['nombres']}} {{usuario['apellidos']}} </h3>
-                    <hr>
-                    <div class="row">
-                        <div class="col-md-12">
-                            <nav>
-                                <div class="nav nav-tabs nav-fill" id="nav-tab" role="tablist">
-                                    <a class="nav-item nav-link active" id="nav-perfil-tab" data-toggle="tab" href="#nav-perfil" role="tab" aria-controls="nav-perfil" aria-selected="true"><i class="fas fa-file-invoice mr-2"></i>Perfil</a>
-                                    <a class="nav-item nav-link" id="nav-solicitudes-tab" data-toggle="tab" href="#nav-solicitudes" role="tab" aria-controls="nav-solicitudes" aria-selected="false"><i class="fas fa-history mr-2"></i>Solicitudes de préstamos</a>
-                                    <a class="nav-item nav-link" id="nav-cursos-tab" data-toggle="tab" href="#nav-cursos" role="tab" aria-controls="nav-cursos" aria-selected="false"><i class="fas fa-history mr-2"></i>Cursos</a>
-                                </div>
-                            </nav>
-                            <div class="tab-content" id="nav-tabContent">
-                                <div class="tab-pane fade show active" id="nav-perfil" role="tabpanel" aria-labelledby="nav-perfil-tab">
-                                             {% include "vistas_gestion_usuarios/detalle_perfil.html" %}
-                                </div>
-                                <div class="tab-pane fade" id="nav-solicitudes" role="tabpanel" aria-labelledby="nav-solicitudes-tab">
-                                    {% include "vistas_gestion_usuarios/detalle_solicitudes.html" %}
-                                </div>
-                                <div class="tab-pane fade" id="nav-cursos" role="tabpanel" aria-labelledby="nav-cursos-tab">
-                                    {% include "vistas_gestion_usuarios/detalle_cursos.html" %}
-                                </div>
-                            </div>
+
+<div class="container-fluid mt-2">
+
+  <nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/gestion_usuarios">Gestión de usuarios</a></li>
+    <li class="breadcrumb-item active" aria-current="page">Perfil de {{usuario['nombres']}} {{usuario['apellidos']}}</li>
+  </ol>
+</nav>
+
+  <section id="tabs" class="project-tab">
+    <div class="row align-items-center h-100">
+        <div class="card-body">
+            <h3 class="texto-gris-eit text-center">Perfil de {{usuario['nombres']}} {{usuario['apellidos']}} </h3>
+            <hr>
+            <div class="row">
+                <div class="col-md-12">
+                    <nav>
+                        <div class="nav nav-tabs nav-fill" id="nav-tab" role="tablist">
+                            <a class="nav-item nav-link active" id="nav-perfil-tab" data-toggle="tab" href="#nav-perfil" role="tab" aria-controls="nav-perfil" aria-selected="true"><i class="fas fa-file-invoice mr-2"></i>Perfil</a>
+                            <a class="nav-item nav-link" id="nav-solicitudes-tab" data-toggle="tab" href="#nav-solicitudes" role="tab" aria-controls="nav-solicitudes" aria-selected="false"><i class="fas fa-history mr-2"></i>Solicitudes de préstamos</a>
+                            <a class="nav-item nav-link" id="nav-cursos-tab" data-toggle="tab" href="#nav-cursos" role="tab" aria-controls="nav-cursos" aria-selected="false"><i class="fas fa-history mr-2"></i>Cursos asociados</a>
+                        </div>
+                    </nav>
+                    <div class="tab-content" id="nav-tabContent">
+                        <div class="tab-pane fade show active" id="nav-perfil" role="tabpanel" aria-labelledby="nav-perfil-tab">
+                                     {% include "vistas_gestion_usuarios/detalle_perfil.html" %}
+                        </div>
+                        <div class="tab-pane fade" id="nav-solicitudes" role="tabpanel" aria-labelledby="nav-solicitudes-tab">
+                            {% include "vistas_gestion_usuarios/detalle_solicitudes.html" %}
+                        </div>
+                        <div class="tab-pane fade" id="nav-cursos" role="tabpanel" aria-labelledby="nav-cursos-tab">
+                            {% include "vistas_gestion_usuarios/detalle_cursos.html" %}
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
+    </section>
+</div>
+
+
+
         <script>
             $(document).ready(function() {
                 $('#tabla_cursos, #tabla_solicitudes').DataTable( {
@@ -53,5 +66,4 @@
                   } );
               } );
         </script>
-</section>
 {% endblock %}
