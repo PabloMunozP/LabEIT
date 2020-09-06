@@ -54,12 +54,13 @@ def tabla_wishlist():
         cursor.execute("SELECT MAX(id) FROM Wishlist")
         last_id = cursor.lastrowid
 
-        sql_query = """
-            INSERT INTO Motivo_academico_wishlist
-                (id_wishlist,id_curso)
-                VALUES (%s,%s)
-        """
-        cursor.execute(sql_query,(last_id,form["id"]))
+        if "id" in form:
+            sql_query = """
+                INSERT INTO Motivo_academico_wishlist
+                    (id_wishlist,id_curso)
+                    VALUES (%s,%s)
+            """
+            cursor.execute(sql_query,(last_id,form["id"]))
 
         for i in range(10):
             if 'url[{}]'.format(str(i)) in form:
@@ -102,7 +103,7 @@ def tabla_wishlist():
     cursor.execute(sql_query)
     count_wishlist = cursor.fetchone()
 
-    count_wishlist["mostrar"] = 10
+    count_wishlist["mostrar"] = 5
 
     sql_query = """
         SELECT *
@@ -145,12 +146,10 @@ def detalle_solicitud(id_detalle_solicitud):
         return redirect("/")
 
     sql_query = """
-        SELECT Wishlist.*,Estado_detalle_solicitud.nombre AS nombre_estado,Usuario.nombres AS nombres,Usuario.apellidos AS apellidos,Usuario.email AS email,Curso.nombre AS nombre_curso
-            FROM Wishlist,Estado_detalle_solicitud,Usuario,Motivo_academico_wishlist,Curso
+        SELECT Wishlist.*,Estado_detalle_solicitud.nombre AS nombre_estado,Usuario.nombres AS nombres,Usuario.apellidos AS apellidos,Usuario.email AS email
+            FROM Wishlist,Estado_detalle_solicitud,Usuario
                 WHERE Wishlist.estado_wishlist = Estado_detalle_solicitud.id
                 AND Wishlist.rut_solicitante = Usuario.rut
-                AND Wishlist.id = Motivo_academico_wishlist.id_wishlist
-                AND Motivo_academico_wishlist.id_curso = Curso.id
                 AND Wishlist.id = %s
     """
     cursor.execute(sql_query,(id_detalle_solicitud,))
