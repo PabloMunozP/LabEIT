@@ -27,6 +27,17 @@
               <label for="comunas">Descripción</label>
               <textarea class="form-control"   id="editar_descripcion_circuito" name="descripcion_circuito" rows="3" style="min-height:100px;max-height:300px;"></textarea>
             </div>
+
+            <div class="form-group">
+              <label for="dias_max_prestamo">Días de prestamo</label>
+              <input type="number" min="1" class="form-control" name="dias_max_prestamo" value="" id="editar-equipo-dias">
+            </div>
+
+            <div class="form-group">
+              <label for="dias_max_prestamo">Días para renovar</label>
+              <input type="number" min="1" class="form-control" name="dias_renovacion" value="" id="editar-equipo-dias-renovacion">
+            </div>
+
           </div>
           <div class="modal-footer">
             <button type="button" id="boton_cerrar" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
@@ -38,13 +49,15 @@
 
 
   <script>
-    function cargar_datos_equipo_circuito(nombre_circuito, cantidad_circuito, descripcion_circuito){
+    function cargar_datos_equipo_circuito(nombre_circuito, cantidad_circuito, descripcion_circuito,dias_max_prestamo,dias_renovacion){
       document.getElementById("modal-title").innerHTML = '<i class="fas fa-edit"></i> Editar circuito ' + nombre_circuito ;
       $("#editar_equipo_hidden_nombre_circuito").val(nombre_circuito);
       $("#editar_equipo_hidden_descripcion_circuito").val(descripcion_circuito);
       $("#editar_nombre_circuito").val(nombre_circuito);
       $("#editar_cantidad_circuito").val(cantidad_circuito);
       $("#editar_descripcion_circuito").val(descripcion_circuito);
+      $("#editar-equipo-dias").val(dias_max_prestamo);
+      $("#editar-equipo-dias-renovacion").val(dias_renovacion);
 
     }
   </script>
