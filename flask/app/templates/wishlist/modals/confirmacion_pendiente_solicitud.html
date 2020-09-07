@@ -1,18 +1,17 @@
-<div class="modal fade" id="confirmacion_aceptacion_solicitud" tabindex="-1" role="dialog"
+<div class="modal fade" id="confirmacion_pendiente_solicitud" tabindex="-1" role="dialog"
     aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header bg-gris-eit">
-                <h5 class="modal-title text-white"><i class="fas fa-question-circle mr-2"></i>Confirmación de aprobación
-                    de solicitud</h5>
+                <h5 class="modal-title text-white"><i class="fas fa-question-circle mr-2"></i>Confirmación para marcar solicitud como pendiente</h5>
                 <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close"
                     style="outline:none;">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <form action="/aceptar_solicitud_w/{{detalle_solicitud["id"]}}" method="post">
+            <form action="/marcar_pendiente_w/{{detalle_solicitud["id"]}}" method="post">
                 <div class="modal-body">
-                    <p>La solicitud de Wishlist será marcada automáticamente como <strong>aceptada</strong> y el usuario
+                    <p>La solicitud de Wishlist será marcada automáticamente como <strong>pendiente</strong> y el usuario
                         solicitante será notificado.</p>
                     <p>Equipo solicitado: <strong>{{detalle_solicitud["nombre_equipo"]}}
                             {{detalle_solicitud["marca_equipo"]}} ({{detalle_solicitud["modelo_equipo"]}})</strong></p>

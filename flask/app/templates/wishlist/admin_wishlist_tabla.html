@@ -21,17 +21,25 @@
                     <td>{{detalle_solicitud["id"]}}</td>
                     <td>{{detalle_solicitud["rut_solicitante"]|formato_rut}}</td>
                     <td>{{detalle_solicitud["nombres_usuario"]}} {{detalle_solicitud["apellidos_usuario"]}}</td>
-                    <td>{{detalle_solicitud["nombre_equipo"]}} {{detalle_solicitud["marca_equipo"]}} {{detalle_solicitud["modelo_equipo"]}}</td>
+                    <td>{{detalle_solicitud["nombre_equipo"]}} {{detalle_solicitud["marca_equipo"]}}
+                        {{detalle_solicitud["modelo_equipo"]}}</td>
                     <td>
-                        {% if detalle_solicitud["fecha_solicitud"] %} {{detalle_solicitud["fecha_solicitud"]}} {% endif %}
+                        {% if detalle_solicitud["fecha_solicitud"] %} {{detalle_solicitud["fecha_solicitud"]}}
+                        {% endif %}
                     </td>
                     {% if detalle_solicitud["estado_wishlist"] == 0 %}
-                    <td class="text-center"><span class="badge badge-primary">{{detalle_solicitud["nombre_estado"]}}</span></td>
+                    <td class="text-center"><span
+                            class="badge badge-primary">{{detalle_solicitud["nombre_estado"]}}</span></td>
                     {% elif detalle_solicitud["estado_wishlist"] == 5 %}
-                    <td class="text-center"><span class="badge badge-danger">{{detalle_solicitud["nombre_estado"]}}</span>
+                    <td class="text-center"><span
+                            class="badge badge-danger">{{detalle_solicitud["nombre_estado"]}}</span>
                     </td>
+                    {% elif detalle_solicitud["estado_wishlist"] == 7 %}
+                    <td class="text-center"><span
+                            class="badge badge-danger">{{detalle_solicitud["nombre_estado"]}}</span></td>
                     {% elif detalle_solicitud["estado_wishlist"] == 8 %}
-                    <td class="text-center"><span class="badge badge-success">{{detalle_solicitud["nombre_estado"]}}</span></td>
+                    <td class="text-center"><span
+                            class="badge badge-success">{{detalle_solicitud["nombre_estado"]}}</span></td>
                     {% endif %}
                     <td>
                         <span class="btn-group">
@@ -41,10 +49,16 @@
                             </a>
                             {% if detalle_solicitud["estado_wishlist"] != 0 %}
                             <button type="submit" title="Eliminar solicitud"
-                                onclick="eliminar_solicitud({{detalle_solicitud["id"]}})"
-                                class="btn btn-sm btn-danger" data-toggle="modal"
-                                data-target="#confirmacion_eliminacion_solicitud"><i
+                                onclick="eliminar_solicitud({{detalle_solicitud["id"]}})" class="btn btn-sm btn-danger"
+                                data-toggle="modal" data-target="#confirmacion_eliminacion_solicitud"><i
                                     class="fas fa-minus-circle"></i></button>
+                            {% else %}
+                            {% if detalle_solicitud["fecha_revision"] != None %}
+                            <button type="submit" title="Eliminar solicitud"
+                                onclick="eliminar_solicitud({{detalle_solicitud["id"]}})" class="btn btn-sm btn-danger"
+                                data-toggle="modal" data-target="#confirmacion_eliminacion_solicitud"><i
+                                    class="fas fa-minus-circle"></i></button>
+                            {% endif %}
                             {% endif %}
                         </span>
                     </td>
@@ -61,7 +75,7 @@
 {% endif %}
 
 <script>
-    $(document).ready(function() {
+    $(document).ready(function () {
         $('#tabla_admin_wishlist').DataTable({
             "order": [
                 [0, "desc"]

@@ -1,6 +1,6 @@
 <div class="modal fade" id="mi_wishlist" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
   aria-hidden="true">
-  <div class="modal-dialog modal-lg"">
+  <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header bg-gris-eit">
         <h5 class="modal-title text-white">Mi Wishlist</h5>
@@ -12,9 +12,7 @@
         <p>Solicitudes de Wishlist que he realizado:</p>
         {% if lista_solicitudes_wishlist %}
         <div class="table-responsive mt-2">
-          <div class="table-wrapper-scroll-y" style="position: relative;
-								max-height: 450px;
-								overflow:auto;">
+          <div class="table-wrapper-scroll-y" style="position: relative; max-height: 450px; overflow:auto;">
             <table class="table" id="tabla_mi_wishlist">
               <thead class="text-white" style="background:#4D4D4D;">
                 <tr>
@@ -24,10 +22,12 @@
                   <th scope="col">Motivo</th>
                   <th scope="col" class="text-center">Estado</th>
                   <th scope="col">Fecha de solicitud</th>
+                  <th scope="col">Acciones</th>
                 </tr>
               </thead>
               <tbody>
                 {% for detalle_solicitud in lista_solicitudes_wishlist %}
+                {% if detalle_solicitud["estado_wishlist"] != 7 %}
                 <tr style="background:#ECF0F1;">
                   <td>{{detalle_solicitud["nombre_equipo"]}}</td>
                   <td>{{detalle_solicitud["marca_equipo"]}}</td>
@@ -39,19 +39,30 @@
                   {% endif %}
                   </td>
                   {% if detalle_solicitud["estado_wishlist"] == 0 %}
-                  <td class="text-center"><span class="badge badge-primary">{{detalle_solicitud["nombre_estado"]}}</span></td>
+                  <td class="text-center"><span
+                      class="badge badge-primary">{{detalle_solicitud["nombre_estado"]}}</span></td>
                   {% elif detalle_solicitud["estado_wishlist"] == 5 %}
                   <td class="text-center"><span class="badge badge-danger">{{detalle_solicitud["nombre_estado"]}}</span>
                   </td>
                   {% elif detalle_solicitud["estado_wishlist"] == 8 %}
-                  <td class="text-center"><span class="badge badge-success">{{detalle_solicitud["nombre_estado"]}}</span></td>
+                  <td class="text-center"><span
+                      class="badge badge-success">{{detalle_solicitud["nombre_estado"]}}</span></td>
                   {% endif %}
                   <td>
                     {% if detalle_solicitud["fecha_solicitud"] %}
                     {{detalle_solicitud["fecha_solicitud"]}}
                     {% endif %}
                   </td>
+                  {% if detalle_solicitud["estado_wishlist"] != 8 %}
+                  <td>
+                      <a href="wishlist_usuario/editar_solicitud/{{detalle_solicitud["id"]}}">
+                        <button type="button" title="Ver y editar solicitud" class="btn btn-sm btn-warning mr-1"><i
+                            class="fas fa-edit"></i></button>
+                      </a>
+                  </td>
+                  {% endif %}
                 </tr>
+                {% endif %}
                 {% endfor %}
               </tbody>
             </table>

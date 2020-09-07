@@ -3,8 +3,9 @@
 
 {% include "/wishlist/modals/confirmacion_aceptacion_solicitud.html" %}
 {% include "/wishlist/modals/confirmacion_rechazo_solicitud.html" %}
+{% include "/wishlist/modals/confirmacion_pendiente_solicitud.html" %}
 
-<div class="container-fluid mt-2">
+<div class="container-fluid mt-2" style="margin-bottom: 15px;">
 
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
@@ -50,11 +51,26 @@
         </button>
     </div>
     {% endif %}
+    {% if msg == "solicitud-pendiente" %}
+    <div class="alert alert-success mt-2 alert-dismissible fade show" role="alert">
+        <i class="fas fa-check-circle mr-2"></i>La solicitud de Wishlist ha sido marcada como pendiente correctamente.
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    {% endif %}
     {%endfor%}
     {%endif%}
     {%endwith%}
 
-    <div class="card border-1 rounded-0" style="border-color:#0db26b;">
+    {% if detalle_solicitud["estado_wishlist"] == 0 and detalle_solicitud["fecha_revision"] != None %}
+    <div class="alert alert-warning alert-dismissible fade show text-center mt-2" role="alert">
+        <i class="fas fa-exclamation-triangle mr-2"></i>La presente solicitud de Wishlist ha sido marcada como pendiente
+        por un administrador.
+    </div>
+    {% endif %}
+
+    <div class="card rounded-0">
         <div class="card-header border-0 rounded-0" style="background:#0db26b;">
             <h5 class="card-title my-auto text-white"><i class="fas fa-file-invoice mr-2"></i>Información de la
                 solicitud de Wishlist</h5>
@@ -82,6 +98,25 @@
                         {% endif %}
                     </p>
                 </div>
+                <label class="col-md-4 col-form-label texto-gris-eit">
+                </label>
+                <div class="col-md-2">
+                </div>
+                {% if detalle_solicitud["motivo_academico"] %}
+                <label class="col-md-4 col-form-label texto-gris-eit">
+                    <strong>Curso asociado:</strong>
+                </label>
+                <div class="col-md-2">
+                    <p class="form-control-plaintext text-break">
+                        {% for curso in cursos %}
+                        {% if curso["id"] == motivo["id_curso"] %}
+                        <a href="/gestion_cursos/detalles_curso/{{curso["codigo_udp"]}}" title="Ver detalles del curso"
+                            style="text-decoration:none;">{{curso["codigo_udp"]}}</a>: {{curso["nombre"]}}
+                        {% endif %}
+                        {% endfor %}
+                    </p>
+                </div>
+                {% endif %}
             </div>
             <div class="form-group row">
                 <label class="col-md-2 col-form-label texto-gris-eit">
@@ -91,10 +126,12 @@
                     <p class="form-control-plaintext text-break">
                         {% if detalle_solicitud["estado_wishlist"] == 0 %}
                         <span class="badge badge-primary">{{detalle_solicitud["nombre_estado"]}}</span>
-                        {% elif detalle_solicitud["estado_wishlist"] == 8 %}
-                        <span class="badge badge-success">{{detalle_solicitud["nombre_estado"]}}</span>
                         {% elif detalle_solicitud["estado_wishlist"] == 5 %}
                         <span class="badge badge-danger">{{detalle_solicitud["nombre_estado"]}}</span>
+                        {% elif detalle_solicitud["estado_wishlist"] == 7 %}
+                        <span class="badge badge-danger">{{detalle_solicitud["nombre_estado"]}}</span>
+                        {% elif detalle_solicitud["estado_wishlist"] == 8 %}
+                        <span class="badge badge-success">{{detalle_solicitud["nombre_estado"]}}</span>
                         {% endif %}
                     </p>
                 </div>
@@ -115,11 +152,11 @@
                 <div class="col-md-4">
                     <p class="form-control-plaintext
                              text-break">
-                    {% if detalle_solicitud["motivo"] != None %}
-                      {% autoescape false %}
+                        {% if detalle_solicitud["motivo"] != None %}
+                        {% autoescape false %}
                         {{detalle_solicitud["motivo"]}}
-                      {% endautoescape %}
-                    {% endif %}
+                        {% endautoescape %}
+                        {% endif %}
                     </p>
                 </div>
                 <label class="col-md-4 col-form-label texto-gris-eit">
@@ -162,7 +199,7 @@
             </label>
             <div class="col-md-2">
                 <p class="form-control-plaintext text-break">
-                    <a href="/gestion_usuarios/ver_usuario?rut={{detalle_solicitud["rut_solicitante"]}}"
+                    <a href="/gestion_usuarios/ver_usuario/{{detalle_solicitud["rut_solicitante"]}}"
                         title="Ver perfil del usuario"
                         style="text-decoration:none;">{{detalle_solicitud["rut_solicitante"]|formato_rut}}</a>
                 </p>
@@ -242,24 +279,33 @@
     <div class="card-footer rounded-0 text-right" style="background:#ECF0F1;">
         <span class="btn-group flex-wrap">
             {% if detalle_solicitud["estado_wishlist"] == 0 %}
-            <button type="button" class="btn btn-danger mr-1" data-toggle="modal"
+            <button style="margin-right: 10px;" type="button" class="btn btn-danger mr-1" data-toggle="modal"
                 data-target="#confirmacion_rechazo_wishlist"><i class="fas fa-times-circle mr-1"></i>Rechazar
                 solicitud</button>
             <button type="button" class="btn btn-success" data-toggle="modal"
                 data-target="#confirmacion_aceptacion_solicitud"><i class="fas fa-clipboard-check mr-1"></i>Aceptar
                 solicitud</button>
             {% elif detalle_solicitud["estado_wishlist"] == 5 %}
+            <button style="margin-right: 10px;" type="button" class="btn btn-primary" data-toggle="modal"
+                data-target="#confirmacion_pendiente_solicitud"><i class="fas fa-clipboard-check mr-1"></i>Marcar como
+                pendiente</button>
             <button type="button" class="btn btn-success" data-toggle="modal"
                 data-target="#confirmacion_aceptacion_solicitud"><i class="fas fa-clipboard-check mr-1"></i>Aceptar
                 solicitud</button>
+            {% elif detalle_solicitud["estado_wishlist"] == 7 %}
+            <button type="button" class="btn btn-primary" data-toggle="modal"
+                data-target="#confirmacion_pendiente_solicitud"><i class="fas fa-clipboard-check mr-1"></i>Marcar como
+                pendiente</button>
             {% elif detalle_solicitud["estado_wishlist"] == 8 %}
-            <button type="button" class="btn btn-danger mr-1" data-toggle="modal"
+            <button style="margin-right: 10px;" type="button" class="btn btn-danger mr-1" data-toggle="modal"
                 data-target="#confirmacion_rechazo_wishlist"><i class="fas fa-times-circle mr-1"></i>Rechazar
                 solicitud</button>
+            <button type="button" class="btn btn-primary" data-toggle="modal"
+                data-target="#confirmacion_pendiente_solicitud"><i class="fas fa-clipboard-check mr-1"></i>Marcar como
+                pendiente</button>
             {% endif %}
         </span>
     </div>
-</div>
 </div>
 
 {% endblock %}

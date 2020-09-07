@@ -1,0 +1,363 @@
+{%extends "layout_in.html" %} {% block body %}
+{% include "/wishlist/modals/user_confirmacion_cancelacion_solicitud.html" %}
+
+<div class="container-fluid mt-2" style = "margin-bottom: 15px;">
+
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/wishlist_usuario">Sección de Wishlist</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Detalle de tu solicitud de Wishlist<span
+                    class="badge badge-info" style="margin-left: 10px;">{{detalle_solicitud["id"]}}</span></li>
+        </ol>
+    </nav>
+
+    <div class="card-header mt-4" style="background:#0db26b;">
+        <h5 class="card-title text-white my-auto">Modificación de solicitud de Wishlist</h5>
+        <p class="text-white my-auto mt-1"><i class="fas fa-info-circle mr-2"></i>En esta sección puedes revisar,
+            modificar o cancelar tu solicitud de Wishlist hecha a la coordinación del laboratorio.</p>
+        <p class="text-white my-auto mt-1"><i class="fas fa-info-circle mr-2"></i>Ten en cuenta que la fecha de registro
+            de la solicitud será reemplazada en el caso que realices alguna modificación.</p>
+    </div>
+
+    {% with msgs = get_flashed_messages() %} {% if msgs %} {% for msg in msgs %} {% if msg == "solicitud-modificada" %}
+    <div class="alert alert-success mt-2 alert-dismissible fade show" role="alert">
+        <i class="fas fa-check-circle mr-2"></i>Tu solicitud de Wishlist ha sido modificada correctamente.
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    {% if msg == "solicitud-no-encontrada"%}
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+        <i class="fas fa-exclamation-triangle mr-2"></i>La solicitud de Wishlist no se encuentra registrada. Esto puede
+        deberse a una eliminación reciente.
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    {% if msg == "solicitud-cancelada" %}
+    <div class="alert alert-success mt-2 alert-dismissible fade show" role="alert">
+        <i class="fas fa-check-circle mr-2"></i>La solicitud de Wishlist ha sido cancelada correctamente.
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    {% endif %} {%endif%} {% endif %} {%endfor%} {%endif%} {%endwith%}
+
+    <div class="card rounded-0" style="margin-top: 10px;">
+        <div class="card-header border-0 rounded-0" style="background:#0db26b;">
+            <h5 class="card-title my-auto text-white"><i class="fas fa-file-invoice mr-2"></i>Información de la
+                solicitud de Wishlist</h5>
+        </div>
+        <div class="card-body rounded-0" style="background:#ECF0F1;">
+            <div class="form-group row">
+                <label class="col-md-2 col-form-label texto-gris-eit">
+                    <strong>ID de solicitud:</strong>
+                </label>
+                <div class="col-md-4">
+                    <p class="form-control-plaintext text-break">
+                        {{detalle_solicitud["id"]}}
+                    </p>
+                </div>
+                <label class="col-md-4 col-form-label texto-gris-eit">
+                    <strong>Motivo:</strong>
+                </label>
+                <div class="col-md-2">
+                    <p class="form-control-plaintext
+                         text-break">
+                        {% if detalle_solicitud["motivo_academico"] %} Académico {% else %} Personal {% endif %}
+                    </p>
+                </div>
+                <label class="col-md-4 col-form-label texto-gris-eit">
+                </label>
+                <div class="col-md-2">
+                </div>
+                {% if detalle_solicitud["motivo_academico"] %}
+                <label class="col-md-4 col-form-label texto-gris-eit">
+                    <strong>Curso asociado:</strong>
+                </label>
+                <div class="col-md-2">
+                    <p class="form-control-plaintext text-break">
+                        {% for curso in cursos %}
+                        {% if curso["id"] == motivo["id_curso"] %}
+                        {{curso["nombre"]}}
+                        {% endif %}
+                        {% endfor %}
+                    </p>
+                </div>
+                {% endif %}
+            </div>
+            <div class="form-group row">
+                <label class="col-md-2 col-form-label texto-gris-eit">
+                    <strong>Estado:</strong>
+                </label>
+                <div class="col-md-4">
+                    <p class="form-control-plaintext text-break">
+                        {% if detalle_solicitud["estado_wishlist"] == 0 %}
+                        <span class="badge badge-primary">{{detalle_solicitud["nombre_estado"]}}</span>
+                        {% elif detalle_solicitud["estado_wishlist"] == 8 %}
+                        <span class="badge badge-success">{{detalle_solicitud["nombre_estado"]}}</span>
+                        {% elif detalle_solicitud["estado_wishlist"] == 5 %}
+                        <span class="badge badge-danger">{{detalle_solicitud["nombre_estado"]}}</span> {% endif %}
+                    </p>
+                </div>
+                <label class="col-md-4 col-form-label texto-gris-eit">
+                    <strong>Fecha de registro de la solicitud:</strong>
+                </label>
+                <div class="col-md-2">
+                    <p class="form-control-plaintext
+							 text-break">
+                        {{detalle_solicitud["fecha_solicitud"]}}
+                    </p>
+                </div>
+                <label class="col-md-2 col-form-label texto-gris-eit">
+                    {% if detalle_solicitud["motivo"] != None %}
+                    <strong>Motivo de rechazo:</strong>
+                    {% endif %}
+                </label>
+                <div class="col-md-4">
+                    <p class="form-control-plaintext
+                             text-break">
+                        {% if detalle_solicitud["motivo"] != None %} {% autoescape false %}
+                        {{detalle_solicitud["motivo"]}} {% endautoescape %} {% endif %}
+                    </p>
+                </div>
+                <label class="col-md-4 col-form-label texto-gris-eit">
+                    <strong>Fecha de revisión de la solicitud:</strong>
+                </label>
+                <div class="col-md-2">
+                    {% if detalle_solicitud["fecha_revision"] != None %}
+                    <p class="form-control-plaintext
+							 text-break">
+                        {{detalle_solicitud["fecha_revision"]}}
+                    </p>
+                    {% else %}
+                    <p class="form-control-plaintext
+							 text-break">
+                        Sin revisión
+                    </p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <form action="/wishlist_usuario" method="post">
+        <div class="card mt-2">
+            <div class="card-header" style="background:#4D4D4D;" id="headingOne">
+                <h5 class="mb-0">
+                    <h5 class="text-center text-white my-auto">Datos del equipo</h5>
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="form-group">
+                    <label for="nombreEquipoWishlist">Nombre</label>
+                    <input name="nombre" type="name" class="form-control" id="nombreEquipoWishlist"
+                        aria-describedby="ejemploNombre" style="max-width : 500px;"
+                        value="{{detalle_solicitud["nombre_equipo"]}}" required>
+                    <small id="ejemploNombre" class="form-text text-muted">Por ejemplo: Smartphone,
+                        Router,
+                        Arduino, Webcam.</small>
+                </div>
+                <div class="form-group">
+                    <label for="marcaEquipoWishlist">Marca</label>
+                    <input name="marca" type="name" class="form-control" id="marcaEquipoWishlist"
+                        aria-describedby="ejemploMarca" style="max-width : 500px;"
+                        value="{{detalle_solicitud["marca_equipo"]}}" required>
+                    <small id="ejemploMarca" class="form-text text-muted">Por ejemplo: Arduino UNO,
+                        BlackBerry,
+                        Sony, TP-LINK.</small>
+                </div>
+                <div class="form-group">
+                    <label for="modeloEquipoWishlist">Modelo</label>
+                    <input name="modelo" type="name" class="form-control" id="modeloEquipoWishlist"
+                        aria-describedby="ejemploModelo" style="max-width : 500px;"
+                        value="{{detalle_solicitud["modelo_equipo"]}}" required>
+                    <small id="ejemploModelo" class="form-text text-muted">Por ejemplo: Uno R2, 9530,
+                        BCG-34HLD
+                        , TL-WR1043ND.</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header" style="background:#4D4D4D;" id="headingTwo">
+                <h5 class="mb-0">
+                    <h5 class="text-center text-white my-auto">Cuestionario</h5>
+                </h5>
+            </div>
+            <div class="card-body">
+                <fieldset class="form-group">
+                    <div class="row">
+                        <div class="col-4">
+                            <legend class="col-form-label">Motivo de solicitud:</legend>
+                        </div>
+                        <div class="col-8">
+                            <div class="form-check">
+                                <input onclick="closemotivo()" class="form-check-input" type="radio" name="motivo"
+                                    id="gridRadios1" value=0 {% if not detalle_solicitud["motivo_academico"] %} checked
+                                    {% endif %}required>
+                                <label class="form-check-label" for="opcion1">
+                                    Personal
+                                </label>
+                            </div>
+                            <div class="form-check" {% if detalle_solicitud["motivo_academico"] %} onload="openmotivo()"
+                                {% endif %}>
+                                <input onclick="openmotivo()" class="form-check-input" type="radio" name="motivo"
+                                    id="gridRadios2" value=1 {% if detalle_solicitud["motivo_academico"] %} checked
+                                    {% endif %} required>
+                                <label class="form-check-label" for="opcion2">
+                                    Académico
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="mostrar_cursos" style="margin-top: 10px;"></div>
+                </fieldset>
+                <fieldset class="form-group">
+                    <div class="row">
+                        <div class="col-4">
+                            <legend class="col-form-label">¿Deseas adjuntar una nueva cotización de una empresa?
+                            </legend>
+                            <small style="margin-bottom: 5px;" class="form-text text-muted">
+                                Debes considerar que si adjuntas una nueva cotización, la anterior será eliminada del
+                                sistema.
+                            </small>
+                            <small style="margin-bottom: 5px;" class="form-text text-muted">
+                                Esta cotización debe estar en formato .pdf y no debe superar los 10 MB.
+                            </small>
+                        </div>
+                        <div class="col-8">
+                            <div class="form-check">
+                                <input onclick="closecheck()" class="form-check-input" type="radio" name="adjuntar"
+                                    id="gridRadios3" value=0 required>
+                                <label class="form-check-label" for="opcion3">
+                                    No
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input onclick="opencheck()" class="form-check-input" type="radio" name="adjuntar"
+                                    id="gridRadios4" value=1 required>
+                                <label class="form-check-label" for="opcion4">
+                                    Si
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="cotizacion" style="margin-top: 10px;"></div>
+                </fieldset>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header" style="background:#4D4D4D;" id="headingThree">
+                <h5 class="mb-0">
+                    <h5 class="text-center text-white my-auto">Links</h5>
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="form-group">
+                    <label for="url">URL:</label>
+                    <div class="field_wrapper">
+                        <div class="input-group">
+                            <input name="url[0]" type="url" class="form-control" id="url" aria-describedby="ejemploUrl"
+                                style=" width: 850px;" required>
+                            <a href="javascript:void(0);" style="height: 36px;" class="add_button" title="Añadir URL"><i
+                                    style="color: green;" class="btn fa fa-plus-circle mr-2"></i></a>
+                        </div>
+                        <small style="margin-bottom: 5px;" id="ejemploUrl" class="form-text text-muted">
+                            Por ejemplo:
+                            https://www.mcielectronics.cl/shop/product/arduino-uno-wifi-r2-28297
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-2">
+            <div class="col text-center">
+                <button type="button" title="Cancelar solicitud"
+                    onclick="cancelar_solicitud_user({{detalle_solicitud["id"]}})" class="btn btn-danger"
+                    data-toggle="modal" data-target="#user_confirmacion_cancelacion_solicitud">
+                    Cancelar solicitud
+                </button>
+                <button type="submit" class="btn btn-success">Enviar modificación</button>
+            </div>
+        </div>
+
+    </form>
+</div>
+
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        var maxField = 10; //Input fields increment limitation
+        var addButton = $('.add_button'); //Add button selector
+        var wrapper = $('.field_wrapper'); //Input field wrapper
+        var fieldHTML = '<div class="form-group"><div class="input-group"><input name="url[';
+        var x = 1; //Initial field counter is 0
+        //Once add button is clicked
+        $(addButton).click(function () {
+            //Check maximum number of input fields
+            if (x < maxField) {
+                x++; //Increment field counter
+                index = x - 1;
+                $(wrapper).append(fieldHTML + index.toString() + ']" type="url" class="form-control" id="url" aria-describedby="ejemploUrl" style=" width: 850px; margin-top: 5px;" required><a href="javascript:void(0);" style="height: 36px;" class="remove_button" title="Eliminar URL"><i style="color: red;" class="btn fa fa-minus-circle mr-2"></i></a></div></div>'); //Add field html
+            }
+        });
+        //Once remove button is clicked
+        $(wrapper).on('click', '.remove_button', function (e) {
+            e.preventDefault();
+            $(this).parent('div').remove(); //Remove field html
+            x--; //Decrement field counter
+        });
+    });
+</script>
+
+<script>
+    function opencheck() {
+        document.getElementById("cotizacion").innerHTML = '<div class="custom-file"> \
+                                                            <input type="file" oninput="file_size(this);" class="custom-file-input" id="cotizaciónpdf" lang="es" accept="application/pdf" required> \
+                                                            <label class="custom-file-label" for="application">Seleccionar Archivo</label> \
+                                                         </div>';
+    }
+
+    function closecheck() {
+        document.getElementById("cotizacion").innerHTML = '';
+    }
+
+    function openmotivo() {
+        document.getElementById("mostrar_cursos").innerHTML = '<div class="col-4"> \
+                                                                    <legend class="col-form-label">Selecciona el curso asociado:</legend> \
+                                                               </div> \
+                                                               <fieldset class="form-group"> \
+                                                                {% if cursos %} \
+                                                                <select class="custom-select" size="5" name="id" required> \
+                                                                {% for curso in cursos %} \
+                                                                    <option {% if curso["id"] == motivo["id_curso"] %} selected {% endif %} value="{{curso["id"]}}">{{curso["codigo_udp"]}} {{curso["nombre"]}}</option> \
+                                                                {% endfor %} \
+                                                                </select> \
+                                                                {% endif %} \
+                                                               </fieldset>';
+    }
+
+    function closemotivo() {
+        document.getElementById("mostrar_cursos").innerHTML = '<fieldset name="id" value="" class="form-group"> \
+                                                               </fieldset>';
+    }
+
+    function file_size(elem) {
+        if (elem.files[0].size > 10000000) {
+            alert("El tamaño del archivo supera los 10MB");
+            document.getElementById("cotizaciónpdf").value = "";
+        }
+    }
+</script>
+
+<script>
+    function cancelar_solicitud_user(id) {
+        var formulario = document.getElementById("formulario_cancelacion_solicitud_user");
+        formulario.action = "/user_cancelar_solicitud_w/" + id;
+    }
+</script>
+
+{% endblock %}

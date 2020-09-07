@@ -2,21 +2,29 @@
 
 <div class="container-fluid mt-2">
 
-    <div class="card-header mt-4" style="background:#0db26b;">
-        <h5 class="card-title text-white my-auto">Sugerencias de equipos</h5>
-        <p class="text-white my-auto mt-1"><i class="fas fa-info-circle mr-2"></i>En esta sección podrás realizar sugerencias a la coordinación del laboratorio, acerca de equipos que podrían ser útiles para tu desarrollo personal y/o académico.</p>
-        <button type="button" class="btn btn-sm btn-secondary mt-2" data-toggle="modal" data-target="#mi_wishlist">Revisar mi wishlist
-    </button>
-    </div>
-
-    {% with msgs = get_flashed_messages() %} {% if msgs %} {% for msg in msgs %} {% if msg == "solicitud-registrada" %}
+    {% with msgs = get_flashed_messages() %} {% if msgs %} {% for msg in msgs %}
+    {% if msg == "solicitud-registrada" %}
     <div class="alert alert-success mt-2 alert-dismissible fade show" role="alert">
         <i class="fas fa-check-circle mr-2"></i>Tu solicitud de Wishlist ha sido registrada correctamente.
         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                   <span aria-hidden="true">&times;</span>
               </button>
     </div>
+    {% elif msg == "solicitud-cancelada" %}
+    <div class="alert alert-success mt-2 alert-dismissible fade show" role="alert">
+        <i class="fas fa-check-circle mr-2"></i>Tu solicitud de Wishlist se ha cancelado correctamente.
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+              </button>
+    </div>
     {% endif %} {%endfor%} {%endif%} {%endwith%}
+
+    <div class="card-header mt-4" style="background:#0db26b;">
+        <h5 class="card-title text-white my-auto">Sugerencias de equipos</h5>
+        <p class="text-white my-auto mt-1"><i class="fas fa-info-circle mr-2"></i>En esta sección podrás realizar sugerencias a la coordinación del laboratorio, acerca de equipos que podrían ser útiles para tu desarrollo personal y/o académico.</p>
+        <button type="button" class="btn btn-sm btn-secondary mt-2" data-toggle="modal" data-target="#mi_wishlist">Revisar mi wishlist
+    </button>
+    </div>
 
     <form action="#" method="post">
 
@@ -195,7 +203,10 @@
 
 <script>
     function opencheck() {
-        document.getElementById("adjuntar").innerHTML = '<div class="custom-file"><input type="file" oninput="file_size(this);" class="custom-file-input" id="cotizaciónpdf" lang="es" accept="application/pdf" required><label class="custom-file-label" for="application">Seleccionar Archivo</label></div>';
+        document.getElementById("adjuntar").innerHTML = '<div class="custom-file"> \
+                                                         <input type="file" oninput="file_size(this);" class="custom-file-input" id="cotizaciónpdf" lang="es" accept="application/pdf" required> \
+                                                         <label class="custom-file-label" for="application">Seleccionar Archivo</label> \
+                                                         </div>';
     }
 
     function closecheck() {
@@ -203,11 +214,23 @@
     }
 
     function openmotivo() {
-        document.getElementById("mostrar_cursos").innerHTML = '<fieldset class="form-group">{% if nombres_cursos %}<select class="custom-select" size="5" name="id" required>{% for curso in nombres_cursos %}<option value="{{curso["id"]}}">{{curso["codigo_udp"]}} {{curso["nombre"]}}</option>{% endfor %}</select>{% endif %}</fieldset>';
+        document.getElementById("mostrar_cursos").innerHTML = '<div class="col-4"> \
+                                                                    <legend class="col-form-label">Selecciona el curso asociado:</legend> \
+                                                               </div> \
+                                                               <fieldset class="form-group"> \
+                                                               {% if cursos %} \
+                                                               <select class="custom-select" size="5" name="id" required> \
+                                                               {% for curso in cursos %} \
+                                                                    <option value="{{curso["id"]}}">{{curso["codigo_udp"]}} {{curso["nombre"]}}</option> \
+                                                               {% endfor %} \
+                                                               </select> \
+                                                               {% endif %} \
+                                                               </fieldset>';
     }
 
     function closemotivo() {
-        document.getElementById("mostrar_cursos").innerHTML = '<fieldset name="id" value="" class="form-group"></fieldset>';
+        document.getElementById("mostrar_cursos").innerHTML = '<fieldset name="id" value="" class="form-group"> \
+                                                               </fieldset>';
     }
 
     function file_size(elem) {

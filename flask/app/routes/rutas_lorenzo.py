@@ -9,6 +9,14 @@ TAMAÑO_MAX_PDF = 10000000
 
 mod = Blueprint("rutas_lorenzo",__name__)
 
+@mod.context_processor
+def utility_functions():
+    def print_in_console(message):
+        print(str(message))
+    return dict(mdebug=print_in_console)
+
+#para imprimir en consola {{ mdebug(detalle_solicitud["nombre_equipo "]) }}
+
 def redirect_url(default='index'): # Redireccionamiento desde donde vino la request
     return request.args.get('next') or \
            request.referrer or \
@@ -34,6 +42,11 @@ def enviar_correo_notificacion(archivo,str_para,str_asunto,correo_usuario):
     except Exception as e:
         print(e)
         flash("correo-fallido")
+
+def verificar_cancelacion(id_wishlist):
+    cursor.execute("SELECT estado_wishlist FROM Wishlist WHERE id = %s", (id_wishlist,))
+    estado = cursor.fetchone()["estado_wishlist"]
+    return True if estado == 7 else False
 
 @mod.route("/wishlist_usuario",methods=["GET", "POST"])
 def tabla_wishlist():
@@ -110,13 +123,82 @@ def tabla_wishlist():
             FROM Curso
     """
     cursor.execute(sql_query)
-    nombres_cursos = cursor.fetchall()
+    cursos = cursor.fetchall()
 
     return render_template("/wishlist/user_wishlist.html",
         lista_wishlist_aceptada=lista_wishlist_aceptada,
         lista_solicitudes_wishlist=lista_solicitudes_wishlist,
         count_wishlist = count_wishlist,
-        nombres_cursos = nombres_cursos)
+        cursos = cursos)
+
+@mod.route("/wishlist_usuario/editar_solicitud/<string:id_detalle_solicitud>",methods=["GET","POST"])
+def editar_solicitud(id_detalle_solicitud):
+    if "usuario" not in session.keys():
+        return redirect("/")
+    if verificar_cancelacion(id_detalle_solicitud):
+        return redirect("/")
+
+    if request.method == "POST":
+        fecha_modificacion = datetime.now()
+        form = request.form.to_dict()
+
+        sql_query = """
+            UPDATE Wishlist
+                SET nombre_equipo = %s,
+                marca_equipo = %s,
+                modelo_equipo = %s,
+                motivo_academico = %s,
+                fecha_solicitud = %s
+                    WHERE id = %s
+        """
+        cursor.execute(sql_query,(form["nombre"],form["marca"],form["modelo"],form["motivo"],fecha_modificacion,id_detalle_solicitud))
+        flash("solicitud-modificada")
+
+    sql_query = """
+        SELECT Wishlist.*,Estado_detalle_solicitud.nombre AS nombre_estado
+            FROM Wishlist,Estado_detalle_solicitud
+                WHERE Wishlist.estado_wishlist = Estado_detalle_solicitud.id
+                AND Wishlist.id = %s
+    """
+    cursor.execute(sql_query,(id_detalle_solicitud,))
+    detalle_solicitud = cursor.fetchone()
+
+    if detalle_solicitud is None:
+        flash("solicitud-no-encontrada")
+        return redirect("/gestion_wishlist")
+
+    sql_query = """
+        SELECT *
+            FROM Curso
+    """
+    cursor.execute(sql_query)
+    cursos = cursor.fetchall()
+
+    sql_query = """
+        SELECT *
+            FROM Motivo_academico_wishlist
+                WHERE id_wishlist = %s
+    """
+    cursor.execute(sql_query,(id_detalle_solicitud,))
+    motivo = cursor.fetchone()
+
+    return render_template("/wishlist/user_wishlist_edit.html",
+        detalle_solicitud = detalle_solicitud,
+        cursos = cursos,
+        motivo = motivo)
+
+@mod.route("/user_cancelar_solicitud_w/<string:id_detalle>",methods=["POST"])
+def cancelar_solicitud_user(id_detalle):
+
+    sql_query = """
+        UPDATE Wishlist
+            SET estado_wishlist = 7
+                WHERE id = %s
+    """
+    cursor.execute(sql_query,(id_detalle,))
+
+    flash("solicitud-cancelada")
+    return redirect("/wishlist_usuario")
 
 @mod.route("/gestion_wishlist",methods=["GET"])
 def gestionar_wishlist():
@@ -170,11 +252,28 @@ def detalle_solicitud(id_detalle_solicitud):
     for row in cursor:
         url_solicitud["url"].append(row["url"])
 
+    sql_query = """
+        SELECT *
+            FROM Curso
+    """
+    cursor.execute(sql_query)
+    cursos = cursor.fetchall()
+
+    sql_query = """
+        SELECT *
+            FROM Motivo_academico_wishlist
+                WHERE id_wishlist = %s
+    """
+    cursor.execute(sql_query,(id_detalle_solicitud,))
+    motivo = cursor.fetchone()
+
     return render_template("/wishlist/admin_wishlist_detalle.html",
         detalle_solicitud=detalle_solicitud,
-        url_solicitud=url_solicitud)
+        url_solicitud=url_solicitud,
+        cursos = cursos,
+        motivo = motivo)
 
-@mod.route("/aceptar_solicitud/<string:id_detalle>",methods=["POST"])
+@mod.route("/aceptar_solicitud_w/<string:id_detalle>",methods=["POST"])
 def aceptar_solicitud(id_detalle):
     if "usuario" not in session.keys():
         return redirect("/")
@@ -304,6 +403,53 @@ def eliminar_solicitud(id_detalle):
                 WHERE id = %s
     """
     cursor.execute(sql_query,(id_detalle,))
-
+    
+    sql_query = """
+        DELETE FROM
+            Motivo_academico_wishlist
+                WHERE id_wishlist = %s
+    """
+    cursor.execute(sql_query,(id_detalle,))
+    
     flash("solicitud-eliminada")
     return redirect("/gestion_wishlist")
+
+@mod.route("/marcar_pendiente_w/<string:id_detalle>",methods=["POST"])
+def marcar_pendiente_w(id_detalle):
+    fecha_revision_solicitud = str(datetime.now().replace(microsecond=0))
+
+    sql_query = """
+        UPDATE Wishlist
+            SET estado_wishlist = 0,fecha_revision=%s,motivo = NULL
+                WHERE id = %s
+    """
+    cursor.execute(sql_query,(fecha_revision_solicitud,id_detalle))
+
+    sql_query = """
+        SELECT *
+            FROM Wishlist
+                WHERE id = %s
+    """
+    cursor.execute(sql_query,(id_detalle,))
+    datos_solicitud = cursor.fetchone()
+
+    sql_query = """
+        SELECT nombres,apellidos,email
+            FROM Usuario
+                WHERE rut = %s
+    """
+    cursor.execute(sql_query,(datos_solicitud["rut_solicitante"],))
+    datos_usuario = cursor.fetchone()
+
+    direccion_template = os.path.normpath(os.path.join(os.getcwd(), "flask/app/templates/wishlist/templates_mail/pendiente_solicitud.html"))
+    archivo_html = open(direccion_template,encoding="utf-8").read()
+
+    archivo_html = archivo_html.replace("%id_solicitud%",str(id_detalle))
+    archivo_html = archivo_html.replace("%nombre_usuario%",datos_usuario["nombres"])
+    archivo_html = archivo_html.replace("%equipo_solicitado%",datos_solicitud["nombre_equipo"]+" "+datos_solicitud["marca_equipo"]+" "+datos_solicitud["modelo_equipo"])
+    archivo_html = archivo_html.replace("%fecha_registro%",str(datos_solicitud["fecha_solicitud"]))
+
+    enviar_correo_notificacion(archivo_html,datos_usuario["email"],"Solicitud de Wishlist marcada como pendiente",datos_usuario["email"])
+
+    flash("solicitud-pendiente")
+    return redirect(redirect_url())
