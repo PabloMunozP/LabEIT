@@ -1,5 +1,8 @@
 import os,mysql.connector
 
+SEND_FILE_MAX_AGE_DEFAULT = 0
+MAX_CONTENT_LENGTH = 16 * 1024 * 1024
+
 # Statement for enabling the development environment
 DEBUG = True
 
@@ -13,6 +16,7 @@ db = mysql.connector.connect(user="sql10342433",
                             port="3306",
                             database="sql10342433",
                             autocommit=True)
+#db = mysql.connector.connect(user="AdminSITS_sv@sitsmysqlsv", password="sitsdbsv_2020", host="sitsmysqlsv.mysql.database.azure.com", port=3306, database="labeit")
 cursor = db.cursor(dictionary=True,buffered=True)
 cursor.execute("SET NAMES utf8mb4;")
 
@@ -20,7 +24,9 @@ cursor.execute("SET NAMES utf8mb4;")
 
 # Configuraciones de archivos
 UPLOAD_FOLDER = 'static/upload_folder'
-ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif', 'xlsx', 'xls'}
+ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif', 
+                      'xlsx', 'xls', 'csv', 'doc', 'docx', 'ppt', 
+                      'pptx', 'odp', 'svg'}
 
 # Application threads. A common general assumption is
 # using 2 per available processor cores - to handle

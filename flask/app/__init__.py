@@ -12,6 +12,11 @@ from email.mime.base import MIMEBase
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
+def redirect_url(default='index'): # Redireccionamiento desde donde vino la request
+    return request.args.get('next') or \
+           request.referrer or \
+           url_for(default)
+
 def enviar_correo_notificacion(archivo,str_para,str_asunto,correo_usuario): # Envío de notificaciones vía correo electrónico
     # Se crea el mensaje
     correo = MIMEText(archivo,"html")
@@ -238,8 +243,6 @@ def revisar_18_30():
 
 # Define the WSGI application object
 app = Flask(__name__)
-app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
-app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 
 # Blueprints (Routes)
 from app.routes.rutas_seba import mod
@@ -263,6 +266,10 @@ app.config.from_object('config')
 # Sample HTTP error handling
 @app.errorhandler(404)
 def not_found(error):
+    return redirect("/")
+
+@app.errorhandler(413)
+def too_large_request(error):
     return redirect("/")
 
 @app.errorhandler(401)
