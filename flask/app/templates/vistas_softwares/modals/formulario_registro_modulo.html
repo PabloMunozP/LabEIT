@@ -1,0 +1,35 @@
+<div class="modal fade" id="registro_modulo" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header bg-gris-eit">
+        <h5 class="modal-title text-white"><i class="fas fa-plus-circle mr-2"></i>Registrar nuevo módulo</h5>
+        <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close" style="outline:none;">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <form action="/registrar_modulo" method="post">
+        <div class="modal-body">
+          <div class="form-group">
+            <label>Título del módulo</label>
+            <input type="text" required maxlength="200" name="titulo" class="form-control">
+          </div>
+          <div class="form-group">
+            <label>Descripción</label>
+            <textarea class="form-control" name="descripcion" maxlength="3500" rows="5" style="min-height:100px;max-height:300px;"></textarea>
+          </div>
+          <div class="form-group">
+            <label>Visibilidad</label>
+            <select required class="form-control col-4" name="visible">
+              <option selected value="1">Visible</option>
+              <option value="0">No visible</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+          <button type="submit" class="btn btn-success">Confirmar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

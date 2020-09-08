@@ -1,0 +1,29 @@
+{% extends "layout_in.html"%}
+    {%block body%}
+
+    <div class="container-fluid">
+
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="/documentacion_softwares">Documentacion de softwares</a></li>
+          <li class="breadcrumb-item active" aria-current="page">Visualización de documento: <strong class="text-truncate">{{datos_archivo["nombre"]}}</strong></li>
+        </ol>
+      </nav>
+
+      <div class="card-header mt-4" style="background:#0db26b;">
+        <h5 class="card-title text-white my-auto"><i class="fas fa-file-alt mr-2"></i>Visualización de documento</h5>
+        <p class="text-white my-auto">El archivo será automaticamente descargado en caso de que no se pueda conseguir la visualización.</p>
+      </div>
+      <div class="card-body" style="background:#ECF0F1;">
+        <div class="embed-responsive embed-responsive-21by9">
+          {% if datos_archivo["extension"] in ['.doc','.docx','.xls','.xlsx', '.ppt', '.pptx'] %}
+
+          {% else %}
+            <iframe class="embed-responsive-item" src="{{ url_for('static', filename='../static/files/documentacion_softwares/'+datos_archivo['nombre_carpeta']+'/'+datos_archivo['nombre'])}}"></iframe>
+          {% endif %}
+          
+        </div>
+      </div>
+    </div>
+
+    {%endblock%}
