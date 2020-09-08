@@ -22,7 +22,7 @@
                   <th scope="col">Motivo</th>
                   <th scope="col" class="text-center">Estado</th>
                   <th scope="col">Fecha de solicitud</th>
-                  <th scope="col">Acciones</th>
+                  <th scope="col" class="text-center">Acciones</th>
                 </tr>
               </thead>
               <tbody>
@@ -55,10 +55,12 @@
                   </td>
                   {% if detalle_solicitud["estado_wishlist"] != 8 %}
                   <td>
+                    <div class="text-center">
                       <a href="wishlist_usuario/editar_solicitud/{{detalle_solicitud["id"]}}">
                         <button type="button" title="Ver y editar solicitud" class="btn btn-sm btn-warning mr-1"><i
                             class="fas fa-edit"></i></button>
                       </a>
+                    </div>
                   </td>
                   {% endif %}
                 </tr>

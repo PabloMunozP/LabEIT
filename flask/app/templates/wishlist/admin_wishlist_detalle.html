@@ -69,6 +69,12 @@
         por un administrador.
     </div>
     {% endif %}
+    {% if detalle_solicitud["modificacion"] == 1 %}
+    <div class="alert alert-warning alert-dismissible fade show text-center mt-2" role="alert">
+        <i class="fas fa-exclamation-triangle mr-2"></i>La presente solicitud de Wishlist ha sido modificada por el
+        solicitante.
+    </div>
+    {% endif %}
 
     <div class="card rounded-0">
         <div class="card-header border-0 rounded-0" style="background:#0db26b;">
@@ -258,6 +264,25 @@
     </div>
     <div class="card-header border-0 rounded-0" style="background:#0db26b;">
         <h5 class="card-title my-auto text-white"><i class="fas fa-paperclip mr-2"></i>Links</h5>
+    </div>
+    <div class="card-body rounded-0" style="background:#ECF0F1;">
+        <div class="form-group row">
+            <label class="col-md-2 col-form-label texto-gris-eit">
+                <strong>Cotización adjunta:</strong>
+            </label>
+            <div class="col-md-10">
+                <p class="form-control-plaintext
+                                 text-break">
+                    {% if cotz["validar"][1] %}
+                    <a href="/cotizacion_wishlist/{{detalle_solicitud["id"]}}">
+                        Descargar aquí
+                    </a>
+                    {% else %}
+                    Sin cotización
+                    {% endif %}
+                </p>
+            </div>
+        </div>
     </div>
     <div class="card-body rounded-0" style="background:#ECF0F1;">
         {% for url in url_solicitud["url"] %}
