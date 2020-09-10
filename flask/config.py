@@ -1,7 +1,7 @@
 import os,mysql.connector
 
 SEND_FILE_MAX_AGE_DEFAULT = 0
-MAX_CONTENT_LENGTH = 16 * 1024 * 1024
+MAX_CONTENT_LENGTH = 500 * 1024 * 1024 # 500mb máximos de largo de contenido
 
 # Statement for enabling the development environment
 DEBUG = True

@@ -1736,14 +1736,14 @@ def documentacion_softwares():
         # Se obtiene la lista de módulos
         sql_query = """
             SELECT * FROM Modulo
-                ORDER BY titulo DESC
+                ORDER BY fecha_registro DESC
         """
     else:
         # Se obtiene la lista de módulos
         sql_query = """
             SELECT * FROM Modulo
                 WHERE visible = 1
-                ORDER BY titulo DESC
+                ORDER BY fecha_registro DESC
         """
 
     cursor.execute(sql_query)
@@ -1859,11 +1859,20 @@ def modificar_modulo(id_modulo):
 @mod.route("/subir_documentacion_software/<string:id_modulo>",methods=["POST"])
 def subir_documentacion_software(id_modulo):
 
-    def allowed_filesize(filesize):
-        # 16 MB
-        if int(filesize) <= MAX_CONTENT_LENGTH:
-            return True
-        return False
+    def get_size(fobj): # Permite obtener el tamaño de un archivo
+        if fobj.content_length:
+            return fobj.content_length
+        try:
+            pos = fobj.tell()
+            fobj.seek(0, 2)  #seek to end
+            size = fobj.tell()
+            fobj.seek(pos)  # back to original position
+            return size
+        except (AttributeError, IOError):
+            pass
+
+        # in-memory file object that doesn't support seeking or tell
+        return 0  #assume small enough
 
     def allowed_file(filename): # Función para determinar si la extensión del archivo corresponde a una que esté permitida.
         return '.' in filename and \
@@ -1880,6 +1889,11 @@ def subir_documentacion_software(id_modulo):
     if archivo and allowed_file(archivo.filename):
         nombre_archivo = secure_filename(archivo.filename)
 
+        # Se comprueba si el tamaño cumple con el tamaño máximo (25mb)
+        if get_size(archivo) > 1024*1024*25:
+            flash("error-max-size")
+            return redirect(redirect_url())
+    
         # Se verifica si el archivo ya se encuentra registrado en la base de datos.
         # En caso de que se encuentre registrado, se reemplazará automáticamente en la carpeta el archivo
         # y se debe omitir la inserción en la base de datos
@@ -1975,6 +1989,37 @@ def eliminar_archivo(id_archivo):
     flash("archivo-eliminado")
     return redirect(redirect_url())
 
+@mod.route("/descargar_archivo/<string:id_archivo>",methods=["GET"])
+def descargar_archivo_modulo(id_archivo):
+    if "usuario" not in session.keys():
+        return redirect("/")
+
+    # Se obtiene el registro del módulo y el archivo
+    sql_query = """
+        SELECT Documentacion_software.nombre AS nombre_archivo,Modulo.nombre_carpeta
+            FROM Documentacion_software,Modulo
+                WHERE Documentacion_software.id_modulo = Modulo.id
+                AND Documentacion_software.id = %s
+    """
+    cursor.execute(sql_query,(id_archivo,))
+    datos_modulo = cursor.fetchone()
+
+    if datos_modulo is None:
+            # Si el registro se eliminó inesperadamente, se retorna a la lista.
+            flash("error-inesperado")
+            return redirect(redirect_url())
+    
+    # Se arma la ruta hacia el archivo
+    ruta_archivo = os.path.normpath(os.path.join(os.getcwd(),"app/static/files/documentacion_softwares/"+datos_modulo["nombre_carpeta"]+"/"+datos_modulo["nombre_archivo"]))
+
+    # Se verifica que el archivo exista, verificando la ruta
+    if not os.path.exists(ruta_archivo):
+        flash("error-inesperado")
+        return redirect(redirect_url())
+    
+    # Se envía el archivo
+    return send_file(ruta_archivo,as_attachment=True)
+
 @mod.route("/eliminar_archivos_modulo/<string:id_modulo>",methods=["POST"])
 def eliminar_archivos_modulo(id_modulo):
     # Se eliminan todos los archivos al interior de la carpeta correspondiente al módulo
@@ -2021,6 +2066,7 @@ def eliminar_archivos_modulo(id_modulo):
     """
     cursor.execute(sql_query,(id_modulo,))
 
+    flash("archivos-modulo-eliminados")
     return redirect(redirect_url())
 
 @mod.route("/documentacion_softwares/visualizar_documento/<string:id_archivo>",methods=["GET"])

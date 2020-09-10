@@ -14,7 +14,7 @@
             <input required type="file" id="file" name="archivo" class="custom-file-input">
             <label class="custom-file-label">Seleccionar archivo</label>
             <small id="filesize-error" hidden class="form-text text-danger">
-              * El archivo a cargar no debe superar los <strong>50mb</strong> de tamaño.
+              * El archivo a cargar no debe superar los <strong>25mb</strong> de tamaño.
             </small>
           </div>
         </div>
@@ -30,15 +30,14 @@
 <script> 
   Filevalidation = () => { 
           const fi = document.getElementById('file'); 
-          const max_filesize = 1024*50; // Máx 50mb
+          const max_filesize = 1024*25; // Máx 25mb
           // Check if any file is selected. 
           if (fi.files.length > 0) { 
               for (var i = 0; i <= fi.files.length - 1; i++) { 
                   const fsize = fi.files.item(i).size; 
                   const file = Math.round((fsize / 1024)); 
-                  console.log(file);
                   // The size of the file. 
-                  if (file >= max_filesize) { 
+                  if (file > max_filesize) { 
                     document.getElementById("file").value = null;
                     document.getElementById("filesize-error").hidden = false;
                     document.getElementById("btn-submit-archivo").disabled = true; 
