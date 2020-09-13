@@ -1,16 +1,16 @@
-from flask import Flask,Blueprint,render_template,request,redirect,url_for,flash,session,jsonify,abort
-from werkzeug.utils import secure_filename
-from config import db,cursor
-import bcrypt
-import time
-from datetime import datetime,timedelta
 import os
-import json,requests,smtplib
-from flask_apscheduler import APScheduler
+import time
+import bcrypt
 from email import encoders
+from config import db,cursor
+import json,requests,smtplib
 from email.mime.base import MIMEBase
 from email.mime.text import MIMEText
+from datetime import datetime,timedelta
+from flask_apscheduler import APScheduler
+from werkzeug.utils import secure_filename
 from email.mime.multipart import MIMEMultipart
+from flask import Flask,Blueprint,render_template,request,redirect,url_for,flash,session,jsonify,abort
 
 def redirect_url(default='index'): # Redireccionamiento desde donde vino la request
     return request.args.get('next') or \

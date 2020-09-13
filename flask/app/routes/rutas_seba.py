@@ -1,18 +1,18 @@
-from flask import Flask,Blueprint,render_template,request,redirect,url_for,flash,session,jsonify,send_file
-from config import db,cursor,BASE_DIR,ALLOWED_EXTENSIONS,MAX_CONTENT_LENGTH
-import os,time,bcrypt,random,timeago,shutil
 import smtplib
+from uuid import uuid4 # Token
 from email import encoders
+from openpyxl import Workbook
+from jinja2 import Environment
 from email.mime.base import MIMEBase
 from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
-from jinja2 import Environment
-from uuid import uuid4 # Token
 from datetime import datetime,timedelta
-from openpyxl import Workbook
+from werkzeug.utils import secure_filename
+import os,time,bcrypt,random,timeago,shutil
+from email.mime.multipart import MIMEMultipart
 from openpyxl.styles import Font, PatternFill, Alignment
 from openpyxl.styles.borders import Border, Side, BORDER_THIN
-from werkzeug.utils import secure_filename
+from config import db,cursor,BASE_DIR,ALLOWED_EXTENSIONS,MAX_CONTENT_LENGTH
+from flask import Flask,Blueprint,render_template,request,redirect,url_for,flash,session,jsonify,send_file
 
 mod = Blueprint("rutas_seba",__name__)
 
@@ -21,7 +21,7 @@ def redirect_url(default='index'): # Redireccionamiento desde donde vino la requ
            request.referrer or \
            url_for(default)
 
-def enviar_correo_notificacion(archivo,str_para,str_asunto,correo_usuario): # Envío de correo (notificaciones de solicitudes de préstamo)
+def enviar_correo_notificacion(archivo,str_asunto,correo_usuario): # Envío de correo (notificaciones de solicitudes de préstamo)
     # Se crea el mensaje
     correo = MIMEText(archivo,"html")
     correo.set_charset("utf-8")
@@ -97,13 +97,12 @@ def iniciar_sesion():
         if session["intentos_login"] == 0:
             # Se registra el bloqueo en la base de datos
             fecha_bloqueo = datetime.now()
-            # Se establece la fecha de término del bloqueo
-            fecha_termino = fecha_bloqueo + timedelta(days=1)
             sql_query = """
                 INSERT INTO Bloqueos_IP (ip,fecha_bloqueo)
                     VALUES (%s,%s)
             """
             cursor.execute(sql_query,(request.remote_addr,fecha_bloqueo))
+            del session["intentos_login"]
 
         return redirect(url_for("rutas_seba.principal"))
 
@@ -123,13 +122,38 @@ def iniciar_sesion():
         if session["intentos_login"] == 0:
             # Se registra el bloqueo en la base de datos
             fecha_bloqueo = datetime.now()
-            # Se establece la fecha de término del bloqueo
-            fecha_termino = fecha_bloqueo + timedelta(days=1)
             sql_query = """
                 INSERT INTO Bloqueos_IP (ip,fecha_bloqueo)
                     VALUES (%s,%s)
             """
             cursor.execute(sql_query,(request.remote_addr,fecha_bloqueo))
+            del session["intentos_login"]
+            
+            # Se notifica el bloqueo de IP y el intento de acceso al correo del usuario
+            # al que le pertenece la cuenta
+
+            # Se obtienen los datos de la cuenta del usuario
+            sql_query = """
+                SELECT nombres,email
+                    FROM Usuario
+                        WHERE rut = %s
+            """
+            cursor.execute(sql_query,(datos_solicitante["rut"],))
+            datos_usuario_cuenta = cursor.fetchone()
+
+            if datos_usuario_cuenta is not None:
+                # Se envía el correo al usuario
+                direccion_template = os.path.normpath(os.path.join(os.getcwd(), "app/templates/vistas_exteriores/intento_fuerza_bruta_login_mail.html"))
+                archivo_html = open(direccion_template,encoding="utf-8").read()
+
+                # Se reemplazan los datos
+                archivo_html = archivo_html.replace("%nombre_usuario%",datos_usuario_cuenta["nombres"])
+                archivo_html = archivo_html.replace("%request_ip%",request.remote_addr)
+                
+                fecha_intento_acceso = datetime.now().replace(microsecond=0).strftime("%d-%m-%Y %H:%M:%S")
+                archivo_html = archivo_html.replace("%fecha_intento_acceso%",fecha_intento_acceso)
+                # Se envía el correo al usuario
+                enviar_correo_notificacion(archivo_html,"[LabEIT] Intento de inicio de sesión inusual",datos_usuario_cuenta["email"])
 
         return redirect(url_for("rutas_seba.principal"))
 
@@ -163,6 +187,8 @@ def iniciar_sesion():
 # Vista para recuperación de contraseña.
 @mod.route("/recuperacion_password",methods=["GET"])
 def recuperacion_password():
+    if "usuario" in session.keys():
+        return redirect("/")
     return render_template("/vistas_exteriores/recuperacion_password.html")
 
 @mod.route("/enviar_recuperacion_password",methods=["POST"])
@@ -208,31 +234,17 @@ def enviar_recuperacion_password():
     archivo_html = archivo_html.replace("%codigo_restablecimiento%",str(random.randint(0,1000)))
     archivo_html = archivo_html.replace("%token_restablecimiento%",token)
 
-    # Se crea el mensaje
-    correo = MIMEText(archivo_html,"html")
-    correo.set_charset("utf-8")
-    correo["From"] = "labeit.udp@gmail.com"
-    correo["To"] = datos_usuario["email"]
-    correo["Subject"] = "Recuperación de contraseña"
+    # Se agrega el token de recuperación a la base de datos
+    fecha_actual = datetime.now().replace(microsecond=0)
+    sql_query = """
+        INSERT INTO Token_recuperacion_password
+            (token,rut_usuario,fecha_registro)
+                VALUES (%s,%s,%s)
+    """
+    cursor.execute(sql_query,(str(token),datos_usuario["rut"],fecha_actual))
 
-    try:
-        server = smtplib.SMTP("smtp.gmail.com",587)
-        server.starttls()
-        server.login("labeit.udp@gmail.com","LabEIT_UDP_2020")
-        str_correo = correo.as_string()
-        server.sendmail("labeit.udp@gmail.com",datos_usuario["email"],str_correo)
-        server.close()
-        # Se registra el token en la base de datos según el RUT del usuario
-        fecha_actual = datetime.now().replace(microsecond=0)
-        sql_query = """
-            INSERT INTO Token_recuperacion_password
-                (token,rut_usuario,fecha_registro)
-                    VALUES (%s,%s,%s)
-        """
-        cursor.execute(sql_query,(str(token),datos_usuario["rut"],fecha_actual))
-
-    except Exception as e:
-        print(e)
+    # Se envía el correo electrónico al usuario solicitante
+    enviar_correo_notificacion(archivo_html,"[LabEIT] Recuperación de contraseña",datos_usuario["email"])
 
     flash("notificacion-recuperacion")
     return redirect(url_for("rutas_seba.recuperacion_password"))
@@ -559,6 +571,16 @@ def detalle_solicitud(id_detalle_solicitud):
         usuario_sancionado = True
     else:
         usuario_sancionado = False
+    
+    # Se obtiene la lista de cursos asociados a la solicitud
+    sql_query = """
+        SELECT Curso.id,Curso.codigo_udp,Curso.nombre
+            FROM Curso,Solicitud_curso
+                WHERE Curso.id = Solicitud_curso.id_curso
+                AND Solicitud_curso.id_solicitud = %s
+    """
+    cursor.execute(sql_query,(datos_encabezado_solicitud["id"],))
+    lista_cursos_asociados = cursor.fetchall()
 
     return render_template("/vistas_gestion_solicitudes_prestamos/detalle_solicitud.html",
         datos_detalle_solicitud=datos_detalle_solicitud,
@@ -568,7 +590,8 @@ def detalle_solicitud(id_detalle_solicitud):
         lista_usuarios=lista_usuarios,
         lista_equipos=lista_equipos,
         lista_equipos_prestamo=lista_equipos_prestamo,
-        usuario_sancionado=usuario_sancionado)
+        usuario_sancionado=usuario_sancionado,
+        lista_cursos_asociados=lista_cursos_asociados)
 
 @mod.route("/rechazar_solicitud/<string:id_detalle>",methods=["POST"])
 def rechazar_solicitud(id_detalle):
@@ -635,7 +658,7 @@ def rechazar_solicitud(id_detalle):
 
     archivo_html = archivo_html.replace("%razon_rechazo%",razon_rechazo)
 
-    enviar_correo_notificacion(archivo_html,datos_usuario["email"],"[LabEIT] Rechazo de solicitud de préstamo [IDD:"+str(id_detalle)+"]",datos_usuario["email"])
+    enviar_correo_notificacion(archivo_html,"[LabEIT] Rechazo de solicitud de préstamo [IDD:"+str(id_detalle)+"]",datos_usuario["email"])
 
     flash("solicitud-rechazada-correctamente")
     return redirect(redirect_url())
@@ -734,7 +757,7 @@ def aprobar_solicitud(id_detalle):
     fecha_revision_solicitud = str(datetime.now().replace(microsecond=0))
     archivo_html = archivo_html.replace("%fecha_revision_solicitud%",fecha_revision_solicitud)
 
-    enviar_correo_notificacion(archivo_html,datos_usuario["email"],"[LabEIT] Aprobación de solicitud de préstamo [IDD:"+str(id_detalle)+"]",datos_usuario["email"])
+    enviar_correo_notificacion(archivo_html,"[LabEIT] Aprobación de solicitud de préstamo [IDD:"+str(id_detalle)+"]",datos_usuario["email"])
 
     flash("solicitud-aprobada-correctamente")
     return redirect(redirect_url())
@@ -868,7 +891,7 @@ def cancelar_solicitud(id_detalle):
 
     archivo_html = archivo_html.replace("%razon_cancelacion%",razon_cancelacion)
 
-    enviar_correo_notificacion(archivo_html,datos_usuario["email"],"[LabEIT] Cancelación de solicitud de préstamo [IDD:"+str(id_detalle)+"]",datos_usuario["email"])
+    enviar_correo_notificacion(archivo_html,"[LabEIT] Cancelación de solicitud de préstamo [IDD:"+str(id_detalle)+"]",datos_usuario["email"])
 
     flash("solicitud-cancelada")
     return redirect(redirect_url())
@@ -949,7 +972,7 @@ def entregar_equipo(id_detalle):
     archivo_html = archivo_html.replace("%fecha_inicio_prestamo%",fecha_inicio_prestamo)
     archivo_html = archivo_html.replace("%fecha_termino_prestamo%",fecha_termino_prestamo)
 
-    enviar_correo_notificacion(archivo_html,datos_usuario["email"],"[LabEIT] Comprobante de retiro de equipo [IDD:"+str(id_detalle)+"]",datos_usuario["email"])
+    enviar_correo_notificacion(archivo_html,"[LabEIT] Comprobante de retiro de equipo [IDD:"+str(id_detalle)+"]",datos_usuario["email"])
 
     flash("retiro-correcto")
     return redirect(redirect_url())
@@ -1042,7 +1065,7 @@ def devolucion_equipo(id_detalle):
     archivo_html = archivo_html.replace("%codigo_sufijo%",datos_generales_solicitud["codigo_sufijo_equipo"])
     archivo_html = archivo_html.replace("%fecha_devolucion_equipo%",str(fecha_devolucion_equipo))
 
-    enviar_correo_notificacion(archivo_html,datos_usuario["email"],"[LabEIT] Comprobante de devolución de equipo [IDD:"+str(id_detalle)+"]",datos_usuario["email"])
+    enviar_correo_notificacion(archivo_html,"[LabEIT] Comprobante de devolución de equipo [IDD:"+str(id_detalle)+"]",datos_usuario["email"])
     flash("equipo-devuelto")
     return redirect(redirect_url())
 
@@ -1624,13 +1647,24 @@ def detalle_canasta_solicitud(id_solicitud):
         usuario_sancionado = True
     else:
         usuario_sancionado = False
+    
+    # Se obtiene la lista de cursos asociados a la solicitud
+    sql_query = """
+        SELECT Curso.id,Curso.codigo_udp,Curso.nombre
+            FROM Curso,Solicitud_curso
+                WHERE Curso.id = Solicitud_curso.id_curso
+                AND Solicitud_curso.id_solicitud = %s
+    """
+    cursor.execute(sql_query,(id_solicitud,))
+    lista_cursos_asociados = cursor.fetchall()
 
     return render_template("/vistas_gestion_solicitudes_prestamos/detalle_canasta_solicitud.html",
         solicitud=solicitud,
         equipos_disponibles=equipos_disponibles,
         datos_usuario=datos_usuario,
         lista_detalles_solicitud=lista_detalles_solicitud,
-        usuario_sancionado=usuario_sancionado)
+        usuario_sancionado=usuario_sancionado,
+        lista_cursos_asociados=lista_cursos_asociados)
 
 # MENSAJES ADMINISTRATIVOS
 @mod.route("/mensajes_administrativos",methods=["GET"])
@@ -1989,7 +2023,7 @@ def eliminar_archivo(id_archivo):
     flash("archivo-eliminado")
     return redirect(redirect_url())
 
-@mod.route("/descargar_archivo/<string:id_archivo>",methods=["GET"])
+@mod.route("/descargar_archivo_documentacion/<string:id_archivo>",methods=["GET"])
 def descargar_archivo_modulo(id_archivo):
     if "usuario" not in session.keys():
         return redirect("/")

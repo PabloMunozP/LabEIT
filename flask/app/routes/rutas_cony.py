@@ -104,9 +104,21 @@ def solicitudes_prestamos():
         equipo = cursor.fetchone()
         equipo["cantidad_pedidos"] = pedido[1]
         lista_carro.append(equipo)
+    
+    # Se obtienen los cursos asociados al usuario
+    query="""
+        SELECT Curso.*,Seccion.codigo AS codigo_seccion
+            FROM Curso,Seccion,Seccion_alumno
+                WHERE Curso.id = Seccion.id_curso
+                AND Seccion.id = Seccion_alumno.id_seccion
+                AND Seccion_alumno.rut_alumno = %s
+                ORDER BY Curso.nombre
+    """
+    cursor.execute(query,(session["usuario"]["rut"],))
+    lista_cursos = cursor.fetchall()
 
     return render_template("/solicitudes_prestamos/solicitud_equipos.html",
-        lista_equipos=lista_equipos,lista_carro=lista_carro)
+        lista_equipos=lista_equipos,lista_carro=lista_carro,lista_cursos=lista_cursos)
 
 @mod.route("/agregar_al_carro",methods=["POST"])
 def agregar_al_carro():
@@ -206,6 +218,17 @@ def registrar_solicitud():
             """
             for i in range(pedido[1]):
                 cursor.execute(sql_query,(id_solicitud,pedido[0]))
+        
+        # Se verifica si se seleccionaron cursos relacionados al pedido
+        lista_checkboxes = request.form.getlist("curso_relacionado")
+
+        # En caso de que existan cursos seleccionados, se enlazan a la solicitud
+        for id_curso in lista_checkboxes:
+            sql_query = """
+                INSERT INTO Solicitud_curso (id_solicitud,id_curso)
+                    VALUES (%s,%s)
+            """
+            cursor.execute(sql_query,(id_solicitud,id_curso))
 
     # Se vacía el carro de pedidos una vez registrada la solicitud completa
     session["carro_pedidos"] = []

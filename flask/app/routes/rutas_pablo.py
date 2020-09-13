@@ -235,7 +235,14 @@ def detalle_usuario(rut):
         cursor.execute(query,(rut,))
         solicitudes=cursor.fetchall()
 
-        query='''SELECT Curso.id as id , Curso.codigo_udp as codigo , Curso.nombre as nombre FROM Curso, Seccion_alumno,Seccion WHERE Seccion_alumno.rut_alumno= %s'''
+        query="""
+            SELECT Curso.*,Seccion.codigo AS codigo_seccion
+                FROM Curso,Seccion,Seccion_alumno
+                    WHERE Curso.id = Seccion.id_curso
+                    AND Seccion.id = Seccion_alumno.id_seccion
+                    AND Seccion_alumno.rut_alumno = %s
+                    ORDER BY Curso.nombre
+        """
         cursor.execute(query,(rut,))
         cursos=cursor.fetchall()
 
