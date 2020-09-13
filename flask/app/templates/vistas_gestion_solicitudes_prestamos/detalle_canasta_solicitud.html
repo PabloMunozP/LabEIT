@@ -168,6 +168,34 @@
 					</div>
 				</div>
 
+				{% if lista_cursos_asociados %}
+					<div class="form-group row">
+						<label class="col-12 col-form-label texto-gris-eit">
+							<strong>Asignaturas asociadas a la solicitud</strong>
+						</label>
+					</div>
+					<div class="table-responsive mt-2">
+						<div class="table-wrapper-scroll-y" style="position: relative; overflow:auto;">
+								<table class="table" id="tabla_equipos_solicitud">
+									<thead class="text-white" style="background:#4D4D4D;">
+										<tr>
+											<th scope="col">Código del curso</th>
+											<th scope="col">Nombre</th>
+										</tr>
+									</thead>
+									<tbody>
+										{% for curso in lista_cursos_asociados %}
+											<tr style="background:#fff;">
+													<td>{{curso["codigo_udp"]}}</td>
+													<td>{{curso["nombre"]}}</td>
+											</tr>
+										{% endfor %}
+									</tbody>
+								</table>
+							</div>
+						</div>
+				{% endif %}
+
 			</div>
 			<div class="card-header border-0 rounded-0" style="background:#0db26b;">
 				<h5 class="card-title my-auto text-white"><i class="fas fa-user mr-2"></i>Información del solicitante</h5>

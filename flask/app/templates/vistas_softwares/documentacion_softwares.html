@@ -199,7 +199,7 @@
             <div class="card">
               <div class="card-header">
                 <h2 class="clearfix mb-0">
-                  <a class="btn btn-link text-white" data-toggle="collapse" data-target="#collapseOne_{{modulo["id"]}}" aria-expanded="true" aria-controls="collapseOne">
+                  <a class="btn btn-link text-white text-truncate" title="{{modulo["titulo"]}}" data-toggle="collapse" data-target="#collapseOne_{{modulo["id"]}}" aria-expanded="true" aria-controls="collapseOne">
                     <strong>{{loop.index}}. {{modulo["titulo"]}}</strong>
                     {% if not modulo["visible"] %}
                       <small>(No visible)</small>
@@ -228,9 +228,9 @@
                     <div class="row mt-1">
                       <div class="col">
                         <span class="btn-group float-right">
-                          <button type="button" class="btn btn-sm btn-success btn-agregar-archivo mr-1" value="{{modulo["id"]}}" data-toggle="modal" data-target="#modal_subir_archivo"><i class="fas fa-file-upload mr-1"></i>Agregar archivo</button>
-                          <button type="button" class="btn btn-sm btn-warning btn-modificar-modulo mr-1" value="{{modulo["id"]}}" data-toggle="modal" data-target="#form_modificar_modulo"><i class="fas fa-edit mr-1"></i>Modificar módulo</button>
-                          <button type="button" class="btn btn-sm btn-danger btn-eliminar-modulo" value="{{modulo["id"]}}" data-toggle="modal" data-target="#confirmacion_eliminacion_modulo"><i class="fas fa-folder-minus mr-1"></i>Eliminar módulo</button>
+                          <button type="button" class="btn btn-sm btn-success btn-agregar-archivo mr-1" title="Agregar archivo" value="{{modulo["id"]}}" data-toggle="modal" data-target="#modal_subir_archivo"><i class="fas fa-file-upload"></i></button>
+                          <button type="button" class="btn btn-sm btn-warning btn-modificar-modulo mr-1" title="Modificar módulo" value="{{modulo["id"]}}" data-toggle="modal" data-target="#form_modificar_modulo"><i class="fas fa-edit"></i></button>
+                          <button type="button" class="btn btn-sm btn-danger btn-eliminar-modulo" title="Eliminar módulo" value="{{modulo["id"]}}" data-toggle="modal" data-target="#confirmacion_eliminacion_modulo"><i class="fas fa-folder-minus"></i></button>
                         </span>
                       </div>
                     </div>
@@ -258,7 +258,7 @@
                                 {% if session["usuario"]["id_credencial"] == 3 %}
                                   <td class="text-center">
                                     <span class="btn-group">
-                                      <a href="/descargar_archivo/{{archivo["id"]}}">
+                                      <a href="/descargar_archivo_documentacion/{{archivo["id"]}}">
                                         <button type="button" title="Descargar archivo" class="btn btn-sm btn-secondary mr-1">
                                           <i class="fas fa-file-download"></i>
                                         </button>
@@ -272,7 +272,7 @@
                                   </td>
                                 {% else %}
                                   <td class="text-center">
-                                    <a href="/descargar_archivo/{{archivo["id"]}}">
+                                    <a href="/descargar_archivo_documentacion/{{archivo["id"]}}">
                                       <button type="button" title="Descargar archivo" class="btn btn-sm btn-secondary mr-1">
                                         <i class="fas fa-file-download"></i>
                                       </button>
