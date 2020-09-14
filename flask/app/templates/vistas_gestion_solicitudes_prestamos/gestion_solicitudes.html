@@ -1,7 +1,6 @@
 {% extends "layout_in.html" %}
 	{%block body%}
 
-	{% include "/vistas_gestion_solicitudes_prestamos/modals/confirmacion_eliminacion_entrante.html" %}
 	{% include "/vistas_gestion_solicitudes_prestamos/modals/formulario_solicitud_agil.html" %}
 
 	<section id="tabs" class="project-tab mt-2">
@@ -37,6 +36,14 @@
 										{% if msg == "detalle-eliminado" %}
 										<div class="alert alert-success mt-2 alert-dismissible fade show" role="alert">
 												<i class="fas fa-check-circle mr-2"></i>El detalle de solicitud ha sido eliminado correctamente.
+												<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+														<span aria-hidden="true">&times;</span>
+												</button>
+										</div>
+										{% endif %}
+										{% if msg == "detalles-seleccionados-eliminados" %}
+										<div class="alert alert-success mt-2 alert-dismissible fade show" role="alert">
+												<i class="fas fa-check-circle mr-2"></i>Los detalles de solicitud han sido eliminados correctamente.
 												<button type="button" class="close" data-dismiss="alert" aria-label="Close">
 														<span aria-hidden="true">&times;</span>
 												</button>

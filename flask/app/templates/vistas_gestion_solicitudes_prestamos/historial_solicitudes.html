@@ -10,75 +10,120 @@
 </div>
 
 {% if lista_historial_solicitudes %}
-<div class="table-responsive mt-2">
-  <div class="table-wrapper-scroll-y" style="position: relative; overflow:auto;">
-			<table class="table" id="tabla_historial_solicitudes">
-				<thead class="text-white" style="background:#4D4D4D;">
-					<tr>
-						<th title="ID de solicitud" scope="col">IDS</th>
-						<th title="ID de detalle de solicitud" scope="col">IDD</th>
-						<th scope="col">RUT de alumno solicitante</th>
-						<th scope="col">Nombre del solicitante</th>
-						<th scope="col">Equipo solicitado</th>
-						<th scope="col" class="text-center">Estado</th>
-						<th scope="col">Fecha de registro</th>
-						<th scope="col">Fecha de término</th>
-						<th scope="col">Acciones</th>
-					</tr>
-				</thead>
-				<tbody>
-					{% for detalle_solicitud in lista_historial_solicitudes %}
-						<tr style="background:#ECF0F1;">
-							<td>{{detalle_solicitud["id_solicitud"]}}</td>
-							<td>{{detalle_solicitud["id"]}}</td>
-							<td>{{detalle_solicitud["rut_alumno"]|formato_rut}}</td>
-							<td>{{detalle_solicitud["nombres_usuario"]}} {{detalle_solicitud["apellidos_usuario"]}}</td>
-							<td>{{detalle_solicitud["nombre"]}} {{detalle_solicitud["marca"]}} {{detalle_solicitud["modelo"]}}</td>
-
-							{% if detalle_solicitud["estado"] == 0 %}
-								<td class="text-center"><span class="badge badge-primary">{{detalle_solicitud["nombre_estado"]}}</span></td>
-							{% elif detalle_solicitud["estado"] == 1 %}
-								<td class="text-center"><span class="badge badge-info">{{detalle_solicitud["nombre_estado"]}}</span></td>
-							{% elif detalle_solicitud["estado"] == 2 %}
-								<td class="text-center"><span class="badge badge-success">{{detalle_solicitud["nombre_estado"]}}</span></td>
-							{% elif detalle_solicitud["estado"] == 3 %}
-								<td class="text-center"><span class="badge badge-danger">{{detalle_solicitud["nombre_estado"]}}</span></td>
-							{% elif detalle_solicitud["estado"] == 4 %}
-								<td class="text-center"><span class="badge badge-success">{{detalle_solicitud["nombre_estado"]}}</span></td>
-							{% elif detalle_solicitud["estado"] == 5 %}
-								<td class="text-center"><span class="badge badge-danger">{{detalle_solicitud["nombre_estado"]}}</span></td>
-							{% elif detalle_solicitud["estado"] == 6 %}
-								<td class="text-center"><span class="badge badge-secondary">{{detalle_solicitud["nombre_estado"]}}</span></td>
-							{% elif detalle_solicitud["estado"] == 7 %}
-								<td class="text-center"><span class="badge badge-danger">{{detalle_solicitud["nombre_estado"]}}</span></td>
-							{% endif %}
-							<td>{{detalle_solicitud["fecha_registro"]}}</td>
-							{% if detalle_solicitud["fecha_devolucion"] %}
-								<td>{{detalle_solicitud["fecha_devolucion"]}}</td>
-							{% elif detalle_solicitud["fecha_rechazo"] %}
-								<td>{{detalle_solicitud["fecha_rechazo"]}}</td>
-							{% elif detalle_solicitud["fecha_cancelacion"] %}
-								<td>{{detalle_solicitud["fecha_cancelacion"]}}</td>
-							{% else %}
-								<td></td>
-							{% endif %}
-
-							<td>
-								<span class="btn-group">
-									<a href="gestion_solicitudes_prestamos/detalle_solicitud/{{detalle_solicitud["id"]}}">
-										<button type="button" title="Ver detalle de solicitud" class="btn btn-sm btn-secondary mr-1"><i class="fas fa-search-plus"></i></button>
-									</a>
-									<button type="submit" title="Eliminar solicitud" onclick="agregar_action_form_eliminar_solicitud({{detalle_solicitud["id"]}})" class="btn btn-sm btn-danger" data-toggle="modal" data-target="#confirmacion_eliminacion_solicitud_entrante"><i class="fas fa-minus-circle"></i></button>
-								</span>
-							</td>
-						</tr>
-					{% endfor %}
-				</tbody>
-			</table>
+<form id="form_eliminar_checkbox_historial" action="/eliminar_detalles_seleccionados" method="POST">
+	<div class="table-responsive mt-2">
+		<div class="row"> 
+			<div class="col text-right">
+				<button type="submit" id="boton_eliminar_detalles_historial_seleccionados" disabled class="btn btn-sm btn-danger mb-2">
+					<i class="fas fa-minus-circle mr-1"></i>Eliminar registros seleccionados
+				</button>
+			</div>
 		</div>
-	</div>
+		<div class="table-wrapper-scroll-y" style="position: relative; overflow:auto;">
+				<table class="table" id="tabla_historial_solicitudes">
+					<thead class="text-white" style="background:#4D4D4D;">
+						<tr>
+							<th title="ID de solicitud" scope="col">IDS</th>
+							<th title="ID de detalle de solicitud" scope="col">IDD</th>
+							<th scope="col">RUT de alumno solicitante</th>
+							<th scope="col">Nombre del solicitante</th>
+							<th scope="col">Equipo solicitado</th>
+							<th scope="col" class="text-center">Estado</th>
+							<th scope="col">Fecha de registro</th>
+							<th scope="col">Fecha de término</th>
+							<th scope="col">Acciones</th>
+							<th scope="col" class="text-center">
+								<div class="form-check my-auto">
+									<input class="form-check-input position-static" type="checkbox" id="check_all_historial">
+								</div>
+							</th>
+						</tr>
+					</thead>
+					<tbody>
+						{% for detalle_solicitud in lista_historial_solicitudes %}
+							<tr style="background:#ECF0F1;">
+								<td>{{detalle_solicitud["id_solicitud"]}}</td>
+								<td>{{detalle_solicitud["id"]}}</td>
+								<td>{{detalle_solicitud["rut_alumno"]|formato_rut}}</td>
+								<td>{{detalle_solicitud["nombres_usuario"]}} {{detalle_solicitud["apellidos_usuario"]}}</td>
+								<td>{{detalle_solicitud["nombre"]}} {{detalle_solicitud["marca"]}} {{detalle_solicitud["modelo"]}}</td>
+
+								{% if detalle_solicitud["estado"] == 0 %}
+									<td class="text-center"><span class="badge badge-primary">{{detalle_solicitud["nombre_estado"]}}</span></td>
+								{% elif detalle_solicitud["estado"] == 1 %}
+									<td class="text-center"><span class="badge badge-info">{{detalle_solicitud["nombre_estado"]}}</span></td>
+								{% elif detalle_solicitud["estado"] == 2 %}
+									<td class="text-center"><span class="badge badge-success">{{detalle_solicitud["nombre_estado"]}}</span></td>
+								{% elif detalle_solicitud["estado"] == 3 %}
+									<td class="text-center"><span class="badge badge-danger">{{detalle_solicitud["nombre_estado"]}}</span></td>
+								{% elif detalle_solicitud["estado"] == 4 %}
+									<td class="text-center"><span class="badge badge-success">{{detalle_solicitud["nombre_estado"]}}</span></td>
+								{% elif detalle_solicitud["estado"] == 5 %}
+									<td class="text-center"><span class="badge badge-danger">{{detalle_solicitud["nombre_estado"]}}</span></td>
+								{% elif detalle_solicitud["estado"] == 6 %}
+									<td class="text-center"><span class="badge badge-secondary">{{detalle_solicitud["nombre_estado"]}}</span></td>
+								{% elif detalle_solicitud["estado"] == 7 %}
+									<td class="text-center"><span class="badge badge-danger">{{detalle_solicitud["nombre_estado"]}}</span></td>
+								{% endif %}
+								<td>{{detalle_solicitud["fecha_registro"]}}</td>
+								{% if detalle_solicitud["fecha_devolucion"] %}
+									<td>{{detalle_solicitud["fecha_devolucion"]}}</td>
+								{% elif detalle_solicitud["fecha_rechazo"] %}
+									<td>{{detalle_solicitud["fecha_rechazo"]}}</td>
+								{% elif detalle_solicitud["fecha_cancelacion"] %}
+									<td>{{detalle_solicitud["fecha_cancelacion"]}}</td>
+								{% else %}
+									<td></td>
+								{% endif %}
+								<td>
+									<span class="btn-group">
+										<a href="gestion_solicitudes_prestamos/detalle_solicitud/{{detalle_solicitud["id"]}}">
+											<button type="button" title="Ver detalle de solicitud" class="btn btn-sm btn-secondary mr-1"><i class="fas fa-search-plus"></i></button>
+										</a>
+										<a href="/eliminar_solicitud/{{detalle_solicitud["id"]}}">
+											<button type="button" title="Eliminar solicitud" class="btn btn-sm btn-danger"><i class="fas fa-minus-circle"></i></button>
+										</a>
+									</span>
+								</td>
+								<td class="text-center">
+									<div class="form-check my-auto">
+										<input class="form-check-input position-static checkbox-detalle-historial" name="eliminar_detalle_solicitud" type="checkbox" id="checkbox_detalle_solicitud_{{detalle_solicitud["id"]}}" value="{{detalle_solicitud["id"]}}">
+									</div>
+								</td>
+							</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+			</div>
+		</div>
+</form>
 {% else %}
 	<div class="alert alert-warning alert-dismissible fade show text-center mt-2" role="alert">
 		<i class="fas fa-exclamation-triangle mr-2"></i>El historial de solicitudes de préstamos se encuentra vacío.
 	</div>
 {% endif %}
+
+<script>
+	// Checkbox - Detalles de solicitudes del historial -----------------------
+	$('#check_all_historial').change(function() {
+        if(this.checked) {
+					$(".checkbox-detalle-historial").prop("checked",true);
+					// Se activa el botón para eliminar los detalles del historial seleccionados
+					$("#boton_eliminar_detalles_historial_seleccionados").prop("disabled",false);
+				}else{
+					$(".checkbox-detalle-historial").prop("checked",false);
+					// Se desactiva el botón para eliminar los detalles del historial seleccionados
+					$("#boton_eliminar_detalles_historial_seleccionados").prop("disabled",true);
+				}   
+    });
+	$(".checkbox-detalle-historial").change(function(){
+		if($("#form_eliminar_checkbox_historial input:checkbox.checkbox-detalle-historial:checked").length > 0){
+			$("#boton_eliminar_detalles_historial_seleccionados").prop("disabled",false);
+		}else{
+			// Se desactiva el checkbox que selecciona todas las filas
+			$('#check_all_historial').prop("checked",false);
+			$("#boton_eliminar_detalles_historial_seleccionados").prop("disabled",true);
+		}
+	});
+	// ---------------------------------------------------------------------------
+</script>

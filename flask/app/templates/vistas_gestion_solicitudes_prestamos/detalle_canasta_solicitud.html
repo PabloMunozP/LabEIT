@@ -366,7 +366,9 @@
 																		<button type="button" class="btn btn-sm btn-success mr-1"><i class="fas fa-check-circle mr-1"></i>Marcar como finalizada</button>
 																	</a>
 																{% elif detalle_solicitud["estado"] == 5 or detalle_solicitud["estado"] == 6 or detalle_solicitud["estado"] == 7 %}
-																	<button type="button" class="btn btn-sm btn-danger mr-1" data-toggle="modal" data-target="#confirmacion_eliminacion_solicitud_{{detalle_solicitud["id"]}}"><i class="fas fa-minus-circle mr-1"></i>Eliminar solicitud</button>
+																<a href="/eliminar_solicitud/{{detalle_solicitud["id"]}}">
+																	<button type="button" class="btn btn-sm btn-danger mr-1"><i class="fas fa-minus-circle mr-1"></i>Eliminar solicitud</button>
+																</a>	
 																{% endif %}
 															</span>
 														</div>
@@ -412,8 +414,6 @@
 			{% include "/vistas_gestion_solicitudes_prestamos/modals/modals_canasta/formulario_retiro_equipo_canasta.html" %}
 		{% elif detalle_solicitud["estado"] == 2 or detalle_solicitud["estado"] == 3 %}
 			{% include "/vistas_gestion_solicitudes_prestamos/modals/modals_canasta/confirmacion_devolucion_canasta.html" %}
-		{% elif detalle_solicitud["estado"] == 5 or detalle_solicitud["estado"] == 6 or detalle_solicitud["estado"] == 7 %}
-			{% include "/vistas_gestion_solicitudes_prestamos/modals/modals_canasta/confirmacion_eliminacion_canasta.html" %}
 		{% endif %}
 
 	{% endfor %}
