@@ -8,6 +8,7 @@
         <tr>
           <th scope="col">ID</th>
           <th scope="col">Nombre</th>
+          <th scope="col">Descripción</th>
           <th scope="col">Cantidad disponibles</th>
           <th scope="col">Acciones</th>
 
@@ -18,9 +19,11 @@
         <tr style="background:#ECF0F1;">
           <td>{{elemento.id}}</td>
           <td>{{elemento.nombre}}</td>
+          <td>{{elemento.descripcion}}</td>
           <td>{{elemento.cantidad-elemento.prestados}}/{{elemento.cantidad}}</td>
+          
           <td>
-            <button type="button" title="Ver circuito"  onclick="cargar_info_modal_circuito('{{elemento.id}}','{{elemento.nombre}}', '{{elemento.dias_max_prestamo}}' , '{{elemento.cantidad-elemento.prestados}}/{{elemento.cantidad}}', '{{elemento.descripcion}}')" data-toggle="modal" class="btn btn-sm btn-info mr-1">
+            <button type="button" title="Ver circuito"  onclick="cargar_info_modal_circuito('{{elemento.id}}','{{elemento.nombre}}', '{{elemento.dias_max_prestamo}}' , '{{elemento.cantidad-elemento.prestados}}','{{elemento.cantidad}}', '{{elemento.descripcion}}')" data-toggle="modal" class="btn btn-sm btn-info mr-1">
               <i class="fas fa-file-invoice"></i>
             </button>
           </td>

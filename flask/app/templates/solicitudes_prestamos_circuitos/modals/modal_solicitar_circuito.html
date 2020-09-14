@@ -10,6 +10,7 @@
 
       <form id="formulario-agregar-equipo-carro-circuito" method="POST" action="/agregar_al_carro_circuito">
         <input type="hidden" name="id_circuito" id="id_circuito">
+        <input type="hidden" name="nombre_circuito" id="nombre_circuito">
         <div class="modal-body">
           <div class="form-group row">
             <label class="col-md-2 col-form-label"><strong>Nombre:</strong></label>
@@ -68,11 +69,13 @@
 </div>
   
   <script type="text/javascript">
-      function cargar_info_modal_circuito(id_circuito, nombre, dias, unidades, descripcion){
+      function cargar_info_modal_circuito(id_circuito, nombre, dias, unidades_disponibles, unidades_max, descripcion){
         document.getElementById("id_circuito").value = id_circuito;
+        document.getElementById("nombre_circuito").value = nombre;
+        document.getElementById("cantidad_unidades_solicitadas").max = unidades_disponibles;
         document.getElementById("modal_circuito_nombre").textContent = nombre;
         document.getElementById("modal_circuito_dias_prestamo").textContent = dias;
-        document.getElementById("modal_circuito_unidades").textContent = unidades;
+        document.getElementById("modal_circuito_unidades").textContent = unidades_disponibles + "/" + unidades_max;
         document.getElementById("modal_circuito_descripcion").textContent = descripcion;
         $("#modal_info_circuito").modal("show");
       };
@@ -84,7 +87,8 @@
           $.ajax({
             data : {
               id_circuito : $('#id_circuito').val() ,
-              cantidad : $('#cantidad_unidades_solicitadas').val()
+              cantidad : $('#cantidad_unidades_solicitadas').val() ,
+              nombre_circuito : $('#nombre_circuito').val()
             },
             type : 'POST',
             url : '/agregar_al_carro_circuito'
@@ -95,8 +99,11 @@
               console.log('error');
             }
             else{
-              console.log('success');
               console.log(data);
+              document.getElementById("cantidad_unidades_solicitadas").value= 1 ;
+              $("#carro_pedidos_circuito").html(data);
+              $("#modal_info_circuito").modal("hide");
+              
             }
 
           });
@@ -106,7 +113,4 @@
         });
       });
       
-
-
-
   </script>

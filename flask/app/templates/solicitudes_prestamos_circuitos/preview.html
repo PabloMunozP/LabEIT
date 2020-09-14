@@ -1,7 +1,24 @@
 {% extends "layout_in.html"%}
 {%block body%}
+<div class="card-header mt-4" style="background:#0db26b;">
+    <h5 class="card-title text-white my-auto">Solicitudes de préstamos</h5>
+    <p class="text-white my-auto"><i class="fas fa-info-circle mr-2"></i>En esta sección podrás realizar las solicitudes de préstamo de los equipos de circuitos que necesites, seleccionándolos en la lista y agregándolos a tu carro de pedidos.</p>
+</div>
+
+
+<div class="card-header mt-3" style="background:#4D4D4D;">
+    <h5 class="text-white my-auto text-center"><i class="fas fa-microchip"></i> Lista de equipos del laboratorio</h5>
+</div>
     {% include "solicitudes_prestamos_circuitos/tablas/lista_circuitos_solicitud.html" %}
     {% include "solicitudes_prestamos_circuitos/modals/modal_solicitar_circuito.html" %}
+    
+    
+    
+    <div class="card-header mt-4" style="background:#0db26b;">
+        <h5 class="card-title text-white my-auto"><i class="fas fa-shopping-cart mr-2"></i>Tu carro de pedidos</h5>
+        <p class="text-white my-auto"><i class="fas fa-info-circle mr-2"></i>A medida que selecciones equipos, estos irán apareciendo en tu lista de pedidos.</p>
+    </div>
+    
     <div id="carro_pedidos_circuito">
         {% include "solicitudes_prestamos_circuitos/tablas/lista_carro_circuito.html" %}
     </div>
