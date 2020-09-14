@@ -92,7 +92,7 @@
 									<th scope="col">Código de asignatura</th>
 									<th scope="col" class="text-center">Sección</th>
 									<th scope="col">Nombre de la asignatura</th>
-									<th scope="col">
+									<th scope="col" class="text-center">
 										<div class="form-check form-check-inline">
 											<input class="form-check-input" type="checkbox" id="check_all_cursos" value="option1">
 										</div>
@@ -105,9 +105,9 @@
 											<td>{{curso["codigo_udp"]}}</td>
 											<td class="text-center">{{curso["codigo_seccion"]}}</td>
 											<td>{{curso["nombre"]}}</td>
-											<td>
+											<td class="text-center">
 												<div class="form-check form-check-inline">
-													<input class="form-check-input" type="checkbox" id="checkbox_curso_{{curso["id"]}}" name="curso_relacionado" value="{{curso["id"]}}">
+													<input class="form-check-input checkbox-asignatura" type="checkbox" id="checkbox_curso_{{curso["id"]}}" name="curso_relacionado" value="{{curso["id"]}}">
 												</div>
 											</td>
 									</tr>
@@ -280,6 +280,12 @@
 					$(".form-check-input").prop("checked",false);
 				}      
     });
+
+		$(".checkbox-asignatura").change(function(){
+		if($("input:checkbox.checkbox-asignatura:checked").length == 0){
+			$('#check_all_cursos').prop("checked",false);
+		}
+	});
 
 		$("#form_pedido_carro").submit( function(eventObj) {
 			// Se agregan los checkbox de los cursos relacionados al formulario

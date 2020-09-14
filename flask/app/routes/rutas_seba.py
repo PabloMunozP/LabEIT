@@ -762,8 +762,13 @@ def aprobar_solicitud(id_detalle):
     flash("solicitud-aprobada-correctamente")
     return redirect(redirect_url())
 
-@mod.route("/eliminar_solicitud/<string:id_detalle>",methods=["POST"])
+@mod.route("/eliminar_solicitud/<string:id_detalle>",methods=["GET"])
 def eliminar_solicitud(id_detalle):
+    if "usuario" not in session.keys():
+        return redirect("/")
+    if session["usuario"]["id_credencial"] != 3: # El usuario debe ser un administrador (Credencial = 3)
+        return redirect("/")
+
     # Permite eliminar el detalle de solicitud con id = id_solicitud
 
     # Se obtiene el ID de solicitud (id general) para determinar si se debe eliminar el encabezado
@@ -809,6 +814,52 @@ def eliminar_solicitud(id_detalle):
         cursor.execute(sql_query,(id_encabezado_solicitud,))
 
     flash("detalle-eliminado")
+    return redirect(redirect_url())
+
+@mod.route("/eliminar_detalles_seleccionados",methods=["POST"])
+def eliminar_detalles_seleccionados():
+    # Permite eliminar los detalles que hayan sido seleccionados
+    # en las tablas de detalles pendientes, activos e historial.
+    lista_detalles_solicitudes = request.form.getlist("eliminar_detalle_solicitud")
+
+    # Se retorna en caso de que no se encuentren detalles seleccionados
+    if not len(lista_detalles_solicitudes):
+        return redirect(redirect_url())
+    
+    # Se obtienen los ids de encabezado de solicitudes para posteriormente
+    # eliminar los que tengan 0 detalles
+    lista_encabezados_solicitudes = []
+    for id_detalle in lista_detalles_solicitudes:
+        sql_query = """
+            SELECT id_solicitud
+                FROM Detalle_solicitud
+                    WHERE id = %s
+        """
+        cursor.execute(sql_query,(id_detalle,))
+        registro_encabezado_solicitud = cursor.fetchone()
+
+        if registro_encabezado_solicitud is None:
+            continue
+
+        id_encabezado_solicitud = registro_encabezado_solicitud["id_solicitud"]
+
+        if id_encabezado_solicitud not in lista_encabezados_solicitudes:
+            lista_encabezados_solicitudes.append(id_encabezado_solicitud)
+
+    # Se eliminan todos los detalles de solicitudes seleccionados
+    sql_query = "DELETE FROM Detalle_solicitud WHERE id IN (%s)" % ','.join(['%s'] * len(lista_detalles_solicitudes))
+    cursor.execute(sql_query,lista_detalles_solicitudes)
+
+    # Se eliminan los encabezados de solicitud en caso de que se hayan eliminado todos sus detalles
+    for id_encabezado_solicitud in lista_encabezados_solicitudes:
+        sql_query = """
+            DELETE FROM Solicitud
+                WHERE id = %s
+                AND (SELECT COUNT(*) FROM Detalle_solicitud WHERE id_solicitud = %s) = 0
+        """
+        cursor.execute(sql_query,(id_encabezado_solicitud,id_encabezado_solicitud))
+
+    flash("detalles-seleccionados-eliminados")
     return redirect(redirect_url())
 
 @mod.route("/eliminar_solicitud_canasta/<string:id_solicitud>",methods=["POST"])
