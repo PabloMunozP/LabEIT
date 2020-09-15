@@ -260,8 +260,8 @@
 								<table class="table" id="tabla_equipos_solicitud">
 									<thead class="text-white" style="background:#4D4D4D;">
 										<tr>
-											<th scope="col">Código del curso</th>
-											<th scope="col">Nombre</th>
+											<th scope="col">Código de la asignatura</th>
+											<th scope="col">Nombre de la asignatura</th>
 										</tr>
 									</thead>
 									<tbody>
@@ -482,10 +482,10 @@
 						{% if not usuario_sancionado %}
 							<button type="button" class="btn btn-success mr-1" data-toggle="modal" data-target="#confirmacion_aprobacion_solicitud"><i class="fas fa-clipboard-check mr-1"></i>Aprobar solicitud</button>
 						{% endif %}
-						<form class="" action="/eliminar_solicitud/{{datos_detalle_solicitud["id"]}}" method="post">
+						<a href="/eliminar_solicitud/{{datos_detalle_solicitud["id"]}}">
 							<button type="submit" class="btn btn-danger mr-1"><i class="fas fa-minus-circle mr-1"></i>Eliminar solicitud</button>
-						</form>
-					{% elif datos_detalle_solicitud["estado"] == 1 %}
+						</a>
+							{% elif datos_detalle_solicitud["estado"] == 1 %}
 						<button type="button" class="btn btn-danger mr-1" data-toggle="modal" data-target="#confirmacion_cancelacion_solicitud"><i class="fas fa-times-circle mr-1"></i>Cancelar solicitud</button>
 						{% if not usuario_sancionado %}
 							<button type="button" class="btn btn-info" data-toggle="modal" data-target="#formulario_retiro_equipo"><i class="fas fa-clipboard-check mr-1"></i>Marcar como entregado</button>
