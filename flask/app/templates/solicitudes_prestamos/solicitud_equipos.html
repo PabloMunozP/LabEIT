@@ -71,8 +71,8 @@
 
 		<div class="card-header mt-4" style="background:#0db26b;">
 			<h5 class="card-title text-white my-auto"><i class="fas fa-chalkboard-teacher mr-2"></i>Asignaturas asociadas</h5>
-			<p class="text-white my-auto"><i class="fas fa-info-circle mr-2"></i>Selecciona tus asignaturas en caso de que tu pedido se encuentre asociado a alguna de ellas. (No obligatorio)</p>
-			<button type="button" class="btn btn-sm btn-secondary" data-container="body" data-toggle="popover" data-placement="top" data-content="Al asociar tus cursos al pedido que estás realizando permitirás, a la coordinación de laboratorios, obtener mayor retroalimentación acerca de los equipos que se están solicitando, con la finalidad de mejorar la calidad del servicio.">
+			<p class="text-white my-auto"><i class="fas fa-info-circle mr-2"></i>En caso de que tu pedido sea por motivos académicos, selecciona las asignaturas a las que se enucentra asociada la solicitud. (Opcional)</p>
+			<button type="button" class="btn btn-sm btn-secondary" data-container="body" data-toggle="popover" data-placement="top" data-content="Al asociar las asignaturas al pedido que estás realizando permitirás, a la coordinación de laboratorios, obtener mayor retroalimentación acerca de los equipos que se están solicitando, con la finalidad de mejorar la calidad del servicio.">
 				Más información
 			</button>
 		</div>
@@ -90,7 +90,6 @@
 							<thead class="text-white" style="background:#4D4D4D;">
 								<tr>
 									<th scope="col">Código de asignatura</th>
-									<th scope="col" class="text-center">Sección</th>
 									<th scope="col">Nombre de la asignatura</th>
 									<th scope="col" class="text-center">
 										<div class="form-check form-check-inline">
@@ -103,7 +102,6 @@
 								{% for curso in lista_cursos %}
 									<tr style="background:#ECF0F1;">
 											<td>{{curso["codigo_udp"]}}</td>
-											<td class="text-center">{{curso["codigo_seccion"]}}</td>
 											<td>{{curso["nombre"]}}</td>
 											<td class="text-center">
 												<div class="form-check form-check-inline">
@@ -208,8 +206,26 @@
 						event.preventDefault();
 				});
 
-				$('#tabla_equipos_solicitud, #tabla_cursos_usuario').DataTable( {
-						"order": [[ 0, "desc" ]],
+				// Tabla de equipos
+				$('#tabla_equipos_solicitud').DataTable( {
+						"order": [[ 0, "asc" ]],
+						"language": {
+								"lengthMenu": "Mostrar _MENU_ registros por página",
+								"zeroRecords": "No se han encontrado registros.",
+								"info": "Mostrando página _PAGE_ de _PAGES_",
+								"infoEmpty": "Sin registros disponibles.",
+								"search":         "Buscar",
+								"paginate": {
+										"next":       "Siguiente",
+										"previous":   "Anterior"
+								},
+								"infoFiltered": "(filtrado de _MAX_ registros totales)"
+							}
+					} );
+				
+				// Tabla de cursos
+				$('#tabla_cursos_usuario').DataTable( {
+						"order": [[ 1, "asc" ]],
 						"language": {
 								"lengthMenu": "Mostrar _MENU_ registros por página",
 								"zeroRecords": "No se han encontrado registros.",

@@ -105,16 +105,12 @@ def solicitudes_prestamos():
         equipo["cantidad_pedidos"] = pedido[1]
         lista_carro.append(equipo)
     
-    # Se obtienen los cursos asociados al usuario
+    # Se obtienen los cursos registrados
     query="""
-        SELECT Curso.*,Seccion.codigo AS codigo_seccion
-            FROM Curso,Seccion,Seccion_alumno
-                WHERE Curso.id = Seccion.id_curso
-                AND Seccion.id = Seccion_alumno.id_seccion
-                AND Seccion_alumno.rut_alumno = %s
-                ORDER BY Curso.nombre
+        SELECT Curso.id,Curso.codigo_udp,Curso.nombre
+            FROM Curso
     """
-    cursor.execute(query,(session["usuario"]["rut"],))
+    cursor.execute(query)
     lista_cursos = cursor.fetchall()
 
     return render_template("/solicitudes_prestamos/solicitud_equipos.html",
@@ -507,6 +503,14 @@ def eliminar_curso_form():
     if request.method == 'POST':
         curso_por_eliminar = request.form.to_dict()
         eliminar_curso(curso_por_eliminar)
+
+        # Se eliminan las relaciones con solicitudes en caso de existir
+        sql_query = """
+            DELETE FROM Solicitud_curso
+                WHERE id_curso = %s
+        """
+        cursor.execute(sql_query,(curso_por_eliminar["id"],))
+
         flash("El curso fue eliminado correctamente")
         return redirect("/gestion_cursos")
 

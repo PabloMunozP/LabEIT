@@ -372,7 +372,6 @@ def gestion_solicitudes_prestamos():
                 AND Detalle_solicitud.id_equipo = Equipo.id
                 AND Solicitud.rut_alumno = Usuario.rut
                 AND Detalle_solicitud.estado = 0
-                ORDER BY Solicitud.fecha_registro DESC
     """
     cursor.execute(sql_query)
     lista_solicitudes_por_revisar = cursor.fetchall()
@@ -387,7 +386,6 @@ def gestion_solicitudes_prestamos():
                 AND Solicitud.rut_alumno = Usuario.rut
                 AND Detalle_solicitud.estado != 0
                 AND Detalle_solicitud.estado < 5
-                ORDER BY Solicitud.fecha_registro DESC
     """
     cursor.execute(sql_query)
     lista_solicitudes_activas = cursor.fetchall()
@@ -402,7 +400,6 @@ def gestion_solicitudes_prestamos():
                 AND Solicitud.rut_alumno = Usuario.rut
                 AND Detalle_solicitud.estado != 0
                 AND Detalle_solicitud.estado >= 5
-                ORDER BY Detalle_solicitud.fecha_devolucion DESC,Detalle_solicitud.fecha_rechazo DESC,Detalle_solicitud.fecha_cancelacion DESC
     """
     cursor.execute(sql_query)
     lista_historial_solicitudes = cursor.fetchall()
@@ -578,6 +575,7 @@ def detalle_solicitud(id_detalle_solicitud):
             FROM Curso,Solicitud_curso
                 WHERE Curso.id = Solicitud_curso.id_curso
                 AND Solicitud_curso.id_solicitud = %s
+                ORDER BY Curso.nombre
     """
     cursor.execute(sql_query,(datos_encabezado_solicitud["id"],))
     lista_cursos_asociados = cursor.fetchall()
@@ -1161,7 +1159,11 @@ def exportar_solicitudes(id_exportacion):
                 CONCAT(Usuario.nombres," ",Usuario.apellidos) AS 'Nombre del solicitante',
                 CONCAT(Equipo.nombre," ",Equipo.marca," ",Equipo.modelo) AS 'Equipo solicitado',
                 Equipo.codigo AS 'Código de equipo',
-                Solicitud.fecha_registro AS 'Fecha de registro'
+                Solicitud.fecha_registro AS 'Fecha de registro',
+                (SELECT GROUP_CONCAT(Curso.nombre ORDER BY Curso.nombre) FROM Curso,Solicitud_curso
+                        WHERE Curso.id = Solicitud_curso.id_curso
+                        AND Solicitud_curso.id_solicitud = Detalle_solicitud.id_solicitud
+                ) as 'Asignaturas asociadas'
                     FROM Detalle_solicitud,Solicitud,Equipo,Usuario
                         WHERE Detalle_solicitud.id_solicitud = Solicitud.id
                         AND Detalle_solicitud.id_equipo = Equipo.id
@@ -1187,7 +1189,11 @@ def exportar_solicitudes(id_exportacion):
                 Detalle_solicitud.fecha_termino AS 'Fecha de término',
                 Detalle_solicitud.fecha_devolucion AS 'Fecha de devolución',
                 Detalle_solicitud.fecha_vencimiento AS 'Fecha de vencimiento',
-                Detalle_solicitud.renovaciones AS 'Cantidad de renovaciones'
+                Detalle_solicitud.renovaciones AS 'Cantidad de renovaciones',
+                (SELECT GROUP_CONCAT(Curso.nombre ORDER BY Curso.nombre) FROM Curso,Solicitud_curso
+                        WHERE Curso.id = Solicitud_curso.id_curso
+                        AND Solicitud_curso.id_solicitud = Detalle_solicitud.id_solicitud
+                ) as 'Asignaturas asociadas'
                     FROM Detalle_solicitud,Solicitud,Equipo,Usuario,Estado_detalle_solicitud
                         WHERE Detalle_solicitud.id_solicitud = Solicitud.id
                         AND Detalle_solicitud.id_equipo = Equipo.id
@@ -1216,7 +1222,11 @@ def exportar_solicitudes(id_exportacion):
                 Detalle_solicitud.fecha_vencimiento AS 'Fecha de vencimiento',
                 Detalle_solicitud.fecha_rechazo AS 'Fecha de rechazo',
                 Detalle_solicitud.fecha_cancelacion AS 'Fecha de cancelación',
-                Detalle_solicitud.renovaciones AS 'Cantidad de renovaciones'
+                Detalle_solicitud.renovaciones AS 'Cantidad de renovaciones',
+                (SELECT GROUP_CONCAT(Curso.nombre ORDER BY Curso.nombre) FROM Curso,Solicitud_curso
+                        WHERE Curso.id = Solicitud_curso.id_curso
+                        AND Solicitud_curso.id_solicitud = Detalle_solicitud.id_solicitud
+                ) as 'Asignaturas asociadas'
                     FROM Detalle_solicitud,Solicitud,Equipo,Usuario,Estado_detalle_solicitud
                         WHERE Detalle_solicitud.id_solicitud = Solicitud.id
                         AND Detalle_solicitud.id_equipo = Equipo.id
@@ -1257,7 +1267,7 @@ def exportar_solicitudes(id_exportacion):
         return redirect(redirect_url())
 
     for i in range(len(lista_columnas)):
-        celda = ws.cell(row=2,column=i+1)
+        celda = ws.cell(row=1,column=i+1)
         celda.font = Font(bold=True,color="FFFFFF")
         celda.border = borde_delgado
         celda.fill = PatternFill("solid", fgColor="4D4D4D")
@@ -1265,7 +1275,7 @@ def exportar_solicitudes(id_exportacion):
         celda.value = lista_columnas[i]
 
     # Se agregan los registros
-    index_row = 3
+    index_row = 2
     index_column = 1
     for detalle in lista_detalles:
         for key in detalle:
@@ -1705,6 +1715,7 @@ def detalle_canasta_solicitud(id_solicitud):
             FROM Curso,Solicitud_curso
                 WHERE Curso.id = Solicitud_curso.id_curso
                 AND Solicitud_curso.id_solicitud = %s
+                ORDER BY Curso.nombre
     """
     cursor.execute(sql_query,(id_solicitud,))
     lista_cursos_asociados = cursor.fetchall()

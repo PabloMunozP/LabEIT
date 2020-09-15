@@ -179,8 +179,8 @@
 								<table class="table" id="tabla_equipos_solicitud">
 									<thead class="text-white" style="background:#4D4D4D;">
 										<tr>
-											<th scope="col">Código del curso</th>
-											<th scope="col">Nombre</th>
+											<th scope="col">Código de la asignatura</th>
+											<th scope="col">Nombre de la asignatura</th>
 										</tr>
 									</thead>
 									<tbody>
@@ -353,8 +353,10 @@
 																	{% if not usuario_sancionado %}
 																		<button type="button" class="btn btn-sm btn-success mr-1" data-toggle="modal" data-target="#confirmacion_aprobacion_solicitud_{{detalle_solicitud["id"]}}"><i class="fas fa-clipboard-check mr-1"></i>Aprobar solicitud</button>
 																	{% endif %}
-																	<button type="button" class="btn btn-sm btn-danger" data-toggle="modal" data-target="#confirmacion_eliminacion_detalle_{{detalle_solicitud["id"]}}"><i class="fas fa-minus-circle mr-1"></i>Eliminar</button>
-																{% elif detalle_solicitud["estado"] == 1 %}
+																	<a href="/eliminar_solicitud/{{detalle_solicitud["id"]}}">
+																		<button type="button" class="btn btn-sm btn-danger"><i class="fas fa-minus-circle mr-1"></i>Eliminar solicitud</button>
+																	</a>
+																		{% elif detalle_solicitud["estado"] == 1 %}
 																	<button type="button" class="btn btn-sm btn-danger mr-1" data-toggle="modal" data-target="#confirmacion_cancelacion_solicitud_{{detalle_solicitud["id"]}}"><i class="fas fa-times-circle mr-1"></i>Cancelar solicitud</button>
 																	{% if not usuario_sancionado %}
 																		<button type="button" class="btn btn-sm btn-info mr-1" data-toggle="modal" data-target="#formulario_retiro_equipo_{{detalle_solicitud["id"]}}"><i class="fas fa-clipboard-check mr-1"></i>Marcar como entregado</button>
