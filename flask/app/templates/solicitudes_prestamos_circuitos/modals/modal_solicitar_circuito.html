@@ -82,7 +82,7 @@
       
       $(document).ready(function(){
 
-        $('form').on('submit', function(event){
+        $('#formulario-agregar-equipo-carro-circuito').on('submit', function(event){
           
           $.ajax({
             data : {
@@ -99,7 +99,6 @@
               console.log('error');
             }
             else{
-              console.log(data);
               document.getElementById("cantidad_unidades_solicitadas").value= 1 ;
               $("#carro_pedidos_circuito").html(data);
               $("#modal_info_circuito").modal("hide");

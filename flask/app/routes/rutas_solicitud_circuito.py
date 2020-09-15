@@ -4,6 +4,7 @@ import os, time, bcrypt
 import mysql.connector
 import rut_chile
 import glob
+from datetime import datetime
 
 mod = Blueprint("rutas_solicitud_circuito",__name__)
 
@@ -24,22 +25,15 @@ def consultar_lista_circuito():
     return cursor.fetchall()
 
 
-# def consultar_carro_circuitos():
-#     if 'carro_circuito' not in session or len(session["carro_circuito"]) < 1:
-#         return []
-#     format_strings = ','.join(['%s'] * len(session["carro_circuito"]))
-#     list = []
-#     for element in session["carro_circuito"]:
-#         list.append(element)
-#     query = ('''
-#         SELECT id, nombre
-#         FROM Circuito
-#         WHERE id IN (%s)
-#     ''' % format_strings)
-#     cursor.execute(query,tuple(list))
-#     query_resultado = cursor.fetchall()
-#     print (query_resultado)
-#     return []
+def consultar_cursos():
+    query = ('''
+        SELECT id,
+            codigo_udp,
+            nombre
+        FROM Curso
+    ''')
+    cursor.execute(query)
+    return cursor.fetchall()
     
     
 @mod.route("/solicitudes_prestamos_circuitos")
@@ -47,30 +41,13 @@ def gestion_solicitudes_prestamos_circuitos():
     if 'carro_circuito' in session:
         for element in session["carro_circuito"].items():
             print(element)
-    
+    print(consultar_cursos())
     return render_template('solicitudes_prestamos_circuitos/preview.html',
-                           lista_circuitos = consultar_lista_circuito()                           )
-    # lista_carro_circuitos = session
-@mod.route("/debug_circuito")
-def debug_circuito():
-    lista_circuitos = consultar_lista_circuito()
-    for i in lista_circuitos:
-        print(i)
-    return 'xD'
+                           lista_circuitos = consultar_lista_circuito(),
+                           lista_cursos = consultar_cursos())
 
 
 
-def generar_solicitud_alumno(rut_alumno, motivo): # funcion para generar la solicitud de circuitos
-    # generar Detalle_solicitud_circuito
-    # generar Solicitud_circuito
-    query_solicitud_circuito('''
-                            INSERT INTO Solicitud_circuito (rut_alumno,motivo)
-                            VALUES (%s, %s)
-                             ''')
-    
-    id_solicitud = cursor.lastrowid # Se obtiene el id de solicitud recién creada
-    
-    return
 @mod.route("/eliminar_carro_circuito",methods=['POST'])
 def eliminar_carro_circuito():
     if request.method == "POST":
@@ -82,6 +59,13 @@ def eliminar_carro_circuito():
         return render_template("solicitudes_prestamos_circuitos/tablas/lista_carro_circuito.html")
     return jsonify({'error':'missing data!'})
 
+
+@mod.route("/vaciar_carro_circuito",methods=['POST'])
+def vaciar_carro_circuito():
+    if request.method == "POST":
+        del session["carro_circuito"]
+        return render_template("solicitudes_prestamos_circuitos/tablas/lista_carro_circuito.html")
+    return jsonify({'error':'missing data!'})
 
 
 @mod.route("/agregar_al_carro_circuito",methods=['POST'])
@@ -106,10 +90,50 @@ def agregar_al_carro_circuito():
             return jsonify({'error':'missing data!'})
     
     return jsonify({'error':'missing data!'})
+  
+def generar_solicitud_alumno(rut_alumno, motivo, id_curso_motivo, rut_profesor): # funcion para generar la solicitud de circuitos
+    # generar Solicitud_circuito
+    hora_registro = datetime.now()
+    query = ('''
+            INSERT INTO Solicitud_circuito (rut_alumno, motivo, id_curso_motivo, rut_profesor, fecha_registro)
+            VALUES (%s, %s, %s, %s,  %s)
+            ''')
+    cursor.execute(query,(rut_alumno,
+                          motivo,
+                          id_curso_motivo,
+                          rut_profesor,
+                          hora_registro))
+    id_solicitud = cursor.lastrowid # Se obtiene el id de solicitud recién creada
     
-    
-@mod.route("/confirmar_al_carro_circuito",methods=['POST'])
-def confirmar_carro_circuito():
-    for i in session["carro_pedidos_circuito"]:
-        print(i)
-    return 'xD'
+    db.commit()
+    query = (''' 
+             INSERT INTO Detalle_solicitud_circuito (id_solicitud_circuito, id_circuito, cantidad, estado)
+             VALUES (%s,%s,%s,0)
+             ''')
+    for ID,item in session["carro_circuito"].items():
+        cursor.execute(query,(id_solicitud,ID,item["cantidad"]))
+        db.commit()
+    return  
+
+
+@mod.route("/registrar_solicitud_circuito",methods=['POST'])
+def registrar_solicitud_circuito():
+    if request.method == "POST":
+        datos_solicitud = request.form.to_dict()
+        print(datos_solicitud)
+        generar_solicitud_alumno(session["usuario"]["rut"],
+                                 datos_solicitud["descripcion_motivo"],
+                                 datos_solicitud["curso_id"],
+                                 None)
+        del session["carro_circuito"]
+        return redirect('/solicitudes_prestamos_circuitos')
+    return jsonify({'error':'missing data!'})
+
+
+
+
+
+# ---------------------------------------------------------------- #
+
+
+
