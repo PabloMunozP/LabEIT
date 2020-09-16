@@ -1,5 +1,8 @@
 {% extends "layout_in.html"%}
 {%block body%}
+<div class="container-fluid">
+    
+
 <div class="card-header mt-4" style="background:#0db26b;">
     <h5 class="card-title text-white my-auto">Solicitudes de préstamos</h5>
     <p class="text-white my-auto"><i class="fas fa-info-circle mr-2"></i>En esta sección podrás realizar las solicitudes de préstamo de los equipos de circuitos que necesites, seleccionándolos en la lista y agregándolos a tu carro de pedidos.</p>
@@ -24,8 +27,6 @@
     </div>
     {% include "solicitudes_prestamos_circuitos/modals/confirmar_solicitud_circuito.html" %}
 
-
-<div>
 
 </div>
 {% endblock %}

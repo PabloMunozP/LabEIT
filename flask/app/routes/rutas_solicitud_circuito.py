@@ -37,7 +37,7 @@ def consultar_cursos():
     
     
 @mod.route("/solicitudes_prestamos_circuitos")
-def gestion_solicitudes_prestamos_circuitos():
+def solicitudes_prestamos_circuitos():
     if 'carro_circuito' in session:
         for element in session["carro_circuito"].items():
             print(element)
@@ -134,6 +134,71 @@ def registrar_solicitud_circuito():
 
 
 # ---------------------------------------------------------------- #
+
+
+def consultar_solictudes_pendientes():
+    query = ('''
+            SELECT Detalle_solicitud_circuito.id AS IDD,
+                Detalle_solicitud_circuito.id_solicitud_circuito AS IDS,
+                Detalle_solicitud_circuito.cantidad,
+                Detalle_solicitud_circuito.id_circuito AS id_componente,
+                Solicitud_circuito.fecha_registro,
+                Solicitud_circuito.rut_alumno AS rut,
+                Solicitud_circuito.id_curso_motivo,
+                Usuario.nombres,
+                Usuario.apellidos,
+                Usuario.email,
+                Circuito.nombre as componente,
+                Circuito.cantidad - Circuito.prestados AS disponibles,
+                Circuito.cantidad AS total,
+                Circuito.dias_max_prestamo,
+                Circuito.dias_renovacion,
+                Circuito.descripcion
+            FROM Detalle_solicitud_circuito
+            LEFT JOIN Solicitud_circuito 
+                ON Solicitud_circuito.id = Detalle_solicitud_circuito.id_solicitud_circuito
+                LEFT JOIN Usuario 
+                ON Usuario.rut = Solicitud_circuito.rut_alumno
+                    LEFT JOIN Circuito
+                    ON Circuito.id = Detalle_solicitud_circuito.id_circuito
+            WHERE Detalle_solicitud_circuito.estado = 0
+             ''')
+    cursor.execute(query)
+    return cursor.fetchall()
+
+@mod.route("/gestion_solicitudes_prestamos_circuitos")
+def gestion_solicitudes_prestamos_circuitos():
+    if 'usuario' not in session or session["usuario"]["id_credencial"] != 3: # Si no es administrador
+        return redirect('/')
+    return render_template('vistas_gestion_solicitudes_circuitos/main.html',
+                           lista_solicitudes_pendientes = consultar_solictudes_pendientes())
+    
+
+@mod.route("/gestion_solicitudes_prestamos_circuitos/borrar_solcitud",methods=['POST'])
+def gestion_borrar_solicitud():
+    if request.method == "POST" :
+        IDD = request.form["id_solicitud_detalle"]
+        IDS = request.form["id_solicitud"]
+        query = ('''
+            DELETE FROM Detalle_solicitud_circuito
+            WHERE Detalle_solicitud_circuito.id = %s
+                ''') # borra la solicitud detalle circuit
+        cursor.execute(query,(IDD,))
+        db.commit()
+        query = ('''
+            SELECT * FROM Detalle_solicitud_circuito
+            WHERE Detalle_solicitud_circuito.id_solicitud_circuito = %s
+                ''') # consulta los elementos con esa ID solicutud
+        cursor.execute(query,(IDS,))
+        if len(cursor.fetchall()) < 1: # si de esa ID solicutud son < 1 los borra
+            query = ('''
+                DELETE FROM Solicitud_circuito
+                WHERE Solicitud_circuito.id = %s
+                    ''')
+            cursor.execute(query,(IDS,))
+            db.commit()
+        return jsonify({'nice':'nice!'})
+    return jsonify({'error':'missing data!'})
 
 
 
