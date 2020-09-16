@@ -451,15 +451,16 @@ def consultar_lista_circuito():
 #Consulta para insertar circuito
 def insertar_lista_circuitos(valores_a_insertar):
     query = ('''
-        INSERT INTO Circuito (nombre, cantidad, descripcion, dias_max_prestamo, dias_renovacion)
-        VALUES (%s, %s, %s, %s, %s);
+        INSERT INTO Circuito (nombre, cantidad, descripcion, dias_max_prestamo, dias_renovacion, imagen)
+        VALUES (%s, %s, %s, %s, %s, %s);
     ''')
     cursor.execute(query,(
         valores_a_insertar['nombre_circuito'],
         valores_a_insertar['cantidad_circuito'],
         valores_a_insertar['descripcion_circuito'],
         valores_a_insertar['dias_max_prestamo'],
-        valores_a_insertar['dias_renovacion']))
+        valores_a_insertar['dias_renovacion'],
+        valores_a_insertar['imagen_circuito']))
     db.commit()
     return 'OK'
 
@@ -470,7 +471,7 @@ def funcion_añadir_circuito_form():
         informacion_a_insertar = request.form.to_dict()
         circuitos=consultar_lista_circuito()
         for val in circuitos:
-            if (informacion_a_insertar["nombre_circuito"]==val["nombre"] and informacion_a_insertar["descripcion_circuito"]==val["descripcion"]):
+            if (informacion_a_insertar["nombre_circuito"]==val["nombre"]):
                 flash("equipo-existente")
                 return redirect('/gestion_inventario_admin')
         insertar_lista_circuitos(informacion_a_insertar)
@@ -485,7 +486,8 @@ def editar_circuito(informacion_a_actualizar):  # Query UPDATE
                     Circuito.cantidad = %s,
                     Circuito.descripcion = %s,
                     Circuito.dias_max_prestamo= %s,
-                    Circuito.dias_renovacion= %s
+                    Circuito.dias_renovacion= %s,
+                    Circuito.imagen= %s
                 WHERE Circuito.nombre= %s
                 AND Circuito.descripcion = %s
 
@@ -496,6 +498,7 @@ def editar_circuito(informacion_a_actualizar):  # Query UPDATE
                 informacion_a_actualizar['descripcion_circuito'],
                 informacion_a_actualizar['dias_max_prestamo'],
                 informacion_a_actualizar['dias_renovacion'],
+                informacion_a_actualizar['imagen_circuito'],
                 informacion_a_actualizar['nombre_circuito_original'],
                 informacion_a_actualizar['descripcion_circuito_original']
                 ))
@@ -508,14 +511,13 @@ def editar_circuito(informacion_a_actualizar):  # Query UPDATE
 def funcion_editar_circuito():
     if request.method == 'POST':
         informacion_a_actualizar = request.form.to_dict()
-        if(informacion_a_actualizar["nombre_circuito_original"]==informacion_a_actualizar["nombre_circuito"]
-            and informacion_a_actualizar["descripcion_circuito_original"]==informacion_a_actualizar["descripcion_circuito"]):
+        if(informacion_a_actualizar["nombre_circuito_original"]==informacion_a_actualizar["nombre_circuito"]):
                 flash("equipo-editado")
                 editar_circuito(informacion_a_actualizar)
                 return redirect("/gestion_inventario_admin")
         circuitos=consultar_lista_circuito()
         for val in circuitos:
-            if(val["nombre"]==informacion_a_actualizar["nombre_circuito"] and val["descripcion"]==informacion_a_actualizar["descripcion_circuito"]):
+            if(val["nombre"]==informacion_a_actualizar["nombre_circuito"]):
                 flash("codigo-equipo-existente")
                 return redirect("/gestion_inventario_admin")
         flash("equipo-editado")
@@ -547,7 +549,7 @@ def funcion_eliminar_circuito():
         equipo_a_eliminar = request.form.to_dict()
         circuitos=consultar_lista_circuito()
         for val in circuitos:
-            if (val > 1):
+            if (val["prestados"] > 0):
                 flash("equipo-ocupado")
                 return redirect("/gestion_inventario_admin")
         eliminar_circuito(equipo_a_eliminar)
@@ -622,6 +624,25 @@ def funcion_editar_wifi():
         informacion_a_actualizar = request.form.to_dict()
         editar_datos_wifi(informacion_a_actualizar)
         return redirect("/modificar_wifi")
+
+def consultar_circuito_especifico(nombre_circuito):
+    query = ('''
+        SELECT *
+        FROM Circuito
+        WHERE Circuito.nombre = %s
+    '''
+    )
+    cursor.execute(query,(nombre_circuito,))
+    circuito = cursor.fetchone()
+    return circuito
+
+
+@mod.route("/gestion_inventario_admin/detalles_circuito/<string:nombre_circuito>",methods=["GET"])
+def detalle_info_circuito(nombre_circuito):
+    circuito=consultar_circuito_especifico(nombre_circuito)
+    print (circuito)
+    return render_template("/vistas_gestion_inventario/detalles_circuito.html",
+    circuito_descripcion=circuito)
 
 @mod.route('/download_test')
 def test():
