@@ -91,8 +91,8 @@ def añadir_usuario():
         if duplicados_rut is None and duplicados_correo is None :#No exista nadie con rut ni correo repetido.
 
             #Comprobar que el rut y verificador sean validos.
-            print(datos_usuario['rut'][-1])
-            print(digito_verificador(datos_usuario['rut'][0:-1]))
+            #print(datos_usuario['rut'][-1])
+            #print(digito_verificador(datos_usuario['rut'][0:-1]))
             if datos_usuario['rut'][-1] == digito_verificador(datos_usuario['rut'][0:-1]):
                 #El rut es correcto
 
@@ -253,32 +253,103 @@ def masivo():
     if "usuario" not in session.keys():
         return redirect("/")
     if session["usuario"]["id_credencial"] != 3:
+        return redirect("/")
 
-      if request.method=='POST':   
-          archivo=request.files["file"]
-          if  not "." in archivo.filename:
-              flash("sin-extension")
-              return 'error extension'
-          ext= os.path.splitext(archivo.filename)[1]
+    if request.method=='POST':   
+        archivo=request.files["file"]
+        if  not "." in archivo.filename:
+            flash("error-agregar-masivo")
+            return redirect("/gestion_usuarios")
+        ext= os.path.splitext(archivo.filename)[1]
+        if ext  == '.csv' :
+            date=time.localtime()
+            archivo.filename =   str(date.tm_mday) + str(date.tm_mon) + str(date.tm_year) +"." + archivo.filename.split('.')[1].lower()
+            archivo.save(os.path.join( PATH+'/app/static/files/csv_uploads/', secure_filename(archivo.filename) ) )
+            with open(os.path.join( PATH+'/app/static/files/csv_uploads/', secure_filename(archivo.filename)) , 'rt',encoding='utf8')  as csvfile:
+                read = csv.reader(csvfile, delimiter=',',skipinitialspace=True)
+                lines=list(read)
+                query_add=''' INSERT INTO Usuario(nombres,apellidos,rut,id_credencial,email) VALUES (%s,%s,%s,%s,%s)'''
+                del lines[0]
+                error_rut=[]
+                error_correo=[]
+                for line in lines:
+                    nombres= line[0].split(' ')
+                    nombres=nombres[0]+' '+nombres[1]
+                    apellidos=line[0].split(' ')
+                    apellidos= apellidos[-2]+' '+apellidos[-1]
 
-          if ext  == '.csv' :
-              print('extension correcta')
-              archivo.filename = session['usuario']['rut'] + "." + archivo.filename.split('.')[1].lower()
-              archivo.save(os.path.join( PATH+'/app/static/files/uploads/', secure_filename(archivo.filename) ) )
-              with open(os.path.join( PATH+'/app/static/files/uploads/', secure_filename(archivo.filename)) , 'r')  as csvfile:
-                  read = csv.reader(csvfile, delimiter=',')
-                  lines = list(read)
-                  query=''' INSERT INTO Usuario(rut,nombres,apellidos,id_credencial) 
-                          VALUES (%s,%s,%s,%s)'''
-                  del lines[0]
-                  for line in lines:
-                      print(line)
-                      id = 1 if line[3] == 'Alumno' else 2 if line[3] == 'Profesor' else 3
-                      cursor.execute(query,(line[0],line[1],line[2],id))
+                    #print(nombres+' '+apellidos)
 
-                  flash('agregar-masivo-correcto')
-                  return redirect("/gestion_usuarios")
+                    query= ''' SELECT Usuario.rut as rut FROM Usuario WHERE rut=%s '''
+                    cursor.execute(query,(line[1],))
+                    duplicados_rut=cursor.fetchone()
+                    
+                    query= ''' SELECT Usuario.email as correo FROM Usuario WHERE email=%s '''
+                    cursor.execute(query,(line[2],))
+                    duplicados_correo=cursor.fetchone()
+                           
+                    if duplicados_rut is not None : #Ya existe un usuario con ese rut
+                        error_rut.append(line[1])
+                        continue
+                    if duplicados_correo is not None : #Ya existe alguien registrado con ese rut
+                        error_correo.append(line[2])
+                        continue
 
+                    if duplicados_rut is None and duplicados_correo is None :#No exista nadie con rut ni correo repetido.
+                        if line[1][-1] == digito_verificador(line[1][:-1]):
+                            print('paso bien')
+                            cursor.execute(query_add,(nombres,apellidos,line[1],'1',line[2]))
+                            #Una vez creado, se le notifica al usuario para que cambie su contraseña y complete sus datos
+                            
+                            # Se abre el template HTML correspondiente al restablecimiento de contraseña
+                            direccion_template = os.path.normpath(os.path.join(os.getcwd(), "app/templates/vistas_exteriores/establecer_password_mail.html"))
+                            html_restablecimiento = open(direccion_template,encoding="utf-8").read()
+
+                            # Se crea el token único para restablecimiento de contraseña
+                            token = str(uuid4())
+
+                            # Se eliminan los registros de token asociados al rut del usuario en caso de existir
+                            sql_query = """ DELETE FROM Token_recuperacion_password
+                                WHERE rut_usuario = %s   """
+                            cursor.execute(sql_query,(line[1],))
+
+                            # Se reemplazan los datos del usuario en el template a enviar vía correo
+                            html_restablecimiento = html_restablecimiento.replace("%nombre_usuario%",nombres)
+                            html_restablecimiento = html_restablecimiento.replace("%codigo_restablecimiento%",str(random.randint(0,1000)))
+                            html_restablecimiento = html_restablecimiento.replace("%token_restablecimiento%",token)
+
+                            # Se crea el mensaje
+                            correo = MIMEText(html_restablecimiento,"html")
+                            correo.set_charset("utf-8")
+                            correo["From"] = "labeit.udp@gmail.com"
+                            correo["To"] = line[2]
+                            correo["Subject"] = "Establecer Contraseña - LabEIT UDP"
+                            #NombresApellidos,RUT,Email,Curso
+                            try:
+                                server = smtplib.SMTP("smtp.gmail.com",587)
+                                server.starttls()
+                                server.login("labeit.udp@gmail.com","LabEIT_UDP_2020")
+                                str_correo = correo.as_string()
+                                server.sendmail("labeit.udp@gmail.com",line[2],str_correo)
+                                server.close()
+                                # Se registra el token en la base de datos según el RUT del usuario
+                                sql_query = """
+                                INSERT INTO Token_recuperacion_password
+                                    (token,rut_usuario)
+                                        VALUES (%s,%s)
+                                """
+                                cursor.execute(sql_query,(str(token),line[1]))
+                
+                            except Exception as e:
+                                print(e)
+                                error_correo.append(line[2]) # Notificación de fallo al enviar el correo
+                        else:
+                            error_rut.append(line[1])
+
+                session['error_rut']=error_rut
+                session['error_correo']=error_correo   
+                flash('agregar-masivo-correcto')
+                return redirect("/gestion_usuarios")
 
 
 @mod.route("/gestion_usuarios/sancion",methods=["POST"])
