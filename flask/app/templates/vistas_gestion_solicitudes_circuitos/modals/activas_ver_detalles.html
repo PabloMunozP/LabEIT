@@ -21,14 +21,14 @@
 						<strong>ID de solicitud:</strong>
 					</label>
 					<div class="col-md-2">
-						<p class="form-control-plaintext text-break" id="modal_solicitudes_pendientes_ids">
+						<p class="form-control-plaintext text-break" id="modal_solicitudes_activas_ids">
 						</p>
 					</div>
 					<label class="col-md-4 col-form-label texto-gris-eit">
 						<strong>ID de detalle de solicitud:</strong>
 					</label>
 					<div class="col-md-2">
-						<p class="form-control-plaintext text-break" id="modal_solicitudes_pendientes_idd">
+						<p class="form-control-plaintext text-break" id="modal_solicitudes_activas_idd">
 						</p>
 					</div>
 				</div>
@@ -39,16 +39,40 @@
 						<strong>Estado:</strong>
 					</label>
 					<div class="col-md-2">
-						<p class="form-control-plaintext text-break">							
-								<span class="badge badge-primary">Pendiente</span>
+						<p class="form-control-plaintext text-break" id="modal_activas_estado">							
+                            
 						</p>
 					</div>
 					<label class="col-md-4 col-form-label texto-gris-eit">
 						<strong>Fecha de registro:</strong>
 					</label>
 					<div class="col-md-2">
-						<p class="form-control-plaintext text-break" id="modal_solicitudes_pendientes_fecha">
+						<p class="form-control-plaintext text-break" id="modal_solicitudes_activas_fecha">
 						</p>
+					</div>
+                </div>
+                <div class="form-group row">
+
+					<label class="col-md-4 col-form-label texto-gris-eit">
+						<strong>Fecha vencimiento:</strong>
+					</label>
+					<div class="col-md-2">
+						<p class="form-control-plaintext text-break" id="modal_activas_fecha_vencimiento"></p>
+					</div>
+                </div>
+                <div class="form-group row">
+
+					<label class="col-md-4 col-form-label texto-gris-eit">
+						<strong>Fecha de inicio:</strong>
+					</label>
+					<div class="col-md-2">
+						<p class="form-control-plaintext text-break" id="modal_activas_fecha_inicio"></p>
+                    </div>
+                    <label class="col-md-4 col-form-label texto-gris-eit">
+						<strong>Fecha de término:</strong>
+					</label>
+					<div class="col-md-2">
+						<p class="form-control-plaintext text-break" id="modal_activas_fecha_termino"></p>
 					</div>
 				</div>
             </div>
@@ -61,14 +85,14 @@
             <label class="col-md-4 col-form-label texto-gris-eit"><strong>RUT de alumno solicitante:</strong></label>
             <div class="col-md-2">
                 <p class="form-control-plaintext text-break">
-                    <a title="Ver perfil del usuario" id="modal_solicitudes_pendientes_rut" style="text-decoration:none;"></a>
+                    <a title="Ver perfil del usuario" id="modal_solicitudes_activas_rut" style="text-decoration:none;"></a>
                 </p>
             </div>
             <label class="col-md-2 col-form-label texto-gris-eit">
                 <strong>Nombre:</strong>
             </label>
             <div class="col-md-4">
-                <p class="form-control-plaintexttext-break" id="modal_solicitudes_pendientes_nombre"></p>
+                <p class="form-control-plaintext text-break" id="modal_solicitudes_activas_nombre"></p>
             </div>
         </div>
         <div class="form-group row">
@@ -77,7 +101,7 @@
             </label>
             <div class="col-md-8">
                 <p class="form-control-plaintext text-break">
-                    <a href="" id="modal_solicitudes_pendientes_correo"></a>
+                    <a href="" id="modal_solicitudes_activas_correo"></a>
                 </p>
             </div>
         </div>
@@ -86,7 +110,7 @@
                 <strong>Curso motivo:</strong>
             </label>
             <div class="col-md-8"> 
-                <p class="form-control-plaintext text-break" id="modal_pendientes_curso"></p>
+                <p class="form-control-plaintext text-break" id="modal_activas_curso"></p>
             </div>
         </div>
         <div class="form-group row">
@@ -94,7 +118,7 @@
                 <strong>Razón:</strong>
             </label>
             <div class="col-md-8"> 
-                <p class="form-control-plaintext text-break" id="modal_pendientes_razon"></p>
+                <p class="form-control-plaintext text-break" id="modal_activas_razon"></p>
             </div>
         </div>
 
@@ -110,7 +134,7 @@
             <strong>ID de componente:</strong>
         </label>
         <div class="col-md-2">
-            <p class="form-control-plaintext text-break" id="modal_solicitudes_pendientes_idcomponente">
+            <p class="form-control-plaintext text-break" id="modal_solicitudes_activas_idcomponente">
                 62
             </p>
         </div>
@@ -118,7 +142,7 @@
             <strong> Cantidad solicitada: </strong>
         </label>
         <div class="col-md-2">
-            <p class="form-control-plaintext text-break" id="modal_solicitudes_pendientes_cantidad">
+            <p class="form-control-plaintext text-break" id="modal_solicitudes_activas_cantidad">
             </p>
         </div>
     </div>
@@ -130,18 +154,18 @@
             <strong>Nombre:</strong>
         </label>
         <div class="col-md-4">
-            <p class="form-control-plaintext text-break" id="modal_solicitudes_pendientes_componente"></p>
+            <p class="form-control-plaintext text-break" id="modal_solicitudes_activas_componente"></p>
         </div>
         <label class="col-md-2 col-form-label texto-gris-eit">
             <strong>Stock:</strong>
         </label>
         <div class="col-md-4">
             <p class="form-control-plaintext text-break">
-                <strong id="modal_pendientes_total">3</strong> unidades en total.
+                <strong id="modal_activas_total">3</strong> unidades en total.
                 <br>
-                <strong id="modal_pendientes_disponibles">3</strong> unidades disponibles.
+                <strong id="modal_activas_disponibles">3</strong> unidades disponibles.
                 <br>
-                <strong id="modal_pendientes_resultado" style="color: #F31431;"></strong> 
+                <strong id="modal_activas_resultado" style="color: #F31431;"></strong> 
             </p>
         </div>
     </div>
@@ -155,13 +179,13 @@
             <strong>Días por renovación:</strong>
         </label>
         <div class="col-md-2">
-            <p class="form-control-plaintext text-break" id="modal_pendientes_dias_renovacion"></p>
+            <p class="form-control-plaintext text-break" id="modal_activas_dias_renovacion"></p>
         </div>
         <label class="col-md-4 col-form-label texto-gris-eit">
             <strong>Cantidad de días permitidos:</strong>
         </label>
         <div class="col-md-2">
-            <p class="form-control-plaintext text-break" id="modal_pendientes_dias_max"></p>
+            <p class="form-control-plaintext text-break" id="modal_activas_dias_max"></p>
             
         </div>
     </div>
@@ -171,7 +195,7 @@
     <div class="form-group row">
         <label class="col-md-2 col-form-label texto-gris-eit"><strong>Descripción:</strong></label>
             <div class="col-md-6">
-                <p class="form-control-plaintext text-break" id="modal_solicitudes_pendientes_descripcion">
+                <p class="form-control-plaintext text-break" id="modal_solicitudes_activas_descripcion">
                 </p>
             </div>
             <div class="col-md-4 text-right">
@@ -183,33 +207,69 @@
     </div>
 
 </div>
-
-
-
-
-
-
-
-
-
-
-
-
     
         </div>
-            <div class="modal-footer">
-                <span class="btn-group flex-wrap">			
-                    <button type="button" onclick="modal_rechazo_pendiente_detalle()" class="btn btn-danger mr-1 waves-effect waves-light" data-toggle="modal" data-target="#confirmacion_rechazo_solicitud"><i class="fas fa-times-circle mr-1"></i>Rechazar solicitud</button>
-                    <button type="button" id="btn_aprobar_pendiente_detalle" class="btn btn-success mr-1 waves-effect waves-light" onclick="pendiente_aprobar_solicitud()" data-toggle="modal" data-target="#confirmacion_aprobacion_solicitud"><i class="fas fa-clipboard-check mr-1"></i>Aprobar solicitud</button>
-                    <button type="button" class="btn btn-danger mr-1 waves-effect waves-light" onclick="pendiente_eliminar_solicitud()"><i class="fas fa-minus-circle mr-1"></i>Eliminar solicitud</button>
-                </span>
+            <div class="modal-footer"><span class="btn-group flex-wrap">
+                <button hidden id="btn_activas_cancelar" type="button" class="btn btn-danger mr-1 waves-effect waves-light" onclick="modal_activas_cancelar_retirar()"><i class="fas fa-times-circle mr-1"></i>Cancelar solicitud</button>
+                <button hidden id="btn_activas_entregar" type="button" class="btn btn-info waves-effect waves-light" onclick="modal_aceptar_activas()"><i class="fas fa-clipboard-check mr-1"></i>Marcar como entregado</button>
+                <button hidden id="btn_activas_devolver" type="button" class="btn btn-info waves-effect waves-light" onclick="modal_activas_devolver()">Registrar devolución</button>               
+            
+        </span>
             </div>
       </div>
     </div>
 </div>
 
 <script>
-    function modal_ver_detalle_activos(){
+    function modal_ver_detalle_activos(elemento){
+        console.log(elemento);
+        document.getElementById("modal_solicitudes_activas_fecha").textContent = elemento.fecha_registro;
+        $('#pendiente_id_solicitud_detalle').val(elemento.IDD) ;
+        $('#pendiente_id_solicitud').val(elemento.IDS);
+        document.getElementById("modal_solicitudes_activas_idd").textContent = elemento.IDD;
+        document.getElementById("modal_solicitudes_activas_nombre").textContent = elemento.nombres +' ' +elemento.apellidos;
+        document.getElementById("modal_solicitudes_activas_rut").textContent = elemento.rut;
+        document.getElementById("modal_solicitudes_activas_ids").textContent = elemento.IDS;
+        document.getElementById("modal_solicitudes_activas_correo").textContent = elemento.email;
+        document.getElementById("modal_solicitudes_activas_componente").textContent = elemento.componente;
+        document.getElementById("modal_solicitudes_activas_idcomponente").textContent = elemento.id_componente;
+        document.getElementById("modal_solicitudes_activas_descripcion").textContent = elemento.descripcion;
+        document.getElementById("modal_solicitudes_activas_cantidad").textContent = elemento.cantidad;
+        document.getElementById("modal_activas_disponibles").textContent = elemento.disponibles;
+        document.getElementById("modal_activas_total").textContent = elemento.total;
+        document.getElementById("modal_activas_dias_max").textContent = elemento.dias_max_prestamo + ' día(s)';
+        document.getElementById("modal_activas_dias_renovacion").textContent = elemento.dias_renovacion + ' día(s)';
+        document.getElementById("modal_activas_curso").textContent = elemento.curso_motivo;
+        document.getElementById("modal_activas_razon").textContent = elemento.motivo;
+        document.getElementById("modal_activas_estado").textContent = elemento.estado;
+        document.getElementById("modal_activas_fecha_vencimiento").textContent = elemento.fecha_vencimiento;
+        document.getElementById("modal_activas_fecha_inicio").textContent = elemento.fecha_inicio;
+        document.getElementById("modal_activas_fecha_termino").textContent = elemento.fecha_termino;
+        document.getElementById("activas_aceptar_confirmar_componente").textContent = elemento.componente;
+        document.getElementById("activas_aceptar_confirmar_cantidad").textContent = elemento.cantidad;
+        document.getElementById("activas_aceptar_confirmar_dias").textContent = elemento.dias_max_prestamo;
+        $('#id_solicitud_detalle_confirmar_entrega').val(elemento.IDD);
+        $('#id_solicitud_detalle_confirmar_devolucion').val(elemento.IDD);
+        $('#kigyvbuk').val(elemento.IDD);
+        
+    
+        switch (elemento.estado){
+            case 'Por retirar':
+                $('#btn_activas_cancelar').attr("hidden",false);
+                $('#btn_activas_entregar').attr("hidden",false);
+                $('#btn_activas_devolver').attr("hidden",true);
+                break;
+            case 'En posesión':
+            case 'Con atraso':
+                $('#btn_activas_cancelar').attr("hidden",true);
+                $('#btn_activas_entregar').attr("hidden",true);
+                $('#btn_activas_devolver').attr("hidden",false);
+                break;
+        }   
+
         $("#modal_info_solicitud_activas").modal("show");
     }
 </script>
+{% include "vistas_gestion_solicitudes_circuitos/modals/activas_aceptar.html" %}
+{% include "vistas_gestion_solicitudes_circuitos/modals/activas_cancelar.html" %}
+{% include "vistas_gestion_solicitudes_circuitos/modals/activas_devolver.html" %}

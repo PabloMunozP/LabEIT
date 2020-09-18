@@ -68,7 +68,7 @@
                 <strong>Nombre:</strong>
             </label>
             <div class="col-md-4">
-                <p class="form-control-plaintexttext-break" id="modal_solicitudes_pendientes_nombre"></p>
+                <p class="form-control-plaintext text-break" id="modal_solicitudes_pendientes_nombre"></p>
             </div>
         </div>
         <div class="form-group row">
@@ -216,8 +216,6 @@
         document.getElementById("modal_solicitudes_pendientes_fecha").textContent = elemento.fecha_registro;
         $('#pendiente_id_solicitud_detalle').val(elemento.IDD) ;
         $('#pendiente_id_solicitud').val(elemento.IDS),
-        
-        
         document.getElementById("modal_solicitudes_pendientes_idd").textContent = elemento.IDD;
         document.getElementById("modal_solicitudes_pendientes_nombre").textContent = elemento.nombres +' ' +elemento.apellidos;
         document.getElementById("modal_solicitudes_pendientes_rut").textContent = elemento.rut;

@@ -44,7 +44,6 @@ def solicitudes_prestamos_circuitos():
 def eliminar_carro_circuito():
     if request.method == "POST":
         id_circuito = request.form["id_circuito"]
-        print(session["carro_circuito"][id_circuito])
         del session["carro_circuito"][id_circuito]
         if len(session["carro_circuito"]) == 0:
             del session["carro_circuito"]
@@ -112,7 +111,6 @@ def generar_solicitud_alumno(rut_alumno, motivo, id_curso_motivo, rut_profesor):
 def registrar_solicitud_circuito():
     if request.method == "POST":
         datos_solicitud = request.form.to_dict()
-        print(datos_solicitud)
         generar_solicitud_alumno(session["usuario"]["rut"],
                                  datos_solicitud["descripcion_motivo"],
                                  datos_solicitud["curso_id"],
@@ -171,6 +169,8 @@ def consultar_solictudes_activas():
                 Detalle_solicitud_circuito.id_circuito AS id_componente,
                 Detalle_solicitud_circuito.fecha_inicio,
                 Detalle_solicitud_circuito.fecha_termino,
+                Detalle_solicitud_circuito.fecha_vencimiento,
+                Detalle_solicitud_circuito.renovaciones,
                 Solicitud_circuito.fecha_registro,
                 Solicitud_circuito.rut_alumno AS rut,
                 Estado_detalle_solicitud.nombre AS estado,
@@ -202,13 +202,60 @@ def consultar_solictudes_activas():
              ''')
     cursor.execute(query)
     return cursor.fetchall()
+
+def consultar_solictudes_historial():
+    query = ('''
+            SELECT Detalle_solicitud_circuito.id AS IDD,
+                Detalle_solicitud_circuito.id_solicitud_circuito AS IDS,
+                Detalle_solicitud_circuito.cantidad,
+                Detalle_solicitud_circuito.id_circuito AS id_componente,
+                Detalle_solicitud_circuito.fecha_inicio,
+                Detalle_solicitud_circuito.fecha_termino,
+                Detalle_solicitud_circuito.fecha_vencimiento,
+                Detalle_solicitud_circuito.fecha_devolucion,
+                Detalle_solicitud_circuito.renovaciones,
+                Solicitud_circuito.fecha_registro,
+                Solicitud_circuito.rut_alumno AS rut,
+                Estado_detalle_solicitud.nombre AS estado,
+                CASE WHEN Solicitud_circuito.id_curso_motivo = 0 THEN 'Personal'
+                    ELSE CONCAT(Curso.codigo_udp, ' ',Curso.nombre)
+                    END AS curso_motivo,
+                Solicitud_circuito.motivo,
+                Usuario.nombres,
+                Usuario.apellidos,
+                Usuario.email,
+                Circuito.nombre as componente,
+                Circuito.cantidad - Circuito.prestados AS disponibles,
+                Circuito.cantidad AS total,
+                Circuito.dias_max_prestamo,
+                Circuito.dias_renovacion,
+                Circuito.descripcion
+            FROM Detalle_solicitud_circuito
+                LEFT JOIN Solicitud_circuito 
+                    ON Solicitud_circuito.id = Detalle_solicitud_circuito.id_solicitud_circuito
+                LEFT JOIN Usuario 
+                    ON Usuario.rut = Solicitud_circuito.rut_alumno
+                LEFT JOIN Circuito
+                    ON Circuito.id = Detalle_solicitud_circuito.id_circuito
+                LEFT JOIN Curso
+                    ON Solicitud_circuito.id_curso_motivo = Curso.id
+                LEFT JOIN Estado_detalle_solicitud
+                    ON Estado_detalle_solicitud.id = Detalle_solicitud_circuito.estado
+            WHERE Detalle_solicitud_circuito.estado NOT IN (0,1,2,3)
+             ''')
+    cursor.execute(query)
+    return cursor.fetchall()
+
+
+
 @mod.route("/gestion_solicitudes_prestamos_circuitos")
 def gestion_solicitudes_prestamos_circuitos():
     if 'usuario' not in session or session["usuario"]["id_credencial"] != 3: # Si no es administrador
         return redirect('/')
     return render_template('vistas_gestion_solicitudes_circuitos/main.html',
                            lista_solicitudes_pendientes = consultar_solictudes_pendientes(),
-                           lista_solicitudes_activas = consultar_solictudes_activas())
+                           lista_solicitudes_activas = consultar_solictudes_activas(),
+                           lista_solicitudes_historial = consultar_solictudes_historial())
     
 
 @mod.route("/gestion_solicitudes_prestamos_circuitos/borrar_solcitud_detalle",methods=['POST']) # AJAX
@@ -255,22 +302,119 @@ def gestion_aprobar_solicitud_detalle():
                  ''')
         cursor.execute(query,(IDD,))
         circuito_data = cursor.fetchone()
-        print(circuito_data)
+
         if circuito_data["disponibles"] >= circuito_data["solicitados"]:
-            print(datetime.now() + timedelta(days=7))
             cursor.execute('UPDATE Circuito SET prestados = %s WHERE id = %s;', (int(circuito_data["solicitados"]) + int(circuito_data["prestados"]),circuito_data["id"]))
             db.commit()
-            cursor.execute('UPDATE Detalle_solicitud_circuito SET estado = 1, fecha_vencimiento = %s WHERE id = %s;',(datetime.now()+timedelta(days=7), IDD))
+            vencimiento = datetime.now()+timedelta(days=7)
+            cursor.execute('UPDATE Detalle_solicitud_circuito SET estado = 1, fecha_vencimiento = %s WHERE id = %s;',(vencimiento.replace(hour=18, minute=30, second = 0, microsecond = 0), IDD))
             db.commit()
             return jsonify({'nice':'nice!'})
         return jsonify({'error':'no hay suficientes componentes!'})
     return jsonify({'error':'missing data!'})
 
-@mod.route("/gestion_solicitudes_prestamos_circuitos/rechazar_solcitud_detalle",methods=['POST']) # AJAX
+@mod.route("/gestion_solicitudes_prestamos_circuitos/rechazar_solicitud_detalle",methods=['POST']) # AJAX
 def rechazar_solcitud_detalle():
     if request.method == 'POST':
         IDD = request.form["id_solicitud_detalle"]
         motivo = request.form["motivo"]
-        cursor.execute('UPDATE Detalle_solicitud_circuito SET estado = 5, fecha_rechazo = %s WHERE id = %s;',(datetime.now(),IDD))
+        cursor.execute('UPDATE Detalle_solicitud_circuito SET estado = 5, fecha_rechazo = %s, fecha_vencimiento = %s WHERE id = %s;',(datetime.now(), None,IDD))
+        db.commit()
         return jsonify({'nice':'nice!'})
     return jsonify({'error':'missing data!'})
+
+@mod.route("/gestion_solicitudes_prestamos_circuitos/entregar_solicitud_detalle",methods=['POST']) # AJAX
+def entregar_solicitud_detalle():
+    if request.method == 'POST':
+        IDD = request.form["id_solicitud_detalle"]
+        query = ('''
+                SELECT Circuito.id,
+                    Circuito.dias_max_prestamo
+                FROM Circuito
+                RIGHT JOIN Detalle_solicitud_circuito
+                    ON Detalle_solicitud_circuito.id_circuito = Circuito.id
+                WHERE Detalle_solicitud_circuito.id = %s
+                 ''')
+        cursor.execute(query,(IDD,))
+        circuito_data = cursor.fetchone()
+        fecha_inicio = datetime.now()
+        fecha_termino = datetime.now() + timedelta(days=int(circuito_data["dias_max_prestamo"]))
+        cursor.execute('''
+                    UPDATE Detalle_solicitud_circuito 
+                    SET estado = 2,
+                        fecha_inicio = %s,
+                        fecha_termino = %s, 
+                        fecha_vencimiento = %s
+                    WHERE id = %s;''',(fecha_inicio,
+                                       fecha_termino.replace(hour=18, minute=30, second = 0, microsecond = 0),
+                                       None,
+                                       IDD))
+        db.commit()
+        return jsonify({'nice':'nice!'})
+    return jsonify({'error':'missing data!'})
+
+
+
+@mod.route("/gestion_solicitudes_prestamos_circuitos/devolver_solicitud_detalle",methods=['POST']) # AJAX
+def devolver_solicitud_detalle():
+    if request.method == 'POST':
+        IDD = request.form["id_solicitud_detalle"]
+        fecha_devolucion = request.form["fecha_devolucion"]
+        query = ('''
+                SELECT Circuito.id,
+                    Circuito.prestados,
+                    Detalle_solicitud_circuito.cantidad AS solicitados
+                FROM Circuito
+                LEFT JOIN Detalle_solicitud_circuito
+                    ON Detalle_solicitud_circuito.id_circuito = Circuito.id
+                WHERE Detalle_solicitud_circuito.id = %s
+                 ''') # Query para obtener datos de la solicitud y componente
+        cursor.execute(query,(IDD,))
+        circuito_data = cursor.fetchone() 
+        query = ('''
+                UPDATE Detalle_solicitud_circuito
+                    SET estado = 4,
+                        fecha_devolucion = %s
+                    WHERE id = %s;
+                ''') # Actualiza la solicitud detalle como devuelto
+        if fecha_devolucion == '': # Si en el formulario no hay una fecha designada
+            cursor.execute(query,(datetime.now(), # Le da fecha y hora actual
+                                  IDD))
+        else:                      # Si en el formario hay una fecha designada
+            cursor.execute(query,(fecha_devolucion, # Usa la fecha del formulario
+                                  IDD))
+        cursor.execute('UPDATE Circuito SET Circuito.prestados = %s WHERE Circuito.id = %s',(int(circuito_data["prestados"])-int(circuito_data["solicitados"]),
+                                                                                             circuito_data["id"]))
+        # Actualiza los prestados = prestados - solicitados (los devuelve)
+        return jsonify({'nice':'nice!'})
+    return jsonify({'error':'missing data!'})       
+    
+@mod.route("/gestion_solicitudes_prestamos_circuitos/cancelar_activa_solicitud_detalle",methods=['POST']) # AJAX
+def cancelar_solicitud_detalle():
+    if request.method == 'POST':
+        IDD = request.form["id_solicitud_detalle"]
+        motivo = request.form["motivo"]
+        query = ('''
+                SELECT Circuito.id,
+                    Circuito.prestados,
+                    Detalle_solicitud_circuito.cantidad AS solicitados
+                FROM Circuito
+                LEFT JOIN Detalle_solicitud_circuito
+                    ON Detalle_solicitud_circuito.id_circuito = Circuito.id
+                WHERE Detalle_solicitud_circuito.id = %s
+                 ''') # Query para obtener datos de la solicitud y componente
+        cursor.execute(query,(IDD,)) # Ejecuta la query
+        circuito_data = cursor.fetchone() # Almacena el resutado
+        query = (''' 
+                UPDATE Detalle_solicitud_circuito
+                    SET estado = 7,
+                        fecha_cancelacion = %s,
+                        fecha_vencimiento = NULL
+                    WHERE id = %s;
+                ''') # Actualiza la solicitud detalle como cancelada 
+        cursor.execute(query,(datetime.now(),IDD)) # Establece la fecha para la solicitud
+        cursor.execute('UPDATE Circuito SET Circuito.prestados = %s WHERE Circuito.id = %s',
+                       (int(circuito_data["prestados"])-int(circuito_data["solicitados"]),
+                        circuito_data["id"])) # Actualiza los prestados = prestados - solicitados (los devuelve)
+        return jsonify({'nice':'nice!'})
+    return jsonify({'error':'missing data!'})       

@@ -22,6 +22,7 @@
                     <th scope="col">Estado</th>
                     <th scope="col">Fecha de inicio</th>
                     <th scope="col">Fecha de término</th>
+                    <th scope="col">Renovaciones</th>
                     <th scope="col">Acciones</th>
                   </tr>
                 </thead>
@@ -34,11 +35,22 @@
                               <td>{{elemento.nombres}} {{elemento.apellidos}}</td>
                               <td>{{elemento.componente}}</td>
                               <td>{{elemento.cantidad}}</td>
-                              <td>{{elemento.estado}}</td>
+                              <td class="text-center">
+                                {% if elemento.estado == 'Por retirar' %}
+                                <span class="badge badge-info">Por retirar</span>
+                                {% elif elemento.estado == 'En posesión' %}
+                                <span class="badge badge-success">En posesión</span>
+                                {% elif elemento.estado == 'Con atraso' %}
+                                <span class="badge badge-danger">Con atraso</span>
+                                {% else %}
+                                {{elemento.estado}}
+                                {% endif %}
+                            </td>
                               <td>{{elemento.fecha_inicio if elemento.fecha_inicio}}</td>
                               <td>{{elemento.fecha_termino if elemento.fecha_termino}}</td>
+                              <td>{{elemento.renovaciones}}</td>
                               <td>
-                                <button type="button" title="Ver detalle de solicitud" onclick='modal_ver_detalle_activos()' class="btn btn-sm btn-secondary mr-1 waves-effect waves-light"><i class="fas fa-search-plus"></i></button>
+                                <button type="button" title="Ver detalle de solicitud" onclick='modal_ver_detalle_activos({{elemento|tojson}})' class="btn btn-sm btn-secondary mr-1 waves-effect waves-light"><i class="fas fa-search-plus"></i></button>
                               </td>
                           </tr>
                       {% endfor %}
