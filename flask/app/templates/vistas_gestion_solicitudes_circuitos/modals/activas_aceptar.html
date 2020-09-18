@@ -1,0 +1,57 @@
+<div class="modal fade" id="modal_activas_aceptar" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-modal="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header bg-gris-eit">
+          <h5 class="modal-title text-white"><i class="fas fa-question-circle mr-2"></i>Confirmación de retiro de equipo</h5>
+          <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close" style="outline:none;">
+            <span aria-hidden="true">×</span>
+          </button>
+        </div>
+          <div class="modal-body">
+            <input type="text" hidden="" name="id_encabezado_solicitud" value="127">
+            <input type="text" hidden="" name="codigo_equipo" value="AAD832">
+            <input type="text" hidden="" name="dias_max_prestamo" value="5">
+              <p>Componente a retirar: <strong id="activas_aceptar_confirmar_componente"></strong></p>
+              <p>Cantidad solicitada: <strong id="activas_aceptar_confirmar_cantidad"></strong></p>
+              <p>Cantidad de días máximo de préstamo: <strong id="activas_aceptar_confirmar_dias"></strong></p>
+              <hr>
+              <p><i class="fas fa-info-circle mr-1"></i>Por defecto, el préstamo será registrado por la cantidad máxima de días definidas por el equipo.</p> 
+                <!-- En caso de necesitar una fecha de término específica, ingrésela a continuación:</p> -->
+  
+              <!-- <div class="form-group">
+                <input type="date" max="3000-01-01" class="form-control" id="input_fecha_especifica_retiro" name="fecha_termino_prestamo" min="2020-09-17">
+                <small class="form-text text-muted">* Omita este campo en caso de utilizar la cantidad de días definida por el equipo.</small>
+                <small class="form-text text-danger" id="error_dia_habil" hidden="">* Seleccione un día hábil para la devolución del equipo.</small>
+              </div> -->
+          </div>
+          <input type="hidden" id="id_solicitud_detalle_confirmar_entrega">
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary waves-effect waves-light" data-dismiss="modal">Cerrar</button>
+            <button type="button" onclick="confirmar_entregar_activas()" class="btn btn-success waves-effect waves-light">Confirmar entrega</button>
+          </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+      function modal_aceptar_activas(){
+
+          $('#modal_activas_aceptar').modal('show');
+      }
+      function confirmar_entregar_activas(){
+        $.ajax({
+            data : {
+                id_solicitud_detalle: $('#id_solicitud_detalle_confirmar_entrega').val(),
+            },
+            type : 'POST',
+            url : '/gestion_solicitudes_prestamos_circuitos/entregar_solicitud_detalle'
+          }).done(function(data){
+                if(data.error){
+                    console.log('error');
+                }
+                else{
+                    window.location.reload();
+                }
+            });
+    }
+  </script>

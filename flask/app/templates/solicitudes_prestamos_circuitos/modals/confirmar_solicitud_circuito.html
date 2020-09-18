@@ -1,0 +1,39 @@
+
+<div class="modal fade in" id="confirmacion_pedido_circuito" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-modal="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header bg-gris-eit">
+          <h5 class="modal-title text-white"><i class="fas fa-question-circle mr-2"></i>Confirmación de envío de solicitud</h5>
+          <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close" style="outline:none;">
+            <span aria-hidden="true">×</span>
+          </button>
+        </div>
+        <form action="/registrar_solicitud_circuito" method="POST">
+          <div class="modal-body">
+                      <p>Al confirmar, se registrarán las solicitudes según los equipos que has agregado a tu carro de pedidos.</p>
+                      <p>Recuerda estar atento a tu bandeja de entrada. Serás notificado por correo acerca del estado de tus solicitudes.</p>
+                      <div class="form-group">
+                        <label for="curso_id">Motivo</label>
+                        <select class="form-control" name="curso_id" id="curso_id" required>
+                          <option value="0">Personal</option>
+                          {% for elemento in lista_cursos %}
+                          <option value="{{elemento.id}}">{{elemento.codigo_udp}} {{elemento.nombre}}</option>
+                          {% endfor %}
+                        </select>
+                      </div>
+                      
+                      <div class="form-group">
+                        <label for="descripcion_motivo">Indica el motivo (opcional)</label>
+                        <textarea name="descripcion_motivo" class="form-control" id="descripcion_motivo" cols="30" rows="5" maxlength="1000"></textarea> 
+                      </div>
+                      
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary waves-effect waves-light" data-dismiss="modal">Cerrar</button>
+            <button type="submit" class="btn btn-success waves-effect waves-light">Confirmar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  

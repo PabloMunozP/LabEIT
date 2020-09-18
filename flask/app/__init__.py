@@ -251,7 +251,7 @@ from app.routes.rutas_perfil import mod
 from app.routes.rutas_nico import mod
 from app.routes.rutas_lorenzo import mod
 from app.routes.rutas_cony import mod
-from app.routes.rutas_aux import mod
+from app.routes.rutas_solicitud_circuito import mod
 
 app.register_blueprint(routes.rutas_seba.mod)
 app.register_blueprint(routes.rutas_pablo.mod)
@@ -259,7 +259,7 @@ app.register_blueprint(routes.rutas_perfil.mod)
 app.register_blueprint(routes.rutas_nico.mod)
 app.register_blueprint(routes.rutas_lorenzo.mod)
 app.register_blueprint(routes.rutas_cony.mod)
-app.register_blueprint(routes.rutas_aux.mod)
+app.register_blueprint(routes.rutas_solicitud_circuito.mod)
 # Configurations
 app.config.from_object('config')
 
