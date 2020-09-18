@@ -1,4 +1,4 @@
-import smtplib
+import smtplib,json
 from uuid import uuid4 # Token
 from email import encoders
 from openpyxl import Workbook
@@ -811,6 +811,14 @@ def eliminar_solicitud(id_detalle):
         """
         cursor.execute(sql_query,(id_encabezado_solicitud,))
 
+        # Se eliminan las posibles asociaciones con asignaturas
+        sql_query = """
+            DELETE FROM
+                Solicitud_curso
+                    WHERE id_solicitud = %s
+        """
+        cursor.execute(sql_query,(id_encabezado_solicitud,))
+
     flash("detalle-eliminado")
     return redirect(redirect_url())
 
@@ -857,6 +865,16 @@ def eliminar_detalles_seleccionados():
         """
         cursor.execute(sql_query,(id_encabezado_solicitud,id_encabezado_solicitud))
 
+        # Si se realizó la eliminación de la solicitud,
+        # se eliminan las posibles asociaciones con asignaturas
+        if cursor.rowcount > 0:
+            sql_query = """
+                DELETE FROM
+                    Solicitud_curso
+                        WHERE id_solicitud = %s
+            """
+            cursor.execute(sql_query,(id_encabezado_solicitud,))
+
     flash("detalles-seleccionados-eliminados")
     return redirect(redirect_url())
 
@@ -870,6 +888,15 @@ def eliminar_solicitud_canasta(id_solicitud):
                 WHERE id = %s
     """
     cursor.execute(sql_query,(id_solicitud,))
+    
+    # Se eliminan las posibles asociaciones con asignaturas
+    sql_query = """
+        DELETE FROM
+            Solicitud_curso
+                WHERE id_solicitud = %s
+    """
+    cursor.execute(sql_query,(id_solicitud,))
+
     return redirect("/gestion_solicitudes_prestamos")
 
 @mod.route("/cancelar_solicitud/<string:id_detalle>",methods=["POST"])
@@ -1298,8 +1325,8 @@ def exportar_solicitudes(id_exportacion):
     return send_file(direccion_archivo,as_attachment=True)
 
 # ========= ESTADÍSTICAS GENERALES ===================
-@mod.route("/estadisticas_generales",methods=["GET"])
-def estadisticas_generales():
+@mod.route("/estadisticas_solicitudes",methods=["GET"])
+def estadisticas_solicitudes():
     if "usuario" not in session.keys():
         return redirect("/")
     if session["usuario"]["id_credencial"] != 3: # El usuario debe ser un administrador (Credencial = 3)
@@ -1373,9 +1400,23 @@ def estadisticas_generales():
     cursor.execute(sql_query)
     lista_usuarios = cursor.fetchall()
 
-    return render_template("/estadisticas/estadisticas_generales.html",
+    # Se obtiene la lista de asignaturas asociadas a las solicitudes de préstamo
+    sql_query = """
+        SELECT Curso.id,Curso.codigo_udp,Curso.nombre,COUNT(Solicitud_curso.id_curso) AS 'cantidad_asociaciones'
+	        FROM Curso 
+                LEFT JOIN Solicitud_curso 
+                    ON Curso.id = Solicitud_curso.id_curso
+    	            GROUP BY Curso.id
+                    ORDER BY cantidad_asociaciones DESC
+    """
+    cursor.execute(sql_query)
+    lista_asignaturas_asociadas = cursor.fetchall()
+
+
+    return render_template("/estadisticas/estadisticas_solicitudes.html",
         cantidades_solicitudes_estados=cantidades_solicitudes_estados,
-        lista_usuarios=lista_usuarios)
+        lista_usuarios=lista_usuarios,
+        lista_asignaturas_asociadas=lista_asignaturas_asociadas)
 
 @mod.route("/consultar_estadisticas_solicitudes",methods=["POST"])
 def consultar_estadisticas_solicitudes():
@@ -1384,6 +1425,15 @@ def consultar_estadisticas_solicitudes():
 
     datos_formulario = request.form.to_dict()
     datos_formulario["id_consulta"] = int(datos_formulario["id_consulta"])
+
+    # Se convierte la variable JSON a una lista de Python
+    datos_formulario["ids_asignaturas_filtro"] = json.loads(datos_formulario["ids_asignaturas_filtro"])
+
+    asignaturas_asociadas = False
+    # En caso de que se hayan seleccionado asignaturas para filtrar
+    # se modifica la consulta
+    if len(datos_formulario["ids_asignaturas_filtro"]):
+        asignaturas_asociadas = True
 
     if datos_formulario["id_consulta"] == 1:
         # Consulta 1: Se obtienen los equipos solicitados entre los días solicitados
@@ -1425,7 +1475,29 @@ def consultar_estadisticas_solicitudes():
 
             for equipo in lista_equipos_registrados:
                 # Se seleccionan los equipos según las fechas
-                sql_query = """
+                # Se verifica si se filtró por asignaturas
+                if asignaturas_asociadas:
+                    # Se filtra en la consulta sql según las asignaturas
+                    sql_query = """
+                    SELECT COUNT(*) AS cantidad_equipos
+                        FROM Equipo,Detalle_solicitud,Solicitud
+                            WHERE Equipo.id = Detalle_solicitud.id_equipo
+                            AND Detalle_solicitud.id_solicitud = Solicitud.id
+                            AND Solicitud.fecha_registro >= %s
+                            AND Solicitud.fecha_registro <= %s
+                            AND Equipo.id = %s
+                            AND Solicitud.id IN (SELECT Solicitud_curso.id_solicitud
+                                FROM Solicitud_curso
+                                    WHERE id_solicitud = Solicitud.id AND
+                                    id_curso IN {0})
+                            GROUP BY Equipo.id
+                    """
+                    string_lista_ids = str(datos_formulario["ids_asignaturas_filtro"]).replace("[","(").replace("]",")")
+                    sql_query = sql_query.format(string_lista_ids)
+                    cursor.execute(sql_query,(limite_inferior_iteracion,limite_superior_iteracion,equipo["id"]))
+                    registro_cantidad = cursor.fetchone()
+                else:
+                    sql_query = """
                     SELECT COUNT(*) AS cantidad_equipos
                         FROM Equipo,Detalle_solicitud,Solicitud
                             WHERE Equipo.id = Detalle_solicitud.id_equipo
@@ -1434,9 +1506,9 @@ def consultar_estadisticas_solicitudes():
                             AND Solicitud.fecha_registro <= %s
                             AND Equipo.id = %s
                             GROUP BY Equipo.id
-                """
-                cursor.execute(sql_query,(limite_inferior_iteracion,limite_superior_iteracion,equipo["id"]))
-                registro_cantidad = cursor.fetchone()
+                    """
+                    cursor.execute(sql_query,(limite_inferior_iteracion,limite_superior_iteracion,equipo["id"]))
+                    registro_cantidad = cursor.fetchone()
 
                 if registro_cantidad is None:
                     cantidad_equipos = 0
@@ -1502,20 +1574,43 @@ def consultar_estadisticas_solicitudes():
             datos_grafico[estado["nombre"]] = []
             datos_grafico[estado["nombre"]].append(estado["nombre"])
             for equipo in lista_equipos:
-                sql_query = """
-                    SELECT COUNT(*) AS cantidad_equipos
-                        FROM Equipo,Detalle_solicitud,Solicitud,Estado_detalle_solicitud
-                            WHERE Equipo.id = Detalle_solicitud.id_equipo
-                            AND Detalle_solicitud.id_solicitud = Solicitud.id
-                            AND Solicitud.fecha_registro >= %s
-                            AND Solicitud.fecha_registro <= %s
-                            AND Detalle_solicitud.estado = Estado_detalle_solicitud.id
-                            AND Estado_detalle_solicitud.id = %s
-                            AND Equipo.id = %s
-                            GROUP BY Equipo.id
-                """
-                cursor.execute(sql_query,(datos_formulario["limite_inferior"],datos_formulario["limite_superior"],estado["id"],equipo["id"]))
-                cantidad_equipos = cursor.fetchone()
+                if asignaturas_asociadas:
+                    sql_query = """
+                        SELECT COUNT(*) AS cantidad_equipos
+                            FROM Equipo,Detalle_solicitud,Solicitud,Estado_detalle_solicitud
+                                WHERE Equipo.id = Detalle_solicitud.id_equipo
+                                AND Detalle_solicitud.id_solicitud = Solicitud.id
+                                AND Solicitud.fecha_registro >= %s
+                                AND Solicitud.fecha_registro <= %s
+                                AND Detalle_solicitud.estado = Estado_detalle_solicitud.id
+                                AND Estado_detalle_solicitud.id = %s
+                                AND Equipo.id = %s
+                                AND Solicitud.id IN (SELECT Solicitud_curso.id_solicitud
+                                FROM Solicitud_curso
+                                    WHERE id_solicitud = Solicitud.id AND
+                                    id_curso IN {0})
+                                GROUP BY Equipo.id
+                    """
+                    string_lista_ids = str(datos_formulario["ids_asignaturas_filtro"]).replace("[","(").replace("]",")")
+                    sql_query = sql_query.format(string_lista_ids)
+                    cursor.execute(sql_query,(datos_formulario["limite_inferior"],datos_formulario["limite_superior"],estado["id"],equipo["id"]))
+                    cantidad_equipos = cursor.fetchone()
+                else:
+                    sql_query = """
+                        SELECT COUNT(*) AS cantidad_equipos
+                            FROM Equipo,Detalle_solicitud,Solicitud,Estado_detalle_solicitud
+                                WHERE Equipo.id = Detalle_solicitud.id_equipo
+                                AND Detalle_solicitud.id_solicitud = Solicitud.id
+                                AND Solicitud.fecha_registro >= %s
+                                AND Solicitud.fecha_registro <= %s
+                                AND Detalle_solicitud.estado = Estado_detalle_solicitud.id
+                                AND Estado_detalle_solicitud.id = %s
+                                AND Equipo.id = %s
+                                GROUP BY Equipo.id
+                    """
+                    cursor.execute(sql_query,(datos_formulario["limite_inferior"],datos_formulario["limite_superior"],estado["id"],equipo["id"]))
+                    cantidad_equipos = cursor.fetchone()
+
                 if cantidad_equipos is None:
                     cantidad_equipos = 0
                 else:
