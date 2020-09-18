@@ -242,6 +242,18 @@
         document.getElementById("modal_activas_curso").textContent = elemento.curso_motivo;
         document.getElementById("modal_activas_razon").textContent = elemento.motivo;
         document.getElementById("modal_activas_estado").textContent = elemento.estado;
+        switch (elemento.estado){
+            case 'Por retirar':
+                document.getElementById("modal_activas_estado").className = "badge badge-info";
+                break;
+            case 'En posesión':
+                document.getElementById("modal_activas_estado").className = "badge badge-success"; 
+                break;
+            case 'Con atraso':
+                document.getElementById("modal_activas_estado").className = "badge badge-danger"; 
+                break;
+        }
+
         document.getElementById("modal_activas_fecha_vencimiento").textContent = elemento.fecha_vencimiento;
         document.getElementById("modal_activas_fecha_inicio").textContent = elemento.fecha_inicio;
         document.getElementById("modal_activas_fecha_termino").textContent = elemento.fecha_termino;

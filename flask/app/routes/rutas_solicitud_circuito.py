@@ -40,6 +40,11 @@ def solicitudes_prestamos_circuitos():
                            lista_circuitos = consultar_lista_circuito(),
                            lista_cursos = consultar_cursos())
 
+
+
+
+
+
 @mod.route("/eliminar_carro_circuito",methods=['POST'])
 def eliminar_carro_circuito():
     if request.method == "POST":
@@ -125,6 +130,47 @@ def registrar_solicitud_circuito():
 
 # ---------------------------------------------------------------- #
 
+def consultar_solictudes_por_id(IDS):
+    query = ('''
+            SELECT Detalle_solicitud_circuito.id AS IDD,
+                Detalle_solicitud_circuito.id_solicitud_circuito AS IDS,
+                Detalle_solicitud_circuito.cantidad,
+                Detalle_solicitud_circuito.id_circuito AS id_componente,
+                Detalle_solicitud_circuito.fecha_inicio,
+                Detalle_solicitud_circuito.fecha_termino,
+                Detalle_solicitud_circuito.fecha_vencimiento,
+                Detalle_solicitud_circuito.renovaciones,
+                Solicitud_circuito.fecha_registro,
+                Solicitud_circuito.rut_alumno AS rut,
+                Estado_detalle_solicitud.nombre AS estado,
+                CASE WHEN Solicitud_circuito.id_curso_motivo = 0 THEN 'Personal'
+                    ELSE CONCAT(Curso.codigo_udp, ' ',Curso.nombre)
+                    END AS curso_motivo,
+                Solicitud_circuito.motivo,
+                Usuario.nombres,
+                Usuario.apellidos,
+                Usuario.email,
+                Circuito.nombre as componente,
+                Circuito.cantidad - Circuito.prestados AS disponibles,
+                Circuito.cantidad AS total,
+                Circuito.dias_max_prestamo,
+                Circuito.dias_renovacion,
+                Circuito.descripcion
+            FROM Detalle_solicitud_circuito
+                LEFT JOIN Solicitud_circuito 
+                    ON Solicitud_circuito.id = Detalle_solicitud_circuito.id_solicitud_circuito
+                LEFT JOIN Usuario 
+                    ON Usuario.rut = Solicitud_circuito.rut_alumno
+                LEFT JOIN Circuito
+                    ON Circuito.id = Detalle_solicitud_circuito.id_circuito
+                LEFT JOIN Curso
+                    ON Solicitud_circuito.id_curso_motivo = Curso.id
+                LEFT JOIN Estado_detalle_solicitud
+                    ON Estado_detalle_solicitud.id = Detalle_solicitud_circuito.estado
+            WHERE Solicitud_circuito.id = %s
+             ''')
+    cursor.execute(query,(IDS,))
+    return cursor.fetchall()
 
 def consultar_solictudes_pendientes():
     query = ('''
@@ -246,16 +292,40 @@ def consultar_solictudes_historial():
     cursor.execute(query)
     return cursor.fetchall()
 
-
+def consultar_solcitudes_prestamos():
+    cursor.execute('''
+                SELECT Solicitud_circuito.id,
+                    Solicitud_circuito.rut_alumno,
+                    Solicitud_circuito.motivo,
+                    Solicitud_circuito.id_curso_motivo,
+                    Solicitud_circuito.fecha_registro,
+                    Usuario.email,
+                    CONCAT(Usuario.nombres, ' ',Usuario.apellidos) AS nombre,
+                    COUNT(Detalle_solicitud_circuito.id_solicitud_circuito) AS componentes_solicitados,
+                    CASE WHEN Solicitud_circuito.id_curso_motivo = 0 THEN 'Personal'
+                        ELSE CONCAT(Curso.codigo_udp, ' ',Curso.nombre)
+                        END AS curso_motivo
+                FROM Solicitud_circuito
+                LEFT JOIN Usuario 
+                    ON Usuario.rut = Solicitud_circuito.rut_alumno
+                LEFT JOIN Detalle_solicitud_circuito
+                    ON Detalle_solicitud_circuito.id_solicitud_circuito = Solicitud_circuito.id
+                LEFT JOIN Curso
+                    ON Solicitud_circuito.id_curso_motivo = Curso.id
+                GROUP BY Detalle_solicitud_circuito.id_solicitud_circuito
+                   ''')
+    return cursor.fetchall()
 
 @mod.route("/gestion_solicitudes_prestamos_circuitos")
 def gestion_solicitudes_prestamos_circuitos():
     if 'usuario' not in session or session["usuario"]["id_credencial"] != 3: # Si no es administrador
         return redirect('/')
+
     return render_template('vistas_gestion_solicitudes_circuitos/main.html',
                            lista_solicitudes_pendientes = consultar_solictudes_pendientes(),
                            lista_solicitudes_activas = consultar_solictudes_activas(),
-                           lista_solicitudes_historial = consultar_solictudes_historial())
+                           lista_solicitudes_historial = consultar_solictudes_historial(),
+                           lista_solicitudes_prestamos = consultar_solcitudes_prestamos())
     
 
 @mod.route("/gestion_solicitudes_prestamos_circuitos/borrar_solcitud_detalle",methods=['POST']) # AJAX
@@ -417,4 +487,14 @@ def cancelar_solicitud_detalle():
                        (int(circuito_data["prestados"])-int(circuito_data["solicitados"]),
                         circuito_data["id"])) # Actualiza los prestados = prestados - solicitados (los devuelve)
         return jsonify({'nice':'nice!'})
-    return jsonify({'error':'missing data!'})       
+    return jsonify({'error':'missing data!'})
+
+
+
+@mod.route("/gestion_solicitudes_prestamos_circuitos/consultar_tabla_solicitud",methods=['POST']) # AJAX
+def consultar_tabla_solicitud():
+    if request.method == 'POST':
+        IDS = request.form["id_solicitud"]
+        return render_template('vistas_gestion_solicitudes_circuitos/tablas/sub_detalle.html',
+                               solicitudes = consultar_solictudes_por_id(IDS))
+    return jsonify({'error':'missing data!'})

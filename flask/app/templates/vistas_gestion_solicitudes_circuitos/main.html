@@ -10,7 +10,7 @@
         </div>
       </nav>
       <div class="tab-content" id="nav-tabContent">
-        <div class="tab-pane fade " id="nav_solictudes_prestamos" role="tabpanel" aria-labelledby="nav-equipos-tab">asd</div>
+        <div class="tab-pane fade " id="nav_solictudes_prestamos" role="tabpanel" aria-labelledby="nav-equipos-tab">{% include "vistas_gestion_solicitudes_circuitos/pestañas/lista_solicitudes_prestamos.html" %}</div>
         <div class="tab-pane fade show active" id="nav_detalle_solictudes_prestamos" role="tabpanel" aria-labelledby="nav-solicitudes-tab">{% include "vistas_gestion_solicitudes_circuitos/pestañas/lista_solicitudes_circuitos.html" %}</div>
         <div class="tab-pane fade " id="nav_historial" role="tabpanel" aria-labelledby="">{% include "vistas_gestion_solicitudes_circuitos/pestañas/lista_solicitudes_historial.html" %}</div>
         
@@ -27,7 +27,7 @@
       
     <script>
         $(document).ready(function() {
-            $('#tabla_solicitudes_pendientes, #tabla_solicitudes_activas').DataTable( {
+            $('#tabla_solicitudes_pendientes, #tabla_solicitudes_activas, #rCtPGY').DataTable( {
                 "order": [[ 0, "desc" ]],
                 "language": {
                     "lengthMenu": "Mostrar _MENU_ registros por página",
