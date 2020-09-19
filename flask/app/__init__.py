@@ -245,21 +245,29 @@ def revisar_18_30():
 app = Flask(__name__)
 
 # Blueprints (Routes)
-from app.routes.rutas_seba import mod
+from app.routes.rutas_modulos_documentacion import mod
 from app.routes.rutas_pablo import mod
 from app.routes.rutas_perfil import mod
 from app.routes.rutas_nico import mod
 from app.routes.rutas_lorenzo import mod
 from app.routes.rutas_cony import mod
 from app.routes.rutas_solicitud_circuito import mod
+from app.routes.rutas_gestion_solicitudes import mod
+from app.routes.rutas_login import mod
+from app.routes.rutas_mensajes_administrativos import mod
+from app.routes.rutas_estadisticas_solicitudes import mod
 
-app.register_blueprint(routes.rutas_seba.mod)
+app.register_blueprint(routes.rutas_modulos_documentacion.mod)
 app.register_blueprint(routes.rutas_pablo.mod)
 app.register_blueprint(routes.rutas_perfil.mod)
 app.register_blueprint(routes.rutas_nico.mod)
 app.register_blueprint(routes.rutas_lorenzo.mod)
 app.register_blueprint(routes.rutas_cony.mod)
 app.register_blueprint(routes.rutas_solicitud_circuito.mod)
+app.register_blueprint(routes.rutas_gestion_solicitudes.mod)
+app.register_blueprint(routes.rutas_login.mod)
+app.register_blueprint(routes.rutas_mensajes_administrativos.mod)
+app.register_blueprint(routes.rutas_estadisticas_solicitudes.mod)
 # Configurations
 app.config.from_object('config')
 
