@@ -289,7 +289,6 @@ def rechazar_solicitud(id_detalle):
 
     # Razón de rechazo de solicitud
     razon_rechazo = request.form.to_dict()["razon_rechazo"]
-    razon_rechazo = razon_rechazo.replace("\n", "<br>") # Se modifica con new line de HTML para insertar en template
 
     # Se obtienen los datos al equipo y detalle de solicitud para notificar al usuario vía correo
     sql_query = """
@@ -308,14 +307,16 @@ def rechazar_solicitud(id_detalle):
     if datos_solicitud_rechazada is None:
         flash("solicitud-no-encontrada")
         return redirect("/gestion_solicitudes_prestamos")
+    
+    razon_rechazo = razon_rechazo.strip()
 
     # Si existe la solicitud, es marcada como rechazada (Historial)
     sql_query = """
         UPDATE Detalle_solicitud
-            SET estado = 5,fecha_rechazo = %s
+            SET estado = 5,fecha_rechazo = %s,razon_termino = %s
                 WHERE id = %s
     """
-    cursor.execute(sql_query,(datetime.now().replace(microsecond=0),id_detalle))
+    cursor.execute(sql_query,(datetime.now().replace(microsecond=0),razon_rechazo,id_detalle))
 
     # Por último, se notifica al usuario sobre el rechazo de la solicitud
     # Se obtienen los datos del usuario
@@ -336,10 +337,11 @@ def rechazar_solicitud(id_detalle):
     archivo_html = archivo_html.replace("%equipo_solicitado%",datos_solicitud_rechazada["nombre"]+" "+datos_solicitud_rechazada["marca"]+" "+datos_solicitud_rechazada["modelo"])
     archivo_html = archivo_html.replace("%fecha_registro%",str(datos_solicitud_rechazada["fecha_registro"]))
     archivo_html = archivo_html.replace("%fecha_revision_solicitud%",fecha_revision_solicitud)
-
-    razon_rechazo = razon_rechazo.strip()
+    
     if len(razon_rechazo) == 0:
         razon_rechazo = "** No se ha adjuntado un motivo de rechazo de solicitud. **"
+    else:
+        razon_rechazo = razon_rechazo.replace("\n","<br>")
 
     archivo_html = archivo_html.replace("%razon_rechazo%",razon_rechazo)
 
@@ -597,12 +599,15 @@ def cancelar_solicitud(id_detalle):
     fecha_cancelacion_solicitud = str(fecha_cancelacion_solicitud.date())+" "+str(fecha_cancelacion_solicitud.hour)+":"+str(fecha_cancelacion_solicitud.minute)
 
     # Se libera el codigo de sufijo de equipo del detalle de solicitud y se modifica el estado
+    razon_cancelacion = datos_formulario["razon_cancelacion"]
+    razon_cancelacion = razon_cancelacion.strip()
+
     sql_query = """
         UPDATE Detalle_solicitud
-            SET estado = 7,codigo_sufijo_equipo = NULL,fecha_cancelacion = %s
+            SET estado = 7,codigo_sufijo_equipo = NULL,fecha_cancelacion = %s,razon_termino = %s
                 WHERE id = %s
     """
-    cursor.execute(sql_query,(datetime.now().replace(microsecond=0),id_detalle))
+    cursor.execute(sql_query,(datetime.now().replace(microsecond=0),razon_cancelacion,id_detalle))
 
     # Se obtienen los datos necesarios para el correo
 
@@ -645,12 +650,10 @@ def cancelar_solicitud(id_detalle):
 
     archivo_html = archivo_html.replace("%fecha_cancelacion_solicitud%",str(fecha_cancelacion_solicitud))
 
-    razon_cancelacion = datos_formulario["razon_cancelacion"]
-    razon_cancelacion = razon_cancelacion.strip()
-    razon_cancelacion = razon_cancelacion.replace("\n", "<br>")
-
     if len(razon_cancelacion) == 0:
         razon_cancelacion = "** No se ha adjuntado una razón de cancelación de solicitud. **"
+    else:
+        razon_cancelacion = razon_cancelacion.replace("\n","<br>")
 
     archivo_html = archivo_html.replace("%razon_cancelacion%",razon_cancelacion)
 
@@ -937,6 +940,7 @@ def exportar_solicitudes(id_exportacion):
                 Detalle_solicitud.fecha_rechazo AS 'Fecha de rechazo',
                 Detalle_solicitud.fecha_cancelacion AS 'Fecha de cancelación',
                 Detalle_solicitud.renovaciones AS 'Cantidad de renovaciones',
+                Detalle_solicitud.razon_termino AS 'Motivo de término',
                 (SELECT GROUP_CONCAT(Curso.nombre ORDER BY Curso.nombre) FROM Curso,Solicitud_curso
                         WHERE Curso.id = Solicitud_curso.id_curso
                         AND Solicitud_curso.id_solicitud = Detalle_solicitud.id_solicitud

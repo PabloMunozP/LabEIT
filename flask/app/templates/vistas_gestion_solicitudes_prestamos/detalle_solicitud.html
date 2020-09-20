@@ -215,28 +215,48 @@
 
 				{% if datos_detalle_solicitud["fecha_vencimiento"] %}
 					<div class="form-group row">
-						<label class="col col-form-label texto-gris-eit">
+						<label class="col-md-4 col-form-label texto-gris-eit">
 							<strong>Fecha de vencimiento:</strong>
 						</label>
-						<div class="col">
+						<div class="col-md-4">
 							<p class="form-control-plaintext text-break">
 								{{datos_detalle_solicitud["fecha_vencimiento"]}}
 							</p>
 						</div>
-						{% if datos_detalle_solicitud["fecha_cancelacion"] %}
-						<label class="col col-form-label texto-gris-eit">
+					</div>
+				{% endif %}
+
+				{% if datos_detalle_solicitud["fecha_cancelacion"] %}
+				<hr>
+					<div class="form-group row">
+						<label class="col-md-4 col-form-label texto-gris-eit">
 							<strong>Fecha de cancelación:</strong>
 						</label>
-						<div class="col">
+						<div class="col-md-4">
 							<p class="form-control-plaintext text-break">
 								{{datos_detalle_solicitud["fecha_cancelacion"]}}
 							</p>
 						</div>
-						{% endif %}
 					</div>
+					{% if datos_detalle_solicitud["razon_termino"] %}
+						<div class="form-group row">
+							<label class="col-md-4 col-form-label texto-gris-eit">
+								<strong>Motivo de cancelación:</strong>
+							</label>
+							<div class="col-md-8">
+								<p class="form-control-plaintext text-break">
+									{% autoescape false %}
+										{{datos_detalle_solicitud["razon_termino"]|nl2br}}
+									{% endautoescape %}
+								</p>
+							</div>
+						</div>
+					{% endif %}
+					<hr>
 				{% endif %}
 
 				{% if datos_detalle_solicitud["fecha_rechazo"] %}
+				<hr>
 					<div class="form-group row">
 						<label class="col-md-4 col-form-label texto-gris-eit">
 							<strong>Fecha de rechazo:</strong>
@@ -247,6 +267,21 @@
 							</p>
 						</div>
 					</div>
+					{% if datos_detalle_solicitud["razon_termino"] %}
+						<div class="form-group row">
+							<label class="col-md-4 col-form-label texto-gris-eit">
+								<strong>Motivo de rechazo:</strong>
+							</label>
+							<div class="col-md-8">
+								<p class="form-control-plaintext text-break">
+									{% autoescape false %}
+										{{datos_detalle_solicitud["razon_termino"]|nl2br}}
+									{% endautoescape %}
+								</p>
+							</div>
+						</div>
+					{% endif %}
+					<hr>
 				{% endif %}
 
 				{% if lista_cursos_asociados %}
