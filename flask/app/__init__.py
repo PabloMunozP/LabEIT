@@ -246,7 +246,7 @@ app = Flask(__name__)
 
 # Blueprints (Routes)
 from app.routes.rutas_modulos_documentacion import mod
-from app.routes.rutas_pablo import mod
+from app.routes.rutas_gestion_usuarios import mod
 from app.routes.rutas_perfil import mod
 from app.routes.rutas_nico import mod
 from app.routes.rutas_lorenzo import mod
@@ -258,7 +258,7 @@ from app.routes.rutas_mensajes_administrativos import mod
 from app.routes.rutas_estadisticas_solicitudes import mod
 
 app.register_blueprint(routes.rutas_modulos_documentacion.mod)
-app.register_blueprint(routes.rutas_pablo.mod)
+app.register_blueprint(routes.rutas_gestion_usuarios.mod)
 app.register_blueprint(routes.rutas_perfil.mod)
 app.register_blueprint(routes.rutas_nico.mod)
 app.register_blueprint(routes.rutas_lorenzo.mod)
