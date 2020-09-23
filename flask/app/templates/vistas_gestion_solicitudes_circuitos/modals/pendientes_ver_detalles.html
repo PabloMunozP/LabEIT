@@ -1,0 +1,280 @@
+<div class="modal fade" id="modal_info_solicitud_pendiente" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-modal="true">
+    <div class="modal-dialog modal-lg" role="document">
+      <div class="modal-content">
+        <div class="modal-header bg-gris-eit">
+            <h5 class="modal-title text-white"><i class="fas fa-file-invoice mr-2"></i>Información detallada del componente</h5>
+            <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close" style="outline:none;">
+              <span aria-hidden="true">×</span>
+            </button>
+        </div>
+        <div class="modal-body">
+
+
+            <div class="card border-1 rounded-0" style="border-color:#0db26b;">
+                <div class="card-header border-0 rounded-0" style="background:#0db26b;">
+                    <h5 class="card-title my-auto text-white"><i class="fas fa-file-invoice mr-2"></i>Información de la solicitud de préstamo</h5>
+                </div> 
+            </div>
+            <div class="card-body rounded-0" style="background:#ECF0F1;">
+				<div class="form-group row">
+					<label class="col-md-4 col-form-label texto-gris-eit">
+						<strong>ID de solicitud:</strong>
+					</label>
+					<div class="col-md-2">
+						<p class="form-control-plaintext text-break" id="modal_solicitudes_pendientes_ids">
+						</p>
+					</div>
+					<label class="col-md-4 col-form-label texto-gris-eit">
+						<strong>ID de detalle de solicitud:</strong>
+					</label>
+					<div class="col-md-2">
+						<p class="form-control-plaintext text-break" id="modal_solicitudes_pendientes_idd">
+						</p>
+					</div>
+				</div>
+
+				<div class="form-group row">
+
+					<label class="col-md-4 col-form-label texto-gris-eit">
+						<strong>Estado:</strong>
+					</label>
+					<div class="col-md-2">
+						<p class="form-control-plaintext text-break">							
+								<span class="badge badge-primary">Pendiente</span>
+						</p>
+					</div>
+					<label class="col-md-4 col-form-label texto-gris-eit">
+						<strong>Fecha de registro:</strong>
+					</label>
+					<div class="col-md-2">
+						<p class="form-control-plaintext text-break" id="modal_solicitudes_pendientes_fecha">
+						</p>
+					</div>
+				</div>
+            </div>
+    <div class="card-header border-0 rounded-0" style="background:#0db26b;">
+        <h5 class="card-title my-auto text-white"><i class="fas fa-user mr-2"></i>Información del solicitante</h5>
+    </div>
+    <div class="card-body rounded-0" style="background:#ECF0F1;">
+
+        <div class="form-group row">
+            <label class="col-md-4 col-form-label texto-gris-eit"><strong>RUT de alumno solicitante:</strong></label>
+            <div class="col-md-2">
+                <p class="form-control-plaintext text-break">
+                    <a title="Ver perfil del usuario" id="modal_solicitudes_pendientes_rut" style="text-decoration:none;"></a>
+                </p>
+            </div>
+            <label class="col-md-2 col-form-label texto-gris-eit">
+                <strong>Nombre:</strong>
+            </label>
+            <div class="col-md-4">
+                <p class="form-control-plaintext text-break" id="modal_solicitudes_pendientes_nombre"></p>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-md-4 col-form-label texto-gris-eit">
+                <strong>Correo electrónico:</strong>
+            </label>
+            <div class="col-md-8">
+                <p class="form-control-plaintext text-break">
+                    <a href="" id="modal_solicitudes_pendientes_correo"></a>
+                </p>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-md-4 col-form-label texto-gris-eit">
+                <strong>Curso motivo:</strong>
+            </label>
+            <div class="col-md-8"> 
+                <p class="form-control-plaintext text-break" id="modal_pendientes_curso"></p>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-md-4 col-form-label texto-gris-eit">
+                <strong>Razón:</strong>
+            </label>
+            <div class="col-md-8"> 
+                <p class="form-control-plaintext text-break" id="modal_pendientes_razon"></p>
+            </div>
+        </div>
+
+    </div>
+<div class="card-header border-0 rounded-0" style="background:#0db26b;">
+    <h5 class="card-title my-auto text-white"><i class="fas fa-laptop mr-2"></i>Componente solicitado</h5>
+</div>
+
+<div class="card-body rounded-0" style="background:#ECF0F1;">
+
+    <div class="form-group row">
+        <label class="col-md-4 col-form-label texto-gris-eit">
+            <strong>ID de componente:</strong>
+        </label>
+        <div class="col-md-2">
+            <p class="form-control-plaintext text-break" id="modal_solicitudes_pendientes_idcomponente">
+                62
+            </p>
+        </div>
+        <label class="col-md-4 col-form-label texto-gris-eit">
+            <strong> Cantidad solicitada: </strong>
+        </label>
+        <div class="col-md-2">
+            <p class="form-control-plaintext text-break" id="modal_solicitudes_pendientes_cantidad">
+            </p>
+        </div>
+    </div>
+
+    <hr>
+
+    <div class="form-group row">
+        <label class="col-md-2 col-form-label texto-gris-eit">
+            <strong>Nombre:</strong>
+        </label>
+        <div class="col-md-4">
+            <p class="form-control-plaintext text-break" id="modal_solicitudes_pendientes_componente"></p>
+        </div>
+        <label class="col-md-2 col-form-label texto-gris-eit">
+            <strong>Stock:</strong>
+        </label>
+        <div class="col-md-4">
+            <p class="form-control-plaintext text-break">
+                <strong id="modal_pendientes_total">3</strong> unidades en total.
+                <br>
+                <strong id="modal_pendientes_disponibles">3</strong> unidades disponibles.
+                <br>
+                <strong id="modal_pendientes_resultado" style="color: #F31431;"></strong> 
+            </p>
+        </div>
+    </div>
+
+    <div class="form-group row">
+
+    </div>
+
+    <div class="form-group row">
+        <label class="col-md-4 col-form-label texto-gris-eit">
+            <strong>Días por renovación:</strong>
+        </label>
+        <div class="col-md-2">
+            <p class="form-control-plaintext text-break" id="modal_pendientes_dias_renovacion"></p>
+        </div>
+        <label class="col-md-4 col-form-label texto-gris-eit">
+            <strong>Cantidad de días permitidos:</strong>
+        </label>
+        <div class="col-md-2">
+            <p class="form-control-plaintext text-break" id="modal_pendientes_dias_max"></p>
+            
+        </div>
+    </div>
+
+    <hr>
+
+    <div class="form-group row">
+        <label class="col-md-2 col-form-label texto-gris-eit"><strong>Descripción:</strong></label>
+            <div class="col-md-6">
+                <p class="form-control-plaintext text-break" id="modal_solicitudes_pendientes_descripcion">
+                </p>
+            </div>
+            <div class="col-md-4 text-right">
+                <label class="col-form-label">
+                <img style="max-width:80%;" class="img-fluid">
+                </label>
+            </div>
+        
+    </div>
+
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+    
+        </div>
+            <div class="modal-footer">
+                <span class="btn-group flex-wrap">			
+                    <button type="button" onclick="modal_rechazo_pendiente_detalle()" class="btn btn-danger mr-1 waves-effect waves-light" data-toggle="modal" data-target="#confirmacion_rechazo_solicitud"><i class="fas fa-times-circle mr-1"></i>Rechazar solicitud</button>
+                    <button type="button" id="btn_aprobar_pendiente_detalle" class="btn btn-success mr-1 waves-effect waves-light" onclick="pendiente_aprobar_solicitud()" data-toggle="modal" data-target="#confirmacion_aprobacion_solicitud"><i class="fas fa-clipboard-check mr-1"></i>Aprobar solicitud</button>
+                    <button type="button" class="btn btn-danger mr-1 waves-effect waves-light" onclick="pendiente_eliminar_solicitud()"><i class="fas fa-minus-circle mr-1"></i>Eliminar solicitud</button>
+                </span>
+            </div>
+      </div>
+    </div>
+</div>
+
+<input type="hidden" id="pendiente_id_solicitud_detalle" name="pendiente_id_solicitud_detalle">
+<input type="hidden" id="pendiente_id_solicitud" name="pendiente_id_solicitud">
+<script>
+    function modal_ver_detalle_pendiente(elemento){
+        console.log(elemento)
+        document.getElementById("modal_solicitudes_pendientes_fecha").textContent = elemento.fecha_registro;
+        $('#pendiente_id_solicitud_detalle').val(elemento.IDD) ;
+        $('#pendiente_id_solicitud').val(elemento.IDS),
+        document.getElementById("modal_solicitudes_pendientes_idd").textContent = elemento.IDD;
+        document.getElementById("modal_solicitudes_pendientes_nombre").textContent = elemento.nombres +' ' +elemento.apellidos;
+        document.getElementById("modal_solicitudes_pendientes_rut").textContent = elemento.rut;
+        document.getElementById("modal_solicitudes_pendientes_ids").textContent = elemento.IDS;
+        document.getElementById("modal_solicitudes_pendientes_correo").textContent = elemento.email;
+        document.getElementById("modal_solicitudes_pendientes_componente").textContent = elemento.componente;
+        document.getElementById("modal_solicitudes_pendientes_idcomponente").textContent = elemento.id_componente;
+        document.getElementById("modal_solicitudes_pendientes_descripcion").textContent = elemento.descripcion;
+        document.getElementById("modal_solicitudes_pendientes_cantidad").textContent = elemento.cantidad;
+        document.getElementById("modal_pendientes_disponibles").textContent = elemento.disponibles;
+        document.getElementById("modal_pendientes_total").textContent = elemento.total;
+        document.getElementById("modal_pendientes_dias_max").textContent = elemento.dias_max_prestamo + ' día(s)';
+        document.getElementById("modal_pendientes_dias_renovacion").textContent = elemento.dias_renovacion + ' día(s)';
+        document.getElementById("modal_pendientes_curso").textContent = elemento.curso_motivo;
+        document.getElementById("modal_pendientes_razon").textContent = elemento.motivo;
+        if(elemento.disponibles < elemento.cantidad){
+            $('#btn_aprobar_pendiente_detalle').attr('disabled', true);
+            document.getElementById("modal_pendientes_resultado").textContent = 'No hay suficientes unidades para prestar';
+            
+        }
+        else{
+            $('#btn_aprobar_pendiente_detalle').attr('disabled', false);
+            document.getElementById("modal_pendientes_resultado").textContent = '';
+        }
+        $("#modal_info_solicitud_pendiente").modal("show");
+    }
+
+    function pendiente_eliminar_solicitud(){
+        $.ajax({
+            data : {
+                id_solicitud_detalle: $('#pendiente_id_solicitud_detalle').val(),
+                id_solicitud: $('#pendiente_id_solicitud').val(),
+            },
+            type : 'POST',
+            url : '/gestion_solicitudes_prestamos_circuitos/borrar_solcitud_detalle'
+          }).done(function(data){
+                if(data.error){
+                    console.log('error');
+                }
+                else{
+                    window.location.reload();
+                }
+            });
+          
+    }
+    function pendiente_aprobar_solicitud(){
+        $.ajax({
+            data : {
+                id_solicitud_detalle: $('#pendiente_id_solicitud_detalle').val()
+            },
+            type : 'POST',
+            url : '/gestion_solicitudes_prestamos_circuitos/aprobar_solcitud_detalle'
+          }).done(function(data){
+                if(data.error){
+                    console.log('error');
+                }
+                else{
+                    window.location.reload();
+                }
+            });
+    }
+</script>

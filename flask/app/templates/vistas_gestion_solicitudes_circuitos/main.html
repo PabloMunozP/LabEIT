@@ -1,0 +1,54 @@
+{% extends "layout_in.html"%}
+{%block body%}
+<div class="container-fluid">
+    <br>
+    <nav>
+        <div class="nav nav-tabs" id="nav-tab" role="tablist">
+          <a class="nav-item nav-link tabpanel_letra" id="nav_solictudes_prestamos_tab" data-toggle="tab" href="#nav_solictudes_prestamos" role="tab" aria-controls="nav-equipos" aria-selected="false">Solicitudes de préstamos</a>
+          <a class="nav-item nav-link tabpanel_letra active" id="nav_detalle_solictudes_prestamos_tab" data-toggle="tab" href="#nav_detalle_solictudes_prestamos" role="tab" aria-controls="nav-solicitudes" aria-selected="true">Lista de detalles de solicitudes de préstamos</a>
+          <a class="nav-item nav-link tabpanel_letra" id="nav_historial_tab" data-toggle="tab" href="#nav_historial" role="tab" aria-controls="nav-historial" aria-selected="false">Historial de solicitudes</a>
+        </div>
+      </nav>
+      <div class="tab-content" id="nav-tabContent">
+        <div class="tab-pane fade " id="nav_solictudes_prestamos" role="tabpanel" aria-labelledby="nav-equipos-tab">{% include "vistas_gestion_solicitudes_circuitos/pestañas/lista_solicitudes_prestamos.html" %}</div>
+        <div class="tab-pane fade show active" id="nav_detalle_solictudes_prestamos" role="tabpanel" aria-labelledby="nav-solicitudes-tab">{% include "vistas_gestion_solicitudes_circuitos/pestañas/lista_solicitudes_circuitos.html" %}</div>
+        <div class="tab-pane fade " id="nav_historial" role="tabpanel" aria-labelledby="">{% include "vistas_gestion_solicitudes_circuitos/pestañas/lista_solicitudes_historial.html" %}</div>
+        
+      </div>
+      <style>
+        .tabpanel_letra{
+            color: #495057;
+            font-weight: 600;
+        }
+      </style>
+      <br>
+      {% include "vistas_gestion_solicitudes_circuitos/tablas/solicitudes_activas.html" %}
+
+      
+    <script>
+        $(document).ready(function() {
+            $('#tabla_solicitudes_pendientes, #tabla_solicitudes_activas, #rCtPGY').DataTable( {
+                "order": [[ 0, "desc" ]],
+                "language": {
+                    "lengthMenu": "Mostrar _MENU_ registros por página",
+                    "zeroRecords": "No se han encontrado registros.",
+                    "info": "Mostrando página _PAGE_ de _PAGES_",
+                    "infoEmpty": "Sin registros disponibles.",
+                    "search":         "Buscar",
+                    "paginate": {
+                        "next":       "Siguiente",
+                        "previous":   "Anterior"
+                    },
+                    "infoFiltered": "(filtrado de _MAX_ registros totales)"
+                  }
+              } );
+          } );
+    </script>
+    
+
+
+
+
+
+</div>
+{% endblock %}

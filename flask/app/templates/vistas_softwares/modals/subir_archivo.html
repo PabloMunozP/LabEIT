@@ -1,0 +1,51 @@
+<div class="modal fade" id="modal_subir_archivo" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header bg-gris-eit">
+        <h5 class="modal-title text-white"><i class="fas fa-file-upload mr-2"></i>Subir nuevo archivo</h5>
+        <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close" style="outline:none;">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <form id="form_subir_archivo" onchange="Filevalidation()" method="post" enctype="multipart/form-data">
+        <div class="modal-body">
+          <p>Seleccione el archivo a cargar en el módulo.</p>
+          <div class="custom-file">
+            <input required type="file" id="file" name="archivo" class="custom-file-input">
+            <label class="custom-file-label">Seleccionar archivo</label>
+            <small id="filesize-error" hidden class="form-text text-danger">
+              * El archivo a cargar no debe superar los <strong>25mb</strong> de tamaño.
+            </small>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+          <button type="submit" id="btn-submit-archivo" class="btn btn-success">Subir</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script> 
+  Filevalidation = () => { 
+          const fi = document.getElementById('file'); 
+          const max_filesize = 1024*25; // Máx 25mb
+          // Check if any file is selected. 
+          if (fi.files.length > 0) { 
+              for (var i = 0; i <= fi.files.length - 1; i++) { 
+                  const fsize = fi.files.item(i).size; 
+                  const file = Math.round((fsize / 1024)); 
+                  // The size of the file. 
+                  if (file > max_filesize) { 
+                    document.getElementById("file").value = null;
+                    document.getElementById("filesize-error").hidden = false;
+                    document.getElementById("btn-submit-archivo").disabled = true; 
+                  }else{
+                    document.getElementById("filesize-error").hidden = true;
+                    document.getElementById("btn-submit-archivo").disabled = false;
+                  } 
+              } 
+          } 
+      }
+</script>

@@ -7,6 +7,7 @@
                 <span aria-hidden="true">&times; </span>
                 </button>
             </div>
+            <form action="/gestion_usuarios/anadir_masivo" method="POST" enctype="multipart/form-data">
             <div class="modal-body">
                 <h6 class="modal-title text-black">Importar usuarios</h6>
                 <form action="/gestion_usuarios/anadir_masivo" method="POST" enctype="multipart/form-data">
@@ -25,6 +26,11 @@
                 <button type="submit" class="btn btn-primary">Enviar</button>
             </form>
             </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+              <button class="btn btn-success" type="submit">Cargar usuarios</button>
+            </div>
+            </form>
         </div>
     </div>
 </div>

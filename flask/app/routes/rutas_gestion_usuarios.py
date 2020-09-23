@@ -76,11 +76,11 @@ def añadir_usuario():
         query= ''' SELECT Usuario.rut as rut FROM Usuario WHERE rut=%s '''
         cursor.execute(query,(datos_usuario['rut'],))
         duplicados_rut=cursor.fetchone()
-        
+
         query= ''' SELECT Usuario.email as correo FROM Usuario WHERE email=%s '''
         cursor.execute(query,(datos_usuario['correo'],))
         duplicados_correo=cursor.fetchone()
-                
+
 
         if duplicados_rut is not None : #Ya existe un usuario con ese rut
             flash('error-añadir-rut')
@@ -140,7 +140,7 @@ def añadir_usuario():
                              VALUES (%s,%s)
                     """
                     cursor.execute(sql_query,(str(token),datos_usuario["rut"]))
-    
+
                 except Exception as e:
                     print(e)
                     flash("error-correo-inicio") # Notificación de fallo al enviar el correo
@@ -190,7 +190,7 @@ def eliminar():
         query= '''SELECT id FROM Solicitud Where rut_alumno = %s'''
         cursor.execute(query,(rut,))
         solicitudes=cursor.fetchone()
-        if solicitudes is not None: # El usuario tiene solicitudes activas 
+        if solicitudes is not None: # El usuario tiene solicitudes activas
             flash("error-eliminar")
             return redirect("/gestion_usuarios")
         else:#El usuario no tiene solicitudes pendientes.
@@ -212,8 +212,8 @@ def inhabilitar():
         query= '''SELECT id FROM Solicitud Where rut_alumno = %s'''
         cursor.execute(query,(rut,))
         solicitudes=cursor.fetchone()
-        
-        if solicitudes is not None: # El usuario tiene solicitudes activas 
+
+        if solicitudes is not None: # El usuario tiene solicitudes activas
             flash("error-inhabilitar")
             return redirect("/gestion_usuarios")
         else:#El usuario no tiene solicitudes pendientes.
@@ -239,22 +239,29 @@ def detalle_usuario(rut):
         usuario=cursor.fetchone()
 
         query=''' SELECT Solicitud.id as id, Solicitud.rut_profesor as profesor, Solicitud.rut_alumno as alumno, Solicitud.motivo as motivo, Solicitud.fecha_registro as registro,
-            Detalle_solicitud.estado as estado, Detalle_solicitud.id as id_detalle, Equipo.nombre as equipo, Equipo.modelo as modelo
+            Detalle_solicitud.estado as estado, Detalle_solicitud.id as id_detalle, Equipo.nombre as equipo, Equipo.modelo as modelo, Equipo.marca as marca_equipo
             FROM Solicitud, Detalle_solicitud, Equipo
             WHERE Solicitud.id = Detalle_solicitud.id_solicitud AND Solicitud.rut_alumno= %s AND Equipo.id = Detalle_solicitud.id_equipo '''
         cursor.execute(query,(rut,))
         solicitudes=cursor.fetchall()
 
-        query='''SELECT Curso.id as id , Curso.codigo_udp as codigo , Curso.nombre as nombre FROM Curso, Seccion_alumno,Seccion WHERE Seccion_alumno.rut_alumno= %s'''
+        query="""
+            SELECT Curso.*,Seccion.codigo AS codigo_seccion
+                FROM Curso,Seccion,Seccion_alumno
+                    WHERE Curso.id = Seccion.id_curso
+                    AND Seccion.id = Seccion_alumno.id_seccion
+                    AND Seccion_alumno.rut_alumno = %s
+                    ORDER BY Curso.nombre
+        """
         cursor.execute(query,(rut,))
         cursos=cursor.fetchall()
 
         query= '''SELECT * FROM Sanciones WHERE rut_alumno = %s'''
         cursor.execute(query,(rut,))
         sancion=cursor.fetchone()
-        
+
         archivo_foto_perfil=obtener_foto_perfil(rut)
-        
+
         return render_template("/vistas_gestion_usuarios/detalle_usuario.html",usuario=usuario,solicitudes=solicitudes,
             cursos=cursos,sancion=sancion,dir_foto_perfil = url_for('static',filename='imgs/profile_pics/'+archivo_foto_perfil) )
 

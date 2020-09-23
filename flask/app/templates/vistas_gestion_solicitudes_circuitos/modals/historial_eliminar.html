@@ -1,0 +1,53 @@
+<div class="modal fade" id="modal_borrar_solicitud_historial" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-modal="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header bg-gris-eit">
+          <h5 class="modal-title text-white"><i class="fas fa-question-circle mr-2"></i>Confirmación de eliminación de solicitud</h5>
+          <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close" style="outline:none;">
+            <span aria-hidden="true">×</span>
+          </button>
+        </div>
+        <form action="/eliminar_solicitud/480" method="post">
+          <div class="modal-body">
+            <p>La solicitud de préstamo será eliminada del sistema y se perderán todos los datos asociados a esta.</p>
+            <p>Adicionalmente, las estadísticas de solicitudes podrían verse afectadas.</p>
+                <input type="hidden" id="HVgYxv" name="HVgYxv">
+                <input type="hidden" id="hzhENV" name="hzhENV">
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary waves-effect waves-light" data-dismiss="modal">Cerrar</button>
+            <button type="button" class="btn btn-danger waves-effect waves-light" onclick="borrar_solicitud_historial()">Eliminar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+
+
+
+
+
+<script>
+    function modal_borrar_solicitud_historial(){
+        $('#modal_borrar_solicitud_historial').modal('show')
+    }
+
+    function borrar_solicitud_historial(){
+        $.ajax({
+            data : {
+                id_solicitud_detalle: $('#hzhENV').val(),
+                id_solicitud: $('#HVgYxv').val()
+            },
+            type : 'POST',
+            url : '/gestion_solicitudes_prestamos_circuitos/borrar_solcitud_detalle'
+          }).done(function(data){
+                if(data.error){
+                    console.log('error');
+                }
+                else{
+                    window.location.reload();
+                }
+            });
+    }
+</script>

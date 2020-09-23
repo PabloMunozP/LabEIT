@@ -1,0 +1,52 @@
+<div class="modal fade" id="modal_activas_cancelar_retirar" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-modal="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header bg-gris-eit">
+          <h5 class="modal-title text-white"><i class="fas fa-question-circle mr-2"></i>Confirmación de cancelación de solicitud</h5>
+          <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close" style="outline:none;">
+            <span aria-hidden="true">×</span>
+          </button>
+        </div>
+          <div class="modal-body">
+            <input type="text" hidden="" name="id_encabezado_solicitud" value="144">
+            <input type="text" hidden="" name="codigo_equipo" value="AAA351">
+            <input type="text" hidden="" name="codigo_sufijo_equipo" value="002">
+            <p>La solicitud de préstamo será marcada automáticamente como <strong>cancelada</strong> y el usuario solicitante será notificado.</p>
+  
+            <div class="form-group">
+              <label>Motivo de la cancelación:</label>
+              <textarea class="form-control" id="wzkhydwa" name="razon_cancelacion" rows="3" maxlength="300" style="min-height:100px;max-height:300px;"></textarea>
+            </div>
+  
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary waves-effect waves-light" data-dismiss="modal">Cerrar</button>
+            <button type="button" class="btn btn-danger waves-effect waves-light" onclick="cancelar_retirar_detalle()">Cancelar solicitud</button>
+          </div>
+          <input type="hidden" id="kigyvbuk">
+      </div>
+    </div>
+  </div>
+
+  <script>
+      function modal_activas_cancelar_retirar(){
+          $('#modal_activas_cancelar_retirar').modal('show')
+      }
+      function cancelar_retirar_detalle(){
+        $.ajax({
+            data : {
+                id_solicitud_detalle: $('#kigyvbuk').val(),
+                motivo: $('#wzkhydwa').val()
+            },
+            type : 'POST',
+            url : '/gestion_solicitudes_prestamos_circuitos/cancelar_activa_solicitud_detalle'
+          }).done(function(data){
+                if(data.error){
+                    console.log('error');
+                }
+                else{
+                    window.location.reload();
+                }
+            });
+    }
+  </script>

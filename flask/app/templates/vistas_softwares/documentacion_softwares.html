@@ -1,0 +1,383 @@
+{% extends "layout_in.html"%}
+    {%block body%}
+
+    {% include "/vistas_softwares/modals/formulario_registro_modulo.html" %}
+    {% include "/vistas_softwares/modals/confirmacion_eliminacion_modulo.html" %}
+    {% include "/vistas_softwares/modals/formulario_modificacion_modulo.html" %}
+    {% include "/vistas_softwares/modals/subir_archivo.html" %}
+    {% include "/vistas_softwares/modals/confirmacion_eliminacion_archivos_multi.html" %}
+
+    <div class="container-fluid">
+
+      {% with msgs = get_flashed_messages() %}
+			  {% if msgs %}
+				  {% for msg in msgs %}
+            {% if msg == "extension-no-valida"%}
+             <div class="alert alert-danger mt-2 alert-dismissible fade show" role="alert">
+               <i class="fas fa-times-circle mr-2"></i>El archivo no se ha cargado debido a que la extensión no está permitida.
+               <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+               <span aria-hidden="true">&times;</span>
+               </button>
+             </div>
+            {%endif%}
+            {% if msg == "error-inesperado"%}
+             <div class="alert alert-danger mt-2 alert-dismissible fade show" role="alert">
+               <i class="fas fa-times-circle mr-2"></i>Se ha producido un error inesperado al gestionar los directorios o archivos. Esto puede deberse a una eliminación reciente.
+               <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+               <span aria-hidden="true">&times;</span>
+               </button>
+             </div>
+            {%endif%}
+            {% if msg == "error-alnum"%}
+             <div class="alert alert-danger mt-2 alert-dismissible fade show" role="alert">
+               <i class="fas fa-times-circle mr-2"></i>El título del módulo sólo debe contener caracteres alfanuméricos.
+               <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+               <span aria-hidden="true">&times;</span>
+               </button>
+             </div>
+            {%endif%}
+            {% if msg == "archivo-sin-nombre"%}
+             <div class="alert alert-danger mt-2 alert-dismissible fade show" role="alert">
+               <i class="fas fa-times-circle mr-2"></i>El archivo no se ha cargado debido a que no tiene un nombre.
+               <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+               <span aria-hidden="true">&times;</span>
+               </button>
+             </div>
+            {%endif%}
+            {% if msg == "error-max-size"%}
+             <div class="alert alert-danger mt-2 alert-dismissible fade show" role="alert">
+               <i class="fas fa-times-circle mr-2"></i>El archivo que se intenta subir supera el tamaño máximo especificado.
+               <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+               <span aria-hidden="true">&times;</span>
+               </button>
+             </div>
+            {%endif%}
+            {% if msg == "max-size-excedido"%}
+             <div class="alert alert-danger mt-2 alert-dismissible fade show" role="alert">
+               <i class="fas fa-times-circle mr-2"></i>El archivo no se ha cargado debido a que excede el máximo permitido.
+               <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+               <span aria-hidden="true">&times;</span>
+               </button>
+             </div>
+            {%endif%}
+            {% if msg == "archivo-agregado" %}
+              <div class="alert alert-success mt-2 alert-dismissible fade show" role="alert">
+                  <i class="fas fa-check-circle mr-2"></i>El archivo se ha agregado correctamente al módulo.
+                  <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                  </button>
+              </div>
+            {% endif %}
+            {% if msg == "archivo-sobrescrito" %}
+              <div class="alert alert-success mt-2 alert-dismissible fade show" role="alert">
+                  <i class="fas fa-check-circle mr-2"></i>El archivo se ha sobrescrito correctamente en el módulo.
+                  <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                  </button>
+              </div>
+            {% endif %}
+            {% if msg == "archivo-eliminado" %}
+              <div class="alert alert-success mt-2 alert-dismissible fade show" role="alert">
+                  <i class="fas fa-check-circle mr-2"></i>El archivo ha sido eliminado correctamente.
+                  <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                  </button>
+              </div>
+            {% endif %}
+            {% if msg == "modulo-agregado" %}
+              <div class="alert alert-success mt-2 alert-dismissible fade show" role="alert">
+                  <i class="fas fa-check-circle mr-2"></i>El módulo ha sido registrado correctamente.
+                  <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                  </button>
+              </div>
+            {% endif %}
+            {% if msg == "modulo-eliminado" %}
+              <div class="alert alert-success mt-2 alert-dismissible fade show" role="alert">
+                  <i class="fas fa-check-circle mr-2"></i>El módulo ha sido eliminado correctamente.
+                  <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                  </button>
+              </div>
+            {% endif %}
+            {% if msg == "modulo-modificado" %}
+              <div class="alert alert-success mt-2 alert-dismissible fade show" role="alert">
+                  <i class="fas fa-check-circle mr-2"></i>El módulo ha sido modificado correctamente.
+                  <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                  </button>
+              </div>
+            {% endif %}
+            {% if msg == "archivos-modulo-eliminados" %}
+              <div class="alert alert-success mt-2 alert-dismissible fade show" role="alert">
+                  <i class="fas fa-check-circle mr-2"></i>Los archivos del módulo han sido eliminados correctamente.
+                  <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                  </button>
+              </div>
+            {% endif %}
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+
+      <div class="card-header mt-4" style="background:#0db26b;">
+        <h5 class="card-title text-white my-auto">Documentación de softwares</h5>
+        <p class="text-white my-auto"><i class="fas fa-info-circle mr-2"></i>A continuación encontrarás el repositorio de guías y/o tutoriales sobre los softwares utilizados en las distintas asignaturas que podrían ser de utilidad para el desarrollo de tareas, laboratorios, etc.</p>
+        {% if session["usuario"]["id_credencial"] == 3 %}
+          <button type="button" class="btn btn-sm btn-secondary" data-toggle="modal" data-target="#registro_modulo"><i class="fas fa-plus-circle mr-1"></i>Agregar módulo</button>
+        {% endif %}
+      </div>
+
+      <style>
+        .accordion .card {
+          border-radius: 0;
+          border-width: 1px 0 1px 0;
+        }
+        .accordion .card:first-child {
+          border-top: none;
+        }
+        .accordion .card .card-header {
+          background: #4D4D4D;
+          padding-top: 7px;
+          padding-bottom: 7px;
+          border-radius: 0;
+          margin-bottom: -2px;
+          font-family: "Roboto", sans-serif;
+        }
+        .accordion .card-header:hover {
+          background: #0db26b;
+        }
+        .accordion .card-header h2 span {
+          float: left;
+          margin-top: 10px;
+        }
+        .accordion .card-header .btn {
+          font-size: 1.04rem;
+          font-weight: 500;
+          width: 100%;
+          text-align: left;
+          position: relative;
+          top: -2px;
+        }
+        .accordion .card-header i {
+          float: right;
+          font-size: 1.3rem;
+          font-weight: bold;
+          position: relative;
+          top: 5px;
+        }
+        .accordion .card-header button:hover {
+          color: #0db26b;
+        }
+        .accordion .card-body {
+          background: #eaeaea;
+          color: #595959;
+        }
+        .list-group-archivos{
+            max-height: 300px;
+            margin-bottom: 10px;
+            overflow:scroll;
+            -webkit-overflow-scrolling: touch;
+        }
+      </style>
+
+      {% if lista_modulos %}
+
+      <div class="row mt-2">
+        <div class="col-6">
+          <div class="input-group">
+            <div class="input-group-prepend">
+              <div class="input-group-text"><i class="fas fa-search"></i></div>
+            </div>
+            <input type="text" class="form-control" id="filtro_softwares" placeholder="Buscar por nombre de software, título de guía o tutorial.">
+          </div>
+        </div>
+      </div>
+
+        {% for modulo in lista_modulos %}
+          <div class="accordion mt-2" id="acc_{{modulo["id"]}}">
+            <div class="card">
+              <div class="card-header">
+                <h2 class="clearfix mb-0">
+                  <a class="btn btn-link text-white text-truncate" title="{{modulo["titulo"]}}" data-toggle="collapse" data-target="#collapseOne_{{modulo["id"]}}" aria-expanded="true" aria-controls="collapseOne">
+                    <strong>{{loop.index}}. {{modulo["titulo"]}}</strong>
+                    {% if not modulo["visible"] %}
+                      <small>(No visible)</small>
+                    {% endif %}
+                    <i class="fas fa-chevron-circle-down">
+                    </i>
+                  </a>									
+                </h2>
+              </div>
+              <div id="collapseOne_{{modulo["id"]}}" class="collapse" aria-labelledby="headingOne" data-parent="#acc_{{modulo["id"]}}">
+                <div class="card-body">
+
+                  <input type="text" hidden id="titulo_modulo_{{modulo["id"]}}" value="{{modulo["titulo"]}}">
+                  <input type="text" hidden id="descripcion_modulo_{{modulo["id"]}}" value="{{modulo["descripcion"]|replace("\r\n","%nl%")}}">
+                  <input type="text" hidden id="visible_modulo_{{modulo["id"]}}" value="{{modulo["visible"]}}">
+                  <input type="text" hidden id="fecha_registro_modulo_{{modulo["id"]}}" value="{{modulo["fecha_registro"]}}">
+
+                  {% if modulo["descripcion"] %}
+                    {% autoescape false %}
+                      {{modulo["descripcion"]|nl2br}}
+                    {% endautoescape %}
+                    <hr>
+                  {% endif %}
+
+                  {% if session["usuario"]["id_credencial"] == 3 %}
+                    <div class="row mt-1">
+                      <div class="col">
+                        <span class="btn-group float-right">
+                          <button type="button" class="btn btn-sm btn-success btn-agregar-archivo mr-1" title="Agregar archivo" value="{{modulo["id"]}}" data-toggle="modal" data-target="#modal_subir_archivo"><i class="fas fa-file-upload"></i></button>
+                          <button type="button" class="btn btn-sm btn-warning btn-modificar-modulo mr-1" title="Modificar módulo" value="{{modulo["id"]}}" data-toggle="modal" data-target="#form_modificar_modulo"><i class="fas fa-edit"></i></button>
+                          <button type="button" class="btn btn-sm btn-danger btn-eliminar-modulo" title="Eliminar módulo" value="{{modulo["id"]}}" data-toggle="modal" data-target="#confirmacion_eliminacion_modulo"><i class="fas fa-folder-minus"></i></button>
+                        </span>
+                      </div>
+                    </div>
+                  {% endif %}
+                  
+                  {% if lista_archivos[modulo["id"]] %}
+                    <div class="table-responsive mt-2">
+                      <div class="table-wrapper-scroll-y" style="position: relative; overflow:auto;">
+                        <table class="table">
+                          <thead class="text-white" style="background:#4D4D4D;">
+                            <tr>
+                              <th scope="col">Documentos registrados</th>
+                              <th scope="col" class="text-center">Acciones</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {% for archivo in lista_archivos[modulo["id"]] %}
+                              <tr style="background:#fff;">
+                                <td>
+                                  <a href="/documentacion_softwares/visualizar_documento/{{archivo["id"]}}" style="color: inherit;">
+                                    <i class="fas fa-paperclip mr-2"></i>
+                                    {{archivo["nombre"]}}
+                                  </a>
+                                </td>
+                                {% if session["usuario"]["id_credencial"] == 3 %}
+                                  <td class="text-center">
+                                    <span class="btn-group">
+                                      <a href="/descargar_archivo_documentacion/{{archivo["id"]}}">
+                                        <button type="button" title="Descargar archivo" class="btn btn-sm btn-secondary mr-1">
+                                          <i class="fas fa-file-download"></i>
+                                        </button>
+                                      </a>
+                                      <a href="/eliminar_archivo/{{archivo["id"]}}">
+                                        <button type="button" title="Eliminar archivo" class="btn btn-sm btn-danger">
+                                          <i class="fas fa-minus-circle mr"></i>
+                                        </button>
+                                      </a>
+                                    </span>
+                                  </td>
+                                {% else %}
+                                  <td class="text-center">
+                                    <a href="/descargar_archivo_documentacion/{{archivo["id"]}}">
+                                      <button type="button" title="Descargar archivo" class="btn btn-sm btn-secondary mr-1">
+                                        <i class="fas fa-file-download"></i>
+                                      </button>
+                                    </a>
+                                  </td>
+                                {% endif %}
+                              </tr>
+                            {% endfor %}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+
+                    {% if session["usuario"]["id_credencial"] == 3 %}
+                      <div class="row mt-2">
+                        <div class="col">
+                          <span class="btn-group float-right">
+                            <button type="button" title="Eliminar todos los archivos" class="btn btn-sm btn-danger btn-eliminar-archivos-modulo mr-1" value="{{modulo["id"]}}" data-toggle="modal" data-target="#confirmacion_eliminacion_archivos">
+                              <i class="fas fa-times-circle mr-1"></i>Eliminar archivos
+                            </button>
+                          </span>
+                        </div>
+                      </div>
+                    {% endif %}
+                  {% else %}
+                    <div class="alert alert-warning alert-dismissible fade show text-center mt-4" role="alert">
+                      <i class="fas fa-exclamation-triangle mr-2"></i>No se han registrado archivos en el módulo.
+                    </div>
+                  {% endif %}
+
+                  {% if session["usuario"]["id_credencial"] == 3 %}
+                    <p class="small my-auto"><mark><i class="fas fa-folder mr-1"></i> Nombre del directorio de almacenamiento en el servidor: <strong>{{modulo["nombre_carpeta"]}}</strong></strong></mark></p>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      {% else %}
+        <div class="alert alert-warning alert-dismissible fade show text-center mt-4" role="alert">
+          <i class="fas fa-exclamation-triangle mr-2"></i>No se han registrado módulos con documentación de software.
+        </div>
+      {% endif %}
+      
+
+    </div>
+
+
+    <script>
+      $(document).ready(function(){
+        $(".card-header .btn").click(function(){
+          if($(this).find('i:first').hasClass('fa-chevron-circle-down')){
+            $(this).find('i:first').removeClass('fa-chevron-circle-down').addClass('fa-chevron-circle-up');
+          }else{
+            $(this).find('i:first').removeClass('fa-chevron-circle-up').addClass('fa-chevron-circle-down');
+          }
+        });
+      });
+
+      // Se agrega el action para el form en confirmación de eliminación de módulo
+      $('.btn-eliminar-modulo').click(function(){
+        $('#form_confirmacion_eliminacion_modulo').attr('action', '/eliminar_modulo/'+$(this).val());
+      });
+
+      // Se agrega la información para editar módulo
+      $('.btn-modificar-modulo').click(function(){
+        const id_modulo = $(this).val();
+        const titulo = $('#titulo_modulo_'+id_modulo).val();
+        const descripcion = $('#descripcion_modulo_'+id_modulo).val();
+        const visible = parseInt($('#visible_modulo_'+id_modulo).val());
+
+        // Se reemplaza la información del módulo en el formulario de modificación
+        $('#input_mod_titulo').val(titulo);
+
+        // Modificación de descripción para textarea en modal de modificación de módulo
+        lista_frases_descripcion = descripcion.split("%nl%")
+        var descripcion_textarea = ""
+        for(var i = 0 ; i < lista_frases_descripcion.length ; i++){
+          descripcion_textarea += lista_frases_descripcion[i];
+          if(i != lista_frases_descripcion.length-1){
+            descripcion_textarea += "\n";
+          }
+        }
+        $('#input_mod_descripcion').val(descripcion_textarea);
+        if(visible){
+          $('#select_mod_visibilidad option:eq(0)').prop('selected', true)
+        }else{
+          $('#select_mod_visibilidad option:eq(1)').prop('selected', true)
+        }
+
+        // Se agrega el action al form
+        $('#form_modificacion_modulo').attr('action', '/modificar_modulo/'+id_modulo);
+      });
+
+      $('.btn-agregar-archivo').click(function(){
+        const id_modulo = $(this).val();
+        $('#form_subir_archivo').attr('action', '/subir_documentacion_software/'+id_modulo);
+      });
+
+      $('.btn-eliminar-archivos-modulo').click(function(){
+        const id_modulo = $(this).val();
+        $('#form_eliminar_archivos_modulo').attr('action','/eliminar_archivos_modulo/'+id_modulo);
+      });
+
+    </script>
+
+
+    {% endblock %}

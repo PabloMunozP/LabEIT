@@ -1,16 +1,21 @@
-from flask import Flask,Blueprint,render_template,request,redirect,url_for,flash,session,jsonify,abort
-from werkzeug.utils import secure_filename
-from config import db,cursor
-import bcrypt
-import time
-from datetime import datetime,timedelta
 import os
-import json,requests,smtplib
-from flask_apscheduler import APScheduler
+import time
+import bcrypt
 from email import encoders
+from config import db,cursor
+import json,requests,smtplib
 from email.mime.base import MIMEBase
 from email.mime.text import MIMEText
+from datetime import datetime,timedelta
+from flask_apscheduler import APScheduler
+from werkzeug.utils import secure_filename
 from email.mime.multipart import MIMEMultipart
+from flask import Flask,Blueprint,render_template,request,redirect,url_for,flash,session,jsonify,abort
+
+def redirect_url(default='index'): # Redireccionamiento desde donde vino la request
+    return request.args.get('next') or \
+           request.referrer or \
+           url_for(default)
 
 def enviar_correo_notificacion(archivo,str_para,str_asunto,correo_usuario): # Envío de notificaciones vía correo electrónico
     # Se crea el mensaje
@@ -238,31 +243,41 @@ def revisar_18_30():
 
 # Define the WSGI application object
 app = Flask(__name__)
-app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
-app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 
 # Blueprints (Routes)
-from app.routes.rutas_seba import mod
+from app.routes.rutas_modulos_documentacion import mod
 from app.routes.rutas_gestion_usuarios import mod
 from app.routes.rutas_perfil import mod
 from app.routes.rutas_nico import mod
 from app.routes.rutas_lorenzo import mod
 from app.routes.rutas_cony import mod
-from app.routes.rutas_aux import mod
+from app.routes.rutas_solicitud_circuito import mod
+from app.routes.rutas_gestion_solicitudes import mod
+from app.routes.rutas_login import mod
+from app.routes.rutas_mensajes_administrativos import mod
+from app.routes.rutas_estadisticas_solicitudes import mod
 
-app.register_blueprint(routes.rutas_seba.mod)
+app.register_blueprint(routes.rutas_modulos_documentacion.mod)
 app.register_blueprint(routes.rutas_gestion_usuarios.mod)
 app.register_blueprint(routes.rutas_perfil.mod)
 app.register_blueprint(routes.rutas_nico.mod)
 app.register_blueprint(routes.rutas_lorenzo.mod)
 app.register_blueprint(routes.rutas_cony.mod)
-app.register_blueprint(routes.rutas_aux.mod)
+app.register_blueprint(routes.rutas_solicitud_circuito.mod)
+app.register_blueprint(routes.rutas_gestion_solicitudes.mod)
+app.register_blueprint(routes.rutas_login.mod)
+app.register_blueprint(routes.rutas_mensajes_administrativos.mod)
+app.register_blueprint(routes.rutas_estadisticas_solicitudes.mod)
 # Configurations
 app.config.from_object('config')
 
 # Sample HTTP error handling
 @app.errorhandler(404)
 def not_found(error):
+    return redirect("/")
+
+@app.errorhandler(413)
+def too_large_request(error):
     return redirect("/")
 
 @app.errorhandler(401)

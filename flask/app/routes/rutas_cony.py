@@ -104,9 +104,17 @@ def solicitudes_prestamos():
         equipo = cursor.fetchone()
         equipo["cantidad_pedidos"] = pedido[1]
         lista_carro.append(equipo)
+    
+    # Se obtienen los cursos registrados
+    query="""
+        SELECT Curso.id,Curso.codigo_udp,Curso.nombre
+            FROM Curso
+    """
+    cursor.execute(query)
+    lista_cursos = cursor.fetchall()
 
     return render_template("/solicitudes_prestamos/solicitud_equipos.html",
-        lista_equipos=lista_equipos,lista_carro=lista_carro)
+        lista_equipos=lista_equipos,lista_carro=lista_carro,lista_cursos=lista_cursos)
 
 @mod.route("/agregar_al_carro",methods=["POST"])
 def agregar_al_carro():
@@ -206,6 +214,17 @@ def registrar_solicitud():
             """
             for i in range(pedido[1]):
                 cursor.execute(sql_query,(id_solicitud,pedido[0]))
+        
+        # Se verifica si se seleccionaron cursos relacionados al pedido
+        lista_checkboxes = request.form.getlist("curso_relacionado")
+
+        # En caso de que existan cursos seleccionados, se enlazan a la solicitud
+        for id_curso in lista_checkboxes:
+            sql_query = """
+                INSERT INTO Solicitud_curso (id_solicitud,id_curso)
+                    VALUES (%s,%s)
+            """
+            cursor.execute(sql_query,(id_solicitud,id_curso))
 
     # Se vacía el carro de pedidos una vez registrada la solicitud completa
     session["carro_pedidos"] = []
@@ -299,7 +318,7 @@ def consultar_profesores():
     query = ('''
         SELECT *
             FROM Usuario
-            WHERE Usuario.id_credencial = 2
+            WHERE Usuario.id_credencial = 2 AND Usuario.activo = 1
     ''')
     cursor.execute(query)
     profesores = cursor.fetchall()
@@ -404,7 +423,6 @@ def editar_curso_form():
         return redirect("/")
     if request.method=='POST':
         val=request.form.to_dict()
-        print(val)
         query = ('''
             UPDATE Curso
             SET Curso.codigo_udp = %s,
@@ -485,11 +503,18 @@ def eliminar_curso_form():
     if request.method == 'POST':
         curso_por_eliminar = request.form.to_dict()
         eliminar_curso(curso_por_eliminar)
+
+        # Se eliminan las relaciones con solicitudes en caso de existir
+        sql_query = """
+            DELETE FROM Solicitud_curso
+                WHERE id_curso = %s
+        """
+        cursor.execute(sql_query,(curso_por_eliminar["id"],))
+
         flash("El curso fue eliminado correctamente")
         return redirect("/gestion_cursos")
 
 def eliminar_seccion(seccion):
-    print(seccion['id'])
     query1 = ('''
         DELETE Seccion_alumno FROM Seccion_alumno WHERE Seccion_alumno.id_seccion = %s
     ''')
@@ -583,7 +608,7 @@ def consultar_alumnos(id_seccion):
     query = ('''
         SELECT *
             FROM Usuario
-            WHERE Usuario.id_credencial = 1
+            WHERE Usuario.id_credencial = 1 AND Usuario.activo = 1
             AND Usuario.rut NOT IN (SELECT Seccion_alumno.rut_alumno FROM Seccion_alumno WHERE Seccion_alumno.id_seccion=%s)
     ''')
     cursor.execute(query,(id_seccion,))

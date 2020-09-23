@@ -1,0 +1,128 @@
+<div class="modal fade" id="TWWkWq" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-modal="true">
+    <div class="modal-dialog modal-lg" role="document">
+      <div class="modal-content">
+        <div class="modal-header bg-gris-eit">
+            <h5 class="modal-title text-white"><i class="fas fa-file-invoice mr-2"></i>Información detallada de la solicitud</h5>
+            <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close" style="outline:none;">
+              <span aria-hidden="true">×</span>
+            </button>
+        </div>
+        <div class="modal-body">
+
+
+            <div class="card border-1 rounded-0" style="border-color:#0db26b;">
+                <div class="card-header border-0 rounded-0" style="background:#0db26b;">
+                    <h5 class="card-title my-auto text-white"><i class="fas fa-file-invoice mr-2"></i>Información de la solicitud de préstamo</h5>
+                </div> 
+            </div>
+            <div class="card-body rounded-0" style="background:#ECF0F1;">
+				<div class="form-group row">
+					<label class="col-md-4 col-form-label texto-gris-eit">
+						<strong>ID de solicitud:</strong>
+					</label>
+					<div class="col-md-2">
+						<p class="form-control-plaintext text-break" id="XxxZQi"></p>
+                    </div>
+                    
+					<label class="col-md-4 col-form-label texto-gris-eit">
+						<strong>Fecha de registro:</strong>
+					</label>
+					<div class="col-md-2">
+						<p class="form-control-plaintext text-break" id="BcnEpp"></p>
+					</div>
+				</div>
+
+		
+            </div>
+    <div class="card-header border-0 rounded-0" style="background:#0db26b;">
+        <h5 class="card-title my-auto text-white"><i class="fas fa-user mr-2"></i>Información del solicitante</h5>
+    </div>
+    <div class="card-body rounded-0" style="background:#ECF0F1;">
+
+        <div class="form-group row">
+            <label class="col-md-4 col-form-label texto-gris-eit"><strong>RUT de alumno solicitante:</strong></label>
+            <div class="col-md-2">
+                <p class="form-control-plaintext text-break">
+                    <a title="Ver perfil del usuario" id="NtyAjT" style="text-decoration:none;"></a>
+                </p>
+            </div>
+            <label class="col-md-2 col-form-label texto-gris-eit">
+                <strong>Nombre:</strong>
+            </label>
+            <div class="col-md-4">
+                <p class="form-control-plaintext text-break" id="rJMzmU"></p>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-md-4 col-form-label texto-gris-eit">
+                <strong>Correo electrónico:</strong>
+            </label>
+            <div class="col-md-8">
+                <p class="form-control-plaintext text-break">
+                    <a href="" id="cwknpv"></a>
+                </p>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-md-4 col-form-label texto-gris-eit">
+                <strong>Curso motivo:</strong>
+            </label>
+            <div class="col-md-8"> 
+                <p class="form-control-plaintext text-break" id="Ujmppq"></p>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-md-4 col-form-label texto-gris-eit">
+                <strong>Razón:</strong>
+            </label>
+            <div class="col-md-8"> 
+                <p class="form-control-plaintext text-break" id="ZYwVDy"></p>
+            </div>
+        </div>
+
+    </div>
+<div class="card-header border-0 rounded-0" style="background:#0db26b;">
+    <h5 class="card-title my-auto text-white"><i class="fas fa-laptop mr-2"></i>Componentes solicitados</h5>
+</div>
+
+<div class="card-body rounded-0" style="background:#ECF0F1;">
+    <div id="table_TWWkWq">
+    </div>
+</div>
+    
+        </div>
+            <div class="modal-footer">
+            </div>
+      </div>
+    </div>
+</div>
+
+<script>
+    function TWWkWq(elemento){
+        $.ajax({
+            data : {
+                id_solicitud : elemento.id
+            },
+            type : 'POST',
+            url : '/gestion_solicitudes_prestamos_circuitos/consultar_tabla_solicitud'
+          })
+          .done(function(data){
+
+            if(data.error){
+              console.log('error');
+            }
+            else{
+                $("#table_TWWkWq").html(data);
+            }
+
+          });
+        document.getElementById("XxxZQi").textContent = elemento.id;
+        document.getElementById("BcnEpp").textContent = elemento.fecha_registro;
+        document.getElementById("NtyAjT").textContent = elemento.rut_alumno;
+        document.getElementById("rJMzmU").textContent = elemento.nombre;
+        document.getElementById("cwknpv").textContent = elemento.email;
+        document.getElementById("Ujmppq").textContent = elemento.curso_motivo;
+        document.getElementById("ZYwVDy").textContent = elemento.motivo;
+        $('#TWWkWq').modal('show');
+    }
+</script>

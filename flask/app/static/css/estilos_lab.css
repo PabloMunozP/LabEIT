@@ -86,8 +86,8 @@
 
 /* ****************************** */
 #body-login{
-	background-color: #6DB3F2;
-	background:url(../../static/imgs/background_login.jpg) no-repeat !important;
+  background-color: #6DB3F2;
+	background:url(../../static/imgs/background_login.jpg) !important;
 }
 .footer-login {
   position: absolute;

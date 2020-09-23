@@ -1,47 +1,46 @@
-{%extends "layout_in.html" %}
-{% block body %}
-
-{% include "/wishlist/modals/mi_wishlist.html" %}
+{%extends "layout_in.html" %} {% block body %} {% include "/wishlist/modals/mi_wishlist.html" %}
 
 <div class="container-fluid mt-2">
 
-  <div class="card-header mt-4" style="background:#0db26b;">
-  	<h5 class="card-title text-white my-auto">Sugerencias de equipos</h5>
-  	<p class="text-white my-auto mt-1"><i class="fas fa-info-circle mr-2"></i>En esta sección podrás realizar sugerencias a la coordinación del laboratorio, acerca de equipos que podrían ser útiles para tu desarrollo personal y/o académico.</p>
-    <button type="button" class="btn btn-sm btn-secondary mt-2" data-toggle="modal"
-        data-target="#mi_wishlist">Revisar mi wishlist
-    </button>
-  </div>
+    {% with msgs = get_flashed_messages() %} {% if msgs %} {% for msg in msgs %}
+    {% if msg == "solicitud-registrada" %}
+    <div class="alert alert-success mt-2 alert-dismissible fade show" role="alert">
+        <i class="fas fa-check-circle mr-2"></i>Tu solicitud de Wishlist ha sido registrada correctamente.
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    {% elif msg == "solicitud-cancelada" %}
+    <div class="alert alert-success mt-2 alert-dismissible fade show" role="alert">
+        <i class="fas fa-check-circle mr-2"></i>Tu solicitud de Wishlist se ha cancelado correctamente.
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    {% endif %} {%endfor%} {%endif%} {%endwith%}
 
-  {% with msgs = get_flashed_messages() %}
-    {% if msgs %}
-      {% for msg in msgs %}
-        {% if msg == "solicitud-registrada" %}
-          <div class="alert alert-success mt-2 alert-dismissible fade show" role="alert">
-              <i class="fas fa-check-circle mr-2"></i>Tu solicitud de Wishlist ha sido registrada correctamente.
-              <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                  <span aria-hidden="true">&times;</span>
-              </button>
-          </div>
-        {% endif %}
-      {%endfor%}
-    {%endif%}
-  {%endwith%}
+    <div class="card-header mt-4" style="background:#0db26b;">
+        <h5 class="card-title text-white my-auto">Sugerencias de equipos</h5>
+        <p class="text-white my-auto mt-1"><i class="fas fa-info-circle mr-2"></i>En esta sección podrás realizar
+            sugerencias a la coordinación del laboratorio, acerca de equipos que podrían ser útiles para tu desarrollo
+            personal y/o académico.</p>
+        <button type="button" class="btn btn-sm btn-secondary mt-2" data-toggle="modal"
+            data-target="#mi_wishlist">Revisar mi wishlist
+        </button>
+    </div>
 
-      <form action="#" method="post">
+    <form id="form1" action="/wishlist_usuario" method="post" enctype="multipart/form-data">
 
         <div class="card mt-2">
             <div class="card-header" style="background:#4D4D4D;" id="headingOne">
                 <h5 class="mb-0">
-                    <button type="button" class="btn btn-link" style="text-decoration:none"
-                        data-toggle="collapse" data-target="#collapseOne" aria-expanded="false"
-                        aria-controls="collapseOne">
+                    <button type="button" class="btn btn-link" style="text-decoration:none" data-toggle="collapse"
+                        data-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
                         <h5 class="text-center text-white my-auto">Datos del equipo</h5>
                     </button>
                 </h5>
             </div>
-            <div id="collapseOne" class="collapse show" aria-labelledby="headingOne"
-                data-parent="#accordion">
+            <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordion">
                 <div class="card-body">
                     <div class="form-group">
                         <label for="nombreEquipoWishlist">Nombre</label>
@@ -85,27 +84,58 @@
                 <div class="card-body">
                     <fieldset class="form-group">
                         <div class="row">
-                          <div class="col-4">
-                            <legend class="col-form-label">Motivo de solicitud:</legend>
-                          </div>
+                            <div class="col-4">
+                                <legend class="col-form-label">Motivo de solicitud:</legend>
+                            </div>
                             <div class="col-8">
                                 <div class="form-check">
-                                    <input onclick="close()" class="form-check-input" type="radio"
-                                        name="motivo" id="gridRadios1" value=0 required>
+                                    <input onclick="closemotivo()" class="form-check-input" type="radio" name="motivo"
+                                        id="gridRadios1" value=0 required>
                                     <label class="form-check-label" for="opcion1">
-                                        Personal
+                                        Proyecto personal
                                     </label>
                                     <div id="ramos"></div>
                                 </div>
                                 <div class="form-check">
-                                    <input onclick="asignaturas()" class="form-check-input" type="radio"
-                                        name="motivo" id="gridRadios2" value=1 required>
+                                    <input onclick="openmotivo()" class="form-check-input" type="radio" name="motivo"
+                                        id="gridRadios2" value=1 required>
                                     <label class="form-check-label" for="opcion2">
-                                        Académico
+                                        Proyecto académico
                                     </label>
                                 </div>
                             </div>
                         </div>
+                        <div id="mostrar_cursos" style="margin-top: 10px;"></div>
+                    </fieldset>
+                    <fieldset class="form-group">
+                        <div class="row">
+                            <div class="col-4">
+                                <legend class="col-form-label">¿Posees cotización de la empresa para adjuntar?</legend>
+                                <small style="margin-bottom: 5px;" class="form-text text-muted">
+                                    Debes considerar que a medida que más entregues información, es más probable que la
+                                    escuela acepte tu solicitud.
+                                    Esta cotización debe estar en formato .pdf y no debe superar los 10 MB.
+                                </small>
+                            </div>
+                            <div class="col-8">
+                                <div class="form-check">
+                                    <input onclick="closecheck()" class="form-check-input" type="radio" name="adjuntar"
+                                        id="gridRadios3" value=0 required>
+                                    <label class="form-check-label" for="opcion1">
+                                        No
+                                    </label>
+                                    <div id="ramos"></div>
+                                </div>
+                                <div class="form-check">
+                                    <input onclick="opencheck()" class="form-check-input" type="radio" name="adjuntar"
+                                        id="gridRadios4" value=1 required>
+                                    <label class="form-check-label" for="opcion2">
+                                        Si
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="documento" style="margin-top: 10px;"></div>
                     </fieldset>
                 </div>
             </div>
@@ -121,21 +151,37 @@
                     </button>
                 </h5>
             </div>
-            <div id="collapseThree" class="collapse" aria-labelledby="headingThree"
-                data-parent="#accordion">
+            <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#accordion">
                 <div class="card-body">
                     <div class="form-group">
+                        <div style="margin-bottom: 10px;">
+                            <h5 class="card-title my-auto">En la presente sección te pedimos que adjuntes links de
+                                la venta del equipo que te gustaría solicitar.</h5>
+                        </div>
+                        <div style="margin-bottom: 10px;">
+                            <p class="my-auto mt-1"><i class="fas fa-info-circle mr-2"></i>Es requisito fundamental que
+                                el
+                                link redirija a un sitio web <b>chileno</b> que muestre el precio
+                                del equipo.</p>
+                            <p class="my-auto mt-1"><i class="fas fa-info-circle mr-2"></i>Recuerda que el aporte de
+                                información es importante para que la escuela pueda
+                                aceptar tu solicitud, y es por ello que se permite adjuntar hasta un máximo de {{ cantidad_links }} links.
+                            </p>
+                        </div>
                         <label for="url">URL:</label>
                         <div class="field_wrapper">
                             <div class="input-group">
-                                <input name="url[0]" type="url" class="form-control" id="url"
-                                    aria-describedby="ejemploUrl" style=" width: 850px;" required>
+                                <input name="url[0]" type="url" class="form-control" aria-describedby="ejemploUrl"
+                                    style=" width: 850px;" required>
                                 <a href="javascript:void(0);" style="height: 36px;" class="add_button"
-                                    title="Añadir URL"><i style="color: green;" class="btn fa fa-plus-circle mr-2"></i></a>
+                                    title="Añadir URL"><i style="color: green;"
+                                        class="btn fa fa-plus-circle mr-2"></i></a>
+                                <div id="hiddeninput"></div>
                             </div>
                             <small style="margin-bottom: 5px;" id="ejemploUrl" class="form-text text-muted">
                                 Por ejemplo:
-                                https://www.mcielectronics.cl/shop/product/arduino-uno-wifi-r2-28297
+                                <a href="https://www.mcielectronics.cl/shop/product/arduino-uno-wifi-r2-28297"
+                                    target="_blank">https://www.mcielectronics.cl/shop/product/arduino-uno-wifi-r2-28297</a>
                             </small>
                         </div>
                     </div>
@@ -144,52 +190,99 @@
         </div>
 
         <div class="row mt-2">
-          <div class="col text-center">
-            <button type="submit" class="btn btn-success">Enviar formulario</button>
-          </div>
+            <div class="col text-center">
+                <button type="submit" onclick="addHidden()" class="btn btn-success">Enviar formulario</button>
+            </div>
         </div>
 
-      </form>
+    </form>
 
-      <div class="tab-content" id="nav-tabContent">
-          <div class="card-header mt-4" style="background:#0db26b;">
-              <h5 class="card-title text-white my-auto">Wishlist de LabEIT UDP</h5>
-              <p class="text-white my-auto"><i class="fas fa-info-circle mr-2"></i>La siguiente lista muestra las últimas
-                  solicitudes de Wishlist hechas por alumnos de la escuela y que han sido aceptadas.</p>
-          </div>
-          {% include "/wishlist/user_wishlist_tabla.html" %}
-      </div>
+    <div class="tab-content" id="nav-tabContent">
+        <div class="card-header mt-4" style="background:#0db26b;">
+            <h5 class="card-title text-white my-auto">Wishlist de LabEIT UDP</h5>
+            <p class="text-white my-auto"><i class="fas fa-info-circle mr-2"></i>La siguiente lista muestra las últimas
+                solicitudes de Wishlist hechas por alumnos de la escuela y que han sido aceptadas.</p>
+        </div>
+        {% include "/wishlist/user_wishlist_tabla.html" %}
+    </div>
 
 
-  </div>
+</div>
 
-  <div id="accordion"></div>
+<div id="accordion"></div>
 
 
 <script type="text/javascript">
-    $(document).ready(function () {
-        var maxField = 10; //Input fields increment limitation
-        var addButton = $('.add_button'); //Add button selector
-        var wrapper = $('.field_wrapper'); //Input field wrapper
-        var fieldHTML = '<div class="form-group"><div class="input-group"><input name="url[';
-        var x = 1; //Initial field counter is 1
-        //Once add button is clicked
-        $(addButton).click(function () {
-            //Check maximum number of input fields
-            if (x < maxField) {
-                x++; //Increment field counter
-                index = x-1
-                $(wrapper).append(fieldHTML+index.toString()+']" type="url" class="form-control" id="url" aria-describedby="ejemploUrl" style=" width: 850px; margin-top: 5px;" required><a href="javascript:void(0);" style="height: 36px;" class="remove_button" title="Eliminar URL"><i style="color: red;" class="btn fa fa-minus-circle mr-2"></i></a></div></div>'); //Add field html
-            }
-        });
 
-        //Once remove button is clicked
-        $(wrapper).on('click', '.remove_button', function (e) {
-            e.preventDefault();
-            $(this).parent('div').remove(); //Remove field html
-            x--; //Decrement field counter
-        });
+    var index = 0;
+
+    function addHidden() {
+        document.getElementById('hiddeninput').innerHTML = '<input name="index" type="hidden" value='+index+'>';
+    }
+
+    $(document).ready(function () {
+    var maxField = {{ cantidad_links }}; //Input fields increment limitation
+    var addButton = $('.add_button'); //Add button selector
+    var wrapper = $('.field_wrapper'); //Input field wrapper
+    var fieldHTML = '<div class="input-group"><input name="url[';
+    var fieldHTML2 = ']" type="url" class="form-control" aria-describedby="ejemploUrl" style=" width: 850px; margin-top: 5px;" required>';
+    var button = '<a href="javascript:void(0);" style="height: 36px;" class="remove_button" title="Eliminar URL"><i style="color: red;" class="btn fa fa-minus-circle mr-2"></i></a></div>';
+    var x = 1; //Initial field counter is 0
+    //Once add button is clicked
+    $(addButton).click(function () {
+        //Check maximum number of input fields
+        if (x < maxField) {
+            x++; //Increment field counter
+            index++;
+            $(wrapper).append(fieldHTML + index.toString() + fieldHTML2 + button); //Add field html
+        }
     });
+    //Once remove button is clicked
+    $(wrapper).on('click', '.remove_button', function (e) {
+        e.preventDefault();
+        $(this).parent('div').remove(); //Remove field html
+        x--; //Decrement field counter
+        index++;
+    });
+    });
+</script>
+
+<script>
+    function opencheck() {
+        document.getElementById("documento").innerHTML = '<label for="documento"><b>Archiva tu cotización aquí:</b></label> \
+                                                        <input type="file" oninput="file_size(this);" class="form-control-file" name="cotizacion" id="cotizacion" lang="es" accept="application/pdf" value=1 required>';
+    }
+
+    function closecheck() {
+        document.getElementById("documento").innerHTML = '<fieldset name="cotizacion" value=0></fieldset>';
+    }
+
+    function openmotivo() {
+        document.getElementById("mostrar_cursos").innerHTML = '<div class="col-4"> \
+                                                                    <legend class="col-form-label">Selecciona el curso asociado:</legend> \
+                                                               </div> \
+                                                               <fieldset class="form-group"> \
+                                                               {% if cursos %} \
+                                                               <select class="custom-select" size="5" name="id" required> \
+                                                               {% for curso in cursos %} \
+                                                                    <option value="{{curso["id"]}}">{{curso["codigo_udp"]}} {{curso["nombre"]}}</option> \
+                                                               {% endfor %} \
+                                                               </select> \
+                                                               {% endif %} \
+                                                               </fieldset>';
+    }
+
+    function closemotivo() {
+        document.getElementById("mostrar_cursos").innerHTML = '<fieldset name="id" value=""> \
+                                                               </fieldset>';
+    }
+
+    function file_size(elem) {
+        if (elem.files[0].size > 10000000) {
+            alert("El tamaño del archivo supera los 10MB.");
+            document.getElementById("cotizacion").value = "0";
+        }
+    }
 </script>
 
 {% endblock %}

@@ -1,0 +1,407 @@
+{% extends "layout_in.html" %}
+	{%block body%}
+
+	<div class="container-fluid">
+		<div class="card-header mt-4" style="background:#0db26b;">
+			<h5 class="card-title text-white my-auto"><i class="fas fa-chart-pie mr-2"></i>Estadísticas de solicitudes de préstamos</h5>
+		</div>
+
+		<div class="row mt-2">
+			<div class="col-md-6">
+				<ul class="list-group">
+				  <li class="list-group-item d-flex justify-content-between align-items-center">
+				    Solicitudes entrantes (por revisar)
+				    <span class="badge badge-secondary badge-pill">{{cantidades_solicitudes_estados["solicitudes_entrantes"]}}</span>
+				  </li>
+				  <li class="list-group-item d-flex justify-content-between align-items-center">
+						Retiros pendientes de solicitudes aprobadas
+				    <span class="badge badge-secondary badge-pill">{{cantidades_solicitudes_estados["retiros_pendientes"]}}</span>
+				  </li>
+				  <li class="list-group-item d-flex justify-content-between align-items-center">
+				    Préstamos activos (en posesión)
+				    <span class="badge badge-secondary badge-pill">{{cantidades_solicitudes_estados["en_posesion"]}}</span>
+				  </li>
+				</ul>
+			</div>
+			<div class="col-md-6">
+				<ul class="list-group">
+				  <li class="list-group-item d-flex justify-content-between align-items-center">
+						Préstamos con atraso
+				    <span class="badge badge-secondary badge-pill">{{cantidades_solicitudes_estados["con_atrasos"]}}</span>
+				  </li>
+				  <li class="list-group-item d-flex justify-content-between align-items-center">
+				    Préstamos finalizados
+				    <span class="badge badge-secondary badge-pill">{{cantidades_solicitudes_estados["finalizados"]}}</span>
+				  </li>
+				  <li class="list-group-item d-flex justify-content-between align-items-center">
+				    Solicitudes rechazadas y canceladas
+				    <span class="badge badge-secondary badge-pill">{{cantidades_solicitudes_estados["rechazadas_canceladas"]}}</span>
+				  </li>
+				</ul>
+			</div>
+		</div>
+
+		<div class="card-header mt-4" style="background:#0db26b;">
+			<h5 class="card-title text-white my-auto"><i class="fas fa-chalkboard-teacher mr-2"></i>Asignaturas asociadas a solicitudes de préstamos</h5>
+		</div>
+
+		{% if lista_asignaturas_asociadas %}
+		<div class="table-responsive mt-2">
+			<div class="table-wrapper-scroll-y" style="position: relative; overflow:auto;">
+					<table class="table" id="tabla_asignaturas_asociadas">
+						<thead class="text-white" style="background:#4D4D4D;">
+							<tr>
+								<th scope="col">Código de asignatura</th>
+								<th scope="col">Nombre de la asignatura</th>
+								<th scope="col" class="text-center">Cantidad asociada</th>
+							</tr>
+						</thead>
+						<tbody>
+							{% for curso in lista_asignaturas_asociadas %}
+								<tr style="background:#ECF0F1;">
+										<td>{{curso["codigo_udp"]}}</td>
+										<td>{{curso["nombre"]}}</td>
+										<td class="text-center">{{curso["cantidad_asociaciones"]}}</td>
+								</tr>
+							{% endfor %}
+						</tbody>
+					</table>
+				</div>
+			</div>
+		{% else %}
+			<div class="alert alert-warning alert-dismissible fade show text-center mt-2" role="alert">
+				<i class="fas fa-exclamation-triangle mr-2"></i>No se han encontrado solicitudes de préstamo con asignaturas asociadas.
+			</div>
+		{% endif %}
+
+		<hr>
+
+		<div class="card mt-4 border-0" style="background:#ECF0F1;">
+			<div class="card-body">
+
+				<form id="formulario-consulta-equipos-solicitados">
+					<div class="row mb-3">
+						<div class="col">
+							<i class="fas fa-info-circle mr-2"></i>Revisar equipos solicitados según la fecha de registro de la solicitud.
+						</div>
+					</div>
+					<div class="row">
+						<div class="col">
+							<div class="input-group mb-3">
+							  <div class="input-group-prepend">
+							    <span class="input-group-text">Desde</span>
+							  </div>
+							  <input type="date" required class="form-control" name="limite_inferior" id="fecha_desde_equipos_solicitados">
+							</div>
+						</div>
+						<div class="col">
+							<div class="input-group mb-3">
+							  <div class="input-group-prepend">
+							    <span class="input-group-text">Hasta</span>
+							  </div>
+							  <input type="date" required class="form-control input_fecha_hasta" name="limite_superior" id="fecha_hasta_equipos_solicitados">
+							</div>
+						</div>
+					</div>
+
+					{% if lista_asignaturas_asociadas %}
+						<div class="row">
+							<div class="col">
+								<div class="input-group mb-3">
+									<div class="input-group-prepend">
+										<span class="input-group-text">Filtrar por asignaturas asociadas (opcional)</span>
+									</div>
+									<select class="custom-select" id="select_asignaturas_asociadas_c1" multiple="multiple">
+										{% for asignatura in lista_asignaturas_asociadas %}
+											<option title="{{asignatura["nombre"]}}" value="{{asignatura["id"]}}">{{asignatura["nombre"]}}</option>
+										{% endfor %}
+									</select>
+								</div>
+								<small class="form-text text-muted mb-3">* El filtrado por asignaturas se realiza mediante la unión de estas, no así con la intersección.</small>
+							</div>
+						</div>
+					{% else %}
+						<div class="alert alert-info alert-dismissible fade show" role="alert">
+							<i class="fas fa-info-circle mr-2"></i>El filtro de asignaturas se encuentra deshabilitado debido a que no se han encontrado registros.
+							<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+								<span aria-hidden="true">&times;</span>
+							</button>
+						</div>
+					{% endif %}
+
+					<div class="row">
+						<div class="col text-center">
+							<button type="submit" id="boton-consulta-equipos-solicitados" class="btn btn-verde-eit btn-consulta-estadisticas">Consultar</button>
+						</div>
+					</div>
+
+					<div id="fila_boton_eliminar_grafico_1" hidden class="row my-auto">
+						<div class="col mt-2 text-right">
+							<button type="button" id="boton_eliminacion_grafico_1" class="btn btn-sm btn-danger">Borrar gráfico</button>
+						</div>
+					</div>
+				</form>
+
+				<div id="seccion_consulta_1" class="mt-3 text-center">
+					<div id="notificacion_consulta_cantidad_equipos_solicitados" hidden class="alert alert-warning alert-dismissible fade show text-center mt-2" role="alert">
+						<i class="fas fa-exclamation-triangle mr-2"></i>No se han encontrado resultados según las fechas seleccionadas.
+					</div>
+					<div id="seccion_grafico_1"></div>
+				</div>
+
+
+			</div>
+			<div class="card-body" style="background:#fff;">
+			</div>
+		</div>
+
+		<div class="card border-0" style="background:#ECF0F1;">
+			<div class="card-body">
+				<form id="formulario-consulta-2">
+					<div class="row mb-3">
+						<div class="col">
+							<i class="fas fa-info-circle mr-2"></i>Revisar equipos y estados de solicitudes según la fecha de registro de la solicitud.
+						</div>
+					</div>
+					<div class="row">
+						<div class="col">
+							<div class="input-group mb-3">
+								<div class="input-group-prepend">
+									<span class="input-group-text">Desde</span>
+								</div>
+								<input type="date" required class="form-control" name="limite_inferior" id="fecha_desde_consulta_2">
+							</div>
+						</div>
+						<div class="col">
+							<div class="input-group mb-3">
+								<div class="input-group-prepend">
+									<span class="input-group-text">Hasta</span>
+								</div>
+								<input type="date" required class="form-control input_fecha_hasta" name="limite_superior" id="fecha_hasta_consulta_2">
+							</div>
+						</div>
+					</div>
+
+
+					{% if lista_asignaturas_asociadas %}
+						<div class="row">
+							<div class="col">
+								<div class="input-group mb-3">
+									<div class="input-group-prepend">
+										<span class="input-group-text">Filtrar por asignaturas asociadas (opcional)</span>
+									</div>
+									<select class="custom-select" id="select_asignaturas_asociadas_c2" multiple="multiple">
+										{% for asignatura in lista_asignaturas_asociadas %}
+											<option title="{{asignatura["nombre"]}}" value="{{asignatura["id"]}}">{{asignatura["nombre"]}}</option>
+										{% endfor %}
+									</select>
+								</div>
+								<small class="form-text text-muted mb-3">* El filtrado por asignaturas se realiza mediante la unión de estas, no así con la intersección.</small>
+							</div>
+						</div>
+					{% else %}
+						<div class="alert alert-info alert-dismissible fade show" role="alert">
+							<i class="fas fa-info-circle mr-2"></i>El filtro de asignaturas se encuentra deshabilitado debido a que no se han encontrado registros.
+							<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+								<span aria-hidden="true">&times;</span>
+							</button>
+						</div>
+					{% endif %}
+
+					<div class="row">
+						<div class="col text-center">
+							<button type="submit" id="boton-consulta-2" class="btn btn-verde-eit btn-consulta-estadisticas">Consultar</button>
+						</div>
+					</div>
+
+					<div id="fila_boton_eliminar_grafico_2" hidden class="row my-auto">
+						<div class="col mt-2 text-right">
+							<button type="button" id="boton_eliminacion_grafico_2" class="btn btn-sm btn-danger">Borrar gráfico</button>
+						</div>
+					</div>
+
+				</form>
+
+				<div id="seccion_consulta_2" class="mt-3 text-center">
+					<div id="notificacion_consulta_2" hidden class="alert alert-warning alert-dismissible fade show text-center mt-2" role="alert">
+						<i class="fas fa-exclamation-triangle mr-2"></i>No se han encontrado resultados según las fechas seleccionadas.
+					</div>
+					<div id="seccion_grafico_2"></div>
+				</div>
+
+			</div>
+		</div>
+
+		<script type="text/javascript">
+
+			$("#formulario-consulta-equipos-solicitados").on("submit",function(event){
+						var elements = this.elements; // Elementos HTML del form
+						let limite_inferior = elements[0].value;
+						let limite_superior = elements[1].value;
+
+						// Se obtienen las asignaturas asociadas seleccionadas
+						var ids_asignaturas_filtro = [];
+						$('#select_asignaturas_asociadas_c1 option:selected').each(function(){ ids_asignaturas_filtro.push($(this).val()); });
+
+						if(limite_inferior > limite_superior){
+							alert("La fecha de inicio seleccionada debe ser menor a la fecha de término.");
+					    return false;
+						}
+
+						// Se verifica que el intervalo de fechas no sea mayor a 1 mes
+						var fecha_limite_inferior = new Date(limite_inferior);
+						var fecha_limite_superior = new Date(limite_superior);
+						var diffTiempo = Math.abs(fecha_limite_superior-fecha_limite_inferior);
+						var diffDias = Math.ceil(diffTiempo / (1000*60*60*24))
+
+						if(diffDias > 31){
+							alert("La diferencia entre las fechas seleccionadas no debe superar los 31 días.");
+							$("#fecha_desde_equipos_solicitados").val("");
+							$("#fecha_hasta_equipos_solicitados").val("");
+							return false;
+						}
+
+						// Se desactiva el botón submit
+						$(".btn-consulta-estadisticas").prop('disabled', true);
+						$.ajax({
+								data: {
+									limite_inferior: limite_inferior,
+									limite_superior: limite_superior,
+									ids_asignaturas_filtro: JSON.stringify(ids_asignaturas_filtro),
+									id_consulta: 1
+								},
+								type: "POST",
+								url: "/consultar_estadisticas_solicitudes"
+						})
+						 .done(function(data){
+							 $(".btn-consulta-estadisticas").prop('disabled', false);
+							 // Se verifica que existan resultados
+							 // En caso de que existan, se crea el gráfico
+							 // En caso contrario, se activa la notificación
+							 if(!data.length){
+								 $("#fecha_desde_equipos_solicitados").val("");
+			 					 $("#fecha_hasta_equipos_solicitados").val("");
+								 $("#fila_boton_eliminar_grafico_1").prop("hidden",true);
+								 $("#seccion_grafico_1").prop("hidden",true);
+								 $("#notificacion_consulta_cantidad_equipos_solicitados").prop("hidden",false);
+								 return;
+							 }
+							 $("#fila_boton_eliminar_grafico_1").prop("hidden",false);
+							 $("#seccion_grafico_1").prop("hidden",false);
+							 $("#notificacion_consulta_cantidad_equipos_solicitados").prop("hidden",true);
+							 $("#seccion_consulta_1").prop("hidden",false);
+							 $("#seccion_grafico_1").empty();
+							 google.charts.load("current", {packages:['corechart']});
+    			 		 google.charts.setOnLoadCallback(function(){
+								 drawChart(data);
+							 });
+
+							 function drawChart(resultados) {
+								 var data_grafico = google.visualization.arrayToDataTable(resultados);
+								 var titulo_grafico = "Equipos solicitados entre los días "+limite_inferior+" y "+limite_superior+"";
+								 var options = {
+										title: titulo_grafico,
+										height: 450,
+										legend: { position: 'none'},
+										bar: { groupWidth: '75%' },
+										isStacked: true,
+									};
+								 var chart = new google.visualization.ColumnChart(document.getElementById('seccion_grafico_1'));
+								 chart.draw(data_grafico, options);
+						  }
+						 });
+						event.preventDefault();
+				});
+
+				$("#boton_eliminacion_grafico_1").on("click",function(){
+					$("#seccion_grafico_1").empty();
+					$("#fila_boton_eliminar_grafico_1").prop("hidden",true);
+					$("#fecha_desde_equipos_solicitados").val("");
+					$("#fecha_hasta_equipos_solicitados").val("");
+				});
+
+
+				// Consulta 2
+				$("#formulario-consulta-2").on("submit",function(event){
+							var elements = this.elements; // Elementos HTML del form
+							let limite_inferior = elements[0].value;
+							let limite_superior = elements[1].value;
+
+							// Se obtienen las asignaturas asociadas seleccionadas
+						var ids_asignaturas_filtro = [];
+						$('#select_asignaturas_asociadas_c2 option:selected').each(function(){ ids_asignaturas_filtro.push($(this).val()); });
+
+							if(limite_inferior > limite_superior){
+								alert("La fecha de inicio seleccionada debe ser menor a la fecha de término.");
+						    return false;
+							}
+
+							// Se desactiva el botón submit
+							$(".btn-consulta-estadisticas").prop('disabled', true);
+							$.ajax({
+									data: {
+										limite_inferior: limite_inferior,
+										limite_superior: limite_superior,
+										ids_asignaturas_filtro: JSON.stringify(ids_asignaturas_filtro),
+										id_consulta: 2
+									},
+									type: "POST",
+									url: "/consultar_estadisticas_solicitudes"
+							})
+							 .done(function(data){
+								 $(".btn-consulta-estadisticas").prop('disabled', false);
+								 // Se verifica que existan resultados
+								 // En caso de que existan, se crea el gráfico
+								 // En caso contrario, se activa la notificación
+								 if(!data.length){
+									 $("#fecha_desde_consulta_2").val("");
+				 					 $("#fecha_hasta_consulta_2").val("");
+									 $("#fila_boton_eliminar_grafico_2").prop("hidden",true);
+									 $("#seccion_grafico_2").prop("hidden",true);
+									 $("#notificacion_consulta_2").prop("hidden",false);
+									 return;
+								 }
+								 $("#fila_boton_eliminar_grafico_2").prop("hidden",false);
+								 $("#seccion_grafico_2").prop("hidden",false);
+								 $("#notificacion_consulta_2").prop("hidden",true);
+								 $("#seccion_consulta_2").prop("hidden",false);
+								 $("#seccion_grafico_2").empty();
+
+								 // Creación del gráfico
+								 google.charts.load("current", {packages:['corechart']});
+    				 		 google.charts.setOnLoadCallback(function(){
+									 drawChart(data);
+								 });
+
+								 function drawChart(resultados){
+									 var data_grafico = google.visualization.arrayToDataTable(resultados);
+									 var titulo_grafico = "Cantidad de equipos por estado de solicitudes registradas entre "+limite_inferior+" y "+limite_superior+"";
+									 var options = {
+										 	title: titulo_grafico,
+							        height: 450,
+							        legend: { position: 'none' },
+							        bar: { groupWidth: '75%' },
+							        isStacked: true,
+							      };
+									 var chart = new google.visualization.ColumnChart(document.getElementById('seccion_grafico_2'));
+             			 chart.draw(data_grafico, options);
+
+								 }
+
+							 });
+							 event.preventDefault();
+				});
+
+				$("#boton_eliminacion_grafico_2").on("click",function(){
+					$("#seccion_grafico_2").empty();
+					$("#fila_boton_eliminar_grafico_2").prop("hidden",true);
+					$("#fecha_desde_consulta_2").val("");
+					$("#fecha_hasta_consulta_2").val("");
+				});
+
+		</script>
+
+	</div>
+
+
+	{% endblock %}

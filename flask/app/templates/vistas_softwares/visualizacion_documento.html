@@ -1,0 +1,30 @@
+{% extends "layout_in.html"%}
+    {%block body%}
+
+    <div class="container-fluid mt-2">
+
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="/documentacion_softwares">Documentacion de softwares</a></li>
+          <li class="breadcrumb-item active text-truncate" title="{{datos_archivo["nombre"]}}" aria-current="page">Visualización de documento: <strong>{{datos_archivo["nombre"]}}</strong></li>
+        </ol>
+      </nav>
+
+      <div class="card-header mt-4" style="background:#0db26b;">
+        <h5 class="card-title text-white my-auto"><i class="fas fa-file-alt mr-2"></i>Visualización de documento</h5>
+      </div>
+      <div class="card-body" style="background:#ECF0F1;">
+        {% if datos_archivo["extension"] in ['.doc','.docx','.xls','.xlsx', '.ppt', '.pptx'] %}
+          <div class="d-flex my-auto justify-content-center">
+            <p><i class="fas fa-info-circle mr-1"></i>El archivo no se puede visualizar debido a su extensión. De todos modos, puedes <a href="/descargar_archivo_documentacion/{{datos_archivo["id"]}}">descargarlo aquí.</a></p>
+          </div>
+        {% endif %}
+        {% if datos_archivo["extension"] not in ['.doc','.docx','.xls','.xlsx', '.ppt', '.pptx'] %}
+          <div class="embed-responsive embed-responsive-21by9">
+              <iframe class="embed-responsive-item" src="{{ url_for('static', filename='../static/files/documentacion_softwares/'+datos_archivo['nombre_carpeta']+'/'+datos_archivo['nombre'])}}"></iframe>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
+    {%endblock%}
