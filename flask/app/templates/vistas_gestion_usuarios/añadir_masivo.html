@@ -2,7 +2,7 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header bg-gris-eit">
-                <h5 class="modal-title text-white" id="editar_informacion_label"><i class="fas fa-user-edit mr-2"></i>Carga masiva</h5>
+                <h5 class="modal-title text-white" id="editar_informacion_label"><i class="fas fa-user-edit mr-2"></i>Carga masiva alumnos</h5>
                 <button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar">
                 <span aria-hidden="true">&times; </span>
                 </button>
@@ -10,7 +10,12 @@
             <div class="modal-body">
                 <h6 class="modal-title text-black">Importar usuarios</h6>
                 <form action="/gestion_usuarios/anadir_masivo" method="POST" enctype="multipart/form-data">
-                    <p>Recuerde el formato de este archivo y su extension (.csv). ¿No conoces el formato? Haz click <a href=""> aqui.</a></p>
+                    <p>Recuerde el formato de este archivo y su extension (.csv). ¿No conoces el formato? Haz click <a href="#formato_csv" data-toggle="collapse" > <strong> aquí.</strong></a></p>
+                    <div id="formato_csv" class="collapse">
+                        <p> Para obtener de forma más sencilla la lista de los alumnos a ingresar se sugiere exportar los datos desde Canvas, para esto deberá dirigirse al apartado 'Calificaciones' y exportar en formato CSV.
+                            Una vez que haya descargado deberá modificar algunas de sus columnas, ya que el sistema Canvas da más información de la necesitada para el registro de usuarios, 
+                            será necesario solo dejar las columnas con los nombres “Student, SIS User ID,SIS Login ID” que representan los nombres, Rut y correo respectivamente de cada alumno.</p>                    
+                    </div>
                     <div class="custom-file">
                         <input type="file" class ="custom-file-input" id="CSV" name="file" accept=".csv">
                         <label for="CSV" class="custom-file-label"> Elige un archivo</label>

@@ -243,7 +243,7 @@ app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 
 # Blueprints (Routes)
 from app.routes.rutas_seba import mod
-from app.routes.rutas_pablo import mod
+from app.routes.rutas_gestion_usuarios import mod
 from app.routes.rutas_perfil import mod
 from app.routes.rutas_nico import mod
 from app.routes.rutas_lorenzo import mod
@@ -251,7 +251,7 @@ from app.routes.rutas_cony import mod
 from app.routes.rutas_aux import mod
 
 app.register_blueprint(routes.rutas_seba.mod)
-app.register_blueprint(routes.rutas_pablo.mod)
+app.register_blueprint(routes.rutas_gestion_usuarios.mod)
 app.register_blueprint(routes.rutas_perfil.mod)
 app.register_blueprint(routes.rutas_nico.mod)
 app.register_blueprint(routes.rutas_lorenzo.mod)

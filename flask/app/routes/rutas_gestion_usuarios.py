@@ -41,14 +41,14 @@ def ver_usuarios():
         return redirect("/")
 
     query= """
-            SELECT Usuario.nombres AS nombres, Usuario.apellidos AS apellidos, Usuario.rut AS rut, Credencial.nombre AS credencial, Usuario.email as correo, Usuario.region as region, Usuario.comuna as comuna, Usuario.direccion as direccion
+            SELECT Usuario.nombres AS nombres, Usuario.apellidos AS apellidos, Usuario.rut AS rut, Credencial.nombre AS credencial, Usuario.email as correo, Usuario.region as region, 
+            Usuario.comuna as comuna, Usuario.direccion as direccion, Usuario.id_credencial as id_credencial
                 FROM Usuario,Credencial
                     WHERE Usuario.id_credencial= Credencial.id AND Usuario.activo=1
             """
     cursor.execute(query)
     usuarios=cursor.fetchall()
-
-
+    
     return render_template("/vistas_gestion_usuarios/ver_usuarios.html",usuarios=usuarios)
 
 def digito_verificador(rut):
@@ -159,10 +159,20 @@ def editar():
 
     if request.method=='POST':
         datos_usuario=request.form.to_dict()
+        #Comprobar que no se repita el correo.
+        query=''' SELECT rut FROM Usuario WHERE email= %s'''
+        cursor.execute(query,(datos_usuario['correo'],))
+        error_correo=cursor.fetchone()
+        print(error_correo)
+        if error_correo['rut'] != datos_usuario['rut'] :
+            # hay otro usuario que ya utiliza el correo
+            flash('error-editar-correo')
+            return redirect("/gestion_usuarios")
         #query para actualizar datos del usuario
+        print(datos_usuario)
         query=''' UPDATE Usuario SET id_credencial = %s, email=%s, nombres =%s, apellidos= %s, region = %s, comuna = %s, direccion = %s
                     WHERE rut= %s'''
-        cursor.execute(query,(datos_usuario['credencial'],datos_usuario['correo'],datos_usuario['nombres'],datos_usuario['apellidos'],datos_usuario['region'],datos_usuario['comuna'],datos_usuario['direccion'],datos_usuario['rut']))
+        cursor.execute(query,(datos_usuario['id_credencial'],datos_usuario['correo'],datos_usuario['nombres'],datos_usuario['apellidos'],datos_usuario['region'],datos_usuario['comuna'],datos_usuario['direccion'],datos_usuario['rut']))
         flash('editado-correcto')
         #se redirige de vuelta a la pagina principal de gestion usuarios
         return redirect("/gestion_usuarios")

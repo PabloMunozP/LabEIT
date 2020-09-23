@@ -14,6 +14,14 @@
                 </button>
               </div>
             {%endif%}
+            {% if msg == "error-editar-correo"%}
+              <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="fas fa-times-circle mr-2"></i>Ha habido un error al editar el usuario, por favor revisa el correo.
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+            {%endif%}
             {% if msg == "agregar-correcto"%}
               <div class="alert alert-success alert-dismissible fade show" role="alert">
                 <i class="fas fa-check-circle mr-2"></i>Se ha agregado correctamente.
@@ -130,7 +138,6 @@
         <span aria-hidden="true">&times;</span>
         </button>
       </div>
-      
       {%endif%}
 
       <div class="card-header mt-4" style="background:#0db26b;">
@@ -169,13 +176,45 @@
                           <td>{{usuario["rut"]|formato_rut}}</td>
                           <td>{{usuario["credencial"]}}</td>
                           <td class="text-center">
-                             <button type="button" title="Editar información"  onclick="Cargar_informacion()" data-target=" #editar_{{usuario['rut']}}" class= "btn btn-sm btn-warning" data-toggle="modal"><i class="fas fa-edit"></i></button>
+                             <button type="button" title="Editar información" id="editar_{{usuario['rut']}}" data-target="#editar_{{usuario['rut']}}" class= "btn btn-sm btn-warning" data-toggle="modal"><i class="fas fa-edit"></i></button>
                              <a class="btn btn-sm btn-info" title="Ver información detallada" href="/gestion_usuarios/ver_usuario/{{usuario['rut']}}"><i class="fas fa-search-plus"></i></a>
                              <button type="button" title="Inhabilitar usuario" data-target="#inhab_{{usuario['rut']}}" class="btn btn-sm btn-danger" data-toggle="modal"><i class="fas fa-trash-alt"></i></button>
                           </td>
                           {% include 'vistas_gestion_usuarios/editar_usuario.html' %}
                           {% include 'vistas_gestion_usuarios/inhab_usuario.html' %}
                       </tr>
+                      <script>
+                        $(document).ready(function(){
+                          var contadorRegion=0;
+                          var contadorComuna=0;
+                          var selectRegiones='<option selected hidden value="{{usuario['region']}}"> {{usuario['region']}} </option>';
+                          var selectComunas='<option selected hidden value="{{usuario['comuna']}}"> {{usuario['comuna']}} </option>';
+                          var region='';
+                          
+                          $.each(RegionesYcomunas.regiones, function(){
+                            selectRegiones= selectRegiones + '<option value="'+RegionesYcomunas.regiones[contadorRegion].NombreRegion + '">' + RegionesYcomunas.regiones[contadorRegion].NombreRegion + '</option> ';
+                            contadorRegion++; 
+                          });
+                          $("#regiones_{{usuario['rut']}}").html(selectRegiones);
+                          $("#comunas_{{usuario['rut']}}").html(selectComunas);
+                          $("#regiones_{{usuario['rut']}}").change(function(){
+                            region=$("#regiones_{{usuario['rut']}}").val();
+                            selectComunas='';
+                            contadorRegion=0;
+                            $.each(RegionesYcomunas.regiones,function(){  
+                              contadorComuna=0;
+                              if(RegionesYcomunas.regiones[contadorRegion].NombreRegion == region){
+                                $.each(RegionesYcomunas.regiones[contadorRegion].comunas,function(){
+                                  selectComunas= selectComunas+ '<option value="'+ RegionesYcomunas.regiones[contadorRegion].comunas[contadorComuna] + '">'+RegionesYcomunas.regiones[contadorRegion].comunas[contadorComuna]+'</option> ';
+                                  contadorComuna++;
+                                });
+                              }
+                              contadorRegion++;
+                            });
+                            $("#comunas_{{usuario['rut']}}").html(selectComunas); 
+                          });                         
+                        });
+                      </script>
                   {%endfor%}
               </tbody>
           </table>
@@ -201,7 +240,6 @@
       
         </div>
       </div>
-
     </div>
 
 {%endblock%}
