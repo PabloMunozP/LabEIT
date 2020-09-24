@@ -16,10 +16,8 @@ db = mysql.connector.connect(user="sql10342433",
                             port="3306",
                             database="sql10342433",
                             autocommit=True)
-#db = mysql.connector.connect(user="AdminSITS_sv@sitsmysqlsv", password="sitsdbsv_2020", host="sitsmysqlsv.mysql.database.azure.com", port=3306, database="labeit")
 cursor = db.cursor(dictionary=True,buffered=True)
 cursor.execute("SET NAMES utf8mb4;")
-
 # -----------------------------------------------------------------------------
 
 # Configuraciones de archivos
