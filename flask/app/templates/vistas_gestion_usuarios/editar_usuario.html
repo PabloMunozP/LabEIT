@@ -7,27 +7,23 @@
                 <span aria-hidden="true">&times; </span>
                 </button>
             </div>
-            <form id="editar_usuario" action="/gestion_usuarios/editar_usuario" method="POST">
+            <form id="editar_usuario_{{usuario['rut']}}" action="/gestion_usuarios/editar_usuario" method="POST">
                 <div class="modal-body">
                     <div class="form-group">
                         <label for="nombres">Nombres:</label>
-                        <input type="text" id="nombres" name="nombres" title="Solo se permiten letras del lenguaje español. Formato Nombre1 Nombre2 " class="form-control" value="{{usuario['nombres']}}"  maxlength="30" pattern="[a-zA-Z\u00C0-\u00D6\u00D8-\u00f6\u00f8-\u00ff\s ]{0,30}\S" required>
+                        <input type="text" id="nombres_{{usuario['rut']}}" name="nombres" title="Solo se permiten letras del lenguaje español. Formato Nombre1 Nombre2 " class="form-control" value="{{usuario['nombres']}}"  maxlength="30" pattern="[a-zA-Z\u00C0-\u00D6\u00D8-\u00f6\u00f8-\u00ff\s ]{0,30}\S" required>
                     </div>
                     <div class="form-group">
                         <label for="apellidos">Apellidos:</label>
-                        <input type="text" name="apellidos" id="apellidos" title="Solo se permiten letras del lenguaje español. Formato Apellido1 Apellido2" class="form-control" value="{{usuario['apellidos']}}" maxlength="30" pattern="[a-zA-Z\u00C0-\u00D6\u00D8-\u00f6\u00f8-\u00ff\s ]{0,30}\S" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="rut">Rut:</label>
-                        <input type="text" name="rut" id="rut" title="Ingrese un rut valido, sin puntos ni guion y K mayuscula. Formato 123456789K " class="form-control" value="{{usuario['rut']}}" maxlength="11"  pattern="[0-9]{8,10}[K]{0,1}" required>
+                        <input type="text" name="apellidos" id="apellidos_{{usuario['rut']}}" title="Solo se permiten letras del lenguaje español. Formato Apellido1 Apellido2" class="form-control" value="{{usuario['apellidos']}}" maxlength="30" pattern="[a-zA-Z\u00C0-\u00D6\u00D8-\u00f6\u00f8-\u00ff\s ]{0,30}\S" required>
                     </div>
                     <div class="form-group">
                         <label for="correo">Correo:</label>
-                        <input type="email" name="correo" id="correo" title="Ingrese un correo valido. Formato nombre@mail.com "class="form-control"  value="{{usuario['correo']}}" maxlength="41" pattern="[a-zA-Z0-9.]{5,15}[@]{1}[a-zA-Z0-9.]{5,15}" required>
+                        <input type="email" name="correo" id="correo_{{usuario['rut']}}" title="Ingrese un correo valido. Formato nombre@mail.com "class="form-control"  value="{{usuario['correo']}}" maxlength="41" pattern="[a-zA-Z0-9.]{5,15}[@]{1}[a-zA-Z0-9.]{5,15}" required>
                     </div>
                     <div class="form-group">
                         <label for="crendencial">Crendencial:</label>
-                        <select name="credencial" id="credencial" class="form-control" >
+                        <select  name="id_credencial" id="credencial_{{usuario['rut']}}" class="form-control" required>
                             <option selected hidden value="{{usuario['id_credencial']}}">{{usuario['credencial']}}</option>
                             <option value="1">Alumno</option>
                             <option value="2">Profesor</option>
@@ -36,20 +32,19 @@
                     </div>
                     <div class="form-group">
                         <label for="region">Región:</label>
-                        <select name="regiones" id="regiones" class="form-control" onchange="Cargar_informacion()">
-                            <option selected value="{{usuario['region']}}">{{usuario['region']}}</option>
-                            <option value="Metropolitana">Metropolitana falso</option>
+                        <select name="region" id="regiones_{{usuario['rut']}}" class="form-control" required>
                         </select>
                     </div>
                     <div class="form-group">
                         <label for="comuna">Comuna:</label>
-                        <select name="comuna" id="comunas" class="form-control">
+                        <select name="comuna" id="comunas_{{usuario['rut']}}" class="form-control" required>
                         </select>
                     </div>
                     <div class="form-group">
                         <label for="direccion">Dirección</label>
-                        <input type="text" name="direccion" id="direccion" title="Ingrese una direccion valida, solo se permiten letras del lenguaje español." class="form-control" value="{{usuario['direccion']}}" maxlength="30" pattern="[a-zA-Z\u00C0-\u00D6\u00D8-\u00f6\u00f8-\u00ff\s 0-9 ]{5,30}" required>
+                        <input type="text" name="direccion" id="direccion_{{usuario['rut']}}" title="Ingrese una direccion valida, solo se permiten letras del lenguaje español." class="form-control" value="{{usuario['direccion']}}" maxlength="30" pattern="[a-zA-Z\u00C0-\u00D6\u00D8-\u00f6\u00f8-\u00ff\s 0-9 ]{5,30}" required>
                     </div>
+                    <input type="hidden" name="rut" value="{{usuario['rut']}}">
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
@@ -60,18 +55,5 @@
     </div>
 </div>
 
-<script>
-  function Cargar_informacion() {
-    if('{{usuario.direccion}}' != 'None'){document.getElementById("direccion").value = '{{usuario.direccion}}';}
-    if('{{usuario.region}}' != 'None'){
-      $("#regiones").val("{{usuario.region}}").change();
-    }
-    if('{{usuario.comuna}}' != 'None'){
-      $("#comunas").val('{{usuario.comuna}}');
-    }
-  };
-  $(window).on('load',function(){
-    Cargar_informacion();
-  });
-</script>
 
+</script>
