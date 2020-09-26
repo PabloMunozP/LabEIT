@@ -12,7 +12,7 @@ Babel==2.7.0
 backcall==0.1.0
 bcrypt==3.1.7
 beautifulsoup4==4.8.2
-bleach==3.1.0
+bleach==3.1.4
 blinker==1.4
 certifi==2019.6.16
 cffi==1.12.3
