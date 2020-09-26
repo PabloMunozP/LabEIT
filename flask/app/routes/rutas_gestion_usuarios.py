@@ -42,9 +42,9 @@ def ver_usuarios():
 
     query= """
             SELECT Usuario.nombres AS nombres, Usuario.apellidos AS apellidos, Usuario.rut AS rut, Credencial.nombre AS credencial, Usuario.email as correo, Usuario.region as region, 
-            Usuario.comuna as comuna, Usuario.direccion as direccion, Usuario.id_credencial as id_credencial
+            Usuario.comuna as comuna, Usuario.direccion as direccion, Usuario.id_credencial as id_credencial, Usuario.activo 
                 FROM Usuario,Credencial
-                    WHERE Usuario.id_credencial= Credencial.id AND Usuario.activo=1
+                    WHERE Usuario.id_credencial= Credencial.id
             """
     cursor.execute(query)
     usuarios=cursor.fetchall()
@@ -209,18 +209,48 @@ def inhabilitar():
 
     if request.method== 'POST':
         rut=request.form['rut']
-        query= '''SELECT id FROM Solicitud Where rut_alumno = %s'''
+        query = """
+            SELECT COUNT(*) AS cantidad_detalles_en_proceso FROM Detalle_solicitud,Solicitud
+                WHERE Detalle_solicitud.id_solicitud = Solicitud.id
+                AND Solicitud.rut_alumno = %s
+                AND Detalle_solicitud.estado IN (0,1,2,3)
+        """
         cursor.execute(query,(rut,))
         solicitudes=cursor.fetchone()
 
-        if solicitudes is not None: # El usuario tiene solicitudes activas
-            flash("error-inhabilitar")
+        if solicitudes is None:
+            # Error entre tablas de detalle y solicitud
+            flash("error-enlace-solicitud")
             return redirect("/gestion_usuarios")
-        else:#El usuario no tiene solicitudes pendientes.
-            query='''UPDATE Usuario SET Usuario.activo = 0 WHERE rut= %s'''
-            cursor.execute(query,(rut,))
-            flash('inhabilitar-correcto')
-            return redirect("/gestion_usuarios")
+        
+        else:
+            if solicitudes["cantidad_detalles_en_proceso"]:
+                flash("error-inhabilitar")
+                return redirect("/gestion_usuarios")
+            else:
+                query='''UPDATE Usuario SET Usuario.activo = 0 WHERE rut= %s'''
+                cursor.execute(query,(rut,))
+                flash('inhabilitar-correcto')
+                return redirect("/gestion_usuarios")
+
+@mod.route("/gestion_usuarios/habilitar",methods=["POST"])
+def habilitar_usuario():
+    if "usuario" not in session.keys():
+        return redirect("/")
+    if session["usuario"]["id_credencial"] != 3:
+        return redirect("/")
+
+    # Se habilita la cuenta del usuario en caso de existir
+    rut=request.form['rut']
+    sql_query = """
+        UPDATE Usuario
+            SET activo = 1
+                WHERE rut = %s
+    """
+    cursor.execute(sql_query,(rut,))
+
+    flash("cuenta-activada")
+    return redirect("/gestion_usuarios")
 
 
 @mod.route("/gestion_usuarios/ver_usuario/<string:rut>" ,methods=["GET"])

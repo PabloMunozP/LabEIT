@@ -284,6 +284,17 @@
 					<hr>
 				{% endif %}
 
+					<div class="form-group row">
+						<label class="col-md-4 col-form-label texto-gris-eit">
+							<strong>Cantidad de renovaciones realizadas por el usuario:</strong>
+						</label>
+						<div class="col-md-8">
+							<p class="form-control-plaintext text-break">
+								{{datos_detalle_solicitud["renovaciones"]}}
+							</p>
+						</div>
+					</div>
+
 				{% if lista_cursos_asociados %}
 					<div class="form-group row">
 						<label class="col-12 col-form-label texto-gris-eit">
@@ -291,8 +302,8 @@
 						</label>
 					</div>
 					<div class="table-responsive mt-2">
-						<div class="table-wrapper-scroll-y" style="position: relative; overflow:auto;">
-								<table class="table" id="tabla_equipos_solicitud">
+						<div class="table-wrapper-scroll-y" style="overflow-y:auto;">
+								<table class="table" id="tabla_lista_asignaturas">
 									<thead class="text-white" style="background:#4D4D4D;">
 										<tr>
 											<th scope="col">Código de la asignatura</th>
@@ -303,7 +314,7 @@
 										{% for curso in lista_cursos_asociados %}
 											<tr style="background:#fff;">
 													<td>{{curso["codigo_udp"]}}</td>
-													<td>{{curso["nombre"]}}</td>
+													<td><a title="Ir al detalle del curso" style="color: inherit;" href="/gestion_cursos/detalles_curso/{{curso["codigo_udp"]}}">{{curso["nombre"]}}</a></td>
 											</tr>
 										{% endfor %}
 									</tbody>
@@ -546,5 +557,26 @@
 
 
 	</div>
+
+	<script>
+		$(document).ready(() => {
+			// Tabla de asignaturas asociadas a la solicitud
+		$('#tabla_lista_asignaturas').DataTable( {
+						"order": [[ 1, "asc" ]],
+						"language": {
+								"lengthMenu": "Mostrar _MENU_ registros por página",
+								"zeroRecords": "No se han encontrado registros.",
+								"info": "Mostrando página _PAGE_ de _PAGES_",
+								"infoEmpty": "Sin registros disponibles.",
+								"search":         "Buscar",
+								"paginate": {
+										"next":       "Siguiente",
+										"previous":   "Anterior"
+								},
+								"infoFiltered": "(filtrado de _MAX_ registros totales)"
+							}
+			} );
+		});
+	</script>
 
 	{% endblock %}

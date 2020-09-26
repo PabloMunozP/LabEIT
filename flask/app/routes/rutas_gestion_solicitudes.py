@@ -119,12 +119,21 @@ def gestion_solicitudes_prestamos():
     cursor.execute(sql_query)
     lista_solicitud_canasta = cursor.fetchall()
 
+    # Se obtienen los cursos registrados para asociar a la solicitud ágil
+    sql_query = """
+        SELECT id,codigo_udp,nombre
+            FROM Curso
+    """
+    cursor.execute(sql_query)
+    lista_asignaturas = cursor.fetchall()
+
     return render_template("/vistas_gestion_solicitudes_prestamos/gestion_solicitudes.html",
     lista_solicitudes_por_revisar=lista_solicitudes_por_revisar,
     lista_solicitudes_activas=lista_solicitudes_activas,
     lista_historial_solicitudes=lista_historial_solicitudes,
     lista_equipos_disponibles=lista_equipos_disponibles,
-    lista_solicitud_canasta=lista_solicitud_canasta)
+    lista_solicitud_canasta=lista_solicitud_canasta,
+    lista_asignaturas=lista_asignaturas)
 
 @mod.route("/gestion_solicitudes_prestamos/detalle_solicitud/<string:id_detalle_solicitud>",methods=["GET"])
 def detalle_solicitud(id_detalle_solicitud):
@@ -1112,6 +1121,16 @@ def registrar_solicitud_agil():
                     VALUES (%s,%s,%s,%s,2,%s)
         """
         cursor.execute(sql_query,(id_solicitud,id_equipo,fecha_inicio,fecha_termino,codigo_sufijo))
+    
+    # Se verifica si se seleccionaron cursos relacionados al pedido
+    lista_checkboxes = request.form.getlist("curso_relacionado")
+    # En caso de que existan cursos seleccionados, se enlazan a la solicitud
+    for id_curso in lista_checkboxes:
+        sql_query = """
+                INSERT INTO Solicitud_curso (id_solicitud,id_curso)
+                    VALUES (%s,%s)
+            """
+        cursor.execute(sql_query,(id_solicitud,id_curso))
 
     flash("solicitud-registrada")
     return redirect(redirect_url())
