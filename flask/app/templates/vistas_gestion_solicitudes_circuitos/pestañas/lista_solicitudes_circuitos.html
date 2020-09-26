@@ -3,7 +3,7 @@
 	<h5 class="card-title text-white my-auto">Lista de solicitudes de préstamos por revisar</h5>
 	<p class="text-white my-auto"><i class="fas fa-info-circle mr-2"></i>En esta sección podrá encontrar la lista de solicitudes entrantes que aún no han sido revisadas.</p>
 	<span class="btn-group">
-		<button disabled type="button" class="btn btn-sm btn-secondary mr-2 waves-effect waves-light" data-toggle="modal" data-target="#formulario_solicitud_agil"><i class="fas fa-plus-circle mr-2"></i>Registrar solicitud</button>
+		<button type="button" class="btn btn-sm btn-secondary mr-2 waves-effect waves-light" onclick="show_modal_nd2QHZ()"><i class="fas fa-plus-circle mr-2"></i>Registrar solicitud</button>
 		
 			<a href="/exportar_solicitudes/1">
 				<button disabled type="button" title="Exportar solicitudes por revisar" class="btn btn-sm btn-secondary waves-effect waves-light"><i class="fas fa-file-excel mr-2"></i>Exportar registros</button>
@@ -32,7 +32,7 @@
                           <tr style="background:#ECF0F1;">
                               <td>{{elemento.IDS}}</td>
                               <td>{{elemento.IDD}}</td>
-                              <td>{{elemento.rut}}</td>
+                              <td>{{elemento.rut | formato_rut }}</td>
                               <td>{{elemento.nombres}} {{elemento.apellidos}}</td>
                               <td>{{elemento.componente}}</td>
                               <td>{{elemento.cantidad}}</td>
