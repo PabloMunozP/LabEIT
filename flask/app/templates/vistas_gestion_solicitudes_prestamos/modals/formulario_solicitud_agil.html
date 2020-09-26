@@ -9,7 +9,7 @@
       </div>
       {% if lista_equipos_disponibles %}
 
-        <form action="/registrar_solicitud_agil" method="POST">
+        <form id="form_registrar_solicitud_agil" action="/registrar_solicitud_agil" method="POST">
           <div class="modal-body">
             <div class="row">
               <div class="col-md-6">
@@ -71,6 +71,43 @@
                 <ul class="list-group" id="lista_equipos_seleccionados">
                 </ul>
               </div>
+
+              <hr>
+
+              {% if lista_asignaturas %}
+
+              <div class="card-header mt-4" style="background:#4D4D4D;">
+              	<h5 class="card-title text-white my-auto"><i class="fas fa-chalkboard-teacher mr-2"></i>Asignaturas asociadas</h5>
+                <p class="text-white my-auto"><i class="fas fa-info-circle mr-2"></i>En caso de que el pedido sea por motivos académicos, seleccione las asignaturas a las que se encuentra asociada la solicitud. (Opcional)</p>
+              </div>
+
+              <div class="table-responsive mt-2">
+                <div class="table-wrapper-scroll-y" style="position: relative; overflow:auto;">
+                    <table class="table" id="tabla_lista_asignaturas">
+                      <thead class="text-white" style="background:#4D4D4D;">
+                        <tr>
+                          <th class="text-center"><input type="checkbox" name="select_all" value="1" id="asignaturas-select-all"></th>
+                          <th scope="col">Código de asignatura</th>
+                          <th scope="col">Nombre de la asignatura</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {% for asignatura in lista_asignaturas %}
+                          <tr style="background:#ECF0F1;">
+                            <td class="text-center">
+                              <div class="form-check my-auto">
+                                <input class="form-check-input position-static checkbox-asignatura-asociada" name="curso_relacionado" type="checkbox" id="checkbox_asignatura_{{asignatura["id"]}}" value="{{asignatura["id"]}}">
+                              </div>
+                            </td>
+                              <td>{{asignatura["codigo_udp"]}}</td>
+                              <td>{{asignatura["nombre"]}}</td>
+                          </tr>
+                        {% endfor %}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              {% endif %}
 
               <div class="row mt-4">
                 <div class="col-md-6">

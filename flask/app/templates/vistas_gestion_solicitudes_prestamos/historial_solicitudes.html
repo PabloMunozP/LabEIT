@@ -14,7 +14,7 @@
 	<div class="table-responsive mt-2">
 		<div class="row"> 
 			<div class="col text-right">
-				<button type="submit" id="boton_eliminar_detalles_historial_seleccionados" disabled class="btn btn-sm btn-danger mb-2">
+				<button type="submit" id="boton_eliminar_detalles_historial_seleccionados" class="btn btn-sm btn-danger mb-2">
 					<i class="fas fa-minus-circle mr-1"></i>Eliminar registros seleccionados
 				</button>
 			</div>
@@ -23,6 +23,7 @@
 				<table class="table" id="tabla_historial_solicitudes">
 					<thead class="text-white" style="background:#4D4D4D;">
 						<tr>
+							<th class="text-center"><input type="checkbox" name="select_all" value="1" id="detalles-historial-select-all"></th>
 							<th title="ID de solicitud" scope="col">IDS</th>
 							<th title="ID de detalle de solicitud" scope="col">IDD</th>
 							<th scope="col">RUT de alumno solicitante</th>
@@ -32,16 +33,16 @@
 							<th scope="col">Fecha de registro</th>
 							<th scope="col">Fecha de término</th>
 							<th scope="col">Acciones</th>
-							<th scope="col" class="text-center">
-								<div class="form-check my-auto">
-									<input class="form-check-input position-static" type="checkbox" id="check_all_historial">
-								</div>
-							</th>
 						</tr>
 					</thead>
 					<tbody>
 						{% for detalle_solicitud in lista_historial_solicitudes %}
 							<tr style="background:#ECF0F1;">
+								<td class="text-center">
+									<div class="form-check my-auto">
+										<input class="form-check-input position-static checkbox-detalle-historial" name="eliminar_detalle_solicitud" type="checkbox" id="checkbox_detalle_solicitud_{{detalle_solicitud["id"]}}" value="{{detalle_solicitud["id"]}}">
+									</div>
+								</td>
 								<td>{{detalle_solicitud["id_solicitud"]}}</td>
 								<td>{{detalle_solicitud["id"]}}</td>
 								<td>{{detalle_solicitud["rut_alumno"]|formato_rut}}</td>
@@ -84,11 +85,6 @@
 											<button type="button" title="Eliminar solicitud" class="btn btn-sm btn-danger"><i class="fas fa-minus-circle"></i></button>
 										</a>
 									</span>
-								</td>
-								<td class="text-center">
-									<div class="form-check my-auto">
-										<input class="form-check-input position-static checkbox-detalle-historial" name="eliminar_detalle_solicitud" type="checkbox" id="checkbox_detalle_solicitud_{{detalle_solicitud["id"]}}" value="{{detalle_solicitud["id"]}}">
-									</div>
 								</td>
 							</tr>
 						{% endfor %}

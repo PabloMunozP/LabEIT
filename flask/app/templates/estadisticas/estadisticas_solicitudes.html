@@ -47,13 +47,13 @@
 
 		{% if lista_asignaturas_asociadas %}
 		<div class="table-responsive mt-2">
-			<div class="table-wrapper-scroll-y" style="position: relative; overflow:auto;">
+			<div class="table-wrapper-scroll-y" style="height: 400px; overflow-y:scroll;">
 					<table class="table" id="tabla_asignaturas_asociadas">
 						<thead class="text-white" style="background:#4D4D4D;">
 							<tr>
 								<th scope="col">Código de asignatura</th>
 								<th scope="col">Nombre de la asignatura</th>
-								<th scope="col" class="text-center">Cantidad asociada</th>
+								<th scope="col" class="text-center">Cantidad de solicitudes asociadas</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -62,7 +62,7 @@
 										<td>{{curso["codigo_udp"]}}</td>
 										<td>{{curso["nombre"]}}</td>
 										<td class="text-center">{{curso["cantidad_asociaciones"]}}</td>
-								</tr>
+									</tr>
 							{% endfor %}
 						</tbody>
 					</table>

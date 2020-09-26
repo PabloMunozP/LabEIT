@@ -72,7 +72,7 @@ def iniciar_sesion():
 
     # Se obtienen los datos del colaborador (contraseña --> hash de contraseña)
     sql_query = """
-        SELECT rut,nombres,apellidos,id_credencial,email,contraseña
+        SELECT rut,nombres,apellidos,id_credencial,email,contraseña,activo
             FROM Usuario
                 WHERE rut = %s
     """
@@ -150,6 +150,13 @@ def iniciar_sesion():
                 # Se envía el correo al usuario
                 enviar_correo_notificacion(archivo_html,"[LabEIT] Intento de inicio de sesión inusual",datos_usuario_cuenta["email"])
 
+        return redirect("/")
+    
+    # Al autentificar al usuario, se comprueba que su cuenta se encuentre habilitada
+    # En caso de que se encuentre deshabilitada, se redirecciona y notifica al usuario.
+
+    if not datos_usuario_registrado["activo"]:
+        flash("cuenta-inactiva")
         return redirect("/")
 
     # En caso de que se compruebe la validez de la contraseña, se crea la sesión
