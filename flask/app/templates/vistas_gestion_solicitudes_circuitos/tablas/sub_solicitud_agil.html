@@ -1,0 +1,17 @@
+
+{% if session["carro_circuito_admin"] %}
+
+    {% for elemento,item in session["carro_circuito_admin"].items() %}
+
+    <li id="li_1" class="list-group-item">
+        <div class="row">
+            <div class="col">{{item.nombre}}</div>
+            <div class="col-3"><input type="number" required value="{{item.cantidad}}" min="0" max="{{item.disponibles}}" onchange="actualizar_carro_generar_solicitud('{{item.id}}',this.value)">
+            /{{item.disponibles}} </div>
+            <div class="col-1"><button type="button" class="float-right btn btn-danger btn-sm" onclick="eliminar_carro_generar_solicitud('{{item.id}}')"><i class="fas fa-minus-circle"></i></button></div>
+        </div>
+        
+        
+    </li>
+    {% endfor %}
+{% endif %}

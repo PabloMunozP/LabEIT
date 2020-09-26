@@ -1,7 +1,7 @@
 <div class="card-header mt-4" style="background:#0db26b;">
 	<h5 class="card-title text-white my-auto">Solicitudes de préstamos registradas</h5>
 	<p class="text-white my-auto"><i class="fas fa-info-circle mr-2"></i>En la siguiente lista podrá encontrar, de forma general, el conjunto de solicitudes registradas en el sistema.</p>
-	<button type="button" disabled class="btn btn-sm btn-secondary mt-2 waves-effect waves-light" data-toggle="modal" data-target="#formulario_solicitud_agil"><i class="fas fa-plus-circle mr-2"></i>Registrar solicitud</button>
+	<button type="button" class="btn btn-sm btn-secondary mt-2 waves-effect waves-light" onclick="show_modal_nd2QHZ()"><i class="fas fa-plus-circle mr-2"></i>Registrar solicitud</button>
 </div>
 
 
@@ -24,7 +24,7 @@
                       {% for elemento in lista_solicitudes_prestamos%}
                           <tr style="background:#ECF0F1;">
                               <td>{{elemento.id}}</td>
-                              <td>{{elemento.rut_alumno}}</td>
+                              <td>{{elemento.rut_alumno | formato_rut }}</td>
                               <td>{{elemento.nombre}}</td>
                               <td >{{elemento.componentes_solicitados}}</td>
                               <td>{{elemento.fecha_registro}}</td>
@@ -38,6 +38,3 @@
           </div>
 </div>
 {% include "vistas_gestion_solicitudes_circuitos/modals/solicitudes_ver_detalles.html" %}
-<script>
-
-</script>

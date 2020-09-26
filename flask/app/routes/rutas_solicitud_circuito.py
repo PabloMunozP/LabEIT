@@ -42,9 +42,6 @@ def solicitudes_prestamos_circuitos():
 
 
 
-
-
-
 @mod.route("/eliminar_carro_circuito",methods=['POST'])
 def eliminar_carro_circuito():
     if request.method == "POST":
@@ -86,7 +83,8 @@ def agregar_al_carro_circuito():
             return jsonify({'error':'missing data!'})
     
     return jsonify({'error':'missing data!'})
-  
+
+
 def generar_solicitud_alumno(rut_alumno, motivo, id_curso_motivo, rut_profesor): # funcion para generar la solicitud de circuitos
     # generar Solicitud_circuito
     hora_registro = datetime.now()
@@ -320,12 +318,15 @@ def consultar_solcitudes_prestamos():
 def gestion_solicitudes_prestamos_circuitos():
     if 'usuario' not in session or session["usuario"]["id_credencial"] != 3: # Si no es administrador
         return redirect('/')
-
+    if 'carro_circuito_admin' in session:
+        del session["carro_circuito_admin"] 
     return render_template('vistas_gestion_solicitudes_circuitos/main.html',
                            lista_solicitudes_pendientes = consultar_solictudes_pendientes(),
                            lista_solicitudes_activas = consultar_solictudes_activas(),
                            lista_solicitudes_historial = consultar_solictudes_historial(),
-                           lista_solicitudes_prestamos = consultar_solcitudes_prestamos())
+                           lista_solicitudes_prestamos = consultar_solcitudes_prestamos(),
+                           lista_componentes = consultar_lista_circuito(),
+                           lista_cursos = consultar_cursos())
     
 
 @mod.route("/gestion_solicitudes_prestamos_circuitos/borrar_solcitud_detalle",methods=['POST']) # AJAX
@@ -497,4 +498,118 @@ def consultar_tabla_solicitud():
         IDS = request.form["id_solicitud"]
         return render_template('vistas_gestion_solicitudes_circuitos/tablas/sub_detalle.html',
                                solicitudes = consultar_solictudes_por_id(IDS))
+    return jsonify({'error':'missing data!'})
+
+
+
+
+@mod.route("/gestion_solicitudes_prestamos_circuitos/agregar_carro",methods=['POST'])
+def gestion_agregar_carro():
+    if request.method == "POST":
+        id_circuito = request.form["id_circuito"]
+        disponibles = request.form["disponibles"]
+        cantidad = 0
+        nombre = request.form["nombre_circuito"]
+        if id_circuito and nombre:
+            if 'carro_circuito_admin' not in session: # si no hay carrito
+                session["carro_circuito_admin"] = {}
+            
+            if id_circuito not in session["carro_circuito_admin"].keys(): # Si el circuito no esta en el carro, lo agrega
+                session["carro_circuito_admin"][id_circuito] = {} # Crea un diccionario carro = { id : {}}
+                session["carro_circuito_admin"][id_circuito]['id'] = str(id_circuito) # carro = { id : {'id': 'id'}}
+                session["carro_circuito_admin"][id_circuito]['cantidad'] = int(cantidad)  # carro = { id : {'id': str , 'cantidad' : int}}
+                session["carro_circuito_admin"][id_circuito]['nombre'] = nombre #agrega el nombre
+                session["carro_circuito_admin"][id_circuito]['disponibles'] = disponibles # determina la disponibilidad
+            else: # Si el circuito está en el carro, le suma la cantidad
+                session["carro_circuito_admin"][id_circuito]['cantidad'] = int(cantidad)    
+            return render_template("vistas_gestion_solicitudes_circuitos/tablas/sub_solicitud_agil.html")
+        else:
+            return jsonify({'error':'missing data!'})
+    
+    return jsonify({'error':'missing data!'})
+
+
+@mod.route("/gestion_solicitudes_prestamos_circuitos/eliminar_carro",methods=['POST'])
+def gestion_eliminar_carro():
+    if request.method == "POST":
+        id_circuito = request.form["id_circuito"]
+        del session["carro_circuito_admin"][id_circuito]
+        if len(session["carro_circuito_admin"]) == 0:
+            del session["carro_circuito_admin"]
+        return render_template("vistas_gestion_solicitudes_circuitos/tablas/sub_solicitud_agil.html")
+    return jsonify({'error':'missing data!'})
+
+
+@mod.route("/gestion_solicitudes_prestamos_circuitos/actualizar_carro",methods=['POST'])
+def gestion_actualizar_carro():
+    if request.method == "POST":
+        id_circuito = request.form["id_circuito"]
+        cantidad = request.form["cantidad"]
+        if int(cantidad) > int(session["carro_circuito_admin"][id_circuito]['disponibles']):
+            return jsonify({'error':'data error!'})
+        else:
+            session["carro_circuito_admin"][id_circuito]['cantidad'] = int(cantidad)
+            return jsonify({'nice':'nice!'})
+        
+    
+
+
+def generar_solicitud_agil(rut_alumno, motivo, id_curso_motivo, rut_profesor): # funcion para generar la solicitud de circuitos
+    # generar Solicitud_circuito
+    hora_registro = datetime.now()
+    query = ('''
+            INSERT INTO Solicitud_circuito (rut_alumno, motivo, id_curso_motivo, rut_profesor, fecha_registro)
+            VALUES (%s, %s, %s, %s,  %s)
+            ''')
+    cursor.execute(query,(rut_alumno,
+                          motivo,
+                          id_curso_motivo,
+                          rut_profesor,
+                          hora_registro))
+    id_solicitud = cursor.lastrowid # Se obtiene el id de solicitud recién creada
+    
+    db.commit()
+    query = (''' 
+             INSERT INTO Detalle_solicitud_circuito (id_solicitud_circuito, id_circuito, cantidad, estado)
+             VALUES (%s,%s,%s,0)
+             ''')
+    for ID,item in session["carro_circuito"].items():
+        cursor.execute(query,(id_solicitud,ID,item["cantidad"]))
+        db.commit()
+    return
+
+
+@mod.route("/gestion_solicitudes_prestamos_circuitos/confirmar_solicitud_agil",methods=['POST']) # AJAX
+def confirmar_solicitud_agil():
+    if request.method == "POST":
+        datos_solicitud = request.form.to_dict()
+        fecha_registro = datetime.now()
+        cursor.execute(''' SELECT rut FROM Usuario WHERE rut = %s''',(datos_solicitud['rut_usuario'],)) # Consulta para comprobar que el usuario existe
+        if len(cursor.fetchall()) > 0:
+            
+            
+            query_insert_sol = ('''INSERT INTO Solicitud_circuito (rut_alumno, motivo, id_curso_motivo, rut_profesor, fecha_registro) VALUES (%s, %s, %s, %s,  %s)''') # Query agregar una solicitud
+            query_select_circuito_data = ('''SELECT * FROM Circuito WHERE id = %s''') # Query para consultar la informacion del componente
+            query_insert_detalle = ('''INSERT INTO Detalle_solicitud_circuito (id_solicitud_circuito, id_circuito, cantidad, estado, fecha_inicio, fecha_termino) VALUES (%s,%s,%s,2,%s,%s)''')
+            query_update_prestados = ('UPDATE Circuito SET Circuito.prestados = %s WHERE Circuito.id = %s')
+            
+            cursor.execute(query_insert_sol,(datos_solicitud['rut_usuario'],None,datos_solicitud['curso_id'],None,fecha_registro)) # Agrega la solictud a la base de dato
+            id_solicitud = cursor.lastrowid # Se obtiene el id de solicitud recién creada
+        
+            
+            for ID,item in session["carro_circuito_admin"].items():
+                if item['cantidad'] > 0: # Si la cantidad solicitada es < 0 la registra
+                    
+                    cursor.execute(query_select_circuito_data,(ID,)) # Obtiene los datos del componente
+                    circuito_data = cursor.fetchone() # Almacena los datos del componente
+                    
+                    fecha_termino = fecha_registro+timedelta(days=int(circuito_data["dias_max_prestamo"])) # Obtiene la fecha de termino
+                    cursor.execute( query_insert_detalle, (id_solicitud,ID,item["cantidad"],fecha_registro,fecha_termino.replace(hour=18, minute=30, second = 0, microsecond = 0))) # Genera el registro de la solictud_detalle_circuito
+                    
+                    cursor.execute(query_update_prestados, (int(circuito_data["cantidad"]) + int(circuito_data["prestados"]), ID))
+                    
+            return jsonify({'nice':'nice!'})
+        else:
+            return jsonify({'error':'user'})
+        
     return jsonify({'error':'missing data!'})
