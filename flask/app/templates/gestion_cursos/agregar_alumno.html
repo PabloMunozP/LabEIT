@@ -10,19 +10,26 @@
 
           <form action="/gestion_cursos/agregar_alumno" method="POST">
           <div class="modal-body">
-            <label for="rut_alumno">Alumno: </label>
-            <input class="form-control" type="text" name="id" value="{{seccion_id['id']}}" id="id" hidden>
-            <select class=""  id="rut_alumno" name = "rut_alumno">
-              {% for alumno in lista_alumnos %}
-                <option id="rut_alumno" name = "rut_alumno" value="{{alumno['rut']}}">{{alumno["apellidos"]}} {{alumno["nombres"]}} </option>
-              {% endfor %}
-            </select>
-
+            {% if lista_alumnos %}
+              <label for="rut_alumno">Seleccione el alumno a agregar:</label>
+              <input class="form-control" type="text" name="id" value="{{seccion_id['id']}}" id="id" hidden>
+              <select class="form-control"  id="rut_alumno" name="rut_alumno">
+                {% for alumno in lista_alumnos %}
+                  <option id="rut_alumno" name = "rut_alumno" value="{{alumno['rut']}}">{{alumno["apellidos"]}} {{alumno["nombres"]}} </option>
+                {% endfor %}
+              </select>
+            {% else %}
+              <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                <i class="fas fa-exclamation-triangle mr-2"></i>No se han encontrado alumnos disponibles para el registro. Por favor, revisa la lista de usuarios.
+              </div>
+            {% endif %}
       </div>
       <div class="modal-footer">
               <button type="button" id="boton_cerrar" class="btn btn-secondary" data-dismiss="modal" onclick="Cargar_informacion()">Cancelar</button>
               <button type="button" id="boton_cerrar" class="btn btn-secondary" data-dismiss="modal" onclick="Cargar_informacion()" hidden>Cancelar</button>
-              <button type="summit" id="boton_guardar" class="btn btn-info"> Guardar cambios</button>
+              {% if lista_alumnos %}
+                <button type="summit" id="boton_guardar" class="btn btn-info"> Guardar cambios</button>
+              {% endif %}
       </div>
     </form>
   </div>
