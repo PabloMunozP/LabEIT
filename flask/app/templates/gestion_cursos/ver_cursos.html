@@ -61,7 +61,13 @@
                     <tr>
                         <td>{{curso['codigo_udp']}}</td>
                         <td>{{curso['nombre']}}</td>
-                        <td>{{curso['descripcion']}}</td>
+                        {% if curso['descripcion'] %}
+                          {% autoescape false %}
+                            <td>{{curso['descripcion']|nl2br}}</td>
+                          {% endautoescape %}
+                        {% else %}
+                          <td></td>
+                        {% endif %}
                         <td class="text-center">
                           <span class="btn-group">
                             <button type="button" title="Editar información" data-target="#editar_curso_{{curso['id']}}" class= "btn btn-sm btn-warning mr-1" data-toggle="modal"><i class="fas fa-edit"></i></button>

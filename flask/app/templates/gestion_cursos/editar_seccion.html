@@ -13,7 +13,7 @@
                     <input class="form-control" type="text" name="id_curso" value="{{curso['curso_id']}}" id="id_curso" hidden>
                     <div class="form-group">
                         <label for="codigo_seccion">Código de sección:</label>
-                        <input type="text" id="codigo_seccion" name="codigo_seccion" class="form-control" value="{{seccion['codigo_seccion']}}" required>
+                        <input type="text" id="codigo_seccion" name="codigo_seccion" class="form-control" maxlength="10" value="{{seccion['codigo_seccion']}}" required>
                     </div>
                     <label for="rut_profesor">Profesor</label>
                     <select class="form-control"  id="rut_profesor" name = "rut_profesor">

@@ -56,7 +56,11 @@
 					<div class="col-md-8">
 						<p class="form-control-plaintext
 							 text-break">
-							  {{curso.descripcion}}
+							 {% if curso['descripcion'] %}
+									{% autoescape false %}
+										{{curso['descripcion']|nl2br}}
+									{% endautoescape %}
+								{% endif %}
 						</p>
 					</div>
 				</div>
@@ -89,7 +93,7 @@
 								{% for seccion in secciones %}
 									<tr style="background:#ECF0F1;">
 										<td>{{seccion.codigo_seccion}}</td>
-										<td>{{seccion.rut_profesor}}</td>
+										<td>{{seccion.rut_profesor|formato_rut}}</td>
 										<td>{{seccion.nombres_profesor}} {{seccion.apellidos_profesor}}</td>
 										<td class="text-center">
 											<span class="btn-group">
