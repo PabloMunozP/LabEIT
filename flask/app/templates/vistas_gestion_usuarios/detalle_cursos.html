@@ -7,15 +7,17 @@
             <thead class="text-white" style="background:#4D4D4D;">
                 <tr>
                     <th scope="col">ID</th>
-                    <th scope="col">Código de curso</th>
-                    <th scope="col">Nombre</th>
+                    <th scope="col" class="text-center">Código de curso</th>
+                    <th scope="col" class="text-center">Sección</th>
+                    <th scope="col">Nombre de la asignatura</th>
                 </tr>
             </thead>
             <tbody>
             {%for curso in cursos %}
                 <tr>
                     <td>{{curso["id"]}}</td>
-                    <td>{{curso["codigo"]}}</td>
+                    <td class="text-center">{{curso["codigo_udp"]}}</td>
+                    <td class="text-center">{{curso["codigo_seccion"]}}</td>
                     <td>{{curso["nombre"]}}</td>
                 </tr>
             {%endfor%}

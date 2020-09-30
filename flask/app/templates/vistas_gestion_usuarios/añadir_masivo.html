@@ -2,25 +2,34 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header bg-gris-eit">
-                <h5 class="modal-title text-white" id="editar_informacion_label"><i class="fas fa-file-upload mr-2"></i>Importar usuarios </h5>
+                <h5 class="modal-title text-white" id="editar_informacion_label"><i class="fas fa-user-edit mr-2"></i>Carga masiva de usuarios</h5>
                 <button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar">
                 <span aria-hidden="true">&times; </span>
                 </button>
             </div>
             <form action="/gestion_usuarios/anadir_masivo" method="POST" enctype="multipart/form-data">
             <div class="modal-body">
-                <p>Extension solicitada: <strong>.csv</strong></p>
-                    <p>Recuerde el formato de este archivo y su extension antes de subir el archivo.</p>
+                <h6 class="modal-title text-black">Importar usuarios</h6>
+                <form action="/gestion_usuarios/anadir_masivo" method="POST" enctype="multipart/form-data">
+                    <p>Recuerde el formato de este archivo y su extensión <strong>(.csv)</strong>.</p>
+                    <p>¿No conoce el formato? <a href="#formato_csv" data-toggle="collapse" >Haga click aquí.</a></p>
+                    <div id="formato_csv" class="collapse">
+                        <hr>
+                        <p>Para obtener de forma más sencilla la lista de los alumnos a ingresar, se sugiere exportar los datos desde la plataforma <strong>Canvas</strong>.</p>
+                        <p>Para esto deberá dirigirse al apartado <strong>'Calificaciones'</strong> y exportar el archivo en formato <strong>CSV</strong>.
+                            Una vez descargado deberá modificar algunas de sus columnas, ya que el sistema Canvas proporciona más información de la necesitada para el registro de usuarios. </p>
+                        <p>Para esto, será necesario solo dejar las columnas con los nombres <strong>'Student'</strong>, <strong>'SIS User ID'</strong>, <strong>'SIS Login ID'</strong>; que representan los nombres, RUT y correo electrónico respectivamente de cada alumno.</p>                    
+                    </div>
                     <div class="custom-file">
                         <input type="file" class ="custom-file-input" id="CSV" name="file" accept=".csv">
-                        <label for="CSV" class="custom-file-label"> Elegir un archivo</label>
+                        <label for="CSV" class="custom-file-label">Seleccione un archivo</label>
                     </div>
             </div>
             <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-              <button class="btn btn-success" type="submit">Cargar usuarios</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                <button type="submit" class="btn btn-success">Cargar archivo</button>
+              </div>
+              </form>
             </div>
-            </form>
         </div>
-    </div>
 </div>

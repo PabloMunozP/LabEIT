@@ -1,0 +1,79 @@
+
+{% if session["carro_circuito"] %}
+	<table class="table" id="tabla_carro_pedidos">
+		<thead class="text-white" style="background:#4D4D4D;">
+			<tr>
+				<th scope="col">Equipos agregados a tu carro de pedidos</th>
+				<th scope="col" class="text-center">Unidades</th>
+				<th scope="col" class="text-center">Acciones</th>
+			</tr>
+		</thead>
+		<tbody>
+			{% for elemento,item in session["carro_circuito"].items() %}
+					<tr style="background:#ECF0F1;">
+						<td>{{item.nombre}}</td>
+						<td class="text-center">{{item.cantidad}}</td>
+						<td class="text-center">
+							<span class="btn-group">
+								<button type="button" onclick="Eliminar_circuito('{{item.id}}')" title="Eliminar circuito del carro" class="btn btn-sm btn-danger boton-eliminar-pedido-carro"><i class="fas fa-times-circle"></i></button>
+						</td>
+					</tr>
+
+			{% endfor %}
+		</tbody>
+	</table>
+	<div id="seccion-botones-carro-pedidos-circuito" class="card-header text-right mt-1">
+		<button type="button" id="boton-vaciar-carro" class="btn my-auto btn-danger" onclick="vaciar_carro()"><i class="fas fa-trash-alt mr-2"></i>Vaciar carro</button>
+		<button type="button" class="btn my-auto btn-success" data-toggle="modal" data-target="#confirmacion_pedido_circuito"><i class="fas fa-clipboard-check mr-2"></i>Confirmar pedido</button>
+	</div>
+
+
+
+{% else %}
+	<div class="alert alert-warning alert-dismissible fade show text-center mt-2" role="alert">
+		<i class="fas fa-exclamation-triangle mr-2"></i>Actualmente tu carro de pedidos se encuentra vacío.
+	</div>
+{% endif %}
+
+
+<script>
+	function Eliminar_circuito(id){
+		$.ajax({
+            data : {
+              id_circuito : id
+            },
+            type : 'POST',
+            url : '/eliminar_carro_circuito'
+          })
+		  .done(function(data){
+
+				if(data.error){
+				console.log('error');
+				}
+				else{
+					$("#carro_pedidos_circuito").html(data);
+					$("#modal_info_circuito").modal("hide");
+				
+				}
+
+			});
+
+event.preventDefault();
+	}
+
+
+	function vaciar_carro(){
+		$.ajax({
+            data : {
+              borrar: 'si'
+            },
+            type : 'POST',
+            url : '/vaciar_carro_circuito'
+          })
+		  .done(function(data){
+				if(data.error){ console.log('error'); }
+				else{ $("#carro_pedidos_circuito").html(data); }
+			});
+	}
+</script>
+

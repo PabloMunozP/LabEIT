@@ -21,7 +21,11 @@
                     </div>
                     <div class="form-group">
                         <label for="descripcion">Descripcion:</label>
-                        <textarea class="form-control" id="descripcion" name="descripcion" rows="3" maxlength="500" style="min-height:100px;max-height:300px;">{{curso['descripcion']}}</textarea>
+                        {% if curso['descripcion'] %}
+                         <textarea class="form-control" id="descripcion" name="descripcion" rows="3" maxlength="500" style="min-height:100px;max-height:300px;">{{curso['descripcion']}}</textarea>
+                        {% else %}
+                         <textarea class="form-control" id="descripcion" name="descripcion" rows="3" maxlength="500" style="min-height:100px;max-height:300px;"></textarea>
+                        {% endif %}
                     </div>
                 </div>
                 <div class="modal-footer">

@@ -17,7 +17,7 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.inputmask/3.3.4/inputmask/inputmask.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.inputmask/3.3.4/jquery.inputmask.bundle.js"></script>
         <link href="https://cdnjs.cloudflare.com/ajax/libs/jquery.inputmask/3.3.4/css/inputmask.min.css" rel="stylesheet"/>
-
+        <link rel="icon" href="{{ url_for('static', filename='../static/imgs/tab_icon.png') }}">
     </head>
 
     <body id="body-login">
@@ -53,6 +53,14 @@
               {% if msg == "ultimo-intento-login" %}
               <div class="alert alert-warning alert-dismissible fade show mt-2" role="alert">
             		<i class="fas fa-exclamation-triangle mr-2"></i>Al próximo error de autentificación será bloqueado por motivos de seguridad.
+                  <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                  </button>
+              </div>
+              {% endif %}
+              {% if msg == "cuenta-inactiva" %}
+              <div class="alert alert-warning alert-dismissible fade show mt-2" role="alert">
+            		<i class="fas fa-exclamation-triangle mr-2"></i>Tu cuenta se encuentra inhabilitada actualmente. Contacta a un laboratorista para más información.
                   <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                       <span aria-hidden="true">&times;</span>
                   </button>
@@ -94,14 +102,14 @@
 							</div>
 							<button type="submit" class="btn btn-block btn-rojo-udp rounded-0"><i class="fas fa-sign-in-alt mr-2"></i>Ingresar</button>
 							<hr>
-							<p class="text-white text-center small mt-1">¿Has olvidado tu contraseña? <a href="/recuperacion_password" class="text-white" style="text-decoration:none;"><u>¡Recupérala aquí!</u></a></p>
+							<p class="text-white text-center small mt-1">¿Has olvidado tu contraseña? <a href="/recuperacion_password" class="text-white" style="text-decoration:none;"><u>Recupérala aquí</u></a></p>
 						</form>
 					</div>
 				</div>
 			</div>
 
 			<footer class="footer-login bg-gris-eit mt-5" style="opacity:0.9;">
-				<p class="text-center mt-2 text-white small"><i class="fas fa-exclamation-triangle mr-2"></i>En caso de tener dudas o problemas con tu cuenta, no dudes en escribirnos al mail: <a href="mailto:labeit@mail.udp.cl?subject=Duda/Problema-LabEIT">labeit@mail.udp.cl</a> o dirigirte al laboratorio de telemática (5to piso).</p>
+				<p class="text-center mt-2 text-white small"><i class="fas fa-exclamation-triangle mr-2"></i>En caso de tener dudas o problemas con tu cuenta, recuerda escribirnos al mail: <a href="mailto:labeit@mail.udp.cl?subject=Duda/Problema-LabEIT">labeit@mail.udp.cl</a> o dirigirte al laboratorio de telemática (5to piso).</p>
 			</footer>
 
 

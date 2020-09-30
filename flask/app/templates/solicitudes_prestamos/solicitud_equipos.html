@@ -70,6 +70,53 @@
 		{% endif %}
 
 		<div class="card-header mt-4" style="background:#0db26b;">
+			<h5 class="card-title text-white my-auto"><i class="fas fa-chalkboard-teacher mr-2"></i>Asignaturas asociadas</h5>
+			<p class="text-white my-auto"><i class="fas fa-info-circle mr-2"></i>En caso de que tu pedido sea por motivos académicos, selecciona las asignaturas a las que se encuentra asociada la solicitud. (Opcional)</p>
+			<button type="button" class="btn btn-sm btn-secondary" data-container="body" data-toggle="popover" data-placement="top" data-content="Al asociar las asignaturas al pedido que estás realizando permitirás, a la coordinación de laboratorios, obtener mayor retroalimentación acerca de los equipos que se están solicitando, con la finalidad de mejorar la calidad del servicio de préstamos.">
+				Más información
+			</button>
+		</div>
+
+		{% if lista_cursos %}
+			<div class="alert alert-info alert-dismissible fade show text-center mt-2" role="alert">
+				<i class="fas fa-info-circle mr-2"></i>En caso de que no se encuentre alguno de tus cursos en la lista, contacta al laboratorista para realizar el registro.
+				<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="table-responsive mt-2">
+				<div class="table-wrapper-scroll-y" style="position: relative; overflow:auto;">
+						<table class="table" id="tabla_lista_asignaturas">
+							<thead class="text-white" style="background:#4D4D4D;">
+								<tr>
+									<th class="text-center"><input type="checkbox" name="select_all" value="1" id="asignaturas-select-all"></th>
+									<th scope="col">Código de asignatura</th>
+									<th scope="col">Nombre de la asignatura</th>
+								</tr>
+							</thead>
+							<tbody>
+								{% for curso in lista_cursos %}
+									<tr style="background:#ECF0F1;">
+										<td class="text-center">
+											<div class="form-check my-auto">
+												<input class="form-check-input position-static" name="curso_relacionado" type="checkbox" id="checkbox_asignatura_{{curso["id"]}}" value="{{curso["id"]}}">
+											</div>
+										</td>
+											<td>{{curso["codigo_udp"]}}</td>
+											<td>{{curso["nombre"]}}</td>
+									</tr>
+								{% endfor %}
+							</tbody>
+						</table>
+					</div>
+				</div>
+		{% else %}
+			<div class="alert alert-warning alert-dismissible fade show text-center mt-2" role="alert">
+				<i class="fas fa-exclamation-triangle mr-2"></i>No se han encontrado cursos asociados a tu cuenta. Puedes contactar al laboratorista para realizar el registro.
+			</div>
+		{% endif %}
+
+		<div class="card-header mt-4" style="background:#0db26b;">
 			<h5 class="card-title text-white my-auto"><i class="fas fa-shopping-cart mr-2"></i>Tu carro de pedidos</h5>
 			<p class="text-white my-auto"><i class="fas fa-info-circle mr-2"></i>A medida que selecciones equipos, estos irán apareciendo en tu lista de pedidos.</p>
 		</div>
@@ -116,6 +163,8 @@
 				<button type="button" id="boton-vaciar-carro" onclick="vaciar_carro()" class="btn my-auto btn-danger"><i class="fas fa-trash-alt mr-2"></i>Vaciar carro</button>
 				<button type="button" class="btn my-auto btn-success" data-toggle="modal" data-target="#confirmacion_pedido"><i class="fas fa-clipboard-check mr-2"></i>Confirmar pedido</button>
 			</div>
+	
+			
 
 	<script type="text/javascript">
 
@@ -155,8 +204,9 @@
 						event.preventDefault();
 				});
 
+				// Tabla de equipos
 				$('#tabla_equipos_solicitud').DataTable( {
-						"order": [[ 0, "desc" ]],
+						"order": [[ 0, "asc" ]],
 						"language": {
 								"lengthMenu": "Mostrar _MENU_ registros por página",
 								"zeroRecords": "No se han encontrado registros.",
@@ -170,6 +220,51 @@
 								"infoFiltered": "(filtrado de _MAX_ registros totales)"
 							}
 					} );
+				
+				// Tabla de cursos
+				var tabla_asignaturas = $('#tabla_lista_asignaturas').DataTable( {
+						"order": [[ 1, "asc" ]],
+						"language": {
+								"lengthMenu": "Mostrar _MENU_ registros por página",
+								"zeroRecords": "No se han encontrado registros.",
+								"info": "Mostrando página _PAGE_ de _PAGES_",
+								"infoEmpty": "Sin registros disponibles.",
+								"search":         "Buscar",
+								"paginate": {
+										"next":       "Siguiente",
+										"previous":   "Anterior"
+								},
+								"infoFiltered": "(filtrado de _MAX_ registros totales)"
+							},
+							'columnDefs': [{
+								'targets': 0,
+								'searchable': false,
+								'orderable': false
+							}]
+					} );
+
+					// Checkboxes de lista de asignaturas
+					// Handle click on "Select all" control
+					$('#asignaturas-select-all').on('click', function(){
+							// Get all rows with search applied
+							var rows = tabla_asignaturas.rows({ 'search': 'applied' }).nodes();
+							// Check/uncheck checkboxes for all rows in the table
+							$('input[type="checkbox"]', rows).prop('checked', this.checked);
+					});
+
+					// Handle click on checkbox to set state of "Select all" control
+					$('#tabla_lista_asignaturas tbody').on('change', 'input[type="checkbox"]', function(){
+							// If checkbox is not checked
+							if(!this.checked){
+								var el = $('#asignaturas-select-all').get(0);
+								// If "Select all" control is checked and has 'indeterminate' property
+								if(el && el.checked && ('indeterminate' in el)){
+										// Set visual state of "Select all" control
+										// as 'indeterminate'
+										el.indeterminate = true;
+								}
+							}
+					});
 
 		});
 
@@ -214,6 +309,20 @@
 			 });
 			event.preventDefault();
 		}
+
+		$(function () {
+			$('[data-toggle="popover"]').popover()
+		});
+
+		$("#form_pedido_carro").submit( function(eventObj) {
+			// Se agregan los checkbox de los cursos relacionados al formulario
+      // Se destruye la tabla para poder obtener los checkboxes activos en las distintas páginas
+			// Datatable oculta los checkbox de páginas secundarias, y el formulario no los obtiene de por sí.
+			$('#tabla_lista_asignaturas').DataTable().destroy();
+			// Se modifica el estilo de los checkbox para no mostrarlos
+			$(".form-check-input").css("opacity","0");
+			$(this).append($(".form-check-input"));
+		});
 
 	</script>
 

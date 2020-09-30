@@ -1,0 +1,63 @@
+
+
+<div class="card-header mt-4" style="background:#0db26b;">
+	<h5 class="card-title text-white my-auto">Historial de solicitudes de préstamos</h5>
+	<p class="text-white my-auto"><i class="fas fa-info-circle mr-2"></i>En esta sección podrá encontrar las solicitudes que se encuentran rechazadas y/o finalizadas.</p>
+	
+		<a href="/exportar_solicitudes/3">
+			<button disabled type="button" title="Exportar historial de solicitudes" class="btn btn-sm btn-secondary waves-effect waves-light"><i class="fas fa-file-excel mr-2"></i>Exportar registros</button>
+		</a>
+	
+</div>
+
+
+
+<div class="table-responsive mt-2">
+    <div class="table-wrapper-scroll-y" style="position: relative; overflow:auto;">
+              <table class="table mt-5" id="tabla_solicitudes_activas">
+                <thead class="text-white" style="background:#4D4D4D;">
+                  <tr>
+                    <th title="ID de solicitud" scope="col">IDS</th>
+                    <th title="ID de detalle de solicitud" scope="col">IDD</th>
+                    <th scope="col">RUT de alumno solicitante</th>
+                    <th scope="col">Nombre del solicitante</th>
+                    <th scope="col">Componente solicitado</th>
+                    <th scope="col">Cantidad</th>
+                    <th scope="col">Estado</th>
+                    <th scope="col">Fecha de registro</th>
+                    <th scope="col">Fecha de devolución</th>
+                    <th scope="col">Acciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                      {% for elemento in lista_solicitudes_historial%}
+                          <tr style="background:#ECF0F1;">
+                              <td>{{elemento.IDS}}</td>
+                              <td>{{elemento.IDD}}</td>
+                              <td>{{elemento.rut | formato_rut }}</td>
+                              <td>{{elemento.nombres}} {{elemento.apellidos}}</td>
+                              <td>{{elemento.componente}}</td>
+                              <td>{{elemento.cantidad}}</td>
+                                <td class="text-center">
+                                    {% if elemento.estado == 'Devuelto' %}
+                                    <span class="badge badge-secondary">Devuelto</span>
+                                    {% elif elemento.estado == 'Rechazada' %}
+                                    <span class="badge badge-danger">Rechazada</span>
+                                    {% elif elemento.estado == 'Cancelada' %}
+                                    <span class="badge badge-warning">Cancelada</span>
+                                    {% else %}
+                                    {{elemento.estado}}
+                                    {% endif %}
+                                </td>
+                              <td>{{elemento.fecha_registro if elemento.fecha_registro}}</td>
+                              <td>{{elemento.fecha_devolucion if elemento.fecha_devolucion}}</td>
+                              <td>
+                                <button type="button" title="Ver detalle de solicitud" onclick='modal_historial_ver_detalles({{elemento | tojson}})' class="btn btn-sm btn-secondary mr-1 waves-effect waves-light"><i class="fas fa-search-plus"></i></button>
+                              </td>
+                          </tr>
+                      {% endfor %}
+                </tbody>
+              </table>
+          </div>
+</div>
+{% include "vistas_gestion_solicitudes_circuitos/modals/historial_ver_detalles.html" %}

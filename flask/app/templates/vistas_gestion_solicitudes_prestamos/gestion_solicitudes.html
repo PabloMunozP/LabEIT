@@ -1,7 +1,6 @@
 {% extends "layout_in.html" %}
 	{%block body%}
 
-	{% include "/vistas_gestion_solicitudes_prestamos/modals/confirmacion_eliminacion_entrante.html" %}
 	{% include "/vistas_gestion_solicitudes_prestamos/modals/formulario_solicitud_agil.html" %}
 
 	<section id="tabs" class="project-tab mt-2">
@@ -37,6 +36,14 @@
 										{% if msg == "detalle-eliminado" %}
 										<div class="alert alert-success mt-2 alert-dismissible fade show" role="alert">
 												<i class="fas fa-check-circle mr-2"></i>El detalle de solicitud ha sido eliminado correctamente.
+												<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+														<span aria-hidden="true">&times;</span>
+												</button>
+										</div>
+										{% endif %}
+										{% if msg == "detalles-seleccionados-eliminados" %}
+										<div class="alert alert-success mt-2 alert-dismissible fade show" role="alert">
+												<i class="fas fa-check-circle mr-2"></i>Los detalles de solicitud han sido eliminados correctamente.
 												<button type="button" class="close" data-dismiss="alert" aria-label="Close">
 														<span aria-hidden="true">&times;</span>
 												</button>
@@ -113,7 +120,118 @@
 
 <script type="text/javascript">
 	$(document).ready(function() {
-			$('#tabla_solicitudes_por_revisar, #tabla_solicitudes_activas, #tabla_historial_solicitudes, #tabla_solicitudes_canastas').DataTable( {
+
+		var tabla_solicitudes_por_revisar = $('#tabla_solicitudes_por_revisar').DataTable( {
+					"order": [[ 2, "desc" ]],
+					"language": {
+							"lengthMenu": "Mostrar _MENU_ registros por página",
+							"zeroRecords": "No se han encontrado registros.",
+							"info": "Mostrando página _PAGE_ de _PAGES_",
+							"infoEmpty": "Sin registros disponibles.",
+							"search":         "Buscar",
+							"paginate": {
+									"next":       "Siguiente",
+									"previous":   "Anterior"
+							},
+							"infoFiltered": "(filtrado de _MAX_ registros totales)"
+						},
+						'columnDefs': [{
+								'targets': 0,
+								'searchable': false,
+								'orderable': false
+							}]
+				} );
+
+				// Checkbox - Detalles de solicitudes pendientes -----------------------
+				// Handle click on "Select all" control
+				$('#detalles-select-all').on('click', function(){
+							// Get all rows with search applied
+							var rows = tabla_solicitudes_por_revisar.rows({ 'search': 'applied' }).nodes();
+							// Check/uncheck checkboxes for all rows in the table
+							$('input[type="checkbox"]', rows).prop('checked', this.checked);
+					});
+
+					// Handle click on checkbox to set state of "Select all" control
+					$('#tabla_solicitudes_por_revisar tbody').on('change', 'input[type="checkbox"]', function(){
+							// If checkbox is not checked
+							if(!this.checked){
+								var el = $('#detalles-select-all').get(0);
+								// If "Select all" control is checked and has 'indeterminate' property
+								if(el && el.checked && ('indeterminate' in el)){
+										// Set visual state of "Select all" control
+										// as 'indeterminate'
+										el.indeterminate = true;
+								}
+							}
+					});
+
+					// Submit de formulario para eliminar detalles pendientes seleccionados
+					$("#form_eliminar_checkbox_pendientes").submit(function(eventObj){
+						$('#tabla_solicitudes_por_revisar').DataTable().destroy();
+						// Se modifica el estilo de los checkbox para no mostrarlos
+						$(".checkbox-detalle-pendiente").css("opacity","0");
+						$(this).append($(".checkbox-detalle-pendiente"));
+					});
+
+				// -----------------------------------------------------------------------------
+
+				var tabla_historial_solicitudes = $('#tabla_historial_solicitudes').DataTable( {
+					"order": [[ 8, "desc" ]],
+					"language": {
+							"lengthMenu": "Mostrar _MENU_ registros por página",
+							"zeroRecords": "No se han encontrado registros.",
+							"info": "Mostrando página _PAGE_ de _PAGES_",
+							"infoEmpty": "Sin registros disponibles.",
+							"search":         "Buscar",
+							"paginate": {
+									"next":       "Siguiente",
+									"previous":   "Anterior"
+							},
+							"infoFiltered": "(filtrado de _MAX_ registros totales)"
+						},
+						'columnDefs': [{
+								'targets': 0,
+								'searchable': false,
+								'orderable': false
+							}]
+				} );
+
+				// Checkbox - Historial de detalles de solicitudes -----------------------
+				// Handle click on "Select all" control
+				$('#detalles-historial-select-all').on('click', function(){
+							// Get all rows with search applied
+							var rows = tabla_historial_solicitudes.rows({ 'search': 'applied' }).nodes();
+							// Check/uncheck checkboxes for all rows in the table
+							$('input[type="checkbox"]', rows).prop('checked', this.checked);
+					});
+
+					// Handle click on checkbox to set state of "Select all" control
+					$('#tabla_historial_solicitudes tbody').on('change', 'input[type="checkbox"]', function(){
+							// If checkbox is not checked
+							if(!this.checked){
+								var el = $('#detalles-historial-select-all').get(0);
+								// If "Select all" control is checked and has 'indeterminate' property
+								if(el && el.checked && ('indeterminate' in el)){
+										// Set visual state of "Select all" control
+										// as 'indeterminate'
+										el.indeterminate = true;
+								}
+							}
+					});
+
+					// Submit de formulario para eliminar detalles pendientes seleccionados
+					$("#form_eliminar_checkbox_historial").submit(function(eventObj){
+						$('#tabla_historial_solicitudes').DataTable().destroy();
+						// Se modifica el estilo de los checkbox para no mostrarlos
+						$(".checkbox-detalle-historial").css("opacity","0");
+						$(this).append($(".checkbox-detalle-historial"));
+					});
+
+
+				// -----------------------------------------------------------------------------
+			
+			
+			$('#tabla_solicitudes_activas, #tabla_solicitudes_canastas').DataTable( {
 					"order": [[ 0, "desc" ]],
 					"language": {
 							"lengthMenu": "Mostrar _MENU_ registros por página",
@@ -128,7 +246,60 @@
 							"infoFiltered": "(filtrado de _MAX_ registros totales)"
 						}
 				} );
-		} );
+
+				// Tabla de cursos
+							var tabla_asignaturas = $('#tabla_lista_asignaturas').DataTable( {
+								"order": [[ 1, "asc" ]],
+								"language": {
+										"lengthMenu": "Mostrar _MENU_ registros por página",
+										"zeroRecords": "No se han encontrado registros.",
+										"info": "Mostrando página _PAGE_ de _PAGES_",
+										"infoEmpty": "Sin registros disponibles.",
+										"search":         "Buscar",
+										"paginate": {
+												"next":       "Siguiente",
+												"previous":   "Anterior"
+										},
+										"infoFiltered": "(filtrado de _MAX_ registros totales)"
+									},
+									'columnDefs': [{
+										'targets': 0,
+										'searchable': false,
+										'orderable': false
+									}]
+							} );
+							// Checkboxes de lista de asignaturas
+					// Handle click on "Select all" control
+					$('#asignaturas-select-all').on('click', function(){
+							// Get all rows with search applied
+							var rows = tabla_asignaturas.rows({ 'search': 'applied' }).nodes();
+							// Check/uncheck checkboxes for all rows in the table
+							$('input[type="checkbox"]', rows).prop('checked', this.checked);
+					});
+
+					// Handle click on checkbox to set state of "Select all" control
+					$('#tabla_lista_asignaturas tbody').on('change', 'input[type="checkbox"]', function(){
+							// If checkbox is not checked
+							if(!this.checked){
+								var el = $('#asignaturas-select-all').get(0);
+								// If "Select all" control is checked and has 'indeterminate' property
+								if(el && el.checked && ('indeterminate' in el)){
+										// Set visual state of "Select all" control
+										// as 'indeterminate'
+										el.indeterminate = true;
+								}
+							}
+					});
+
+					// Submit de formulario de solicitud ágil para agregar checkboxes de asignaturas asociadas
+					$("#form_registrar_solicitud_agil").submit(function(eventObj){
+						$('#tabla_lista_asignaturas').DataTable().destroy();
+						// Se modifica el estilo de los checkbox para no mostrarlos
+						$(".checkbox-asignatura-asociada").css("opacity","0");
+						$(this).append($(".checkbox-asignatura-asociada"));
+					});
+
+				} );
 </script>
 
 

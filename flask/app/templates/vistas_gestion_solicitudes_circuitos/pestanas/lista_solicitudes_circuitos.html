@@ -1,0 +1,53 @@
+
+<div class="card-header mt-4" style="background:#0db26b;">
+	<h5 class="card-title text-white my-auto">Lista de solicitudes de préstamos por revisar</h5>
+	<p class="text-white my-auto"><i class="fas fa-info-circle mr-2"></i>En esta sección podrá encontrar la lista de solicitudes entrantes que aún no han sido revisadas.</p>
+	<span class="btn-group">
+		<button type="button" class="btn btn-sm btn-secondary mr-2 waves-effect waves-light" onclick="show_modal_nd2QHZ()"><i class="fas fa-plus-circle mr-2"></i>Registrar solicitud</button>
+		
+			<a href="/exportar_solicitudes/1">
+				<button disabled type="button" title="Exportar solicitudes por revisar" class="btn btn-sm btn-secondary waves-effect waves-light"><i class="fas fa-file-excel mr-2"></i>Exportar registros</button>
+			</a>
+		
+	</span>
+</div>
+
+<div class="table-responsive mt-2">
+    <div class="table-wrapper-scroll-y" style="position: relative; overflow:auto;">
+              <table class="table mt-5" id="tabla_solicitudes_pendientes">
+                <thead class="text-white" style="background:#4D4D4D;">
+                  <tr>
+                    <th title="ID de solicitud" scope="col">IDS</th>
+                    <th title="ID de detalle de solicitud" scope="col">IDD</th>
+                    <th scope="col">RUT de alumno solicitante</th>
+                    <th scope="col">Nombre del solicitante</th>
+                    <th scope="col">Componente solicitado</th>
+                    <th scope="col">Cantidad</th>
+                    <th scope="col">Fecha de registro</th>
+                    <th scope="col">Acciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                      {% for elemento in lista_solicitudes_pendientes %}
+                          <tr style="background:#ECF0F1;">
+                              <td>{{elemento.IDS}}</td>
+                              <td>{{elemento.IDD}}</td>
+                              <td>{{elemento.rut | formato_rut }}</td>
+                              <td>{{elemento.nombres}} {{elemento.apellidos}}</td>
+                              <td>{{elemento.componente}}</td>
+                              <td>{{elemento.cantidad}}</td>
+                              <td>{{elemento.fecha_registro}}</td>
+                              <td>
+                                <span class="btn-group">
+                                    <button type="button" title="Ver detalle de solicitud" onclick='modal_ver_detalle_pendiente({{elemento|tojson}})' class="btn btn-sm btn-secondary mr-1 waves-effect waves-light"><i class="fas fa-search-plus"></i></button>
+								</span>
+                              </td>
+                          </tr>
+                      {% endfor %}
+                </tbody>
+              </table>
+          </div>
+</div>
+
+      {% include "vistas_gestion_solicitudes_circuitos/modals/pendientes_ver_detalles.html" %}
+      {% include "vistas_gestion_solicitudes_circuitos/modals/pendientes_rechazo_motivo.html" %}

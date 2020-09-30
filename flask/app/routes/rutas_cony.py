@@ -104,9 +104,17 @@ def solicitudes_prestamos():
         equipo = cursor.fetchone()
         equipo["cantidad_pedidos"] = pedido[1]
         lista_carro.append(equipo)
+    
+    # Se obtienen los cursos registrados
+    query="""
+        SELECT Curso.id,Curso.codigo_udp,Curso.nombre
+            FROM Curso
+    """
+    cursor.execute(query)
+    lista_cursos = cursor.fetchall()
 
     return render_template("/solicitudes_prestamos/solicitud_equipos.html",
-        lista_equipos=lista_equipos,lista_carro=lista_carro)
+        lista_equipos=lista_equipos,lista_carro=lista_carro,lista_cursos=lista_cursos)
 
 @mod.route("/agregar_al_carro",methods=["POST"])
 def agregar_al_carro():
@@ -206,6 +214,17 @@ def registrar_solicitud():
             """
             for i in range(pedido[1]):
                 cursor.execute(sql_query,(id_solicitud,pedido[0]))
+        
+        # Se verifica si se seleccionaron cursos relacionados al pedido
+        lista_checkboxes = request.form.getlist("curso_relacionado")
+
+        # En caso de que existan cursos seleccionados, se enlazan a la solicitud
+        for id_curso in lista_checkboxes:
+            sql_query = """
+                INSERT INTO Solicitud_curso (id_solicitud,id_curso)
+                    VALUES (%s,%s)
+            """
+            cursor.execute(sql_query,(id_solicitud,id_curso))
 
     # Se vacía el carro de pedidos una vez registrada la solicitud completa
     session["carro_pedidos"] = []
@@ -484,6 +503,14 @@ def eliminar_curso_form():
     if request.method == 'POST':
         curso_por_eliminar = request.form.to_dict()
         eliminar_curso(curso_por_eliminar)
+
+        # Se eliminan las relaciones con solicitudes en caso de existir
+        sql_query = """
+            DELETE FROM Solicitud_curso
+                WHERE id_curso = %s
+        """
+        cursor.execute(sql_query,(curso_por_eliminar["id"],))
+
         flash("El curso fue eliminado correctamente")
         return redirect("/gestion_cursos")
 

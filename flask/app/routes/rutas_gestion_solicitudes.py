@@ -1,26 +1,27 @@
-from flask import Flask,Blueprint,render_template,request,redirect,url_for,flash,session,jsonify,send_file
-from config import db,cursor,BASE_DIR
-import os,time,bcrypt,random,timeago
-import smtplib
+import smtplib,json
+from uuid import uuid4 # Token
 from email import encoders
+from openpyxl import Workbook
+from jinja2 import Environment
 from email.mime.base import MIMEBase
 from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
-from jinja2 import Environment
-from uuid import uuid4 # Token
 from datetime import datetime,timedelta
-from openpyxl import Workbook
+from werkzeug.utils import secure_filename
+import os,time,bcrypt,random,timeago,shutil
+from email.mime.multipart import MIMEMultipart
 from openpyxl.styles import Font, PatternFill, Alignment
 from openpyxl.styles.borders import Border, Side, BORDER_THIN
+from config import db,cursor,BASE_DIR,ALLOWED_EXTENSIONS,MAX_CONTENT_LENGTH
+from flask import Flask,Blueprint,render_template,request,redirect,url_for,flash,session,jsonify,send_file
 
-mod = Blueprint("rutas_seba",__name__)
+mod = Blueprint("rutas_gestion_solicitudes",__name__)
 
 def redirect_url(default='index'): # Redireccionamiento desde donde vino la request
     return request.args.get('next') or \
            request.referrer or \
            url_for(default)
 
-def enviar_correo_notificacion(archivo,str_para,str_asunto,correo_usuario): # Envío de correo (notificaciones de solicitudes de préstamo)
+def enviar_correo_notificacion(archivo,str_asunto,correo_usuario): # Envío de correo (notificaciones de solicitudes de préstamo)
     # Se crea el mensaje
     correo = MIMEText(archivo,"html")
     correo.set_charset("utf-8")
@@ -41,307 +42,6 @@ def enviar_correo_notificacion(archivo,str_para,str_asunto,correo_usuario): # En
         print(e)
         flash("correo-fallido") # Notificación de fallo al enviar el correo
 
-# Vista principal de la plataforma.
-# En caso de estar autenticado, redirecciona dentro del sistema.
-# En caso contrario, se mantiene en el login.
-@mod.route("/",methods=["GET"])
-def principal():
-    # Se verifican las IPs bloqueadas
-    sql_query = """
-        SELECT COUNT(*) AS cantidad_bloqueos
-            FROM Bloqueos_IP
-                WHERE ip = %s
-                AND activo = 1
-    """
-    cursor.execute(sql_query,(request.remote_addr,))
-    registro_bloqueo_activo = bool(cursor.fetchone()["cantidad_bloqueos"])
-
-    if registro_bloqueo_activo:
-        return render_template("/vistas_errores/403_externo.html"), 403
-
-    if "usuario" not in session.keys():
-        # Se crea (en caso de no existir) la cantidad de intentos para ingresar
-        if "intentos_login" not in session.keys():
-            session["intentos_login"] = 10
-        return render_template("/vistas_exteriores/login.html")
-    else:
-        return redirect('/perfil')
-
-# Luego de ingresar los datos en el formulario del login, se reciben para la autenticación.
-@mod.route("/iniciar_sesion",methods=["POST"])
-def iniciar_sesion():
-    datos_solicitante = request.form.to_dict() # Se obtienen los datos del formulario
-    datos_solicitante["rut"] = datos_solicitante["rut"]
-    datos_solicitante["password"] = datos_solicitante["password"]
-
-    # Se obtienen los datos del colaborador (contraseña --> hash de contraseña)
-    sql_query = """
-        SELECT rut,nombres,apellidos,id_credencial,email,contraseña
-            FROM Usuario
-                WHERE rut = %s
-    """
-    cursor.execute(sql_query,(datos_solicitante["rut"],))
-    # Se obtienen los datos asociados al rut ingresado en el formulario
-    datos_usuario_registrado = cursor.fetchone()
-
-    # Si no se obtiene un registro, entonces el rut no se encuentra registrado en el sistema
-    if datos_usuario_registrado is None:
-        flash("credenciales-invalidas") # Se notifica al front-end acerca del error para alertar al usuario
-        session["intentos_login"] -= 1 # Se descuenta el intento correspondiente
-
-        if session["intentos_login"] == 1:
-            # Se notifica acerca del último intento
-            flash("ultimo-intento-login")
-
-        if session["intentos_login"] == 0:
-            # Se registra el bloqueo en la base de datos
-            fecha_bloqueo = datetime.now()
-            # Se establece la fecha de término del bloqueo
-            fecha_termino = fecha_bloqueo + timedelta(days=1)
-            sql_query = """
-                INSERT INTO Bloqueos_IP (ip,fecha_bloqueo)
-                    VALUES (%s,%s)
-            """
-            cursor.execute(sql_query,(request.remote_addr,fecha_bloqueo))
-
-        return redirect(url_for("rutas_seba.principal"))
-
-    # En caso de que la cuenta exista, se comprueban las contraseñas
-    # Se codifica la password ingresada en el formulario para comparación de hash
-    datos_solicitante["password"] = datos_solicitante["password"].encode(encoding="UTF-8")
-
-    # Si las contraseñas no coinciden, entonces se devuelve al login y se notifica el error
-    if not bcrypt.checkpw(datos_solicitante["password"],datos_usuario_registrado["contraseña"].encode(encoding="UTF-8")):
-        flash("credenciales-invalidas") # Se notifica al front-end acerca del error para alertar al usuario
-        session["intentos_login"] -= 1 # Se descuenta el intento correspondiente
-
-        if session["intentos_login"] == 1:
-            # Se notifica acerca del último intento
-            flash("ultimo-intento-login")
-
-        if session["intentos_login"] == 0:
-            # Se registra el bloqueo en la base de datos
-            fecha_bloqueo = datetime.now()
-            # Se establece la fecha de término del bloqueo
-            fecha_termino = fecha_bloqueo + timedelta(days=1)
-            sql_query = """
-                INSERT INTO Bloqueos_IP (ip,fecha_bloqueo)
-                    VALUES (%s,%s)
-            """
-            cursor.execute(sql_query,(request.remote_addr,fecha_bloqueo))
-
-        return redirect(url_for("rutas_seba.principal"))
-
-    # En caso de que se compruebe la validez de la contraseña, se crea la sesión
-    # Adicionalmente, se redirecciona al perfil de usuario
-    del datos_usuario_registrado["contraseña"]
-    session["usuario"] = {} # Creación de sesión para usuario
-    for atributo in datos_usuario_registrado.keys():
-        session["usuario"][str(atributo)] = datos_usuario_registrado[str(atributo)]
-
-    # Se verifica si el usuario presenta sanciones
-    sql_query = """
-        SELECT *
-            FROM Sanciones
-                WHERE rut_alumno = %s
-                AND activa = 1
-    """
-    cursor.execute(sql_query,(session["usuario"]["rut"],))
-    sancion_usuario = cursor.fetchone()
-
-    if sancion_usuario is not None:
-        session["usuario"]["sancionado"] = True
-    else: # Si no se recibe nada de la consulta, no tiene sanciones
-        session["usuario"]["sancionado"] = False
-
-    # Se elimina el registro de los intentos de login
-    del session["intentos_login"]
-
-    return redirect('/perfil')
-
-# Vista para recuperación de contraseña.
-@mod.route("/recuperacion_password",methods=["GET"])
-def recuperacion_password():
-    return render_template("/vistas_exteriores/recuperacion_password.html")
-
-@mod.route("/enviar_recuperacion_password",methods=["POST"])
-def enviar_recuperacion_password():
-
-    # Se obtienen los datos del formulario
-    datos_recuperacion = request.form.to_dict()
-    datos_recuperacion["identificacion_usuario"] = datos_recuperacion["identificacion_usuario"]
-
-    # Se revisa si el RUT o correo coincide con el registro de usuarios
-    sql_query = """
-        SELECT rut,nombres,email
-            FROM Usuario
-                WHERE rut = %s
-                OR email = %s
-    """
-    cursor.execute(sql_query,(datos_recuperacion["identificacion_usuario"],datos_recuperacion["identificacion_usuario"]))
-    datos_usuario = cursor.fetchone()
-
-    # Si el correo o el rut no se encuentran registrados, se alerta al usuario
-    if datos_usuario is None:
-        flash("notificacion-recuperacion")
-        return redirect(url_for("rutas_seba.recuperacion_password"))
-
-    # En caso de existir registro, se envía el correo de recuperación y se alerta al usuario
-
-    # Se abre el template HTML correspondiente al restablecimiento de contraseña
-    direccion_template = os.path.normpath(os.path.join(os.getcwd(), "app/templates/vistas_exteriores/recuperacion_password_mail.html"))
-    archivo_html = open(direccion_template,encoding="utf-8").read()
-
-    # Se crea el token único para restablecimiento de contraseña
-    token = str(uuid4())
-
-    # Se eliminan los registros de token asociados al rut del usuario en caso de existir
-    sql_query = """
-        DELETE FROM Token_recuperacion_password
-            WHERE rut_usuario = %s
-    """
-    cursor.execute(sql_query,(datos_usuario["rut"],))
-
-    # Se reemplazan los datos del usuario en el template a enviar vía correo
-    archivo_html = archivo_html.replace("%nombre_usuario%",datos_usuario["nombres"])
-    archivo_html = archivo_html.replace("%codigo_restablecimiento%",str(random.randint(0,1000)))
-    archivo_html = archivo_html.replace("%token_restablecimiento%",token)
-
-    # Se crea el mensaje
-    correo = MIMEText(archivo_html,"html")
-    correo.set_charset("utf-8")
-    correo["From"] = "labeit.udp@gmail.com"
-    correo["To"] = datos_usuario["email"]
-    correo["Subject"] = "Recuperación de contraseña"
-
-    try:
-        server = smtplib.SMTP("smtp.gmail.com",587)
-        server.starttls()
-        server.login("labeit.udp@gmail.com","LabEIT_UDP_2020")
-        str_correo = correo.as_string()
-        server.sendmail("labeit.udp@gmail.com",datos_usuario["email"],str_correo)
-        server.close()
-        # Se registra el token en la base de datos según el RUT del usuario
-        fecha_actual = datetime.now().replace(microsecond=0)
-        sql_query = """
-            INSERT INTO Token_recuperacion_password
-                (token,rut_usuario,fecha_registro)
-                    VALUES (%s,%s,%s)
-        """
-        cursor.execute(sql_query,(str(token),datos_usuario["rut"],fecha_actual))
-
-    except Exception as e:
-        print(e)
-
-    flash("notificacion-recuperacion")
-    return redirect(url_for("rutas_seba.recuperacion_password"))
-
-# Se redirecciona al formulario con el token respectivo al recuperar contraseña
-@mod.route("/restablecer_password/<string:token>",methods=["GET"])
-def restablecer_password(token):
-
-    # Se verifica si el token se encuentra registrado
-    # En caso de que esté registrado, se permite el acceso al formulario
-    # En caso contrario, se redirecciona a la sección de recuperar contraseña
-
-    sql_query = """
-        SELECT token_id,rut_usuario
-            FROM Token_recuperacion_password
-                WHERE token = %s
-    """
-    cursor.execute(sql_query,(token,))
-    registro_token = cursor.fetchone()
-
-    # En caso de que el token sea inválido, se redirecciona a la sección de recuperación de contraseña
-    if registro_token is None:
-        return redirect(url_for("rutas_seba.recuperacion_password"))
-
-    # Se obtiene el nombre del usuario
-    sql_query = """
-        SELECT nombres,apellidos
-            FROM Usuario
-                WHERE rut = %s
-    """
-    cursor.execute(sql_query,(registro_token["rut_usuario"],))
-    registro_nombre_usuario = cursor.fetchone()
-
-    if registro_nombre_usuario is not None:
-        registro_token["nombres_usuario"] = registro_nombre_usuario["nombres"]
-        registro_token["apellidos_usuario"] = registro_nombre_usuario["apellidos"]
-    else:
-        registro_token["nombres_usuario"] = ""
-        registro_token["apellidos_usuario"] = ""
-
-    return render_template("/vistas_exteriores/formulario_restablecer_password.html",
-        registro_token = registro_token)
-
-@mod.route("/recuperacion/modificar_password",methods=["POST"])
-def modificar_password_recuperacion():
-    datos_formulario = request.form.to_dict()
-
-    # Se obtiene la identificación del usuario mediante el ID de token
-    sql_query = """
-        SELECT rut_usuario
-            FROM Token_recuperacion_password
-                WHERE token_id = %s
-    """
-    cursor.execute(sql_query,(int(datos_formulario["token_id"]),))
-    datos_usuario = cursor.fetchone()
-
-    # Si se ha obtenido un registro, se obtiene el rut
-    if datos_usuario is not None:
-        rut_usuario = datos_usuario["rut_usuario"]
-    else:
-        # No existe un rut de usuario asociado al token (posible error)
-        # Se notifica al usuario y se redirecciona
-        flash("error-id-token")
-        return redirect(url_for("rutas_seba.principal"))
-
-    # ------------------------------------ El registro de ID de token y usuario existe
-    # Se comprueba que ambas contraseñas (nueva y confirmación) coincidan
-    if datos_formulario["nueva_contraseña"] != datos_formulario["confirmacion_contraseña"]:
-        # Si no coindicen, se notifica y se retorna al formulario desde donde vino
-        flash("contraseñas-no-coinciden")
-        return redirect(redirect_url())
-
-    # Si coindicen, se elimina la confirmación
-    del datos_formulario["confirmacion_contraseña"]
-
-    # Se realiza la encriptación de la nueva contraseña para guardar en base de datos
-    hashpass = bcrypt.hashpw(datos_formulario["nueva_contraseña"].encode(encoding="UTF-8"), bcrypt.gensalt())
-
-    # Se almacena la nueva contraseña en la base de datos
-    sql_query = """
-        UPDATE Usuario
-            SET contraseña = %s
-                WHERE rut = %s
-    """
-    cursor.execute(sql_query,(hashpass.decode("UTF-8"),rut_usuario))
-
-    # Se elimina el token generado de la base de datos
-    sql_query = """
-        DELETE FROM Token_recuperacion_password
-            WHERE token_id = %s
-    """
-    cursor.execute(sql_query,(int(datos_formulario["token_id"]),))
-
-    flash("contraseña-actualizada") # Se notifica el éxito al modificar la contraseña
-    return redirect(url_for("rutas_seba.principal")) # Se redirecciona al login
-
-@mod.route("/cerrar_sesion",methods=["GET"])
-def cerrar_sesion():
-    if "usuario" not in session.keys():
-        return redirect(redirect_url())
-
-    # Se elimina al usuario de la sesión
-    del session["usuario"]
-    # Se elimina el carro de pedidos en caso de existir
-    if "carro_pedidos" in session.keys():
-        del session["carro_pedidos"]
-
-    # Se redirecciona al login una vez eliminada la sesión de usuario
-    return redirect("/")
-
 
 # ================================== GESTIÓN DE SOLICITUDES DE PRÉSTAMOS
 @mod.route("/gestion_solicitudes_prestamos",methods=["GET"])
@@ -359,7 +59,6 @@ def gestion_solicitudes_prestamos():
                 AND Detalle_solicitud.id_equipo = Equipo.id
                 AND Solicitud.rut_alumno = Usuario.rut
                 AND Detalle_solicitud.estado = 0
-                ORDER BY Solicitud.fecha_registro DESC
     """
     cursor.execute(sql_query)
     lista_solicitudes_por_revisar = cursor.fetchall()
@@ -374,7 +73,6 @@ def gestion_solicitudes_prestamos():
                 AND Solicitud.rut_alumno = Usuario.rut
                 AND Detalle_solicitud.estado != 0
                 AND Detalle_solicitud.estado < 5
-                ORDER BY Solicitud.fecha_registro DESC
     """
     cursor.execute(sql_query)
     lista_solicitudes_activas = cursor.fetchall()
@@ -389,7 +87,6 @@ def gestion_solicitudes_prestamos():
                 AND Solicitud.rut_alumno = Usuario.rut
                 AND Detalle_solicitud.estado != 0
                 AND Detalle_solicitud.estado >= 5
-                ORDER BY Detalle_solicitud.fecha_devolucion DESC,Detalle_solicitud.fecha_rechazo DESC,Detalle_solicitud.fecha_cancelacion DESC
     """
     cursor.execute(sql_query)
     lista_historial_solicitudes = cursor.fetchall()
@@ -422,12 +119,21 @@ def gestion_solicitudes_prestamos():
     cursor.execute(sql_query)
     lista_solicitud_canasta = cursor.fetchall()
 
+    # Se obtienen los cursos registrados para asociar a la solicitud ágil
+    sql_query = """
+        SELECT id,codigo_udp,nombre
+            FROM Curso
+    """
+    cursor.execute(sql_query)
+    lista_asignaturas = cursor.fetchall()
+
     return render_template("/vistas_gestion_solicitudes_prestamos/gestion_solicitudes.html",
     lista_solicitudes_por_revisar=lista_solicitudes_por_revisar,
     lista_solicitudes_activas=lista_solicitudes_activas,
     lista_historial_solicitudes=lista_historial_solicitudes,
     lista_equipos_disponibles=lista_equipos_disponibles,
-    lista_solicitud_canasta=lista_solicitud_canasta)
+    lista_solicitud_canasta=lista_solicitud_canasta,
+    lista_asignaturas=lista_asignaturas)
 
 @mod.route("/gestion_solicitudes_prestamos/detalle_solicitud/<string:id_detalle_solicitud>",methods=["GET"])
 def detalle_solicitud(id_detalle_solicitud):
@@ -558,6 +264,17 @@ def detalle_solicitud(id_detalle_solicitud):
         usuario_sancionado = True
     else:
         usuario_sancionado = False
+    
+    # Se obtiene la lista de cursos asociados a la solicitud
+    sql_query = """
+        SELECT Curso.id,Curso.codigo_udp,Curso.nombre
+            FROM Curso,Solicitud_curso
+                WHERE Curso.id = Solicitud_curso.id_curso
+                AND Solicitud_curso.id_solicitud = %s
+                ORDER BY Curso.nombre
+    """
+    cursor.execute(sql_query,(datos_encabezado_solicitud["id"],))
+    lista_cursos_asociados = cursor.fetchall()
 
     return render_template("/vistas_gestion_solicitudes_prestamos/detalle_solicitud.html",
         datos_detalle_solicitud=datos_detalle_solicitud,
@@ -567,7 +284,8 @@ def detalle_solicitud(id_detalle_solicitud):
         lista_usuarios=lista_usuarios,
         lista_equipos=lista_equipos,
         lista_equipos_prestamo=lista_equipos_prestamo,
-        usuario_sancionado=usuario_sancionado)
+        usuario_sancionado=usuario_sancionado,
+        lista_cursos_asociados=lista_cursos_asociados)
 
 @mod.route("/rechazar_solicitud/<string:id_detalle>",methods=["POST"])
 def rechazar_solicitud(id_detalle):
@@ -580,7 +298,6 @@ def rechazar_solicitud(id_detalle):
 
     # Razón de rechazo de solicitud
     razon_rechazo = request.form.to_dict()["razon_rechazo"]
-    razon_rechazo = razon_rechazo.replace("\n", "<br>") # Se modifica con new line de HTML para insertar en template
 
     # Se obtienen los datos al equipo y detalle de solicitud para notificar al usuario vía correo
     sql_query = """
@@ -599,14 +316,16 @@ def rechazar_solicitud(id_detalle):
     if datos_solicitud_rechazada is None:
         flash("solicitud-no-encontrada")
         return redirect("/gestion_solicitudes_prestamos")
+    
+    razon_rechazo = razon_rechazo.strip()
 
     # Si existe la solicitud, es marcada como rechazada (Historial)
     sql_query = """
         UPDATE Detalle_solicitud
-            SET estado = 5,fecha_rechazo = %s
+            SET estado = 5,fecha_rechazo = %s,razon_termino = %s
                 WHERE id = %s
     """
-    cursor.execute(sql_query,(datetime.now().replace(microsecond=0),id_detalle))
+    cursor.execute(sql_query,(datetime.now().replace(microsecond=0),razon_rechazo,id_detalle))
 
     # Por último, se notifica al usuario sobre el rechazo de la solicitud
     # Se obtienen los datos del usuario
@@ -627,14 +346,15 @@ def rechazar_solicitud(id_detalle):
     archivo_html = archivo_html.replace("%equipo_solicitado%",datos_solicitud_rechazada["nombre"]+" "+datos_solicitud_rechazada["marca"]+" "+datos_solicitud_rechazada["modelo"])
     archivo_html = archivo_html.replace("%fecha_registro%",str(datos_solicitud_rechazada["fecha_registro"]))
     archivo_html = archivo_html.replace("%fecha_revision_solicitud%",fecha_revision_solicitud)
-
-    razon_rechazo = razon_rechazo.strip()
+    
     if len(razon_rechazo) == 0:
         razon_rechazo = "** No se ha adjuntado un motivo de rechazo de solicitud. **"
+    else:
+        razon_rechazo = razon_rechazo.replace("\n","<br>")
 
     archivo_html = archivo_html.replace("%razon_rechazo%",razon_rechazo)
 
-    enviar_correo_notificacion(archivo_html,datos_usuario["email"],"[LabEIT] Rechazo de solicitud de préstamo [IDD:"+str(id_detalle)+"]",datos_usuario["email"])
+    enviar_correo_notificacion(archivo_html,"[LabEIT] Rechazo de solicitud de préstamo [IDD:"+str(id_detalle)+"]",datos_usuario["email"])
 
     flash("solicitud-rechazada-correctamente")
     return redirect(redirect_url())
@@ -733,13 +453,18 @@ def aprobar_solicitud(id_detalle):
     fecha_revision_solicitud = str(datetime.now().replace(microsecond=0))
     archivo_html = archivo_html.replace("%fecha_revision_solicitud%",fecha_revision_solicitud)
 
-    enviar_correo_notificacion(archivo_html,datos_usuario["email"],"[LabEIT] Aprobación de solicitud de préstamo [IDD:"+str(id_detalle)+"]",datos_usuario["email"])
+    enviar_correo_notificacion(archivo_html,"[LabEIT] Aprobación de solicitud de préstamo [IDD:"+str(id_detalle)+"]",datos_usuario["email"])
 
     flash("solicitud-aprobada-correctamente")
     return redirect(redirect_url())
 
-@mod.route("/eliminar_solicitud/<string:id_detalle>",methods=["POST"])
+@mod.route("/eliminar_solicitud/<string:id_detalle>",methods=["GET"])
 def eliminar_solicitud(id_detalle):
+    if "usuario" not in session.keys():
+        return redirect("/")
+    if session["usuario"]["id_credencial"] != 3: # El usuario debe ser un administrador (Credencial = 3)
+        return redirect("/")
+
     # Permite eliminar el detalle de solicitud con id = id_solicitud
 
     # Se obtiene el ID de solicitud (id general) para determinar si se debe eliminar el encabezado
@@ -784,7 +509,71 @@ def eliminar_solicitud(id_detalle):
         """
         cursor.execute(sql_query,(id_encabezado_solicitud,))
 
+        # Se eliminan las posibles asociaciones con asignaturas
+        sql_query = """
+            DELETE FROM
+                Solicitud_curso
+                    WHERE id_solicitud = %s
+        """
+        cursor.execute(sql_query,(id_encabezado_solicitud,))
+
     flash("detalle-eliminado")
+    return redirect(redirect_url())
+
+@mod.route("/eliminar_detalles_seleccionados",methods=["POST"])
+def eliminar_detalles_seleccionados():
+    # Permite eliminar los detalles que hayan sido seleccionados
+    # en las tablas de detalles pendientes, activos e historial.
+    lista_detalles_solicitudes = request.form.getlist("eliminar_detalle_solicitud")
+
+    # Se retorna en caso de que no se encuentren detalles seleccionados
+    if not len(lista_detalles_solicitudes):
+        return redirect(redirect_url())
+    
+    # Se obtienen los ids de encabezado de solicitudes para posteriormente
+    # eliminar los que tengan 0 detalles
+    lista_encabezados_solicitudes = []
+    for id_detalle in lista_detalles_solicitudes:
+        sql_query = """
+            SELECT id_solicitud
+                FROM Detalle_solicitud
+                    WHERE id = %s
+        """
+        cursor.execute(sql_query,(id_detalle,))
+        registro_encabezado_solicitud = cursor.fetchone()
+
+        if registro_encabezado_solicitud is None:
+            continue
+
+        id_encabezado_solicitud = registro_encabezado_solicitud["id_solicitud"]
+
+        if id_encabezado_solicitud not in lista_encabezados_solicitudes:
+            lista_encabezados_solicitudes.append(id_encabezado_solicitud)
+
+    # Se eliminan todos los detalles de solicitudes seleccionados
+    sql_query = "DELETE FROM Detalle_solicitud WHERE id IN (%s)" % ','.join(['%s'] * len(lista_detalles_solicitudes))
+    cursor.execute(sql_query,lista_detalles_solicitudes)
+
+    # Se eliminan los encabezados de solicitud en caso de que se hayan eliminado todos sus detalles
+    for id_encabezado_solicitud in lista_encabezados_solicitudes:
+        sql_query = """
+            DELETE FROM Solicitud
+                WHERE id = %s
+                AND (SELECT COUNT(*) FROM Detalle_solicitud WHERE id_solicitud = %s) = 0
+        """
+        cursor.execute(sql_query,(id_encabezado_solicitud,id_encabezado_solicitud))
+
+        # Si se realizó la eliminación de la solicitud,
+        # se eliminan las posibles asociaciones con asignaturas
+        if cursor.rowcount > 0:
+            sql_query = """
+                DELETE FROM
+                    Solicitud_curso
+                        WHERE id_solicitud = %s
+            """
+            cursor.execute(sql_query,(id_encabezado_solicitud,))
+
+    flash("detalles-seleccionados-eliminados")
     return redirect(redirect_url())
 
 @mod.route("/eliminar_solicitud_canasta/<string:id_solicitud>",methods=["POST"])
@@ -797,6 +586,15 @@ def eliminar_solicitud_canasta(id_solicitud):
                 WHERE id = %s
     """
     cursor.execute(sql_query,(id_solicitud,))
+    
+    # Se eliminan las posibles asociaciones con asignaturas
+    sql_query = """
+        DELETE FROM
+            Solicitud_curso
+                WHERE id_solicitud = %s
+    """
+    cursor.execute(sql_query,(id_solicitud,))
+
     return redirect("/gestion_solicitudes_prestamos")
 
 @mod.route("/cancelar_solicitud/<string:id_detalle>",methods=["POST"])
@@ -810,12 +608,15 @@ def cancelar_solicitud(id_detalle):
     fecha_cancelacion_solicitud = str(fecha_cancelacion_solicitud.date())+" "+str(fecha_cancelacion_solicitud.hour)+":"+str(fecha_cancelacion_solicitud.minute)
 
     # Se libera el codigo de sufijo de equipo del detalle de solicitud y se modifica el estado
+    razon_cancelacion = datos_formulario["razon_cancelacion"]
+    razon_cancelacion = razon_cancelacion.strip()
+
     sql_query = """
         UPDATE Detalle_solicitud
-            SET estado = 7,codigo_sufijo_equipo = NULL,fecha_cancelacion = %s
+            SET estado = 7,codigo_sufijo_equipo = NULL,fecha_cancelacion = %s,razon_termino = %s
                 WHERE id = %s
     """
-    cursor.execute(sql_query,(datetime.now().replace(microsecond=0),id_detalle))
+    cursor.execute(sql_query,(datetime.now().replace(microsecond=0),razon_cancelacion,id_detalle))
 
     # Se obtienen los datos necesarios para el correo
 
@@ -858,16 +659,14 @@ def cancelar_solicitud(id_detalle):
 
     archivo_html = archivo_html.replace("%fecha_cancelacion_solicitud%",str(fecha_cancelacion_solicitud))
 
-    razon_cancelacion = datos_formulario["razon_cancelacion"]
-    razon_cancelacion = razon_cancelacion.strip()
-    razon_cancelacion = razon_cancelacion.replace("\n", "<br>")
-
     if len(razon_cancelacion) == 0:
         razon_cancelacion = "** No se ha adjuntado una razón de cancelación de solicitud. **"
+    else:
+        razon_cancelacion = razon_cancelacion.replace("\n","<br>")
 
     archivo_html = archivo_html.replace("%razon_cancelacion%",razon_cancelacion)
 
-    enviar_correo_notificacion(archivo_html,datos_usuario["email"],"[LabEIT] Cancelación de solicitud de préstamo [IDD:"+str(id_detalle)+"]",datos_usuario["email"])
+    enviar_correo_notificacion(archivo_html,"[LabEIT] Cancelación de solicitud de préstamo [IDD:"+str(id_detalle)+"]",datos_usuario["email"])
 
     flash("solicitud-cancelada")
     return redirect(redirect_url())
@@ -948,7 +747,7 @@ def entregar_equipo(id_detalle):
     archivo_html = archivo_html.replace("%fecha_inicio_prestamo%",fecha_inicio_prestamo)
     archivo_html = archivo_html.replace("%fecha_termino_prestamo%",fecha_termino_prestamo)
 
-    enviar_correo_notificacion(archivo_html,datos_usuario["email"],"[LabEIT] Comprobante de retiro de equipo [IDD:"+str(id_detalle)+"]",datos_usuario["email"])
+    enviar_correo_notificacion(archivo_html,"[LabEIT] Comprobante de retiro de equipo [IDD:"+str(id_detalle)+"]",datos_usuario["email"])
 
     flash("retiro-correcto")
     return redirect(redirect_url())
@@ -1041,7 +840,7 @@ def devolucion_equipo(id_detalle):
     archivo_html = archivo_html.replace("%codigo_sufijo%",datos_generales_solicitud["codigo_sufijo_equipo"])
     archivo_html = archivo_html.replace("%fecha_devolucion_equipo%",str(fecha_devolucion_equipo))
 
-    enviar_correo_notificacion(archivo_html,datos_usuario["email"],"[LabEIT] Comprobante de devolución de equipo [IDD:"+str(id_detalle)+"]",datos_usuario["email"])
+    enviar_correo_notificacion(archivo_html,"[LabEIT] Comprobante de devolución de equipo [IDD:"+str(id_detalle)+"]",datos_usuario["email"])
     flash("equipo-devuelto")
     return redirect(redirect_url())
 
@@ -1086,7 +885,11 @@ def exportar_solicitudes(id_exportacion):
                 CONCAT(Usuario.nombres," ",Usuario.apellidos) AS 'Nombre del solicitante',
                 CONCAT(Equipo.nombre," ",Equipo.marca," ",Equipo.modelo) AS 'Equipo solicitado',
                 Equipo.codigo AS 'Código de equipo',
-                Solicitud.fecha_registro AS 'Fecha de registro'
+                Solicitud.fecha_registro AS 'Fecha de registro',
+                (SELECT GROUP_CONCAT(Curso.nombre ORDER BY Curso.nombre) FROM Curso,Solicitud_curso
+                        WHERE Curso.id = Solicitud_curso.id_curso
+                        AND Solicitud_curso.id_solicitud = Detalle_solicitud.id_solicitud
+                ) as 'Asignaturas asociadas'
                     FROM Detalle_solicitud,Solicitud,Equipo,Usuario
                         WHERE Detalle_solicitud.id_solicitud = Solicitud.id
                         AND Detalle_solicitud.id_equipo = Equipo.id
@@ -1112,7 +915,11 @@ def exportar_solicitudes(id_exportacion):
                 Detalle_solicitud.fecha_termino AS 'Fecha de término',
                 Detalle_solicitud.fecha_devolucion AS 'Fecha de devolución',
                 Detalle_solicitud.fecha_vencimiento AS 'Fecha de vencimiento',
-                Detalle_solicitud.renovaciones AS 'Cantidad de renovaciones'
+                Detalle_solicitud.renovaciones AS 'Cantidad de renovaciones',
+                (SELECT GROUP_CONCAT(Curso.nombre ORDER BY Curso.nombre) FROM Curso,Solicitud_curso
+                        WHERE Curso.id = Solicitud_curso.id_curso
+                        AND Solicitud_curso.id_solicitud = Detalle_solicitud.id_solicitud
+                ) as 'Asignaturas asociadas'
                     FROM Detalle_solicitud,Solicitud,Equipo,Usuario,Estado_detalle_solicitud
                         WHERE Detalle_solicitud.id_solicitud = Solicitud.id
                         AND Detalle_solicitud.id_equipo = Equipo.id
@@ -1141,7 +948,12 @@ def exportar_solicitudes(id_exportacion):
                 Detalle_solicitud.fecha_vencimiento AS 'Fecha de vencimiento',
                 Detalle_solicitud.fecha_rechazo AS 'Fecha de rechazo',
                 Detalle_solicitud.fecha_cancelacion AS 'Fecha de cancelación',
-                Detalle_solicitud.renovaciones AS 'Cantidad de renovaciones'
+                Detalle_solicitud.renovaciones AS 'Cantidad de renovaciones',
+                Detalle_solicitud.razon_termino AS 'Motivo de término',
+                (SELECT GROUP_CONCAT(Curso.nombre ORDER BY Curso.nombre) FROM Curso,Solicitud_curso
+                        WHERE Curso.id = Solicitud_curso.id_curso
+                        AND Solicitud_curso.id_solicitud = Detalle_solicitud.id_solicitud
+                ) as 'Asignaturas asociadas'
                     FROM Detalle_solicitud,Solicitud,Equipo,Usuario,Estado_detalle_solicitud
                         WHERE Detalle_solicitud.id_solicitud = Solicitud.id
                         AND Detalle_solicitud.id_equipo = Equipo.id
@@ -1182,7 +994,7 @@ def exportar_solicitudes(id_exportacion):
         return redirect(redirect_url())
 
     for i in range(len(lista_columnas)):
-        celda = ws.cell(row=2,column=i+1)
+        celda = ws.cell(row=1,column=i+1)
         celda.font = Font(bold=True,color="FFFFFF")
         celda.border = borde_delgado
         celda.fill = PatternFill("solid", fgColor="4D4D4D")
@@ -1190,7 +1002,7 @@ def exportar_solicitudes(id_exportacion):
         celda.value = lista_columnas[i]
 
     # Se agregan los registros
-    index_row = 3
+    index_row = 2
     index_column = 1
     for detalle in lista_detalles:
         for key in detalle:
@@ -1212,241 +1024,8 @@ def exportar_solicitudes(id_exportacion):
 
     return send_file(direccion_archivo,as_attachment=True)
 
-# ========= ESTADÍSTICAS GENERALES ===================
-@mod.route("/estadisticas_generales",methods=["GET"])
-def estadisticas_generales():
-    if "usuario" not in session.keys():
-        return redirect("/")
-    if session["usuario"]["id_credencial"] != 3: # El usuario debe ser un administrador (Credencial = 3)
-        return redirect("/")
 
-    # Se obtiene las cantidades según estados de solicitudes de préstamos
-    cantidades_solicitudes_estados = {}
-    # Solicitudes entrantes (por revisar)
-    sql_query = """
-        SELECT COUNT(*) as cantidad_solicitudes_entrantes
-            FROM Detalle_solicitud
-                WHERE estado = 0
-    """
-    cursor.execute(sql_query)
-    cantidades_solicitudes_estados["solicitudes_entrantes"] = cursor.fetchone()["cantidad_solicitudes_entrantes"]
-
-    # Retiros pendientes de solicitudes aprobadas
-    sql_query = """
-        SELECT COUNT(*) as cantidad_retiros_pendientes
-            FROM Detalle_solicitud
-                WHERE estado = 1
-    """
-    cursor.execute(sql_query)
-    cantidades_solicitudes_estados["retiros_pendientes"] = cursor.fetchone()["cantidad_retiros_pendientes"]
-
-    # Préstamos activos (en posesión)
-    sql_query = """
-        SELECT COUNT(*) as cantidad_en_posesion
-            FROM Detalle_solicitud
-                WHERE estado = 2
-    """
-    cursor.execute(sql_query)
-    cantidades_solicitudes_estados["en_posesion"] = cursor.fetchone()["cantidad_en_posesion"]
-
-    # Préstamos con atrasos
-    sql_query = """
-        SELECT COUNT(*) as cantidad_con_atrasos
-            FROM Detalle_solicitud
-                WHERE estado = 3
-    """
-    cursor.execute(sql_query)
-    cantidades_solicitudes_estados["con_atrasos"] = cursor.fetchone()["cantidad_con_atrasos"]
-
-    # Préstamos finalizados (Se contabilizan los que se encuentran aún en estado 'devuelto')
-    sql_query = """
-        SELECT COUNT(*) as cantidad_finalizados
-            FROM Detalle_solicitud
-                WHERE estado = 4
-                OR estado = 6
-    """
-    cursor.execute(sql_query)
-    cantidades_solicitudes_estados["finalizados"] = cursor.fetchone()["cantidad_finalizados"]
-
-    # Solicitudes rechazadas y canceladas
-    # Préstamos finalizados (Se contabilizan los que se encuentran aún en estado 'devuelto')
-    sql_query = """
-        SELECT COUNT(*) as cantidad_rechazadas_canceladas
-            FROM Detalle_solicitud
-                WHERE estado = 5
-                OR estado = 7
-    """
-    cursor.execute(sql_query)
-    cantidades_solicitudes_estados["rechazadas_canceladas"] = cursor.fetchone()["cantidad_rechazadas_canceladas"]
-
-    # Se obtiene la lista de usuarios registrados
-    sql_query = """
-        SELECT rut,nombres,apellidos
-            FROM Usuario
-                ORDER BY apellidos,nombres
-    """
-    cursor.execute(sql_query)
-    lista_usuarios = cursor.fetchall()
-
-    return render_template("/estadisticas/estadisticas_generales.html",
-        cantidades_solicitudes_estados=cantidades_solicitudes_estados,
-        lista_usuarios=lista_usuarios)
-
-@mod.route("/consultar_estadisticas_solicitudes",methods=["POST"])
-def consultar_estadisticas_solicitudes():
-    # Se obtiene la lista de equipos que se han solicitado en cualquiera de los estados
-    # durante las fechas "desde" (limite_inferior) y "hasta" (limite_superior) indicadas.
-
-    datos_formulario = request.form.to_dict()
-    datos_formulario["id_consulta"] = int(datos_formulario["id_consulta"])
-
-    if datos_formulario["id_consulta"] == 1:
-        # Consulta 1: Se obtienen los equipos solicitados entre los días solicitados
-
-        # Se agrega la hora 23:59 a las fechas para cubrir los días límites en su totalidad
-        datos_formulario["limite_inferior"] = datetime.strptime(datos_formulario["limite_inferior"],"%Y-%m-%d").replace(hour=0,minute=0)
-        datos_formulario["limite_superior"] = datetime.strptime(datos_formulario["limite_superior"],"%Y-%m-%d").replace(hour=23,minute=59)
-
-        limite_inferior_iteracion = datos_formulario["limite_inferior"]
-        limite_superior_iteracion = limite_inferior_iteracion.replace(hour=23,minute=59)
-
-        datos_finales_grafico = []
-
-        sql_query = """
-            SELECT Equipo.id,Equipo.nombre,Equipo.marca,Equipo.modelo
-                FROM Equipo
-        """
-        cursor.execute(sql_query)
-        lista_equipos_registrados = cursor.fetchall()
-
-        if not len(lista_equipos_registrados):
-            return jsonify([])
-
-        # Se crea la lista con las categorías para posteriormente ponerlas en el gráfico
-        lista_categorias = []
-        lista_categorias.append("Equipo")
-        for equipo in lista_equipos_registrados:
-            label_equipo = ""+equipo["nombre"]+" "+equipo["marca"]+" "+equipo["modelo"]
-            lista_categorias.append(label_equipo)
-        dict_chart = {'role':'annotation'} # Necesario según documentación de Google Charts
-        lista_categorias.append(dict(dict_chart))
-        datos_finales_grafico.append(lista_categorias)
-
-        while limite_inferior_iteracion <= datos_formulario["limite_superior"]:
-            # Fila
-            datos_fila = []
-            # Se agrega la fecha en la primera columna (por documentación de Google Charts)
-            datos_fila.append(str(limite_inferior_iteracion.date()))
-
-            for equipo in lista_equipos_registrados:
-                # Se seleccionan los equipos según las fechas
-                sql_query = """
-                    SELECT COUNT(*) AS cantidad_equipos
-                        FROM Equipo,Detalle_solicitud,Solicitud
-                            WHERE Equipo.id = Detalle_solicitud.id_equipo
-                            AND Detalle_solicitud.id_solicitud = Solicitud.id
-                            AND Solicitud.fecha_registro >= %s
-                            AND Solicitud.fecha_registro <= %s
-                            AND Equipo.id = %s
-                            GROUP BY Equipo.id
-                """
-                cursor.execute(sql_query,(limite_inferior_iteracion,limite_superior_iteracion,equipo["id"]))
-                registro_cantidad = cursor.fetchone()
-
-                if registro_cantidad is None:
-                    cantidad_equipos = 0
-                else:
-                    cantidad_equipos = registro_cantidad["cantidad_equipos"]
-                datos_fila.append(cantidad_equipos)
-            datos_fila.append("")
-            datos_finales_grafico.append(datos_fila)
-
-            # Se aumenta 1 día a ambos límites, inferior y superior
-            limite_inferior_iteracion += timedelta(days=1)
-            limite_superior_iteracion += timedelta(days=1)
-
-
-        return jsonify(datos_finales_grafico)
-
-    elif datos_formulario["id_consulta"] == 2:
-        # Consulta 2: Se obtienen las cantidades para cada equipo solicitado según las fechas del formulario
-        # en los distintos estados de solicitudes (por revisar, por retirar, etc)
-
-        # Se agrega la hora 23:59 a las fechas para cubrir los días límites en su totalidad
-        datos_formulario["limite_inferior"] = str(datetime.strptime(datos_formulario["limite_inferior"],"%Y-%m-%d").replace(hour=0,minute=0))
-        datos_formulario["limite_superior"] = str(datetime.strptime(datos_formulario["limite_superior"],"%Y-%m-%d").replace(hour=23,minute=59))
-
-        # Se obtiene la lista de estados para poder realizar las consultar por cada una de ellas
-        sql_query = """
-            SELECT Estado_detalle_solicitud.id,Estado_detalle_solicitud.nombre
-                FROM Estado_detalle_solicitud
-        """
-        cursor.execute(sql_query)
-        lista_estados = cursor.fetchall()
-
-        # Se obtienen los equipos según las fechas del formulario para categorías en el gráfico
-        sql_query = """
-            SELECT Equipo.id,Equipo.nombre,Equipo.marca,Equipo.modelo
-                FROM Equipo,Detalle_solicitud,Solicitud
-                    WHERE Equipo.id = Detalle_solicitud.id_equipo
-                    AND Detalle_solicitud.id_solicitud = Solicitud.id
-                    AND Solicitud.fecha_registro >= %s
-                    AND Solicitud.fecha_registro <= %s
-                    GROUP BY Equipo.id
-        """
-        cursor.execute(sql_query,(datos_formulario["limite_inferior"],datos_formulario["limite_superior"]))
-        lista_equipos = cursor.fetchall()
-
-        if not len(lista_equipos):
-            return jsonify([])
-
-        # Se crea la lista con las categorías para posteriormente ponerlas en el gráfico
-        lista_categorias = []
-        lista_categorias.append("Equipo")
-        for equipo in lista_equipos:
-            label_equipo = ""+equipo["nombre"]+" "+equipo["marca"]+" "+equipo["modelo"]
-            lista_categorias.append(label_equipo)
-        dict_chart = {'role':'annotation'} # Necesario según documentación de Google Charts
-        lista_categorias.append(dict(dict_chart))
-
-        # Para cada equipo y para cada estado se obtiene la cantidad de detalles de solicitudes asociados
-        # según la fecha de registro
-
-        datos_grafico = {}
-        for estado in lista_estados:
-            datos_grafico[estado["nombre"]] = []
-            datos_grafico[estado["nombre"]].append(estado["nombre"])
-            for equipo in lista_equipos:
-                sql_query = """
-                    SELECT COUNT(*) AS cantidad_equipos
-                        FROM Equipo,Detalle_solicitud,Solicitud,Estado_detalle_solicitud
-                            WHERE Equipo.id = Detalle_solicitud.id_equipo
-                            AND Detalle_solicitud.id_solicitud = Solicitud.id
-                            AND Solicitud.fecha_registro >= %s
-                            AND Solicitud.fecha_registro <= %s
-                            AND Detalle_solicitud.estado = Estado_detalle_solicitud.id
-                            AND Estado_detalle_solicitud.id = %s
-                            AND Equipo.id = %s
-                            GROUP BY Equipo.id
-                """
-                cursor.execute(sql_query,(datos_formulario["limite_inferior"],datos_formulario["limite_superior"],estado["id"],equipo["id"]))
-                cantidad_equipos = cursor.fetchone()
-                if cantidad_equipos is None:
-                    cantidad_equipos = 0
-                else:
-                    cantidad_equipos = cantidad_equipos["cantidad_equipos"]
-
-                datos_grafico[estado["nombre"]].append(cantidad_equipos)
-            datos_grafico[estado["nombre"]].append("")
-
-        # Se crea el objeto final con todos los datos según lo establecido en la API de Google Charts
-        datos_finales = []
-        datos_finales.append(lista_categorias)
-        for estado in datos_grafico:
-            datos_finales.append(datos_grafico[estado])
-
-        return jsonify(datos_finales)
-
+# ================= CANASTAS ============================
 # Rutas solicitudes ágiles
 @mod.route("/registrar_solicitud_agil",methods=["POST"])
 def registrar_solicitud_agil():
@@ -1542,6 +1121,16 @@ def registrar_solicitud_agil():
                     VALUES (%s,%s,%s,%s,2,%s)
         """
         cursor.execute(sql_query,(id_solicitud,id_equipo,fecha_inicio,fecha_termino,codigo_sufijo))
+    
+    # Se verifica si se seleccionaron cursos relacionados al pedido
+    lista_checkboxes = request.form.getlist("curso_relacionado")
+    # En caso de que existan cursos seleccionados, se enlazan a la solicitud
+    for id_curso in lista_checkboxes:
+        sql_query = """
+                INSERT INTO Solicitud_curso (id_solicitud,id_curso)
+                    VALUES (%s,%s)
+            """
+        cursor.execute(sql_query,(id_solicitud,id_curso))
 
     flash("solicitud-registrada")
     return redirect(redirect_url())
@@ -1623,98 +1212,22 @@ def detalle_canasta_solicitud(id_solicitud):
         usuario_sancionado = True
     else:
         usuario_sancionado = False
+    
+    # Se obtiene la lista de cursos asociados a la solicitud
+    sql_query = """
+        SELECT Curso.id,Curso.codigo_udp,Curso.nombre
+            FROM Curso,Solicitud_curso
+                WHERE Curso.id = Solicitud_curso.id_curso
+                AND Solicitud_curso.id_solicitud = %s
+                ORDER BY Curso.nombre
+    """
+    cursor.execute(sql_query,(id_solicitud,))
+    lista_cursos_asociados = cursor.fetchall()
 
     return render_template("/vistas_gestion_solicitudes_prestamos/detalle_canasta_solicitud.html",
         solicitud=solicitud,
         equipos_disponibles=equipos_disponibles,
         datos_usuario=datos_usuario,
         lista_detalles_solicitud=lista_detalles_solicitud,
-        usuario_sancionado=usuario_sancionado)
-
-# MENSAJES ADMINISTRATIVOS
-@mod.route("/mensajes_administrativos",methods=["GET"])
-def mensajes_administrativos():
-    if "usuario" not in session.keys():
-        return redirect("/")
-    if session["usuario"]["id_credencial"] != 3: # El usuario debe ser un administrador (Credencial = 3)
-        return redirect("/")
-
-    # Se obtiene la lista de mensajes administrativos registrados
-    sql_query = """
-        SELECT * FROM Mensaje_administrativo
-            ORDER BY fecha_registro DESC
-    """
-    cursor.execute(sql_query)
-    lista_mensajes_administrativos = cursor.fetchall()
-
-    # Se obtiene el timeago para cada una de las fechas de registro de cada mensaje
-    for mensaje_administrativo in lista_mensajes_administrativos:
-        mensaje_administrativo["timeago_mensaje"] = timeago.format(mensaje_administrativo["fecha_registro"], datetime.now(), 'es')
-        mensaje_administrativo["fecha_eliminacion"] = mensaje_administrativo["fecha_eliminacion"].date()
-
-    return render_template("/mensajes_administrativos/mensajes_admin.html",
-        lista_mensajes_administrativos=lista_mensajes_administrativos)
-
-@mod.route("/registrar_mensaje_administrativo",methods=["POST"])
-def registrar_mensaje_administrativo():
-    datos_formulario = request.form.to_dict()
-
-    # Se verifica si existe fecha de eliminación
-    if not len(datos_formulario["fecha_eliminacion"]):
-        # No se especificó una fecha de eliminación
-        datos_formulario["fecha_eliminacion"] = str(datetime.now().date())
-
-    # Se agrega la hora 23:59 a la fecha de eliminación
-    datos_formulario["fecha_eliminacion"] = datetime.strptime(datos_formulario["fecha_eliminacion"],"%Y-%m-%d")
-    datos_formulario["fecha_eliminacion"] = str(datos_formulario["fecha_eliminacion"].replace(hour=23,minute=59,second=0))
-
-    sql_query = """
-        INSERT INTO Mensaje_administrativo
-            (titulo,mensaje,fecha_eliminacion,fecha_registro)
-                VALUES (%s,%s,%s,%s)
-    """
-    cursor.execute(sql_query,(datos_formulario["titulo"],datos_formulario["mensaje"],datos_formulario["fecha_eliminacion"],datetime.now().replace(microsecond=0)))
-
-    return redirect(redirect_url())
-
-@mod.route("/eliminar_mensaje_administrativo/<string:id_mensaje>",methods=["POST"])
-def eliminar_mensaje_administrativo(id_mensaje):
-    sql_query = """
-        DELETE FROM Mensaje_administrativo
-            WHERE id = %s
-    """
-    cursor.execute(sql_query,(id_mensaje,))
-
-    flash("mensaje-borrado")
-    return redirect(redirect_url())
-
-@mod.route("/modificar_mensaje_administrativo/<string:id_mensaje>",methods=["POST"])
-def modificar_mensaje_administrativo(id_mensaje):
-    datos_formulario = request.form.to_dict()
-
-    # Se verifica si existe fecha de eliminación
-    if not len(datos_formulario["fecha_eliminacion"]):
-        # No se especificó una fecha de eliminación
-        datos_formulario["fecha_eliminacion"] = str(datetime.now().date())
-
-    # Se agrega la hora 23:59 a la fecha de eliminación
-    datos_formulario["fecha_eliminacion"] = datetime.strptime(datos_formulario["fecha_eliminacion"],"%Y-%m-%d")
-    datos_formulario["fecha_eliminacion"] = str(datos_formulario["fecha_eliminacion"].replace(hour=23,minute=59,second=0))
-
-    sql_query = """
-        UPDATE Mensaje_administrativo
-            SET titulo=%s,mensaje=%s,fecha_eliminacion=%s,fecha_actualizacion=%s
-                WHERE id=%s
-    """
-    cursor.execute(sql_query,(datos_formulario["titulo"],datos_formulario["mensaje"],datos_formulario["fecha_eliminacion"],str(datetime.now()),id_mensaje))
-
-    flash("mensaje-modificado")
-    return redirect(redirect_url())
-
-@mod.route("/reglamento_interno_labeit",methods=["GET"])
-def descargar_reglamento_interno():
-    if "usuario" not in session.keys():
-        return redirect("/")
-
-    ruta_reglamento_labeit = os.path.normpath(os.path.join(BASE_DIR,"app/static/files/reglamentos/reglamento_labeit.pdf"))
-    return send_file(ruta_reglamento_labeit,as_attachment=True)
+        usuario_sancionado=usuario_sancionado,
+        lista_cursos_asociados=lista_cursos_asociados)

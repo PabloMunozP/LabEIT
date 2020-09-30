@@ -215,28 +215,48 @@
 
 				{% if datos_detalle_solicitud["fecha_vencimiento"] %}
 					<div class="form-group row">
-						<label class="col col-form-label texto-gris-eit">
+						<label class="col-md-4 col-form-label texto-gris-eit">
 							<strong>Fecha de vencimiento:</strong>
 						</label>
-						<div class="col">
+						<div class="col-md-4">
 							<p class="form-control-plaintext text-break">
 								{{datos_detalle_solicitud["fecha_vencimiento"]}}
 							</p>
 						</div>
-						{% if datos_detalle_solicitud["fecha_cancelacion"] %}
-						<label class="col col-form-label texto-gris-eit">
+					</div>
+				{% endif %}
+
+				{% if datos_detalle_solicitud["fecha_cancelacion"] %}
+				<hr>
+					<div class="form-group row">
+						<label class="col-md-4 col-form-label texto-gris-eit">
 							<strong>Fecha de cancelación:</strong>
 						</label>
-						<div class="col">
+						<div class="col-md-4">
 							<p class="form-control-plaintext text-break">
 								{{datos_detalle_solicitud["fecha_cancelacion"]}}
 							</p>
 						</div>
-						{% endif %}
 					</div>
+					{% if datos_detalle_solicitud["razon_termino"] %}
+						<div class="form-group row">
+							<label class="col-md-4 col-form-label texto-gris-eit">
+								<strong>Motivo de cancelación:</strong>
+							</label>
+							<div class="col-md-8">
+								<p class="form-control-plaintext text-break">
+									{% autoescape false %}
+										{{datos_detalle_solicitud["razon_termino"]|nl2br}}
+									{% endautoescape %}
+								</p>
+							</div>
+						</div>
+					{% endif %}
+					<hr>
 				{% endif %}
 
 				{% if datos_detalle_solicitud["fecha_rechazo"] %}
+				<hr>
 					<div class="form-group row">
 						<label class="col-md-4 col-form-label texto-gris-eit">
 							<strong>Fecha de rechazo:</strong>
@@ -247,9 +267,62 @@
 							</p>
 						</div>
 					</div>
+					{% if datos_detalle_solicitud["razon_termino"] %}
+						<div class="form-group row">
+							<label class="col-md-4 col-form-label texto-gris-eit">
+								<strong>Motivo de rechazo:</strong>
+							</label>
+							<div class="col-md-8">
+								<p class="form-control-plaintext text-break">
+									{% autoescape false %}
+										{{datos_detalle_solicitud["razon_termino"]|nl2br}}
+									{% endautoescape %}
+								</p>
+							</div>
+						</div>
+					{% endif %}
+					<hr>
 				{% endif %}
 
+					<div class="form-group row">
+						<label class="col-md-4 col-form-label texto-gris-eit">
+							<strong>Cantidad de renovaciones realizadas por el usuario:</strong>
+						</label>
+						<div class="col-md-8">
+							<p class="form-control-plaintext text-break">
+								{{datos_detalle_solicitud["renovaciones"]}}
+							</p>
+						</div>
+					</div>
 
+				{% if lista_cursos_asociados %}
+					<div class="form-group row">
+						<label class="col-12 col-form-label texto-gris-eit">
+							<strong>Asignaturas asociadas a la solicitud</strong>
+						</label>
+					</div>
+					<div class="table-responsive mt-2">
+						<div class="table-wrapper-scroll-y" style="overflow-y:auto;">
+								<table class="table" id="tabla_lista_asignaturas">
+									<thead class="text-white" style="background:#4D4D4D;">
+										<tr>
+											<th scope="col">Código de la asignatura</th>
+											<th scope="col">Nombre de la asignatura</th>
+										</tr>
+									</thead>
+									<tbody>
+										{% for curso in lista_cursos_asociados %}
+											<tr style="background:#fff;">
+													<td>{{curso["codigo_udp"]}}</td>
+													<td><a title="Ir al detalle del curso" style="color: inherit;" href="/gestion_cursos/detalles_curso/{{curso["codigo_udp"]}}">{{curso["nombre"]}}</a></td>
+											</tr>
+										{% endfor %}
+									</tbody>
+								</table>
+							</div>
+						</div>
+				{% endif %}
+				
 			</div>
 
 			<div class="card-header border-0 rounded-0" style="background:#0db26b;">
@@ -262,7 +335,7 @@
 					</label>
 					<div class="col-md-2">
 						<p class="form-control-plaintext text-break">
-							<a href="/gestion_usuarios/ver_usuario?rut={{datos_alumno["rut"]}}" title="Ver perfil del usuario" style="text-decoration:none;">{{datos_alumno["rut"]|formato_rut}}</a>
+							<a href="/gestion_usuarios/ver_usuario/{{datos_alumno["rut"]}}" title="Ver perfil del usuario" style="text-decoration:none;">{{datos_alumno["rut"]|formato_rut}}</a>
 						</p>
 					</div>
 					<label class="col-md-2 col-form-label texto-gris-eit">
@@ -455,10 +528,10 @@
 						{% if not usuario_sancionado %}
 							<button type="button" class="btn btn-success mr-1" data-toggle="modal" data-target="#confirmacion_aprobacion_solicitud"><i class="fas fa-clipboard-check mr-1"></i>Aprobar solicitud</button>
 						{% endif %}
-						<form class="" action="/eliminar_solicitud/{{datos_detalle_solicitud["id"]}}" method="post">
-							<button type="submit" class="btn btn-danger mr-1"><i class="fas fa-minus-circle mr-1"></i>Eliminar solicitud</button>
-						</form>
-					{% elif datos_detalle_solicitud["estado"] == 1 %}
+						<a href="/eliminar_solicitud/{{datos_detalle_solicitud["id"]}}">
+							<button type="button" class="btn btn-danger mr-1"><i class="fas fa-minus-circle mr-1"></i>Eliminar solicitud</button>
+						</a>
+							{% elif datos_detalle_solicitud["estado"] == 1 %}
 						<button type="button" class="btn btn-danger mr-1" data-toggle="modal" data-target="#confirmacion_cancelacion_solicitud"><i class="fas fa-times-circle mr-1"></i>Cancelar solicitud</button>
 						{% if not usuario_sancionado %}
 							<button type="button" class="btn btn-info" data-toggle="modal" data-target="#formulario_retiro_equipo"><i class="fas fa-clipboard-check mr-1"></i>Marcar como entregado</button>
@@ -469,9 +542,13 @@
 						<a href="/finalizar_solicitud/{{datos_detalle_solicitud["id"]}}">
 							<button type="button" class="btn btn-success mr-1"><i class="fas fa-check-circle mr-1"></i>Marcar como finalizada</button>
 						</a>
-						<button type="button" class="btn btn-danger mr-1" data-toggle="modal" data-target="#confirmacion_eliminacion_solicitud"><i class="fas fa-minus-circle mr-1"></i>Eliminar solicitud</button>
+						<a href="/eliminar_solicitud/{{datos_detalle_solicitud["id"]}}">
+							<button type="button" class="btn btn-danger"><i class="fas fa-minus-circle mr-1"></i>Eliminar solicitud</button>
+						</a>
 					{% elif datos_detalle_solicitud["estado"] >= 5 %}
-						<button type="button" class="btn btn-danger mr-1" data-toggle="modal" data-target="#confirmacion_eliminacion_solicitud"><i class="fas fa-minus-circle mr-1"></i>Eliminar solicitud</button>
+						<a href="/eliminar_solicitud/{{datos_detalle_solicitud["id"]}}">
+							<button type="button" class="btn btn-danger"><i class="fas fa-minus-circle mr-1"></i>Eliminar solicitud</button>
+						</a>
 					{% endif %}
 				</span>
 			</div>
@@ -480,5 +557,26 @@
 
 
 	</div>
+
+	<script>
+		$(document).ready(() => {
+			// Tabla de asignaturas asociadas a la solicitud
+		$('#tabla_lista_asignaturas').DataTable( {
+						"order": [[ 1, "asc" ]],
+						"language": {
+								"lengthMenu": "Mostrar _MENU_ registros por página",
+								"zeroRecords": "No se han encontrado registros.",
+								"info": "Mostrando página _PAGE_ de _PAGES_",
+								"infoEmpty": "Sin registros disponibles.",
+								"search":         "Buscar",
+								"paginate": {
+										"next":       "Siguiente",
+										"previous":   "Anterior"
+								},
+								"infoFiltered": "(filtrado de _MAX_ registros totales)"
+							}
+			} );
+		});
+	</script>
 
 	{% endblock %}

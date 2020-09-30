@@ -1,0 +1,45 @@
+<div class="table-responsive mt-2">
+    <div class="table-wrapper-scroll-y" style="position: relative; overflow:auto;">
+              <table class="table mt-5" id="rCtPGY">
+                <thead class="text-white" style="background:#4D4D4D;">
+                  <tr>
+                    <th title="ID de solicitud detalle" scope="col">IDD</th>
+                    <th scope="col" class="text-center">Componente solicitado</th>
+                    <th scope="col">Cantidad</th>
+                    <th scope="col">Estado</th>
+                    <th scope="col" class="text-center">Acciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                      {% for elemento in solicitudes%}
+                          <tr style="background:#ECF0F1;">
+                              <td>{{elemento.IDD}}</td>
+                              <td>{{elemento.componente}}</td>
+                              <td>{{elemento.cantidad}}</td>
+                              <td>
+                                {% if elemento.estado == 'Devuelto' %}
+                                <span class="badge badge-secondary">Devuelto</span>
+                                {% elif elemento.estado == 'Rechazada' %}
+                                <span class="badge badge-danger">Rechazada</span>
+                                {% elif elemento.estado == 'Cancelada' %}
+                                <span class="badge badge-warning">Cancelada</span>
+                                {% elif elemento.estado == 'Por retirar' %}
+                                <span class="badge badge-info">Por retirar</span>
+                                {% elif elemento.estado == 'En posesión' %}
+                                <span class="badge badge-success">En posesión</span>
+                                {% elif elemento.estado == 'Con atraso' %}
+                                <span class="badge badge-danger">Con atraso</span>
+                                {% else %}
+                                {{elemento.estado}}
+                                {% endif %}
+                              </td>
+                              <td>
+                                <button type="button" title="Ver detalle" class="btn btn-sm btn-secondary mr-1 waves-effect waves-light"><i class="fas fa-clipboard-list"></i></button>
+                              </td>
+                          </tr>
+                      {% endfor %}
+                </tbody>
+              </table>
+          </div>
+</div>
+
