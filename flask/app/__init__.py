@@ -24,10 +24,10 @@ app = Flask(__name__)
 from app.routines.sched_functions import revisar_18_30,revisar_23_59
 
 # ========== Se inicializan las funciones con el objeto de APScheduler
-#sched = APScheduler()
-#sched.add_job(id="revisar_23_59",func=revisar_23_59,trigger='cron',hour=23,minute=59)
-#sched.add_job(id="revisar_18_30",func=revisar_18_30,trigger='cron',hour=18,minute=30)
-#sched.start()
+sched = APScheduler()
+sched.add_job(id="revisar_23_59",func=revisar_23_59,trigger='cron',hour=23,minute=59)
+sched.add_job(id="revisar_18_30",func=revisar_18_30,trigger='cron',hour=18,minute=30)
+sched.start()
 # ============================================================================
 # Blueprints (Routes)
 from app.routes.rutas_modulos_documentacion import mod
