@@ -639,34 +639,6 @@ def detalle_info_circuito(nombre_circuito):
     return render_template("/vistas_gestion_inventario/detalles_circuito.html",
     circuito_descripcion=circuito)
 
- """@mod.route('/download_test')
-def test():
-        codigo = []
-        marca = []
-        modelo = []
-        equipos = consultar_lista_equipos_general()
-        for i in equipos:
-            codigo.append(i["codigo"])
-            marca.append(i["marca"])
-            modelo.append(i["modelo"])
-        return send_csv([{"codigo": codigo, "marca":marca, "modelo":modelo}],
-            "testing.csv", ["codigo","marca","modelo"]) 
-
-
- @mod.route('/csv')
-def download_csv():
-    csv = ' Codigo, Nombre, Modelo, Marca, Dias de prestamo, Prestados, Funcional, Total\n'
-
-    equipos = consultar_lista_equipos_general()
-    for i in equipos:
-          csv += i["codigo"] + "," + i["nombre"] + "," + i["modelo"] + "," + i["marca"] + "," + str(i["dias_max_prestamo"]) + "," + str(i["en_prestamo"]) + "," + str(i["disponibles"]) + "," + str(i["total_equipos"]) + "\n"
-##        csv.append(i["codigo"],i["nombre"],i["modelo"],i["marca"],i["dias_max_prestamo"],i["en_prestamo"],i["disponibles"],i["total_equipos"])
-    response = make_response(csv)
-    cd = 'attachment; filename=mycsv.csv'
-    response.headers['Content-Disposition'] = cd
-    response.mimetype='text/csv'
-
-    return response """
 
 @mod.route("/exportar_inventario/<int:id_exportacion>",methods=["GET"])
 def exportar_inventario(id_exportacion):
