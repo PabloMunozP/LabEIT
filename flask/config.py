@@ -40,4 +40,4 @@ CSRF_ENABLED     = True
 CSRF_SESSION_KEY = os.urandom(24)
 
 # Secret key for signing cookies
-SECRET_KEY = os.urandom(24)
+SECRET_KEY = b'6hc/_gsh,./;2ZZx3c6_s,1//'
