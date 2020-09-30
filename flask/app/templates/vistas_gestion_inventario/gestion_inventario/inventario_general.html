@@ -3,7 +3,9 @@
     <p class="text-white my-auto"><i class="fas fa-info-circle mr-2"></i>A continuación encontrará la lista agrupada de los equipos registrados en el laboratorio.</p>
     <span class="btn-group">
       <button type="button" data-target="#agregar_equipo" class="btn btn-sm btn-secondary mr-1" data-toggle="modal"><i class="fas fa-plus-circle mr-2"></i>Agregar equipo</button>
-      <button type="button" id="export-btn" title="Descargar planilla" class="btn btn-sm btn-secondary"><i class="fas fa-file-excel mr-2"></i>Descargar planilla</button>
+      <a href="/exportar_inventario/1">
+        <button type="button" title="Descargar planilla" class="btn btn-sm btn-secondary"><i class="fas fa-file-excel mr-2"></i>Descargar planilla</button>
+      </a>
     </span>
 </div>
 
@@ -80,24 +82,3 @@
           </table>
         </div>
       </div>
-
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
-<script src="//cdn.rawgit.com/rainabba/jquery-table2excel/1.1.0/dist/jquery.table2excel.min.js"></script>
-  <script>
-    jQuery(document).ready(function() {
-        $('#export-btn').on('click', function(e){
-            e.preventDefault();
-            ResultsToTable();
-        });
-
-        function ResultsToTable(){
-            $("#tabla_equipos_general_descarga").table2excel({
-              exclude: ".excludeThisClass",
-                name: "Results",
-                filename: "Equipos.xls",
-                preserveColors: false
-            });
-        }
-    });
-</script>

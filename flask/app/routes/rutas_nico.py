@@ -1,10 +1,13 @@
-from flask import Flask,Blueprint,render_template,request,redirect,url_for,flash,session,jsonify, make_response
+from flask import Flask,Blueprint,render_template,request,redirect,url_for,flash,session,jsonify, make_response,send_file
 from flask_csv import send_csv
-from config import db,cursor
+from config import db,cursor,BASE_DIR
 import os,time,bcrypt
 from datetime import datetime
 import json
 from jinja2 import Environment
+from openpyxl import Workbook
+from openpyxl.styles import Font, PatternFill, Alignment
+from openpyxl.styles.borders import Border, Side, BORDER_THIN
 
 def redirect_url(default='index'): # Redireccionamiento desde donde vino la request
     return request.args.get('next') or \
@@ -72,6 +75,7 @@ def consultar_lista_equipos(): # funcion para poder conusultar toda la lista de 
         LEFT JOIN (SELECT * FROM Detalle_solicitud WHERE Detalle_solicitud.estado IN (1,2,3)) AS Detalle_solicitud
             ON Detalle_solicitud.id_equipo = Equipo.id
             AND Detalle_solicitud.codigo_sufijo_equipo = Equipo_diferenciado.codigo_sufijo
+        ORDER BY Equipo_diferenciado.codigo_equipo
     """)
     cursor.execute(query)
     resultado = cursor.fetchall()
@@ -85,19 +89,10 @@ def gestion_inventario_admin():
         equipos = consultar_lista_equipos_general()
         equipos_detalle = consultar_lista_equipos()
         circuitos = consultar_lista_circuito()
-        cursor = db.cursor(dictionary=True)
-        query = ("""
-            SELECT *
-                    FROM Equipo
-                """)
-        cursor.execute(query)
-        resultado = cursor.fetchall()
-        ## print(f"json: {json.dumps(resultado)}")
         return render_template('vistas_gestion_inventario/gestion_inventario.html',
             lista_equipo = equipos,
             lista_equipo_detalle = equipos_detalle,
-            lista_circuitos = circuitos,
-            resultados= {json.dumps(resultado)} )
+            lista_circuitos = circuitos)
 
 
 # **** VISTA_PRINCIPAL/MODAL "AGREGAR EQUIPO" **** #
@@ -644,7 +639,7 @@ def detalle_info_circuito(nombre_circuito):
     return render_template("/vistas_gestion_inventario/detalles_circuito.html",
     circuito_descripcion=circuito)
 
-@mod.route('/download_test')
+ """@mod.route('/download_test')
 def test():
         codigo = []
         marca = []
@@ -655,10 +650,10 @@ def test():
             marca.append(i["marca"])
             modelo.append(i["modelo"])
         return send_csv([{"codigo": codigo, "marca":marca, "modelo":modelo}],
-            "testing.csv", ["codigo","marca","modelo"])
+            "testing.csv", ["codigo","marca","modelo"]) 
 
 
-@mod.route('/csv')
+ @mod.route('/csv')
 def download_csv():
     csv = ' Codigo, Nombre, Modelo, Marca, Dias de prestamo, Prestados, Funcional, Total\n'
 
@@ -671,4 +666,132 @@ def download_csv():
     response.headers['Content-Disposition'] = cd
     response.mimetype='text/csv'
 
-    return response
+    return response """
+
+@mod.route("/exportar_inventario/<int:id_exportacion>",methods=["GET"])
+def exportar_inventario(id_exportacion):
+        if "usuario" not in session.keys():
+            return redirect("/")
+        if session["usuario"]["id_credencial"] != 3: # El usuario debe ser un administrador (Credencial = 3)
+            return redirect("/")
+
+            # 1: Equipos agrupados
+            # 2: Equipos separados
+            # 3: Circuitos
+
+        if id_exportacion == 1:
+            query = ('''
+                    SELECT
+                            Equipo.id AS equipo_id,
+                            Equipo.codigo as "Código equipo",
+                            Equipo.nombre as "Nombre",
+                            Equipo.modelo as "Modelo",
+                            Equipo.marca as "Marca",
+                            Equipo.dias_max_prestamo as "Días max de prestamo",
+                            Equipo.dias_renovacion as "Días para renovar",
+                            COUNT(CASE WHEN Equipo_diferenciado.activo = 1 THEN 1 ELSE NULL END) AS "Disponibles",
+                            COUNT(Equipo_diferenciado.activo) AS "Total equipos"
+                            FROM Equipo
+                            LEFT JOIN Equipo_diferenciado ON  Equipo.codigo = Equipo_diferenciado.codigo_equipo
+                        GROUP BY Equipo.id
+                    ''')
+            cursor.execute(query)
+            lista_detalles = cursor.fetchall()
+
+        elif id_exportacion == 2:
+            query = ("""
+                SELECT Equipo_diferenciado.id AS "ID equipo",
+                    Equipo_diferenciado.codigo_equipo AS "Código equipo",
+                    Equipo_diferenciado.codigo_sufijo AS "Código sufijo",
+                    Detalle_solicitud.codigo_sufijo_equipo as "Código sufijo equipo",
+                    Equipo_diferenciado.codigo_activo AS "Código activo",
+                    Equipo_diferenciado.fecha_compra AS "Fecha de compra",
+                    Equipo.nombre AS "Nombre",
+                    Equipo.modelo "Modelo",
+                    Equipo.marca "Marca",
+                    CASE WHEN Equipo_diferenciado.activo = 0 THEN 'No disponible'
+                        WHEN Detalle_solicitud.estado = 1 THEN 'Por retirar'
+                        WHEN Detalle_solicitud.estado = 2 THEN 'En posesión'
+                        WHEN Detalle_solicitud.estado = 3 THEN 'Con atraso'
+                        ELSE 'Disponible' END AS "Estado"
+                FROM Equipo_diferenciado
+                LEFT JOIN Equipo ON Equipo.codigo = Equipo_diferenciado.codigo_equipo
+                LEFT JOIN (SELECT * FROM Detalle_solicitud WHERE Detalle_solicitud.estado IN (1,2,3)) AS Detalle_solicitud
+                    ON Detalle_solicitud.id_equipo = Equipo.id
+                    AND Detalle_solicitud.codigo_sufijo_equipo = Equipo_diferenciado.codigo_sufijo
+                ORDER BY Equipo_diferenciado.codigo_equipo
+            """)
+            cursor.execute(query)
+            lista_detalles = cursor.fetchall()
+
+        elif id_exportacion == 3:
+                query = ('''
+                    SELECT Circuito.id as "ID",
+                    Circuito.nombre as "Nombre",
+                    Circuito.descripcion as "Descripción",
+                    Circuito.cantidad as "Cantidad",
+                    Circuito.prestados as "Prestados",
+                    Circuito.dias_max_prestamo as "Días max de prestamo",
+                    Circuito.dias_renovacion as "Días para renovar"
+                    FROM Circuito
+                '''
+                )
+                cursor.execute(query)
+                lista_detalles = cursor.fetchall()
+
+
+        wb = Workbook() # Instancia de libro Excel
+        ws = wb.active # Hoja activa para escribir
+        if id_exportacion == 1:
+            ws.title = "Equipos"
+            nombre_archivo = "lista_de_equipos.xlsx"
+        elif id_exportacion == 2:
+            ws.title = "Equipos separados"
+            nombre_archivo = "lista_equipos_separados.xlsx"
+        else:
+            ws.title = "Circuitos"
+            nombre_archivo = "lista_circuitos.xlsx"
+
+
+        borde_delgado = Border(
+            left=Side(border_style=BORDER_THIN, color='00000000'),
+            right=Side(border_style=BORDER_THIN, color='00000000'),
+            top=Side(border_style=BORDER_THIN, color='00000000'),
+            bottom=Side(border_style=BORDER_THIN, color='00000000'))
+
+        lista_columnas = []
+        if len(lista_detalles):
+            lista_columnas = [nombre_columna for nombre_columna in lista_detalles[0].keys()]
+        else:
+            return redirect(redirect_url())
+
+        for i in range(len(lista_columnas)):
+            celda = ws.cell(row=2,column=i+1)
+            celda.font = Font(bold=True,color="FFFFFF")
+            celda.border = borde_delgado
+            celda.fill = PatternFill("solid", fgColor="4D4D4D")
+            celda.alignment = Alignment(horizontal="left")
+            celda.value = lista_columnas[i]
+
+        # Se agregan los registros
+        index_row = 3
+        index_column = 1
+        for detalle in lista_detalles:
+            for key in detalle:
+                celda = ws.cell(row=index_row,column=index_column)
+                celda.value = detalle[key]
+                celda.border = borde_delgado
+                celda.alignment = Alignment(horizontal="left")
+                index_column += 1
+            index_column = 1
+            index_row += 1
+
+        # Ajuste automático de columnas en Excel
+        for column_cells in ws.columns:
+            length = max(len(str(cell.value)) for cell in column_cells)
+            ws.column_dimensions[column_cells[0].column_letter].width = length
+
+        direccion_archivo = os.path.normpath(os.path.join(BASE_DIR, "app/static/files/exportaciones/"+nombre_archivo))
+        wb.save(direccion_archivo)
+
+        return send_file(direccion_archivo,as_attachment=True)
