@@ -126,7 +126,7 @@
                         {% for curso in cursos %}
                         {% if curso["id"] == motivo["id_curso"] %}
                         <a href="/gestion_cursos/detalles_curso/{{curso["codigo_udp"]}}" title="Ver detalles del curso"
-                            style="text-decoration:none;">{{curso["codigo_udp"]}}</a>: {{curso["nombre"]}}
+                            style="text-decoration:none;">{{curso["codigo_udp"]}}: {{curso["nombre"]}}</a>
                         {% endif %}
                         {% endfor %}
                     </p>
@@ -309,7 +309,7 @@
                                  text-break"">
                     Visualizar cotización:
                     <a title=" Visualizar cotización" style="margin-left: 13px;"
-                    href="/gestion_wishlist/detalle_solicitud/admin_visualizacion_cotizacion/{{detalle_solicitud["id"]}}">
+                    href="/visualizacion_cotizacion/{{detalle_solicitud["id"]}}">
                     <svg width="1.5em" height="1.5em" viewBox="0 0 16 16" class="bi bi-eye" fill="currentColor">
                         <path fill-rule="evenodd"
                             d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8zM1.173 8a13.134 13.134 0 0 0 1.66 2.043C4.12 11.332 5.88 12.5 8 12.5c2.12 0 3.879-1.168 5.168-2.457A13.134 13.134 0 0 0 14.828 8a13.133 13.133 0 0 0-1.66-2.043C11.879 4.668 10.119 3.5 8 3.5c-2.12 0-3.879 1.168-5.168 2.457A13.133 13.133 0 0 0 1.172 8z" />

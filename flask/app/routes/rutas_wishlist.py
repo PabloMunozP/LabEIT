@@ -40,6 +40,12 @@ def verificar_edicion(id_wishlist):
     estado = cursor.fetchone()["estado_wishlist"]
     return True if estado == 7 or estado == 8 else False
 
+def verificar_rut(id_wishlist,Rut):
+    cursor.execute(
+        "SELECT rut_solicitante FROM Wishlist WHERE id = %s", (id_wishlist,))
+    rut = cursor.fetchone()["rut_solicitante"]
+    return True if rut == Rut else False
+
 
 def allowed_doc(filename):  # funcion que valida la extension del archivo
     if not "." in filename:
@@ -162,6 +168,8 @@ def tabla_wishlist():
 @mod.route("/wishlist_usuario/editar_solicitud/<string:id_detalle_solicitud>", methods=["GET", "POST"])
 def editar_solicitud(id_detalle_solicitud):
     if "usuario" not in session.keys():
+        return redirect("/")
+    if not verificar_rut(id_detalle_solicitud,session["usuario"]["rut"]):
         return redirect("/")
     if verificar_edicion(id_detalle_solicitud):
         return redirect("/")
@@ -576,17 +584,50 @@ def marcar_pendiente_w(id_detalle):
 def descargar_cotizacion(id_detalle_solicitud):
     if "usuario" not in session.keys():
         return redirect("/")
+    if session["usuario"]["id_credencial"] != 3:
+        if not verificar_rut(id_detalle_solicitud,session["usuario"]["rut"]):
+            return redirect("/")
+
+    sql_query = """
+        SELECT Wishlist.*,Estado_detalle_solicitud.nombre AS nombre_estado
+            FROM Wishlist,Estado_detalle_solicitud
+                WHERE Wishlist.estado_wishlist = Estado_detalle_solicitud.id
+                AND Wishlist.id = %s
+    """
+    cursor.execute(sql_query, (id_detalle_solicitud,))
+    detalle_solicitud = cursor.fetchone()
+
+    if detalle_solicitud is None:
+        return redirect("/")
+
     ruta_cotizacion = os.path.normpath(os.path.join(
         BASE_DIR, "app/static/files/cotizaciones_wishlist/"+id_detalle_solicitud+".pdf"))
     return send_file(ruta_cotizacion, as_attachment=True)
 
-@mod.route("/gestion_wishlist/detalle_solicitud/admin_visualizacion_cotizacion/<string:id_detalle_solicitud>", methods=["GET"])
-def a_visualizar_cotizacion(id_detalle_solicitud):
+@mod.route("/visualizacion_cotizacion/<string:id_detalle_solicitud>", methods=["GET"])
+def visualizar_cotizacion(id_detalle_solicitud):
     if "usuario" not in session.keys():
         return redirect("/")
     if session["usuario"]["id_credencial"] != 3:
+        if not verificar_rut(id_detalle_solicitud,session["usuario"]["rut"]):
+            return redirect("/")
+
+    sql_query = """
+        SELECT Wishlist.*,Estado_detalle_solicitud.nombre AS nombre_estado
+            FROM Wishlist,Estado_detalle_solicitud
+                WHERE Wishlist.estado_wishlist = Estado_detalle_solicitud.id
+                AND Wishlist.id = %s
+    """
+    cursor.execute(sql_query, (id_detalle_solicitud,))
+    detalle_solicitud = cursor.fetchone()
+
+    if detalle_solicitud is None:
         return redirect("/")
-    
+
+    if obtener_cotizacion(id_detalle_solicitud)[1] == False:
+        flash("cotizacion-no-encontrada")
+        return redirect("/")
+
     sql_query = """
         SELECT Wishlist.*,Estado_detalle_solicitud.nombre AS nombre_estado,Usuario.nombres AS nombres,Usuario.apellidos AS apellidos,Usuario.email AS email
             FROM Wishlist,Estado_detalle_solicitud,Usuario
@@ -599,14 +640,7 @@ def a_visualizar_cotizacion(id_detalle_solicitud):
 
     if detalle_solicitud is None:
         flash("solicitud-no-encontrada")
-        return redirect("/gestion_wishlist")
+        return redirect(redirect_url())
 
-    if obtener_cotizacion(id_detalle_solicitud):
-        ruta_cotizacion = os.path.normpath(os.path.join(BASE_DIR, "app/static/files/cotizaciones_wishlist/"+id_detalle_solicitud+".pdf"))
-    else:
-        flash("cotizacion-no-encontrada")
-        return redirect("/")
-        
-    return render_template("/wishlist/admin_visualizacion_cotizacion.html",
-                           ruta_cotizacion = ruta_cotizacion,
+    return render_template("/wishlist/visualizacion_cotizacion.html",
                            detalle_solicitud = detalle_solicitud)
