@@ -10,6 +10,7 @@ from datetime import datetime
 from email import encoders
 from email.mime.base import MIMEBase
 from email.mime.text import MIMEText
+from .email_sender import enviar_correo_notificacion
 PATH = BASE_DIR
 TAMAÑO_MAX_COT = 10000000
 PROFILE_DOCS_PATH = PATH.replace(
@@ -20,7 +21,6 @@ CANTIDAD_WISHLIST = 5
 
 mod = Blueprint("rutas_lorenzo", __name__)
 
-
 @mod.context_processor
 def utility_functions():
     def print_in_console(message):
@@ -29,33 +29,10 @@ def utility_functions():
 
 # para imprimir en consola {{ mdebug(detalle_solicitud["nombre_equipo "]) }}
 
-
 def redirect_url(default='index'):  # Redireccionamiento desde donde vino la request
     return request.args.get('next') or \
         request.referrer or \
         url_for(default)
-
-
-def enviar_correo_notificacion(archivo, str_para, str_asunto, correo_usuario):
-    # Se crea el mensaje
-    correo = MIMEText(archivo, "html")
-    correo.set_charset("utf-8")
-    correo["From"] = "labeit.udp@gmail.com"
-    correo["To"] = correo_usuario
-    correo["Subject"] = str_asunto
-
-    try:
-        server = smtplib.SMTP_SSL("smtp.gmail.com")
-        server.login("labeit.udp@gmail.com", "LabEIT_UDP_2020")
-        str_correo = correo.as_string()
-        server.sendmail("labeit.udp@gmail.com", correo_usuario, str_correo)
-        server.close()
-        flash("correo-exito")
-
-    except Exception as e:
-        print(e)
-        flash("correo-fallido")
-
 
 def verificar_cancelacion(id_wishlist):
     cursor.execute(
@@ -425,7 +402,7 @@ def aceptar_solicitud(id_detalle):
     datos_usuario = cursor.fetchone()
 
     direccion_template = os.path.normpath(os.path.join(os.getcwd(
-    ), "flask/app/templates/wishlist/templates_mail/aceptacion_solicitud.html"))
+    ), "app/templates/wishlist/templates_mail/aceptacion_solicitud.html"))
     archivo_html = open(direccion_template, encoding="utf-8").read()
 
     archivo_html = archivo_html.replace("%id_solicitud%", str(id_detalle))
@@ -439,7 +416,7 @@ def aceptar_solicitud(id_detalle):
         "%fecha_revision_solicitud%", fecha_revision_solicitud)
 
     enviar_correo_notificacion(
-        archivo_html, datos_usuario["email"], "Aprobación de solicitud de Wishlist", datos_usuario["email"])
+        archivo_html,"Aprobación de solicitud de Wishlist",datos_usuario["email"])
 
     flash("solicitud-aceptada-correctamente")
     return redirect(redirect_url())
@@ -486,7 +463,7 @@ def rechazar_solicitud(id_detalle):
     datos_usuario = cursor.fetchone()
 
     direccion_template = os.path.normpath(os.path.join(
-        os.getcwd(), "flask/app/templates/wishlist/templates_mail/rechazo_solicitud.html"))
+        os.getcwd(), "app/templates/wishlist/templates_mail/rechazo_solicitud.html"))
     archivo_html = open(direccion_template, encoding="utf-8").read()
 
     archivo_html = archivo_html.replace("%id_solicitud%", str(id_detalle))
@@ -515,7 +492,7 @@ def rechazar_solicitud(id_detalle):
     archivo_html = archivo_html.replace("%razon_rechazo%", razon_rechazo)
 
     enviar_correo_notificacion(
-        archivo_html, datos_usuario["email"], "Rechazo de solicitud de Wishlist", datos_usuario["email"])
+        archivo_html,"Rechazo de solicitud de Wishlist",datos_usuario["email"])
 
     flash("solicitud-rechazada-correctamente")
     return redirect(redirect_url())
@@ -579,7 +556,7 @@ def marcar_pendiente_w(id_detalle):
     datos_usuario = cursor.fetchone()
 
     direccion_template = os.path.normpath(os.path.join(os.getcwd(
-    ), "flask/app/templates/wishlist/templates_mail/pendiente_solicitud.html"))
+    ), "app/templates/wishlist/templates_mail/pendiente_solicitud.html"))
     archivo_html = open(direccion_template, encoding="utf-8").read()
 
     archivo_html = archivo_html.replace("%id_solicitud%", str(id_detalle))
@@ -591,7 +568,7 @@ def marcar_pendiente_w(id_detalle):
         "%fecha_registro%", str(datos_solicitud["fecha_solicitud"]))
 
     enviar_correo_notificacion(
-        archivo_html, datos_usuario["email"], "Solicitud de Wishlist marcada como pendiente", datos_usuario["email"])
+        archivo_html,"Solicitud de Wishlist marcada como pendiente", datos_usuario["email"])
 
     flash("solicitud-pendiente")
     return redirect(redirect_url())
