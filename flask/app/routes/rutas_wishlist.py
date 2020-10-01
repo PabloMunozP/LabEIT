@@ -34,14 +34,14 @@ def redirect_url(default='index'):  # Redireccionamiento desde donde vino la req
         request.referrer or \
         url_for(default)
 
-def verificar_cancelacion(id_wishlist):
+def verificar_edicion(id_wishlist):
     cursor.execute(
         "SELECT estado_wishlist FROM Wishlist WHERE id = %s", (id_wishlist,))
     estado = cursor.fetchone()["estado_wishlist"]
-    return True if estado == 7 else False
+    return True if estado == 7 or estado == 8 else False
 
 
-def allowed_doc(filename):  # funcion que valida la extension de la imagen
+def allowed_doc(filename):  # funcion que valida la extension del archivo
     if not "." in filename:
         return False
     ext = filename.rsplit(".", 1)[1]
@@ -163,7 +163,7 @@ def tabla_wishlist():
 def editar_solicitud(id_detalle_solicitud):
     if "usuario" not in session.keys():
         return redirect("/")
-    if verificar_cancelacion(id_detalle_solicitud):
+    if verificar_edicion(id_detalle_solicitud):
         return redirect("/")
 
     if request.method == "POST":
@@ -401,8 +401,7 @@ def aceptar_solicitud(id_detalle):
     cursor.execute(sql_query, (datos_solicitud["rut_solicitante"],))
     datos_usuario = cursor.fetchone()
 
-    direccion_template = os.path.normpath(os.path.join(os.getcwd(
-    ), "app/templates/wishlist/templates_mail/aceptacion_solicitud.html"))
+    direccion_template = os.path.normpath(os.path.join(BASE_DIR, "app/templates/wishlist/templates_mail/aceptacion_solicitud.html"))
     archivo_html = open(direccion_template, encoding="utf-8").read()
 
     archivo_html = archivo_html.replace("%id_solicitud%", str(id_detalle))
@@ -463,7 +462,7 @@ def rechazar_solicitud(id_detalle):
     datos_usuario = cursor.fetchone()
 
     direccion_template = os.path.normpath(os.path.join(
-        os.getcwd(), "app/templates/wishlist/templates_mail/rechazo_solicitud.html"))
+        BASE_DIR, "app/templates/wishlist/templates_mail/rechazo_solicitud.html"))
     archivo_html = open(direccion_template, encoding="utf-8").read()
 
     archivo_html = archivo_html.replace("%id_solicitud%", str(id_detalle))
@@ -555,8 +554,7 @@ def marcar_pendiente_w(id_detalle):
     cursor.execute(sql_query, (datos_solicitud["rut_solicitante"],))
     datos_usuario = cursor.fetchone()
 
-    direccion_template = os.path.normpath(os.path.join(os.getcwd(
-    ), "app/templates/wishlist/templates_mail/pendiente_solicitud.html"))
+    direccion_template = os.path.normpath(os.path.join(BASE_DIR, "app/templates/wishlist/templates_mail/pendiente_solicitud.html"))
     archivo_html = open(direccion_template, encoding="utf-8").read()
 
     archivo_html = archivo_html.replace("%id_solicitud%", str(id_detalle))
@@ -581,3 +579,34 @@ def descargar_cotizacion(id_detalle_solicitud):
     ruta_cotizacion = os.path.normpath(os.path.join(
         BASE_DIR, "app/static/files/cotizaciones_wishlist/"+id_detalle_solicitud+".pdf"))
     return send_file(ruta_cotizacion, as_attachment=True)
+
+@mod.route("/gestion_wishlist/detalle_solicitud/admin_visualizacion_cotizacion/<string:id_detalle_solicitud>", methods=["GET"])
+def a_visualizar_cotizacion(id_detalle_solicitud):
+    if "usuario" not in session.keys():
+        return redirect("/")
+    if session["usuario"]["id_credencial"] != 3:
+        return redirect("/")
+    
+    sql_query = """
+        SELECT Wishlist.*,Estado_detalle_solicitud.nombre AS nombre_estado,Usuario.nombres AS nombres,Usuario.apellidos AS apellidos,Usuario.email AS email
+            FROM Wishlist,Estado_detalle_solicitud,Usuario
+                WHERE Wishlist.estado_wishlist = Estado_detalle_solicitud.id
+                AND Wishlist.rut_solicitante = Usuario.rut
+                AND Wishlist.id = %s
+    """
+    cursor.execute(sql_query, (id_detalle_solicitud,))
+    detalle_solicitud = cursor.fetchone()
+
+    if detalle_solicitud is None:
+        flash("solicitud-no-encontrada")
+        return redirect("/gestion_wishlist")
+
+    if obtener_cotizacion(id_detalle_solicitud):
+        ruta_cotizacion = os.path.normpath(os.path.join(BASE_DIR, "app/static/files/cotizaciones_wishlist/"+id_detalle_solicitud+".pdf"))
+    else:
+        flash("cotizacion-no-encontrada")
+        return redirect("/")
+        
+    return render_template("/wishlist/admin_visualizacion_cotizacion.html",
+                           ruta_cotizacion = ruta_cotizacion,
+                           detalle_solicitud = detalle_solicitud)

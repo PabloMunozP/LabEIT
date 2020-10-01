@@ -1,0 +1,26 @@
+{% extends "layout_in.html"%}
+    {%block body%}
+
+    <div class="container-fluid mt-2">
+
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/gestion_wishlist">Gestión de solicitudes de Wishlist</a></li>
+                <li class="breadcrumb-item active" aria-current="page"><a href="/gestion_wishlist/detalle_solicitud/{{detalle_solicitud["id"]}}">Detalle de solicitud de Wishlist<span
+                        class="badge badge-info" style="margin-left: 10px;">{{detalle_solicitud["id"]}}</span></a></li>
+                <li class="breadcrumb-item active text-truncate" aria-current="page">Visualización de cotización<strong></strong></li>
+            </ol>
+        </nav>
+
+      <div class="card-header mt-4" style="background:#0db26b;">
+        <h5 class="card-title text-white my-auto"><i class="fas fa-file-alt mr-2"></i>Visualización de documento</h5>
+      </div>
+
+      <div class="card-body" style="background:#ECF0F1;">
+        <div class="embed-responsive embed-responsive-21by9">
+          <embed class="embed-responsive-item" src="{{ url_for('static', filename='../static/files/cotizaciones_wishlist/'+detalle_solicitud["id"]|string)}}"></embed>
+      </div>
+      </div>
+    </div>
+
+    {%endblock%}
