@@ -29,6 +29,12 @@
             </div>
 
             <div class="form-group">
+              <label for="editar-equipo-imagen">URL de imagen</label>
+              <input class="form-control" type="text" name="imagen_circuito" id="editar-imagen-circuito" autocomplete="off">
+            </div>
+
+
+            <div class="form-group">
               <label for="dias_max_prestamo">Días de prestamo</label>
               <input type="number" min="1" class="form-control" name="dias_max_prestamo" value="" id="editar-equipo-dias">
             </div>
@@ -49,7 +55,7 @@
 
 
   <script>
-    function cargar_datos_equipo_circuito(nombre_circuito, cantidad_circuito, descripcion_circuito,dias_max_prestamo,dias_renovacion){
+    function cargar_datos_equipo_circuito(nombre_circuito, cantidad_circuito, descripcion_circuito,dias_max_prestamo,dias_renovacion, imagen_circuito){
       document.getElementById("modal-title").innerHTML = '<i class="fas fa-edit"></i> Editar circuito ' + nombre_circuito ;
       $("#editar_equipo_hidden_nombre_circuito").val(nombre_circuito);
       $("#editar_equipo_hidden_descripcion_circuito").val(descripcion_circuito);
@@ -58,6 +64,6 @@
       $("#editar_descripcion_circuito").val(descripcion_circuito);
       $("#editar-equipo-dias").val(dias_max_prestamo);
       $("#editar-equipo-dias-renovacion").val(dias_renovacion);
-
+      $("#editar-imagen-circuito").val(imagen_circuito);
     }
   </script>

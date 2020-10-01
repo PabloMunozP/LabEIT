@@ -13,7 +13,7 @@
 
             <div class="form-group">
               <label for="nombres"> Nombre </label>
-              <input class="form-control" type="text" name="nombre_circuito" id="nombre_circuito" required>
+              <input class="form-control" type="text" name="nombre_circuito" id="nombre_circuito" required autocomplete="off">
             </div>
 
             <div class="form-group">
@@ -23,8 +23,14 @@
 
             <div class="form-group">
               <label for="comunas">Descripción</label>
-              <textarea class="form-control"   id="descripcion_circuito" name="descripcion_circuito" rows="3" style="min-height:100px;max-height:300px;"></textarea>
+              <textarea class="form-control"   id="descripcion_circuito" name="descripcion_circuito" rows="3" style="min-height:100px;max-height:300px;" autocomplete="off"></textarea>
             </div>
+
+            <div class="form-group">
+              <label for="editar-equipo-imagen">URL de imagen</label>
+              <input class="form-control" type="text" name="imagen_circuito" id="imagen_circuito" autocomplete="off">
+            </div>
+
 
             <div class="form-group">
               <label for="apellidos">Cantidad de días de préstamo</label>
