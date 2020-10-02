@@ -1,0 +1,82 @@
+{% extends "layout_in.html"%}
+{%block body%}
+{% set cantidad_disponible = circuito_descripcion.cantidad - circuito_descripcion.prestados %}
+<div class="container-fluid mt-2">
+			<div class="card-header border-0 rounded-0" style="background:#0db26b;">
+				<h5 class="card-title my-auto text-white"><i class="fas fa-laptop mr-2"></i>Información detallada del equipo</h5>
+			</div>
+			<div class="card-body rounded-0" style="background:#ECF0F1;">
+
+				<div class="form-group row">
+					<label class="col-md-4 col-form-label texto-gris-eit">
+						<strong>Nombre del componente:</strong>
+					</label>
+					<div class="col-md-2">
+						<p class="form-control-plaintext text-break">
+							  {{circuito_descripcion.nombre}}
+						</p>
+					</div>
+					<label class="col-md-4 col-form-label texto-gris-eit">
+						<strong>Stock:</strong>
+					</label>
+					<div class="col-md-2">
+						<p class="form-control-plaintext
+							 text-break">
+       	{{cantidad_disponible}}/{{circuito_descripcion.cantidad}}
+						</p>
+					</div>
+				</div>
+
+				<hr>
+
+
+
+
+
+				<div class="form-group row">
+					<label class="col-md-2 col-form-label texto-gris-eit">
+						<strong>Cantidad de días para renovar:</strong>
+					</label>
+					<div class="col-md-4">
+						<p class="form-control-plaintext text-break">
+{{circuito_descripcion.dias_renovacion}}
+						</p>
+					</div>
+					<label class="col-md-4 col-form-label texto-gris-eit">
+						<strong>Cantidad de días permitidos:</strong>
+					</label>
+					<div class="col-md-2">
+						<p class="form-control-plaintext
+							 text-break">
+							  {{circuito_descripcion.dias_max_prestamo}}
+						</p>
+					</div>
+				</div>
+
+				<hr>
+
+				<div class="form-group row">
+					<label class="col-md-2 col-form-label texto-gris-eit">
+						<strong>Descripción:</strong>
+					</label>
+					<div class="col-md-6">
+						<p class="form-control-plaintext text-break">
+							 {{circuito_descripcion.descripcion}}
+						</p>
+					</div>
+					<div class="col-md-4 text-right">
+						<label class="col-form-label">
+            {% if circuito_descripcion.imagen == None or circuito_descripcion.imagen=="None" %}
+						<img src="https://static.thenounproject.com/png/340719-200.png" style="max-width:80%;" class="img-fluid">
+            {% else %}
+          	<img src="{{circuito_descripcion.imagen}}" style="max-width:80%;" class="img-fluid">
+            {% endif %}
+
+
+						</label>
+					</div>
+				</div>
+			</div>
+
+
+{% endblock %}

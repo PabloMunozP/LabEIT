@@ -2,6 +2,9 @@
     <h5 class="card-title text-white my-auto">Gestión de componentes de circuitos</h5>
     <p class="text-white my-auto"><i class="fas fa-info-circle mr-2"></i>A continuación encontrará la lista de componentes de circuitos registrados en el laboratorio.</p>
     <button type="button" data-target="#agregar_circuito" class="btn btn-sm btn-secondary" data-toggle="modal"><i class="fas fa-plus-circle mr-2"></i>Agregar circuito</button>
+    <a href="/exportar_inventario/3">
+      <button type="button" title="Descargar planilla" class="btn btn-sm btn-secondary"><i class="fas fa-file-excel mr-2"></i>Descargar planilla</button>
+    </a>
 </div>
 
 <div class="table-responsive mt-2">
@@ -29,7 +32,8 @@
               <td>{{elemento.dias_renovacion}}</td>
               <td>
                   <span class="btn-group">
-                    <button type="button" onclick="cargar_datos_equipo_circuito('{{elemento.nombre}}','{{elemento.cantidad}}', '{{elemento.descripcion}}', '{{elemento.dias_max_prestamo}}', '{{elemento.dias_renovacion}}')" data-target="#editar_circuito" title="Editar equipo" class="btn btn-sm btn-warning mr-1" data-toggle="modal"><i class="fas fa-edit"></i></button>
+                    <a href="gestion_inventario_admin/detalles_circuito/{{elemento.nombre}}"><button type="button" title="Ver detalles de equipo" data-toggle="modal" class="btn btn-sm btn-info mr-1"><i class="fas fa-search-plus"></i></button></a>
+                    <button type="button" onclick="cargar_datos_equipo_circuito('{{elemento.nombre}}','{{elemento.cantidad}}', '{{elemento.descripcion}}', '{{elemento.dias_max_prestamo}}', '{{elemento.dias_renovacion}}', '{{elemento.imagen}}')" data-target="#editar_circuito" title="Editar equipo" class="btn btn-sm btn-warning mr-1" data-toggle="modal"><i class="fas fa-edit"></i></button>
                     <button type="button" onclick="cargar_codigo_delete_circuito('{{elemento.nombre}}','{{elemento.descripcion}}')" title="Eliminar equipo"  data-target="#eliminar_circuito" data-toggle="modal" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
                   </span>
               </td>

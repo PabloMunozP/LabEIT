@@ -24,17 +24,17 @@ app = Flask(__name__)
 from app.routines.sched_functions import revisar_18_30,revisar_23_59
 
 # ========== Se inicializan las funciones con el objeto de APScheduler
-#sched = APScheduler()
-#sched.add_job(id="revisar_23_59",func=revisar_23_59,trigger='cron',hour=23,minute=59)
-#sched.add_job(id="revisar_18_30",func=revisar_18_30,trigger='cron',hour=18,minute=30)
-#sched.start()
+sched = APScheduler()
+sched.add_job(id="revisar_23_59",func=revisar_23_59,trigger='cron',hour=23,minute=59)
+sched.add_job(id="revisar_18_30",func=revisar_18_30,trigger='cron',hour=18,minute=30)
+sched.start()
 # ============================================================================
 # Blueprints (Routes)
 from app.routes.rutas_modulos_documentacion import mod
 from app.routes.rutas_gestion_usuarios import mod
 from app.routes.rutas_perfil import mod
 from app.routes.rutas_nico import mod
-from app.routes.rutas_lorenzo import mod
+from app.routes.rutas_wishlist import mod
 from app.routes.rutas_cony import mod
 from app.routes.rutas_solicitud_circuito import mod
 from app.routes.rutas_gestion_solicitudes import mod
@@ -46,7 +46,7 @@ app.register_blueprint(routes.rutas_modulos_documentacion.mod)
 app.register_blueprint(routes.rutas_gestion_usuarios.mod)
 app.register_blueprint(routes.rutas_perfil.mod)
 app.register_blueprint(routes.rutas_nico.mod)
-app.register_blueprint(routes.rutas_lorenzo.mod)
+app.register_blueprint(routes.rutas_wishlist.mod)
 app.register_blueprint(routes.rutas_cony.mod)
 app.register_blueprint(routes.rutas_solicitud_circuito.mod)
 app.register_blueprint(routes.rutas_gestion_solicitudes.mod)
