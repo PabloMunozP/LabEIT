@@ -33,7 +33,8 @@ sched.start()
 from app.routes.rutas_modulos_documentacion import mod
 from app.routes.rutas_gestion_usuarios import mod
 from app.routes.rutas_perfil import mod
-from app.routes.rutas_nico import mod
+from app.routes.rutas_wifi import mod
+from app.routes.rutas_gestion_inventario import mod
 from app.routes.rutas_lorenzo import mod
 from app.routes.rutas_cony import mod
 from app.routes.rutas_solicitud_circuito import mod
@@ -45,7 +46,8 @@ from app.routes.rutas_estadisticas_solicitudes import mod
 app.register_blueprint(routes.rutas_modulos_documentacion.mod)
 app.register_blueprint(routes.rutas_gestion_usuarios.mod)
 app.register_blueprint(routes.rutas_perfil.mod)
-app.register_blueprint(routes.rutas_nico.mod)
+app.register_blueprint(routes.rutas_gestion_inventario.mod)
+app.register_blueprint(routes.rutas_wifi.mod)
 app.register_blueprint(routes.rutas_lorenzo.mod)
 app.register_blueprint(routes.rutas_cony.mod)
 app.register_blueprint(routes.rutas_solicitud_circuito.mod)

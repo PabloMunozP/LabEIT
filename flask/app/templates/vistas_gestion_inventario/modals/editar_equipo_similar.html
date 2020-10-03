@@ -8,7 +8,7 @@
             <span aria-hidden="true">&times;</span>
           </button>
         </div>
-        <form id="editar_form" action="/gestion_inventario_admin/lista_equipo_diferenciado/actualizar_informacion" method="POST">
+        <form id="editar_form_detallado" action="/gestion_inventario_admin/lista_equipo_diferenciado/actualizar_informacion" method="POST">
           <div class="modal-body">
             <input class="form-control" type="text" name="codigo_equipo" value="" id="editar_equipo_hidden_id_equipo" hidden>
             <input class="form-control" type="text" name="codigo_sufijo_original" value="" id="editar_equipo_hidden_id_sufijo" hidden>
@@ -69,7 +69,6 @@
         $('#motivo_inactivo_titulo').prop( "hidden", false);
       }
       else {
-        console.log("test4");
         $('#editar_equipo_razon_inactivo').prop( "hidden", true);
         $('#motivo_inactivo_titulo').prop( "hidden", true);
 

@@ -41,41 +41,11 @@
                   <td>
                     <span class="btn-group">
                      <a href="gestion_inventario_admin/detalles_equipo/{{elemento.codigo}}"><button type="button" title="Ver detalles de equipo" data-toggle="modal" class="btn btn-sm btn-info mr-1"><i class="fas fa-search-plus"></i></button></a>
-                      <button type="button" onclick="cargar_datos_equipo_modal('{{elemento.codigo}}','{{elemento.nombre}}','{{elemento.modelo}}', '{{elemento.marca}}', '{{elemento.descripcion}}','{{elemento.dias_max_prestamo}}','{{elemento.imagen}}','{{elemento.dias_renovacion}}')" data-target="#editar_equipo" title="Editar equipo" class="btn btn-sm btn-warning mr-1" data-toggle="modal"><i class="fas fa-edit"></i></button>
+                      <button type="button" onclick='cargar_datos_equipo_modal({{elemento | tojson }})' data-target="#editar_equipo" title="Editar equipo" class="btn btn-sm btn-warning mr-1" data-toggle="modal"><i class="fas fa-edit"></i></button>
                       <button type="button" onclick="cargar_codigo_delete_equipo_modal('{{elemento.codigo}}')" title="Eliminar equipo" data-toggle="modal" data-target="#eliminar_equipo" class="btn btn-sm btn-danger mr-1"><i class="fas fa-trash"></i></button>
                       <a href="/gestion_inventario_admin/lista_equipo_diferenciado/{{elemento.codigo}}"><button type="button" class="btn btn-sm btn-secondary" title="Ver unidades registradas"><i class="fas fa-clipboard-list"></i></button></a>
                     </span>
                   </td>
-                </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-
-      <div class="table-responsive" hidden>
-        <div class="table-wrapper-scroll-y" hidden style="position: relative; overflow:auto;">
-          <table class="table table-hover" id="tabla_equipos_general_descarga" hidden>
-            <thead class="text-white" style="background:#4D4D4D;" hidden>
-              <tr>
-                <th scope="col">Codigo</th>
-                <th scope="col">Nombre</th>
-                <th scope="col">Modelo</th>
-                <th scope="col">Marca</th>
-                <th scope="col" class="text-center">Disponibles</th>
-                <th scope="col" class="text-center">Total</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for elemento in lista_equipo %}
-                <tr style="background:#ECF0F1;">
-                  <td > {{elemento.codigo}} </td>
-                  <td> {{elemento.nombre}} </td>
-                  <td> {{elemento.modelo}} </td>
-                  <td> {{elemento.marca}} </td>
-                  <td class="text-center"> {{elemento.disponibles}}</td>
-                  <td class="text-center"> {{elemento.total_equipos}}</td>
                 </tr>
               {% endfor %}
             </tbody>

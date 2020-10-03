@@ -14,7 +14,7 @@ def redirect_url(default='index'): # Redireccionamiento desde donde vino la requ
            request.referrer or \
            url_for(default)
 
-mod = Blueprint("rutas_nico",__name__)
+mod = Blueprint("rutas_gestion_inventario",__name__)
 
 #*********************************************************************************************#
 
@@ -49,8 +49,6 @@ def consultar_lista_equipos_general():
             ''')
     cursor.execute(query)
     equipos = cursor.fetchall()
-    # for element in equipos:
-    #     print(element)
     return equipos
 def consultar_lista_equipos(): # funcion para poder conusultar toda la lista de equiipos detallados
     query = ("""
@@ -325,15 +323,25 @@ def funcion_eliminar_equipo_diferenciado():
 #*********************************************************************************************#
 #Informacion de equipo unico para listado de equipo_diferenciado
 def consultar_equipo_descripcion(codigo):
-    query = ('''
-        SELECT *
-        FROM Equipo
-        WHERE Equipo.codigo = %s
-    '''
-    )
-    cursor.execute(query,(codigo,))
-    equipo_detalle = cursor.fetchone()
-    return equipo_detalle
+        query = ('''
+            SELECT  Equipo.id,
+                    Equipo.codigo,
+                    Equipo.nombre,
+                    Equipo.modelo,
+                    Equipo.marca,
+                    Equipo.descripcion,
+                    Equipo.dias_max_prestamo,
+                    Equipo.dias_renovacion,
+                    Equipo.imagen,
+                    COUNT(CASE WHEN Equipo_diferenciado.activo = 1 THEN 1 ELSE NULL END) AS disponibles,
+                    COUNT(Equipo_diferenciado.activo) AS total_equipos
+                    FROM Equipo
+                    LEFT JOIN Equipo_diferenciado ON  Equipo.codigo = Equipo_diferenciado.codigo_equipo
+                    WHERE Equipo.codigo= %s
+                ''')
+        cursor.execute(query,(codigo,))
+        equipo_detalle = cursor.fetchone()
+        return equipo_detalle
 
 # Consulta una  lista de equipos especificos
 def consultar_lista_equipos_detalle_estado(codigo_equipo):
@@ -554,71 +562,7 @@ def funcion_eliminar_circuito():
 
 
 
-#Modificar Wifi
 
-def consultar_datos_wifi():
-    query = ('''
-        SELECT *
-        FROM Wifi
-    '''
-    )
-    cursor.execute(query)
-    wifi = cursor.fetchone()
-    return wifi
-
-@mod.route("/modificar_wifi")
-def modificar_wifi():
-    if 'usuario' not in session or session["usuario"]["id_credencial"] != 3:
-        return redirect('/')
-    else:
-        datos = consultar_datos_wifi()
-        return render_template('vistas_gestion_inventario/modificar_wifi.html',
-            datos_wifi = datos )
-
-def editar_datos_wifi(informacion_a_actualizar):  # Query UPDATE
-            query = ('''
-                SELECT *
-                FROM Wifi
-            '''
-            )
-            cursor.execute(query)
-            wifi = cursor.fetchone()
-            if wifi is None:
-                query = ('''
-                    INSERT INTO Wifi (ssid, bssid, password)
-                    VALUES (%s, %s, %s);
-                    ''')
-                cursor.execute(query,(
-                    informacion_a_actualizar['ssid'],
-                    informacion_a_actualizar['bssid'],
-                    informacion_a_actualizar['contraseña']))
-                db.commit()
-                return "OK"
-            else:
-                query = ('''
-                    UPDATE Wifi
-                    SET Wifi.ssid = %s,
-                        Wifi.bssid = %s,
-                        Wifi.password = %s
-                        WHERE Wifi.ssid = %s
-                        AND Wifi.bssid = %s
-                        ''')
-                cursor.execute(query,(
-                informacion_a_actualizar['ssid'],
-                informacion_a_actualizar['bssid'],
-                informacion_a_actualizar['contraseña'],
-                informacion_a_actualizar['ssid_original'],
-                informacion_a_actualizar['bssid_original']
-                ))
-                db.commit()
-                return "OK"
-
-@mod.route('/modificar_wifi/actualizar', methods = ['POST'])
-def funcion_editar_wifi():
-    if request.method == 'POST':
-        informacion_a_actualizar = request.form.to_dict()
-        editar_datos_wifi(informacion_a_actualizar)
-        return redirect("/modificar_wifi")
 
 def consultar_circuito_especifico(nombre_circuito):
     query = ('''
@@ -635,7 +579,6 @@ def consultar_circuito_especifico(nombre_circuito):
 @mod.route("/gestion_inventario_admin/detalles_circuito/<string:nombre_circuito>",methods=["GET"])
 def detalle_info_circuito(nombre_circuito):
     circuito=consultar_circuito_especifico(nombre_circuito)
-    print (circuito)
     return render_template("/vistas_gestion_inventario/detalles_circuito.html",
     circuito_descripcion=circuito)
 
