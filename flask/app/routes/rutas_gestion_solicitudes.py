@@ -15,6 +15,7 @@ import random
 import timeago
 import shutil
 from email.mime.multipart import MIMEMultipart
+from .email_sender import enviar_correo_notificacion
 from openpyxl.styles import Font, PatternFill, Alignment
 from openpyxl.styles.borders import Border, Side, BORDER_THIN
 from config import db, cursor, BASE_DIR, ALLOWED_EXTENSIONS, MAX_CONTENT_LENGTH
@@ -22,34 +23,10 @@ from flask import Flask, Blueprint, render_template, request, redirect, url_for,
 
 mod = Blueprint("rutas_gestion_solicitudes", __name__)
 
-
 def redirect_url(default='index'):  # Redireccionamiento desde donde vino la request
     return request.args.get('next') or \
         request.referrer or \
         url_for(default)
-
-
-# Envío de correo (notificaciones de solicitudes de préstamo)
-def enviar_correo_notificacion(archivo, str_asunto, correo_usuario):
-    # Se crea el mensaje
-    correo = MIMEText(archivo, "html")
-    correo.set_charset("utf-8")
-    correo["From"] = "labeit.udp@gmail.com"
-    correo["To"] = correo_usuario
-    correo["Subject"] = str_asunto
-
-    try:
-        server = smtplib.SMTP_SSL("smtp.gmail.com")
-        server.login("labeit.udp@gmail.com", "LabEIT_UDP_2020")
-        str_correo = correo.as_string()
-        server.sendmail("labeit.udp@gmail.com", correo_usuario, str_correo)
-        server.close()
-        flash("correo-exito")  # Notificación de éxito al enviar el correo
-
-    except Exception as e:
-        print(e)
-        flash("correo-fallido")  # Notificación de fallo al enviar el correo
-
 
 # ================================== GESTIÓN DE SOLICITUDES DE PRÉSTAMOS
 @mod.route("/gestion_solicitudes_prestamos", methods=["GET"])
@@ -278,16 +255,17 @@ def detalle_solicitud(id_detalle_solicitud):
     else:
         usuario_sancionado = False
 
-    # Se obtiene la lista de cursos asociados a la solicitud
-    sql_query = """
-        SELECT Curso.id,Curso.codigo_udp,Curso.nombre
-            FROM Curso,Solicitud_curso
-                WHERE Curso.id = Solicitud_curso.id_curso
-                AND Solicitud_curso.id_solicitud = %s
-                ORDER BY Curso.nombre
-    """
-    cursor.execute(sql_query, (datos_encabezado_solicitud["id"],))
-    lista_cursos_asociados = cursor.fetchall()
+    # Se obtiene el registro del curso asociado en caso de existir
+    if datos_detalle_solicitud["id_curso_asociado"]:
+        sql_query = """
+            SELECT id,codigo_udp,nombre
+                FROM Curso
+                    WHERE id = %s
+        """
+        cursor.execute(sql_query,(datos_detalle_solicitud["id_curso_asociado"],))
+        curso_asociado = cursor.fetchone()
+    else:
+        curso_asociado = None
 
     return render_template("/vistas_gestion_solicitudes_prestamos/detalle_solicitud.html",
                            datos_detalle_solicitud=datos_detalle_solicitud,
@@ -298,7 +276,7 @@ def detalle_solicitud(id_detalle_solicitud):
                            lista_equipos=lista_equipos,
                            lista_equipos_prestamo=lista_equipos_prestamo,
                            usuario_sancionado=usuario_sancionado,
-                           lista_cursos_asociados=lista_cursos_asociados)
+                           curso_asociado=curso_asociado)
 
 
 @mod.route("/rechazar_solicitud/<string:id_detalle>", methods=["POST"])
@@ -554,15 +532,7 @@ def eliminar_solicitud(id_detalle):
                     WHERE id = %s
         """
         cursor.execute(sql_query, (id_encabezado_solicitud,))
-
-        # Se eliminan las posibles asociaciones con asignaturas
-        sql_query = """
-            DELETE FROM
-                Solicitud_curso
-                    WHERE id_solicitud = %s
-        """
-        cursor.execute(sql_query, (id_encabezado_solicitud,))
-
+    
     flash("detalle-eliminado")
     return redirect(redirect_url())
 
@@ -597,7 +567,7 @@ def eliminar_detalles_seleccionados():
 
         if id_encabezado_solicitud not in lista_encabezados_solicitudes:
             lista_encabezados_solicitudes.append(id_encabezado_solicitud)
-
+        
     # Se eliminan todos los detalles de solicitudes seleccionados
     sql_query = "DELETE FROM Detalle_solicitud WHERE id IN (%s)" % ','.join(
         ['%s'] * len(lista_detalles_solicitudes))
@@ -635,14 +605,6 @@ def eliminar_solicitud_canasta(id_solicitud):
         DELETE FROM
             Solicitud
                 WHERE id = %s
-    """
-    cursor.execute(sql_query, (id_solicitud,))
-
-    # Se eliminan las posibles asociaciones con asignaturas
-    sql_query = """
-        DELETE FROM
-            Solicitud_curso
-                WHERE id_solicitud = %s
     """
     cursor.execute(sql_query, (id_solicitud,))
 
@@ -990,10 +952,8 @@ def exportar_solicitudes(id_exportacion):
                 CONCAT(Equipo.nombre," ",Equipo.marca," ",Equipo.modelo) AS 'Equipo solicitado',
                 Equipo.codigo AS 'Código de equipo',
                 Solicitud.fecha_registro AS 'Fecha de registro',
-                (SELECT GROUP_CONCAT(Curso.nombre ORDER BY Curso.nombre) FROM Curso,Solicitud_curso
-                        WHERE Curso.id = Solicitud_curso.id_curso
-                        AND Solicitud_curso.id_solicitud = Detalle_solicitud.id_solicitud
-                ) as 'Asignaturas asociadas'
+                (SELECT Curso.nombre FROM Curso WHERE id = Detalle_solicitud.id_curso_asociado
+                ) as 'Asignatura asociada'
                     FROM Detalle_solicitud,Solicitud,Equipo,Usuario
                         WHERE Detalle_solicitud.id_solicitud = Solicitud.id
                         AND Detalle_solicitud.id_equipo = Equipo.id
@@ -1020,10 +980,8 @@ def exportar_solicitudes(id_exportacion):
                 Detalle_solicitud.fecha_devolucion AS 'Fecha de devolución',
                 Detalle_solicitud.fecha_vencimiento AS 'Fecha de vencimiento',
                 Detalle_solicitud.renovaciones AS 'Cantidad de renovaciones',
-                (SELECT GROUP_CONCAT(Curso.nombre ORDER BY Curso.nombre) FROM Curso,Solicitud_curso
-                        WHERE Curso.id = Solicitud_curso.id_curso
-                        AND Solicitud_curso.id_solicitud = Detalle_solicitud.id_solicitud
-                ) as 'Asignaturas asociadas'
+                (SELECT Curso.nombre FROM Curso WHERE id = Detalle_solicitud.id_curso_asociado
+                ) as 'Asignatura asociada'
                     FROM Detalle_solicitud,Solicitud,Equipo,Usuario,Estado_detalle_solicitud
                         WHERE Detalle_solicitud.id_solicitud = Solicitud.id
                         AND Detalle_solicitud.id_equipo = Equipo.id
@@ -1054,10 +1012,8 @@ def exportar_solicitudes(id_exportacion):
                 Detalle_solicitud.fecha_cancelacion AS 'Fecha de cancelación',
                 Detalle_solicitud.renovaciones AS 'Cantidad de renovaciones',
                 Detalle_solicitud.razon_termino AS 'Motivo de término',
-                (SELECT GROUP_CONCAT(Curso.nombre ORDER BY Curso.nombre) FROM Curso,Solicitud_curso
-                        WHERE Curso.id = Solicitud_curso.id_curso
-                        AND Solicitud_curso.id_solicitud = Detalle_solicitud.id_solicitud
-                ) as 'Asignaturas asociadas'
+                (SELECT Curso.nombre FROM Curso WHERE id = Detalle_solicitud.id_curso_asociado
+                ) as 'Asignatura asociada'
                     FROM Detalle_solicitud,Solicitud,Equipo,Usuario,Estado_detalle_solicitud
                         WHERE Detalle_solicitud.id_solicitud = Solicitud.id
                         AND Detalle_solicitud.id_equipo = Equipo.id
@@ -1234,16 +1190,6 @@ def registrar_solicitud_agil():
         cursor.execute(sql_query, (id_solicitud, id_equipo,
                                    fecha_inicio, fecha_termino, codigo_sufijo))
 
-    # Se verifica si se seleccionaron cursos relacionados al pedido
-    lista_checkboxes = request.form.getlist("curso_relacionado")
-    # En caso de que existan cursos seleccionados, se enlazan a la solicitud
-    for id_curso in lista_checkboxes:
-        sql_query = """
-                INSERT INTO Solicitud_curso (id_solicitud,id_curso)
-                    VALUES (%s,%s)
-            """
-        cursor.execute(sql_query, (id_solicitud, id_curso))
-
     flash("solicitud-registrada")
     return redirect(redirect_url())
 
@@ -1312,6 +1258,19 @@ def detalle_canasta_solicitud(id_solicitud):
             cursor.execute(
                 sql_query, (detalle_solicitud["id_equipo"], detalle_solicitud["id_equipo"]))
             equipos_disponibles[detalle_solicitud["id"]] = cursor.fetchall()
+        
+        # Se obtiene el registro del curso asociado en caso de existir
+        if detalle_solicitud["id_curso_asociado"]:
+            sql_query = """
+                SELECT Curso.id AS id_curso,Curso.codigo_udp AS curso_codigo_udp,Curso.nombre AS nombre_curso
+                    FROM Curso
+                        WHERE id = %s
+            """
+            cursor.execute(sql_query,(detalle_solicitud["id_curso_asociado"],))
+            curso_asociado = cursor.fetchone()
+            # Se agrega la info del curso al detalle de solicitud en caso de que exista
+            if curso_asociado is not None:
+                detalle_solicitud.update(curso_asociado)
 
     # Se verifica si el usuario solicitante se encuentra sancionado
     # En caso de que se encuentre sancionado, se notifica al administrador y se prohibe cambiar de estado la solicitud
@@ -1329,21 +1288,9 @@ def detalle_canasta_solicitud(id_solicitud):
     else:
         usuario_sancionado = False
 
-    # Se obtiene la lista de cursos asociados a la solicitud
-    sql_query = """
-        SELECT Curso.id,Curso.codigo_udp,Curso.nombre
-            FROM Curso,Solicitud_curso
-                WHERE Curso.id = Solicitud_curso.id_curso
-                AND Solicitud_curso.id_solicitud = %s
-                ORDER BY Curso.nombre
-    """
-    cursor.execute(sql_query, (id_solicitud,))
-    lista_cursos_asociados = cursor.fetchall()
-
     return render_template("/vistas_gestion_solicitudes_prestamos/detalle_canasta_solicitud.html",
                            solicitud=solicitud,
                            equipos_disponibles=equipos_disponibles,
                            datos_usuario=datos_usuario,
                            lista_detalles_solicitud=lista_detalles_solicitud,
-                           usuario_sancionado=usuario_sancionado,
-                           lista_cursos_asociados=lista_cursos_asociados)
+                           usuario_sancionado=usuario_sancionado)

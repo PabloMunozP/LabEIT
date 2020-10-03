@@ -196,7 +196,7 @@
         </div>
 
     </form>
-
+    {% if count_wishlist["count(id)"] >= cantidad_wishlist %}
     <div class="tab-content" id="nav-tabContent">
         <div class="card-header mt-4" style="background:#0db26b;">
             <h5 class="card-title text-white my-auto">Wishlist de LabEIT UDP</h5>
@@ -205,8 +205,7 @@
         </div>
         {% include "/wishlist/user_wishlist_tabla.html" %}
     </div>
-
-
+    {% endif %}
 </div>
 
 <div id="accordion"></div>
@@ -250,7 +249,7 @@
 <script>
     function opencheck() {
         document.getElementById("documento").innerHTML = '<label for="documento"><b>Archiva tu cotización aquí:</b></label> \
-                                                        <input type="file" oninput="file_size(this);" class="form-control-file" name="cotizacion" id="cotizacion" lang="es" accept="application/pdf" value=1 required>';
+                                                        <input type="file" oninput="file_size(this); file_format(this);" class="form-control-file" name="cotizacion" id="cotizacion" lang="es" accept="application/pdf" value=1 required>';
     }
 
     function closecheck() {
@@ -265,8 +264,9 @@
                                                                {% if cursos %} \
                                                                <select class="custom-select" size="5" name="id" required> \
                                                                {% for curso in cursos %} \
-                                                                    <option value="{{curso["id"]}}">{{curso["codigo_udp"]}} {{curso["nombre"]}}</option> \
+                                                                    <option value="{{curso["id"]}}">{{curso["nombre"]}}</option> \
                                                                {% endfor %} \
+                                                                    <option value="">NO HE SIDO ASOCIADO A NINGÚN CURSO DE LA LISTA</option> \
                                                                </select> \
                                                                {% endif %} \
                                                                </fieldset>';
@@ -280,9 +280,20 @@
     function file_size(elem) {
         if (elem.files[0].size > 10000000) {
             alert("El tamaño del archivo supera los 10MB.");
-            document.getElementById("cotizacion").value = "0";
+            document.getElementById("cotizacion").value = "";
         }
     }
+
+    function file_format(elem){        
+        var filePath = elem.value;
+        if (filePath != ""){
+            var allowedExtensions = /(.pdf)$/i;
+            if(!allowedExtensions.exec(filePath)){
+                alert('Porfavor adjunta un archivo de formato PDF.');
+                document.getElementById("cotizacion").value = "";
+            }
+        }
+}
 </script>
 
 {% endblock %}

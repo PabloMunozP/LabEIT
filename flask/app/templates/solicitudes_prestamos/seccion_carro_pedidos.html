@@ -6,6 +6,7 @@
 						<tr>
 							<th scope="col">Equipos agregados a tu carro de pedidos</th>
 							<th scope="col" class="text-center">Unidades</th>
+							<th scope="col">Asignatura asociada</th>
 							<th scope="col" class="text-center">Acciones</th>
 						</tr>
 					</thead>
@@ -14,9 +15,16 @@
 							<tr style="background:#ECF0F1;">
 								<td>{{equipo["nombre"]}} {{equipo["marca"]}} {{equipo["modelo"]}}</td>
 								<td class="text-center">{{equipo["cantidad_pedidos"]}}</td>
+								<td>
+									{% if equipo["nombre_curso"] %}
+										{{equipo["nombre_curso"]}}
+									{% else %}
+										Sin asociar
+									{% endif %}
+								</td>
 								<td class="text-center">
 									<span class="btn-group">
-										<button type="button" onclick="eliminar_del_carro({{equipo}})" title="Eliminar equipo del carro" class="btn btn-sm btn-danger boton-eliminar-pedido-carro"><i class="fas fa-times-circle"></i></button>
+										<button type="button" onclick="eliminar_del_carro({{equipo["index_pedido"]}})" title="Eliminar del carro" class="btn btn-sm btn-danger boton-eliminar-pedido-carro"><i class="fas fa-times-circle"></i></button>
 									</span>
 								</td>
 							</tr>

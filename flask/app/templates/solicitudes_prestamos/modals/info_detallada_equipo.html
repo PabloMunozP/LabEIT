@@ -79,8 +79,36 @@
 						<div class="col-md-4">
 							<input type="number" min="1" max="5" class="form-control" value="1" name="cantidad_unidades_solicitadas">
 						</div>
-				  </div>
+					</div>
 
+					{% if lista_cursos %}
+
+						<div class="form-check form-check-inline">
+							<input class="form-check-input" name="asignatura_asociada" type="checkbox" id="checkbox_asignatura_asociada_{{equipo["id"]}}" onclick="check_asociacion_asignatura({{equipo["id"]}})">
+							<label class="form-check-label" for="checkbox_asignatura_asociada_{{equipo["id"]}}">Selecciona esta opción en caso de que el equipo a solicitar esté asociado a una asignatura.</label>
+						</div>
+
+						<div hidden id="form_asociacion_asignatura_{{equipo["id"]}}">
+
+							<hr>
+
+							<p><i class="fas fa-info-circle mr-2"></i>Por favor, indícanos la asignatura a la que se encuentra asociada la solicitud de este equipo.
+											Esta información podrá ayudarnos a mejorar la calidad de nuestros servicios.
+							</p>
+							<div class="form-group">
+								<select size="5" name="id_asignatura_asociada" class="form-control select_asignatura_asociada" id="select_asignatura_asociada_{{equipo["id"]}}">
+									{% for curso in lista_cursos %}
+										<option value="{{curso["id"]}}">{{curso["nombre"]}}</option>
+									{% endfor %}
+								</select>
+								<small class="form-text text-muted">
+									* En caso de querer anular la selección, simplemente desmarca la opción (checkbox) de asociación.
+								</small>
+							</div>
+					
+						</div>
+					
+						{% endif %}
 
         </div>
         <div class="modal-footer">
@@ -91,3 +119,15 @@
     </div>
   </div>
 </div>
+
+<script>
+	function check_asociacion_asignatura(id_equipo){
+		var elemento_checkbox = document.getElementById("checkbox_asignatura_asociada_"+id_equipo);
+		if(elemento_checkbox.checked){
+			document.getElementById("form_asociacion_asignatura_"+id_equipo).hidden = false;
+		}else{
+			$("#select_asignatura_asociada_"+id_equipo).val([]);
+			document.getElementById("form_asociacion_asignatura_"+id_equipo).hidden = true;
+		}
+	}
+</script>

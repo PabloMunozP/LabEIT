@@ -12,14 +12,30 @@
 		{% with msgs = get_flashed_messages() %}
 			{% if msgs %}
 				{% for msg in msgs %}
-				{% if msg == "solicitud-registrada" %}
-				<div class="alert alert-success mt-2 alert-dismissible fade show" role="alert">
-						<i class="fas fa-check-circle mr-2"></i>La solicitud de préstamo ha sido registrada correctamente. Recuerda estar atento a las indicaciones en tu correo electrónico.
-						<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+					{% if msg == "solicitud-registrada" %}
+					<div class="alert alert-success mt-2 alert-dismissible fade show" role="alert">
+							<i class="fas fa-check-circle mr-2"></i>La solicitud de préstamo ha sido registrada correctamente. Recuerda estar atento a las indicaciones en tu correo electrónico.
+							<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+									<span aria-hidden="true">&times;</span>
+							</button>
+					</div>
+					{% endif %}
+					{% if msg == "error-equipos-inexistentes"%}
+							<div class="alert alert-danger mt-2 alert-dismissible fade show" role="alert">
+								<i class="fas fa-times-circle mr-2"></i>Algunos detalles de solicitud no se registraron correctamente debido a una eliminación reciente de inventario.
+								<button type="button" class="close" data-dismiss="alert" aria-label="Close">
 								<span aria-hidden="true">&times;</span>
-						</button>
-				</div>
-				{% endif %}
+								</button>
+							</div>
+					{%endif%}
+					{% if msg == "error-general-detalles"%}
+							<div class="alert alert-danger mt-2 alert-dismissible fade show" role="alert">
+								<i class="fas fa-times-circle mr-2"></i>Se ha producido un error al generar la solicitud según los equipos seleccionados. Inténtalo nuevamente.
+								<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+								<span aria-hidden="true">&times;</span>
+								</button>
+							</div>
+					{%endif%}
 				{%endfor%}
 			{%endif%}
 		{%endwith%}
@@ -70,53 +86,6 @@
 		{% endif %}
 
 		<div class="card-header mt-4" style="background:#0db26b;">
-			<h5 class="card-title text-white my-auto"><i class="fas fa-chalkboard-teacher mr-2"></i>Asignaturas asociadas</h5>
-			<p class="text-white my-auto"><i class="fas fa-info-circle mr-2"></i>En caso de que tu pedido sea por motivos académicos, selecciona las asignaturas a las que se encuentra asociada la solicitud. (Opcional)</p>
-			<button type="button" class="btn btn-sm btn-secondary" data-container="body" data-toggle="popover" data-placement="top" data-content="Al asociar las asignaturas al pedido que estás realizando permitirás, a la coordinación de laboratorios, obtener mayor retroalimentación acerca de los equipos que se están solicitando, con la finalidad de mejorar la calidad del servicio de préstamos.">
-				Más información
-			</button>
-		</div>
-
-		{% if lista_cursos %}
-			<div class="alert alert-info alert-dismissible fade show text-center mt-2" role="alert">
-				<i class="fas fa-info-circle mr-2"></i>En caso de que no se encuentre alguno de tus cursos en la lista, contacta al laboratorista para realizar el registro.
-				<button type="button" class="close" data-dismiss="alert" aria-label="Close">
-					<span aria-hidden="true">&times;</span>
-				</button>
-			</div>
-			<div class="table-responsive mt-2">
-				<div class="table-wrapper-scroll-y" style="position: relative; overflow:auto;">
-						<table class="table" id="tabla_lista_asignaturas">
-							<thead class="text-white" style="background:#4D4D4D;">
-								<tr>
-									<th class="text-center"><input type="checkbox" name="select_all" value="1" id="asignaturas-select-all"></th>
-									<th scope="col">Código de asignatura</th>
-									<th scope="col">Nombre de la asignatura</th>
-								</tr>
-							</thead>
-							<tbody>
-								{% for curso in lista_cursos %}
-									<tr style="background:#ECF0F1;">
-										<td class="text-center">
-											<div class="form-check my-auto">
-												<input class="form-check-input position-static" name="curso_relacionado" type="checkbox" id="checkbox_asignatura_{{curso["id"]}}" value="{{curso["id"]}}">
-											</div>
-										</td>
-											<td>{{curso["codigo_udp"]}}</td>
-											<td>{{curso["nombre"]}}</td>
-									</tr>
-								{% endfor %}
-							</tbody>
-						</table>
-					</div>
-				</div>
-		{% else %}
-			<div class="alert alert-warning alert-dismissible fade show text-center mt-2" role="alert">
-				<i class="fas fa-exclamation-triangle mr-2"></i>No se han encontrado cursos asociados a tu cuenta. Puedes contactar al laboratorista para realizar el registro.
-			</div>
-		{% endif %}
-
-		<div class="card-header mt-4" style="background:#0db26b;">
 			<h5 class="card-title text-white my-auto"><i class="fas fa-shopping-cart mr-2"></i>Tu carro de pedidos</h5>
 			<p class="text-white my-auto"><i class="fas fa-info-circle mr-2"></i>A medida que selecciones equipos, estos irán apareciendo en tu lista de pedidos.</p>
 		</div>
@@ -130,6 +99,7 @@
 							<tr>
 								<th scope="col">Equipos agregados a tu carro de pedidos</th>
 								<th scope="col" class="text-center">Unidades</th>
+								<th scope="col">Asignatura asociada</th>
 								<th scope="col" class="text-center">Acciones</th>
 							</tr>
 						</thead>
@@ -138,9 +108,16 @@
 								<tr style="background:#ECF0F1;">
 									<td>{{equipo["nombre"]}} {{equipo["marca"]}} {{equipo["modelo"]}}</td>
 									<td class="text-center">{{equipo["cantidad_pedidos"]}}</td>
+									<td>
+										{% if equipo["nombre_curso"] %}
+											{{equipo["nombre_curso"]}}
+										{% else %}
+											Sin asociar
+										{% endif %}
+									</td>
 									<td class="text-center">
 										<span class="btn-group">
-											<button type="button" onclick="eliminar_del_carro({{equipo}})" title="Eliminar equipo del carro" class="btn btn-sm btn-danger boton-eliminar-pedido-carro"><i class="fas fa-times-circle"></i></button>
+											<button type="button" onclick="eliminar_del_carro({{equipo["index_pedido"]}})" title="Eliminar del carro" class="btn btn-sm btn-danger boton-eliminar-pedido-carro"><i class="fas fa-times-circle"></i></button>
 										</span>
 									</td>
 								</tr>
@@ -182,14 +159,21 @@
 						// Se minimiza el modal correspondiente
 						$("#info_detallada_equipo_"+id_equipo).modal("toggle");
 						let cantidad_pedidos = elements[1].value;
+						let id_asignatura_asociada = elements[3].value;
 						// Se deja el input de cantidad denuevo en 1
 						this.elements[1].value = 1;
+						// Se limpian checkbox y select correspondientes, además de esconder la sección
+						$("#checkbox_asignatura_asociada_"+id_equipo).prop("checked",false);
+						$("#form_asociacion_asignatura_"+id_equipo).prop("hidden",true);
+						$("#select_asignatura_asociada_"+id_equipo).val([]);
+
 						// Se desactiva el botón submit
 						$(".submit-agregar-pedido").prop('disabled', true);
 						$.ajax({
 								data: {
 									id_equipo: id_equipo,
-									cantidad_pedidos: cantidad_pedidos
+									cantidad_pedidos: cantidad_pedidos,
+									id_asignatura_asociada: id_asignatura_asociada
 								},
 								type: "POST",
 								url: "/agregar_al_carro"
@@ -222,7 +206,7 @@
 					} );
 				
 				// Tabla de cursos
-				var tabla_asignaturas = $('#tabla_lista_asignaturas').DataTable( {
+				var tabla_asignaturas = $('.tabla_lista_asignaturas').DataTable( {
 						"order": [[ 1, "asc" ]],
 						"language": {
 								"lengthMenu": "Mostrar _MENU_ registros por página",
@@ -235,45 +219,16 @@
 										"previous":   "Anterior"
 								},
 								"infoFiltered": "(filtrado de _MAX_ registros totales)"
-							},
-							'columnDefs': [{
-								'targets': 0,
-								'searchable': false,
-								'orderable': false
-							}]
-					} );
-
-					// Checkboxes de lista de asignaturas
-					// Handle click on "Select all" control
-					$('#asignaturas-select-all').on('click', function(){
-							// Get all rows with search applied
-							var rows = tabla_asignaturas.rows({ 'search': 'applied' }).nodes();
-							// Check/uncheck checkboxes for all rows in the table
-							$('input[type="checkbox"]', rows).prop('checked', this.checked);
-					});
-
-					// Handle click on checkbox to set state of "Select all" control
-					$('#tabla_lista_asignaturas tbody').on('change', 'input[type="checkbox"]', function(){
-							// If checkbox is not checked
-							if(!this.checked){
-								var el = $('#asignaturas-select-all').get(0);
-								// If "Select all" control is checked and has 'indeterminate' property
-								if(el && el.checked && ('indeterminate' in el)){
-										// Set visual state of "Select all" control
-										// as 'indeterminate'
-										el.indeterminate = true;
-								}
 							}
-					});
+					} );
 
 		});
 
-		function eliminar_del_carro(equipo){
-			let id_equipo = equipo["id"];
+		function eliminar_del_carro(index_pedido){
 			$(".boton-eliminar-pedido-carro").prop('disabled', true);
 			$.ajax({
 					data: {
-						id_equipo: id_equipo,
+						index_pedido: index_pedido,
 						vaciar_carro: 0
 					},
 					type: "POST",
