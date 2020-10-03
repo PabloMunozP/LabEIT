@@ -583,16 +583,6 @@ def eliminar_detalles_seleccionados():
         cursor.execute(
             sql_query, (id_encabezado_solicitud, id_encabezado_solicitud))
 
-        # Si se realizó la eliminación de la solicitud,
-        # se eliminan las posibles asociaciones con asignaturas
-        if cursor.rowcount > 0:
-            sql_query = """
-                DELETE FROM
-                    Solicitud_curso
-                        WHERE id_solicitud = %s
-            """
-            cursor.execute(sql_query, (id_encabezado_solicitud,))
-
     flash("detalles-seleccionados-eliminados")
     return redirect(redirect_url())
 

@@ -99,10 +99,20 @@ def estadisticas_solicitudes():
     cursor.execute(sql_query)
     lista_asignaturas_asociadas = cursor.fetchall()
 
+    # Lista de asignaturas ordenadas alfabéticamente para elementos select html
+    sql_query = """
+        SELECT Curso.id,Curso.nombre
+            FROM Curso
+                ORDER BY Curso.nombre
+    """
+    cursor.execute(sql_query)
+    lista_asignaturas_registradas = cursor.fetchall()
+
     return render_template("/estadisticas/estadisticas_solicitudes.html",
         cantidades_solicitudes_estados=cantidades_solicitudes_estados,
         lista_usuarios=lista_usuarios,
-        lista_asignaturas_asociadas=lista_asignaturas_asociadas)
+        lista_asignaturas_asociadas=lista_asignaturas_asociadas,
+        lista_asignaturas_registradas=lista_asignaturas_registradas)
 
 @mod.route("/consultar_estadisticas_solicitudes",methods=["POST"])
 def consultar_estadisticas_solicitudes():
