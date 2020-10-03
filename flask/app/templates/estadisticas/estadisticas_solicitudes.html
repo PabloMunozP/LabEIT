@@ -53,7 +53,7 @@
 							<tr>
 								<th scope="col">Código de asignatura</th>
 								<th scope="col">Nombre de la asignatura</th>
-								<th scope="col" class="text-center">Cantidad de solicitudes asociadas</th>
+								<th scope="col" class="text-center">Cantidad de detalles de solicitud asociados</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -61,7 +61,7 @@
 								<tr style="background:#ECF0F1;">
 										<td>{{curso["codigo_udp"]}}</td>
 										<td>{{curso["nombre"]}}</td>
-										<td class="text-center">{{curso["cantidad_asociaciones"]}}</td>
+										<td class="text-center">{{curso["cantidad_detalles_asociados"]}}</td>
 									</tr>
 							{% endfor %}
 						</tbody>
@@ -291,6 +291,7 @@
 							 $("#notificacion_consulta_cantidad_equipos_solicitados").prop("hidden",true);
 							 $("#seccion_consulta_1").prop("hidden",false);
 							 $("#seccion_grafico_1").empty();
+
 							 google.charts.load("current", {packages:['corechart']});
     			 		 google.charts.setOnLoadCallback(function(){
 								 drawChart(data);
@@ -318,6 +319,8 @@
 					$("#fila_boton_eliminar_grafico_1").prop("hidden",true);
 					$("#fecha_desde_equipos_solicitados").val("");
 					$("#fecha_hasta_equipos_solicitados").val("");
+					// Se limpia el select de las asignaturas
+					$("#select_asignaturas_asociadas_c1").val([]);
 				});
 
 
@@ -397,6 +400,8 @@
 					$("#fila_boton_eliminar_grafico_2").prop("hidden",true);
 					$("#fecha_desde_consulta_2").val("");
 					$("#fecha_hasta_consulta_2").val("");
+					// Se limpia el select de las asignaturas
+					$("#select_asignaturas_asociadas_c2").val([]);
 				});
 
 		</script>

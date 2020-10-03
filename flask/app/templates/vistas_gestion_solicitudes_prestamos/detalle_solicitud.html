@@ -7,7 +7,6 @@
 	{% include "/vistas_gestion_solicitudes_prestamos/modals/confirmacion_cancelacion.html" %}
 	{% include "/vistas_gestion_solicitudes_prestamos/modals/confirmacion_devolucion.html" %}
 	{% include "/vistas_gestion_solicitudes_prestamos/modals/formulario_retiro_equipo.html" %}
-	{% include "/vistas_gestion_solicitudes_prestamos/modals/formulario_modificar_solicitud.html" %}
 
 	<div class="container-fluid mt-2">
 
@@ -295,33 +294,22 @@
 						</div>
 					</div>
 
-				{% if lista_cursos_asociados %}
 					<div class="form-group row">
-						<label class="col-12 col-form-label texto-gris-eit">
-							<strong>Asignaturas asociadas a la solicitud</strong>
+						<label class="col-md-4 col-form-label texto-gris-eit">
+							<strong>Curso asociado a la solicitud:</strong>
 						</label>
-					</div>
-					<div class="table-responsive mt-2">
-						<div class="table-wrapper-scroll-y" style="overflow-y:auto;">
-								<table class="table" id="tabla_lista_asignaturas">
-									<thead class="text-white" style="background:#4D4D4D;">
-										<tr>
-											<th scope="col">Código de la asignatura</th>
-											<th scope="col">Nombre de la asignatura</th>
-										</tr>
-									</thead>
-									<tbody>
-										{% for curso in lista_cursos_asociados %}
-											<tr style="background:#fff;">
-													<td>{{curso["codigo_udp"]}}</td>
-													<td><a title="Ir al detalle del curso" style="color: inherit;" href="/gestion_cursos/detalles_curso/{{curso["codigo_udp"]}}">{{curso["nombre"]}}</a></td>
-											</tr>
-										{% endfor %}
-									</tbody>
-								</table>
-							</div>
+						<div class="col-md-8">
+							<p class="form-control-plaintext text-break">
+								{% if curso_asociado %}
+								<a title="Ir al detalle del curso" href="/gestion_cursos/detalles_curso/{{curso_asociado["codigo_udp"]}}">
+									[{{curso_asociado["codigo_udp"]}}]	{{curso_asociado["nombre"]}}
+								</a>
+								{% else %}
+									Sin asociación
+								{% endif %}
+							</p>
 						</div>
-				{% endif %}
+					</div>
 				
 			</div>
 
