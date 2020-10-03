@@ -20,8 +20,8 @@
 </div>
 
 <script>
-  function cargar_codigo_delete_circuito(nombre_circuito, descripcion_circuito){
-    $("#form_eliminar_equipo_circuito_nombre").val(nombre_circuito);
-    $("#form_eliminar_equipo_circuito_descripcion").val(descripcion_circuito);
+  function cargar_codigo_delete_circuito(elemento){
+    $("#form_eliminar_equipo_circuito_nombre").val(elemento.nombre);
+    $("#form_eliminar_equipo_circuito_descripcion").val(elemento.descripcion);
   }
 </script>

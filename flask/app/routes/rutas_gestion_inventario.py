@@ -401,15 +401,14 @@ def validar_form_añadir_equipo_espeficio(codigo_equipo):
 # Agrega un equipo a partir de la relacion que tenga DIF
 def insertar_lista_equipos_detalle(codigo_equipo, valores_a_insertar):
     query = ('''
-        INSERT INTO Equipo_diferenciado (codigo_equipo, codigo_sufijo, codigo_activo, fecha_compra, activo)
-        VALUES (%s, %s, %s, %s, %s);
+        INSERT INTO Equipo_diferenciado (codigo_equipo, codigo_sufijo, codigo_activo, fecha_compra)
+        VALUES (%s, %s, %s, %s);
     ''')
     cursor.execute(query,(
         codigo_equipo,
         valores_a_insertar['codigo_sufijo'],
         valores_a_insertar['codigo_activo'],
-        valores_a_insertar['fecha_compra'],
-        valores_a_insertar['activo']))
+        valores_a_insertar['fecha_compra']))
     db.commit()
     return 'OK'
 
@@ -474,7 +473,8 @@ def funcion_añadir_circuito_form():
         informacion_a_insertar = request.form.to_dict()
         circuitos=consultar_lista_circuito()
         for val in circuitos:
-            if (informacion_a_insertar["nombre_circuito"]==val["nombre"]):
+            if (informacion_a_insertar["nombre_circuito"]==val["nombre"]
+            and informacion_a_insertar["descripcion_circuito"]==val["descripcion"] ):
                 flash("equipo-existente")
                 return redirect('/gestion_inventario_admin')
         insertar_lista_circuitos(informacion_a_insertar)
@@ -552,7 +552,9 @@ def funcion_eliminar_circuito():
         equipo_a_eliminar = request.form.to_dict()
         circuitos=consultar_lista_circuito()
         for val in circuitos:
-            if (val["prestados"] > 0):
+            if (val["prestados"] > 0
+            and equipo_a_eliminar["nombre_circuito"]==val["nombre"]
+            and equipo_a_eliminar["descripcion_circuito"]==val["descripcion"]):
                 flash("equipo-ocupado")
                 return redirect("/gestion_inventario_admin")
         eliminar_circuito(equipo_a_eliminar)

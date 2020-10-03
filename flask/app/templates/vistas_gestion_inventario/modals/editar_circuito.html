@@ -55,15 +55,15 @@
 
 
   <script>
-    function cargar_datos_equipo_circuito(nombre_circuito, cantidad_circuito, descripcion_circuito,dias_max_prestamo,dias_renovacion, imagen_circuito){
+    function cargar_datos_equipo_circuito(elemento){
       document.getElementById("modal-title").innerHTML = '<i class="fas fa-edit"></i> Editar circuito ' + nombre_circuito ;
-      $("#editar_equipo_hidden_nombre_circuito").val(nombre_circuito);
-      $("#editar_equipo_hidden_descripcion_circuito").val(descripcion_circuito);
-      $("#editar_nombre_circuito").val(nombre_circuito);
-      $("#editar_cantidad_circuito").val(cantidad_circuito);
-      $("#editar_descripcion_circuito").val(descripcion_circuito);
-      $("#editar-equipo-dias").val(dias_max_prestamo);
-      $("#editar-equipo-dias-renovacion").val(dias_renovacion);
-      $("#editar-imagen-circuito").val(imagen_circuito);
+      $("#editar_equipo_hidden_nombre_circuito").val(elemento.nombre);
+      $("#editar_equipo_hidden_descripcion_circuito").val(elemento.descripcion);
+      $("#editar_nombre_circuito").val(elemento.nombre);
+      $("#editar_cantidad_circuito").val(elemento.cantidad);
+      $("#editar_descripcion_circuito").val(elemento.descripcion);
+      $("#editar-equipo-dias").val(elemento.dias_max_prestamo);
+      $("#editar-equipo-dias-renovacion").val(elemento.dias_renovacion);
+      $("#editar-imagen-circuito").val(elemento.imagen);
     }
   </script>
