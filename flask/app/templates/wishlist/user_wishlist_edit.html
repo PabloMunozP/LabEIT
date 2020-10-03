@@ -414,7 +414,7 @@
                                                                 {% if cursos %} \
                                                                 <select class="custom-select" size="5" name="id" required> \
                                                                 {% for curso in cursos %} \
-                                                                    <option {% if curso["id"] == motivo["id_curso"] %} selected {% endif %} value="{{curso["id"]}}">{{curso["codigo_udp"]}} {{curso["nombre"]}}</option> \
+                                                                    <option {% if curso["id"] == motivo["id_curso"] %} selected {% endif %} value="{{curso["id"]}}">{{curso["nombre"]}}</option> \
                                                                 {% endfor %} \
                                                                     <option {% if not motivo["id_curso"] %} selected {% endif %} value="">NO HE SIDO ASOCIADO A NINGÚN CURSO DE LA LISTA</option> \
                                                                 </select> \

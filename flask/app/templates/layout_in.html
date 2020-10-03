@@ -46,7 +46,12 @@
 
                         <a class="nav-link" href="/solicitudes_prestamos">
                           <div class="sb-nav-link-icon"><i class="fas fa-laptop mr-1"></i></div>
-                          Solicitudes de préstamos
+                          Solicitudes de préstamos de equipos
+                        </a>
+
+                        <a class="nav-link" href="/solicitudes_prestamos_circuitos">
+                          <div class="sb-nav-link-icon"><i class="fas fa-microchip mr-1"></i></div>
+                          Solicitudes de préstamos de circuitos
                         </a>
 
                         <a class="nav-link" href="/wishlist_usuario">
@@ -73,10 +78,17 @@
 
                           <div class="sb-sidenav-menu-heading" style="color:#ECF0F1;">Administración</div>
 
-                          <a class="nav-link" href="/gestion_solicitudes_prestamos">
-                            <div class="sb-nav-link-icon"><i class="fas fa-file-invoice mr-1"></i></div>
-                            Gestión de solicitudes de préstamos
-                          </a>
+                            <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseLayouts" aria-expanded="false" aria-controls="collapseLayouts">
+                                <div class="sb-nav-link-icon"><i class="fas fa-file-invoice mr-1"></i></div>
+                                Gestión de solicitudes de préstamos
+                                <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
+                            </a>
+                            <div class="collapse" id="collapseLayouts" aria-labelledby="headingOne" data-parent="#sidenavAccordion">
+                                <nav class="sb-sidenav-menu-nested nav">
+                                    <a class="nav-link" href="/gestion_solicitudes_prestamos"><i class="fas fa-laptop mr-2"></i>Equipos</a>
+                                    <a class="nav-link" href="/gestion_solicitudes_prestamos_circuitos"><i class="fas fa-microchip mr-2"></i>Circuitos</a>
+                                </nav>
+                            </div>
 
                           <a class="nav-link" href="/gestion_inventario_admin">
                             <div class="sb-nav-link-icon"><i class="fas fa-boxes mr-1"></i></div>

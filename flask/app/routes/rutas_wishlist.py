@@ -152,6 +152,7 @@ def tabla_wishlist():
     sql_query = """
         SELECT *
             FROM Curso
+                ORDER BY nombre
     """
     cursor.execute(sql_query)
     cursos = cursor.fetchall()
@@ -241,6 +242,7 @@ def editar_solicitud(id_detalle_solicitud):
     sql_query = """
         SELECT *
             FROM Curso
+                ORDER BY nombre
     """
     cursor.execute(sql_query)
     cursos = cursor.fetchall()
@@ -354,6 +356,7 @@ def detalle_solicitud(id_detalle_solicitud):
     sql_query = """
         SELECT *
             FROM Curso
+                ORDER BY nombre
     """
     cursor.execute(sql_query)
     cursos = cursor.fetchall()

@@ -89,18 +89,15 @@ def estadisticas_solicitudes():
     cursor.execute(sql_query)
     lista_usuarios = cursor.fetchall()
 
-    # Se obtiene la lista de asignaturas asociadas a las solicitudes de préstamo
+    # Se obtiene la lista de asignaturas asociadas a los detalles de solicitud junto a su cantidad
     sql_query = """
-        SELECT Curso.id,Curso.codigo_udp,Curso.nombre,COUNT(Solicitud_curso.id_curso) AS 'cantidad_asociaciones'
-	        FROM Curso 
-                LEFT JOIN Solicitud_curso 
-                    ON Curso.id = Solicitud_curso.id_curso
-    	            GROUP BY Curso.id
-                    ORDER BY cantidad_asociaciones DESC
+        SELECT Curso.id,Curso.codigo_udp,Curso.nombre,
+            (SELECT COUNT(*) FROM Detalle_solicitud WHERE id_curso_asociado = Curso.id) AS 'cantidad_detalles_asociados'
+                FROM Curso
+                    ORDER BY cantidad_detalles_asociados DESC
     """
     cursor.execute(sql_query)
     lista_asignaturas_asociadas = cursor.fetchall()
-
 
     return render_template("/estadisticas/estadisticas_solicitudes.html",
         cantidades_solicitudes_estados=cantidades_solicitudes_estados,
@@ -175,10 +172,7 @@ def consultar_estadisticas_solicitudes():
                             AND Solicitud.fecha_registro >= %s
                             AND Solicitud.fecha_registro <= %s
                             AND Equipo.id = %s
-                            AND Solicitud.id IN (SELECT Solicitud_curso.id_solicitud
-                                FROM Solicitud_curso
-                                    WHERE id_solicitud = Solicitud.id AND
-                                    id_curso IN {0})
+                            AND Detalle_solicitud.id_curso_asociado IN {0}
                             GROUP BY Equipo.id
                     """
                     string_lista_ids = str(datos_formulario["ids_asignaturas_filtro"]).replace("[","(").replace("]",")")
@@ -274,10 +268,7 @@ def consultar_estadisticas_solicitudes():
                                 AND Detalle_solicitud.estado = Estado_detalle_solicitud.id
                                 AND Estado_detalle_solicitud.id = %s
                                 AND Equipo.id = %s
-                                AND Solicitud.id IN (SELECT Solicitud_curso.id_solicitud
-                                FROM Solicitud_curso
-                                    WHERE id_solicitud = Solicitud.id AND
-                                    id_curso IN {0})
+                                AND Detalle_solicitud.id_curso_asociado IN {0}
                                 GROUP BY Equipo.id
                     """
                     string_lista_ids = str(datos_formulario["ids_asignaturas_filtro"]).replace("[","(").replace("]",")")

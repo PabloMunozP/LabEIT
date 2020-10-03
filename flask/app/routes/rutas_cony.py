@@ -92,23 +92,44 @@ def solicitudes_prestamos():
     if "carro_pedidos" not in session.keys():
         session["carro_pedidos"] = []
 
-    # Se obtienen los datos de los equipos pedidos para luego mostrar en la lista en el front-end
+    # Se obtienen los datos de los equipos pedidos para luego mostrar la lista en el front-end
     lista_carro = []
-    for pedido in session["carro_pedidos"]:
+    for index,pedido in enumerate(session["carro_pedidos"]):
+        # Se obtiene (para pedido con asignatura asociada o sin asignatura)
+        # los datos del equipo solicitado
         sql_query = """
-            SELECT id,nombre,marca,modelo,codigo
+            SELECT id,nombre,marca,modelo
                 FROM Equipo
                     WHERE id = %s
         """
         cursor.execute(sql_query,(pedido[0],))
         equipo = cursor.fetchone()
-        equipo["cantidad_pedidos"] = pedido[1]
-        lista_carro.append(equipo)
+
+        if equipo is not None:
+            # Se agrega el index
+            equipo["index_pedido"] = index
+            # Se agrega la cantidad pedida
+            equipo["cantidad_pedidos"] = pedido[1]
+            # Si el pedido tiene asociado una asignatura, se agrega
+            if pedido[2] is not None:
+                sql_query = """
+                    SELECT nombre AS nombre_curso
+                        FROM Curso
+                            WHERE id = %s
+                """
+                cursor.execute(sql_query,(pedido[2],))
+                curso = cursor.fetchone()
+
+                if curso is not None:
+                    # Se agrega la información del curso al equipo
+                    equipo.update(curso)
+            lista_carro.append(equipo) # Se agrega el pedido final al carro para la vista
     
     # Se obtienen los cursos registrados
     query="""
         SELECT Curso.id,Curso.codigo_udp,Curso.nombre
             FROM Curso
+                ORDER BY Curso.nombre
     """
     cursor.execute(query)
     lista_cursos = cursor.fetchall()
@@ -119,35 +140,55 @@ def solicitudes_prestamos():
 @mod.route("/agregar_al_carro",methods=["POST"])
 def agregar_al_carro():
     datos_equipo = request.form.to_dict()
-    # Al agregar al carro, se almacena el código del equipo y la cantidad en forma de tupla
-    # dentro de la lista en la sesión. Ej: [('AAXXDD',3),('ABCDEF',2),...]
-    # Se verifica si ya se ha agregado al carro. Si ya se encuentra, se suma la cantidad.
-    # En caso contrario, se agrega la tupla al carro
+
+    # Se agrega el nuevo equipo según las características
+    # Cada uno de los registros de la lista de carro x su cantidad corresponden a los
+    # detalles de la solicitud
+
+    # Estructura de cada pedido (tuple)
+    # (id_equipo,cantidad,id_asignatura_asociada)
+    # cantidad: Cantidad de equipos con id_equipo solicitados
+    # id_asignatura_asociada: ID de la asignatura si se asoció, de lo contrario None 
+
     if "carro_pedidos" in session.keys():
-        existe_pedido = False
-        for i in range(len(session["carro_pedidos"])):
-            if session["carro_pedidos"][i][0] == datos_equipo["id_equipo"]:
-                copia_pedido = list(session["carro_pedidos"][i])
-                copia_pedido[1] += int(datos_equipo["cantidad_pedidos"])
-                session["carro_pedidos"][i] = tuple(copia_pedido)
-                existe_pedido = True
-                break
+        if not datos_equipo["id_asignatura_asociada"]:
+            # Se setea a None si no se asoció una asignatura
+            datos_equipo["id_asignatura_asociada"] = None
 
-        if not existe_pedido:
-            session["carro_pedidos"].append((datos_equipo["id_equipo"],int(datos_equipo["cantidad_pedidos"])))
-
+        session["carro_pedidos"].append((datos_equipo["id_equipo"],datos_equipo["cantidad_pedidos"],datos_equipo["id_asignatura_asociada"]))
+    
     # Se obtienen los datos de los equipos pedidos para luego mostrar la lista en el front-end
     lista_carro = []
-    for pedido in session["carro_pedidos"]:
+    for index,pedido in enumerate(session["carro_pedidos"]):
+        # Se obtiene (para pedido con asignatura asociada o sin asignatura)
+        # los datos del equipo solicitado
         sql_query = """
-            SELECT id,nombre,marca,modelo,codigo
+            SELECT id,nombre,marca,modelo
                 FROM Equipo
                     WHERE id = %s
         """
         cursor.execute(sql_query,(pedido[0],))
         equipo = cursor.fetchone()
-        equipo["cantidad_pedidos"] = pedido[1]
-        lista_carro.append(equipo)
+
+        if equipo is not None:
+            # Se agrega el index
+            equipo["index_pedido"] = index
+            # Se agrega la cantidad pedida
+            equipo["cantidad_pedidos"] = pedido[1]
+            # Si el pedido tiene asociado una asignatura, se agrega
+            if pedido[2] is not None:
+                sql_query = """
+                    SELECT nombre AS nombre_curso
+                        FROM Curso
+                            WHERE id = %s
+                """
+                cursor.execute(sql_query,(pedido[2],))
+                curso = cursor.fetchone()
+
+                if curso is not None:
+                    # Se agrega la información del curso al equipo
+                    equipo.update(curso)
+            lista_carro.append(equipo) # Se agrega el pedido final al carro para la vista
 
     return render_template("/solicitudes_prestamos/seccion_carro_pedidos.html",
         lista_carro=lista_carro)
@@ -160,32 +201,46 @@ def eliminar_del_carro():
 
     if not vaciar_carro:
         # Se busca en la lista según el código del equipo y se borra junto a la cantidad.
-        id_equipo = datos_formulario["id_equipo"]
+        index_pedido = datos_formulario["index_pedido"]
 
         if "carro_pedidos" in session.keys():
-            indice_pedido = None
-            for i in range(len(session["carro_pedidos"])):
-                if session["carro_pedidos"][i][0] == id_equipo:
-                    indice_pedido = i
-                    break
-
-            if indice_pedido is not None:
-                session["carro_pedidos"].pop(indice_pedido)
+            # Se elimina según el índice de pedido en el carro
+            session["carro_pedidos"].pop(int(index_pedido))
     else:
         session["carro_pedidos"] = []
-
-    # Se obtienen los datos de los equipos pedidos para luego mostrar en la lista en el front-end
+    
+    # Se obtienen los datos de los equipos pedidos para luego mostrar la lista en el front-end
     lista_carro = []
-    for pedido in session["carro_pedidos"]:
+    for index,pedido in enumerate(session["carro_pedidos"]):
+        # Se obtiene (para pedido con asignatura asociada o sin asignatura)
+        # los datos del equipo solicitado
         sql_query = """
-            SELECT id,nombre,marca,modelo,codigo
+            SELECT id,nombre,marca,modelo
                 FROM Equipo
                     WHERE id = %s
         """
         cursor.execute(sql_query,(pedido[0],))
         equipo = cursor.fetchone()
-        equipo["cantidad_pedidos"] = pedido[1]
-        lista_carro.append(equipo)
+
+        if equipo is not None:
+            # Se agrega el index
+            equipo["index_pedido"] = index
+            # Se agrega la cantidad pedida
+            equipo["cantidad_pedidos"] = pedido[1]
+            # Si el pedido tiene asociado una asignatura, se agrega
+            if pedido[2] is not None:
+                sql_query = """
+                    SELECT nombre AS nombre_curso
+                        FROM Curso
+                            WHERE id = %s
+                """
+                cursor.execute(sql_query,(pedido[2],))
+                curso = cursor.fetchone()
+
+                if curso is not None:
+                    # Se agrega la información del curso al equipo
+                    equipo.update(curso)
+            lista_carro.append(equipo) # Se agrega el pedido final al carro para la vista
 
     return render_template("/solicitudes_prestamos/seccion_carro_pedidos.html",
         lista_carro=lista_carro)
@@ -206,25 +261,63 @@ def registrar_solicitud():
 
         # Se registran los detalles de solicitud por cada pedido (unitario)
         # con el enlace a la solicitud generada previamente
-        for pedido in session["carro_pedidos"]:
-            # Formato de pedido: (<id>,<cantidad>)
+        error_equipo_inexistente = False
+        for pedido in session["carro_pedidos"]:         
+            # Se verifica que el equipo aún se encuentre registrado
             sql_query = """
-                INSERT INTO Detalle_solicitud (id_solicitud,id_equipo,estado)
-                    VALUES (%s,%s,0)
+                SELECT id
+                    FROM Equipo
+                        WHERE id = %s
             """
-            for i in range(pedido[1]):
-                cursor.execute(sql_query,(id_solicitud,pedido[0]))
-        
-        # Se verifica si se seleccionaron cursos relacionados al pedido
-        lista_checkboxes = request.form.getlist("curso_relacionado")
+            cursor.execute(sql_query,(pedido[0],))
+            registro_equipo = cursor.fetchone()
 
-        # En caso de que existan cursos seleccionados, se enlazan a la solicitud
-        for id_curso in lista_checkboxes:
-            sql_query = """
-                INSERT INTO Solicitud_curso (id_solicitud,id_curso)
-                    VALUES (%s,%s)
-            """
-            cursor.execute(sql_query,(id_solicitud,id_curso))
+            # Si no existe, se omite el detalle y se notifica
+            if registro_equipo is None:
+                error_equipo_inexistente = True
+                continue
+
+            # En caso de que exista, se realiza la creación del detalle de solicitud
+            # Se agregan los N detalles
+            for i in range(int(pedido[1])):
+                # Se verifica si existe la relación con la asignatura
+                if pedido[2] is not None:
+                    # Existe una relación con una asignatura
+                    sql_query = """
+                        INSERT INTO Detalle_solicitud (id_solicitud,id_equipo,id_curso_asociado,estado)
+                            VALUES (%s,%s,%s,0)
+                    """
+                    cursor.execute(sql_query,(id_solicitud,pedido[0],pedido[2]))
+                else:
+                    sql_query = """
+                        INSERT INTO Detalle_solicitud (id_solicitud,id_equipo,estado)
+                            VALUES (%s,%s,0)
+                    """
+                    cursor.execute(sql_query,(id_solicitud,pedido[0]))
+                
+        # En caso de que no se haya podido registrar ningún detalle
+        # se elimina el encabezado de solicitud
+        sql_query = """
+            SELECT COUNT(*) AS cantidad_detalles
+                FROM Detalle_solicitud
+                    WHERE id_solicitud = %s
+        """
+        cursor.execute(sql_query,(id_solicitud,))
+        cantidad_detalles_generados = cursor.fetchone()
+
+        if cantidad_detalles_generados is not None:
+            cantidad_detalles_generados = cantidad_detalles_generados["cantidad_detalles"]
+            if cantidad_detalles_generados == 0:
+                sql_query = """
+                    DELETE FROM Solicitud
+                        WHERE id = %s
+                """
+                cursor.execute(sql_query,(id_solicitud,))
+                flash("error-general-detalles") # Ningún detalle pudo ser registrado
+        
+        if error_equipo_inexistente:
+            # Error para alertar que hubieron problemas al registrar detalles
+            flash("error-equipos-inexistentes")
 
     # Se vacía el carro de pedidos una vez registrada la solicitud completa
     session["carro_pedidos"] = []
@@ -504,10 +597,12 @@ def eliminar_curso_form():
         curso_por_eliminar = request.form.to_dict()
         eliminar_curso(curso_por_eliminar)
 
-        # Se eliminan las relaciones con solicitudes en caso de existir
+        # Se eliminan la columna de id_curso_asociado para detalles de solicitudes
+        # que estén asociados a algún curso
         sql_query = """
-            DELETE FROM Solicitud_curso
-                WHERE id_curso = %s
+            UPDATE Detalle_solicitud
+                SET id_curso_asociado = NULL
+                    WHERE id_curso_asociado = %s
         """
         cursor.execute(sql_query,(curso_por_eliminar["id"],))
 
