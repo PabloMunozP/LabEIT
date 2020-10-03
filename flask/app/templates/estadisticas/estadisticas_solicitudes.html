@@ -104,7 +104,7 @@
 						</div>
 					</div>
 
-					{% if lista_asignaturas_asociadas %}
+					{% if lista_asignaturas_registradas %}
 						<div class="row">
 							<div class="col">
 								<div class="input-group mb-3">
@@ -112,7 +112,7 @@
 										<span class="input-group-text">Filtrar por asignaturas asociadas (opcional)</span>
 									</div>
 									<select class="custom-select" id="select_asignaturas_asociadas_c1" multiple="multiple">
-										{% for asignatura in lista_asignaturas_asociadas %}
+										{% for asignatura in lista_asignaturas_registradas %}
 											<option title="{{asignatura["nombre"]}}" value="{{asignatura["id"]}}">{{asignatura["nombre"]}}</option>
 										{% endfor %}
 									</select>
@@ -183,7 +183,7 @@
 					</div>
 
 
-					{% if lista_asignaturas_asociadas %}
+					{% if lista_asignaturas_registradas %}
 						<div class="row">
 							<div class="col">
 								<div class="input-group mb-3">
@@ -191,7 +191,7 @@
 										<span class="input-group-text">Filtrar por asignaturas asociadas (opcional)</span>
 									</div>
 									<select class="custom-select" id="select_asignaturas_asociadas_c2" multiple="multiple">
-										{% for asignatura in lista_asignaturas_asociadas %}
+										{% for asignatura in lista_asignaturas_registradas %}
 											<option title="{{asignatura["nombre"]}}" value="{{asignatura["id"]}}">{{asignatura["nombre"]}}</option>
 										{% endfor %}
 									</select>
