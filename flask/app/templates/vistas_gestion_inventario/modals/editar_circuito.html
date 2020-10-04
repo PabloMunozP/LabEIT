@@ -10,8 +10,8 @@
         </div>
         <form id="editar_form_circuito" action="/gestion_inventario_admin/actualizar_informacion_circuito" method="POST">
           <div class="modal-body">
-            <input class="form-control" type="text" name="nombre_circuito_original" value="" id="editar_equipo_hidden_nombre_circuito" hidden>
-                        <input class="form-control" type="text" name="descripcion_circuito_original" value="" id="editar_equipo_hidden_descripcion_circuito" hidden>
+            <input class="form-control" type="text" name="id_circuito" value="" id="editar_equipo_hidden_id_circuito" hidden>
+
 
             <div class="form-group">
               <label for="nombres"> Nombre </label>
@@ -56,9 +56,8 @@
 
   <script>
     function cargar_datos_equipo_circuito(elemento){
-      document.getElementById("modal-title").innerHTML = '<i class="fas fa-edit"></i> Editar circuito ' + nombre_circuito ;
-      $("#editar_equipo_hidden_nombre_circuito").val(elemento.nombre);
-      $("#editar_equipo_hidden_descripcion_circuito").val(elemento.descripcion);
+      document.getElementById("modal-title").innerHTML = '<i class="fas fa-edit"></i> Editar circuito ' + elemento.nombre ;
+      $("#editar_equipo_hidden_id_circuito").val(elemento.id);
       $("#editar_nombre_circuito").val(elemento.nombre);
       $("#editar_cantidad_circuito").val(elemento.cantidad);
       $("#editar_descripcion_circuito").val(elemento.descripcion);

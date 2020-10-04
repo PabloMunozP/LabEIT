@@ -491,9 +491,7 @@ def editar_circuito(informacion_a_actualizar):  # Query UPDATE
                     Circuito.dias_max_prestamo= %s,
                     Circuito.dias_renovacion= %s,
                     Circuito.imagen= %s
-                WHERE Circuito.nombre= %s
-                AND Circuito.descripcion = %s
-
+                WHERE Circuito.id = %s
             ''')
             cursor.execute(query,(
                 informacion_a_actualizar['nombre_circuito'],
@@ -502,8 +500,7 @@ def editar_circuito(informacion_a_actualizar):  # Query UPDATE
                 informacion_a_actualizar['dias_max_prestamo'],
                 informacion_a_actualizar['dias_renovacion'],
                 informacion_a_actualizar['imagen_circuito'],
-                informacion_a_actualizar['nombre_circuito_original'],
-                informacion_a_actualizar['descripcion_circuito_original']
+                informacion_a_actualizar['id_circuito']
                 ))
             db.commit()
             return informacion_a_actualizar
@@ -514,15 +511,6 @@ def editar_circuito(informacion_a_actualizar):  # Query UPDATE
 def funcion_editar_circuito():
     if request.method == 'POST':
         informacion_a_actualizar = request.form.to_dict()
-        if(informacion_a_actualizar["nombre_circuito_original"]==informacion_a_actualizar["nombre_circuito"]):
-                flash("equipo-editado")
-                editar_circuito(informacion_a_actualizar)
-                return redirect("/gestion_inventario_admin")
-        circuitos=consultar_lista_circuito()
-        for val in circuitos:
-            if(val["nombre"]==informacion_a_actualizar["nombre_circuito"]):
-                flash("codigo-equipo-existente")
-                return redirect("/gestion_inventario_admin")
         flash("equipo-editado")
         editar_circuito(informacion_a_actualizar)
         return redirect("/gestion_inventario_admin")
@@ -533,12 +521,12 @@ def eliminar_circuito(circuito):
     query = ('''
         DELETE Circuito
         FROM Circuito
-        WHERE Circuito.nombre = %s
-        AND Circuito.descripcion = %s
+        WHERE Circuito.id = %s
+        AND Circuito.prestados = %s
     ''')
     cursor.execute(query,(
-    circuito['nombre_circuito'],
-    circuito['descripcion_circuito']
+    circuito['id'],
+    circuito['prestados'],
     ))
     db.commit()
     return 'ok'
@@ -551,10 +539,7 @@ def funcion_eliminar_circuito():
     if request.method == 'POST':
         equipo_a_eliminar = request.form.to_dict()
         circuitos=consultar_lista_circuito()
-        for val in circuitos:
-            if (val["prestados"] > 0
-            and equipo_a_eliminar["nombre_circuito"]==val["nombre"]
-            and equipo_a_eliminar["descripcion_circuito"]==val["descripcion"]):
+        if (int(equipo_a_eliminar["prestados"]) > 0):
                 flash("equipo-ocupado")
                 return redirect("/gestion_inventario_admin")
         eliminar_circuito(equipo_a_eliminar)

@@ -18,20 +18,20 @@
                 <p class="form-control-plaintext text-break" id="modal_circuito_nombre"></p>
               </div>
         </div>
-  
+
                       <div class="form-group row">
                       <label class="col-md-4 col-form-label"><strong>Días de préstamo establecidos:</strong></label>
                       <div class="col-md-2">
                               <p class="form-control-plaintext text-break" id="modal_circuito_dias_prestamo"></p>
                       </div>
-  
+
                           <label class="col-md-4 col-form-label"><strong>Cantidad de unidades:</strong></label>
                       <div class="col-md-2">
                               <p class="form-control-plaintext text-break" id="modal_circuito_unidades"></p>
                       </div>
                     </div>
-  
-                      
+
+
                       <div class="form-group row">
                       <label class="col-md-2 col-form-label"><strong>Descripción:</strong></label>
                     </div>
@@ -39,25 +39,25 @@
                               <div class="col-md-8">
                                   <p class="text-justify" id="modal_circuito_descripcion"></p>
                               </div>
-                
+
                   <div class="col-md-4">
                     <!-- <img style="max-width:80%;" class="img-fluid" src="https://i.blogs.es/b44a52/samsung-20galaxy-20s4/200_200.jpg"> -->
                   </div>
-                
+
                           </div>
-                      
-  
+
+
                       <hr>
-  
+
                       <div class="form-group row">
                       <label class="col-md-8 col-form-label"><i class="fas fa-info-circle mr-2"></i>Selecciona la cantidad de unidades que deseas pedir:</label>
-  
+
                           <div class="col-md-4">
                               <input type="number" min="1" max="5" class="form-control" value="1" name="cantidad_unidades_solicitadas" id="cantidad_unidades_solicitadas">
                           </div>
                     </div>
-  
-  
+
+
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary waves-effect waves-light" data-dismiss="modal">Cerrar</button>
@@ -67,23 +67,24 @@
     </div>
   </div>
 </div>
-  
+
   <script type="text/javascript">
-      function cargar_info_modal_circuito(id_circuito, nombre, dias, unidades_disponibles, unidades_max, descripcion){
-        document.getElementById("id_circuito").value = id_circuito;
-        document.getElementById("nombre_circuito").value = nombre;
-        document.getElementById("cantidad_unidades_solicitadas").max = unidades_disponibles;
-        document.getElementById("modal_circuito_nombre").textContent = nombre;
-        document.getElementById("modal_circuito_dias_prestamo").textContent = dias;
-        document.getElementById("modal_circuito_unidades").textContent = unidades_disponibles + "/" + unidades_max;
-        document.getElementById("modal_circuito_descripcion").textContent = descripcion;
+      function cargar_info_modal_circuito(elemento){
+        console.log(elemento)
+        document.getElementById("id_circuito").value = elemento.id;
+        document.getElementById("nombre_circuito").value = elemento.nombre;
+        document.getElementById("cantidad_unidades_solicitadas").max = elemento.unidades_disponibles;
+        document.getElementById("modal_circuito_nombre").textContent = elemento.nombre;
+        document.getElementById("modal_circuito_dias_prestamo").textContent = elemento.dias_max_prestamo;
+        document.getElementById("modal_circuito_unidades").textContent = elemento.cantidad-elemento.prestados + "/" + elemento.cantidad;
+        document.getElementById("modal_circuito_descripcion").textContent = elemento.descripcion;
         $("#modal_info_circuito").modal("show");
       };
-      
+
       $(document).ready(function(){
 
         $('#formulario-agregar-equipo-carro-circuito').on('submit', function(event){
-          
+
           $.ajax({
             data : {
               id_circuito : $('#id_circuito').val() ,
@@ -102,14 +103,14 @@
               document.getElementById("cantidad_unidades_solicitadas").value= 1 ;
               $("#carro_pedidos_circuito").html(data);
               $("#modal_info_circuito").modal("hide");
-              
+
             }
 
           });
-          
+
           event.preventDefault();
 
         });
       });
-      
+
   </script>
