@@ -16,8 +16,7 @@ def enviar_correo_notificacion(archivo,str_asunto,correo_usuario): # Envío de n
     correo["Subject"] = str_asunto
 
     try:
-        server = smtplib.SMTP("smtp.gmail.com",587)
-        server.starttls()
+        server = smtplib.SMTP_SSL("smtp.gmail.com")
         server.login("labeit.udp@gmail.com","LabEIT_UDP_2020")
         str_correo = correo.as_string()
         server.sendmail("labeit.udp@gmail.com",correo_usuario,str_correo)

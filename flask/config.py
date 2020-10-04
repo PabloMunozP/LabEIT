@@ -1,7 +1,8 @@
-import os,mysql.connector
+import os
+import mysql.connector
 
 SEND_FILE_MAX_AGE_DEFAULT = 0
-MAX_CONTENT_LENGTH = 500 * 1024 * 1024 # 500mb máximos de largo de contenido
+MAX_CONTENT_LENGTH = 500 * 1024 * 1024  # 500mb máximos de largo de contenido
 
 # Statement for enabling the development environment
 DEBUG = True
@@ -10,20 +11,28 @@ DEBUG = True
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 
 # ----------------------- Conexión a base de datos MySQL ------------------------------------------------------------
-db = mysql.connector.connect(user="sql10342433",
-                            passwd="fCQ6jJWFUY",
-                            host="sql10.freemysqlhosting.net",
-                            port="3306",
-                            database="sql10342433",
-                            autocommit=True)
-cursor = db.cursor(dictionary=True,buffered=True)
+# db = mysql.connector.connect(user="sql10342433",
+#                            passwd="fCQ6jJWFUY",
+#                            host="sql10.freemysqlhosting.net",
+#                            port="3306",
+#                            database="sql10342433",
+#                            autocommit=True)
+#cursor = db.cursor(dictionary=True,buffered=True)
+#cursor.execute("SET NAMES utf8mb4;")
+db = mysql.connector.connect(user="root",
+                             passwd="@ProdLabEIT2020",
+                             host="localhost",
+                             port="3306",
+                             database="LabEITDB",
+                             autocommit=True)
+cursor = db.cursor(dictionary=True, buffered=True)
 cursor.execute("SET NAMES utf8mb4;")
 # -----------------------------------------------------------------------------
 
 # Configuraciones de archivos
 UPLOAD_FOLDER = 'static/upload_folder'
-ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif', 
-                      'xlsx', 'xls', 'csv', 'doc', 'docx', 'ppt', 
+ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif',
+                      'xlsx', 'xls', 'csv', 'doc', 'docx', 'ppt',
                       'pptx', 'odp', 'svg'}
 
 # Application threads. A common general assumption is
@@ -33,7 +42,7 @@ ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif',
 THREADS_PER_PAGE = 2
 
 # Enable protection agains *Cross-site Request Forgery (CSRF)*
-CSRF_ENABLED     = True
+CSRF_ENABLED = True
 
 # Use a secure, unique and absolutely secret key for
 # signing the data.
