@@ -11,25 +11,25 @@
             <div class="modal-body">
                 <h6 class="modal-title text-black">Importar usuarios</h6>
                 <form action="/gestion_usuarios/anadir_masivo" method="POST" enctype="multipart/form-data">
-                    <p>Recuerde el formato de este archivo y su extensión <strong>(.csv)</strong>.</p>
-                    <p>¿No conoce el formato? <a href="#formato_csv" data-toggle="collapse" >Haga click aquí.</a></p>
+                    <p>Recuerde el formato de este archivo y su extension (.csv o .xlsx). ¿No conoces el formato? Haz click <a href="#formato_csv" data-toggle="collapse" > <strong> aquí.</strong></a></p>
                     <div id="formato_csv" class="collapse">
-                        <hr>
-                        <p>Para obtener de forma más sencilla la lista de los alumnos a ingresar, se sugiere exportar los datos desde la plataforma <strong>Canvas</strong>.</p>
-                        <p>Para esto deberá dirigirse al apartado <strong>'Calificaciones'</strong> y exportar el archivo en formato <strong>CSV</strong>.
-                            Una vez descargado deberá modificar algunas de sus columnas, ya que el sistema Canvas proporciona más información de la necesitada para el registro de usuarios. </p>
-                        <p>Para esto, será necesario solo dejar las columnas con los nombres <strong>'Student'</strong>, <strong>'SIS User ID'</strong>, <strong>'SIS Login ID'</strong>; que representan los nombres, RUT y correo electrónico respectivamente de cada alumno.</p>                    
+                        <h5>Formato CSV</h5>
+                        <p> Para obtener de forma más sencilla la lista de los alumnos a ingresar se sugiere exportar los datos desde Canvas, para esto deberá dirigirse al apartado 'Calificaciones' y exportar en formato CSV.
+                            Una vez que haya descargado la lista de alumnos deberá modificar algunas de sus columnas, ya que el sistema Canvas da más información de la necesitada para el registro de usuarios, 
+                            será necesario solo dejar las columnas con los nombres “Student, SIS User ID,SIS Login ID” que representan los nombres, Rut y correo respectivamente de cada alumno.
+                        <h5>Formato XLSX</h5>
+                        <p>Si desea ingresar los valores de manera mas controlada en una hoja de cálculo puede probar con el formato xlsx haciendo <a href="/gestion_usuarios/anadir_masivo/formato" target="_blank">click aquí</a> para descargar una plantilla.</p>                   
+                        <br> Considere tambien que el tamaño maximo permitido es de 5 Mb.</p>
                     </div>
                     <div class="custom-file">
-                        <input type="file" class ="custom-file-input" id="CSV" name="file" accept=".csv">
-                        <label for="CSV" class="custom-file-label">Seleccione un archivo</label>
+                        <input type="file" class ="custom-file-input" id="CSV" name="file" accept=".csv,.xlsx">
+                        <label for="CSV" class="custom-file-label"> Elige un archivo</label>
                     </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-                <button type="submit" class="btn btn-success">Cargar archivo</button>
-              </div>
-              </form>
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+              <button class="btn btn-success" type="submit">Cargar usuarios</button>
             </div>
+            </form>
         </div>
 </div>
