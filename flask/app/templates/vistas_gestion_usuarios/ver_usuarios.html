@@ -2,8 +2,8 @@
 
 {% block body %}
 
-{% include 'vistas_gestion_usuarios/añadir_usuario.html' %}
-{% include 'vistas_gestion_usuarios/añadir_masivo.html' %}
+{% include 'vistas_gestion_usuarios/anadir_usuario.html' %}
+{% include 'vistas_gestion_usuarios/anadir_masivo.html' %}
 
     <div class="container-fluid">
 
@@ -11,23 +11,23 @@
         {% if msgs %}
           {% for msg in msgs %}
             {% if msg == "editado-correcto"%}
-              <div class="alert alert-success alert-dismissible fade show" role="alert">
-                <i class="fas fa-check-circle mr-2"></i>Se ha modificado correctamente.
+              <div class="alert alert-success alert-dismissible fade show mt-2" role="alert">
+                <i class="fas fa-check-circle mr-2"></i>El registro se ha modificado correctamente.
                 <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
                 </button>
               </div>
             {%endif%}
             {% if msg == "error-editar-correo"%}
-              <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                <i class="fas fa-times-circle mr-2"></i>Ha habido un error al editar el usuario, por favor revisa el correo.
+              <div class="alert alert-danger alert-dismissible fade show mt-2" role="alert">
+                <i class="fas fa-times-circle mr-2"></i>Ha habido un error al editar el usuario, por favor revise el correo.
                 <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
                 </button>
               </div>
             {%endif%}
             {% if msg == "agregar-correcto"%}
-              <div class="alert alert-success alert-dismissible fade show" role="alert">
+              <div class="alert alert-success alert-dismissible fade show mt-2" role="alert">
                 <i class="fas fa-check-circle mr-2"></i>Se ha agregado correctamente.
                 <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
@@ -35,7 +35,7 @@
               </div>
             {%endif%}
             {% if msg == "eliminar-correcto"%}
-              <div class="alert alert-success alert-dismissible fade show" role="alert">
+              <div class="alert alert-success alert-dismissible fade show mt-2" role="alert">
                 <i class="fas fa-check-circle mr-2"></i>Se ha eliminado correctamente.
                 <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
@@ -43,72 +43,80 @@
               </div>
             {%endif%}
             {% if msg == "inhabilitar-correcto"%}
-              <div class="alert alert-success alert-dismissible fade show" role="alert">
-                <i class="fas fa-check-circle mr-2"></i>Se ha inhabilitado correctamente.
+              <div class="alert alert-success alert-dismissible fade show mt-2" role="alert">
+                <i class="fas fa-check-circle mr-2"></i>La cuenta ha sido inhabilitada correctamente.
                 <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
                 </button>
               </div>
             {%endif%}
             {% if msg == "error-eliminar"%}
-              <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                <i class="fas fa-check-circle mr-2"></i>Ha ocurrido un problema al eliminar. <br>Por favor revise las solicitudes pendientes del usuario.
+              <div class="alert alert-danger alert-dismissible fade show mt-2" role="alert">
+                <i class="fas fa-check-circle mr-2"></i>Ha ocurrido un problema al eliminar. Por favor revise las solicitudes pendientes del usuario.
                  <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
                 </button>
               </div>
             {%endif%}
             {% if msg == "error-inhabilitar"%}
-              <div class="alert alert-success alert-dismissible fade show" role="alert">
-                <i class="fas fa-check-circle mr-2"></i>Ha ocurrido un problema al inhabilitar. <br>Por favor revise las solicitudes pendientes del usuario.
+              <div class="alert alert-danger alert-dismissible fade show mt-2" role="alert">
+                <i class="fas fa-check-circle mr-2"></i>Ha ocurrido un problema al inhabilitar la cuenta. Por favor revise las solicitudes pendientes y activas del usuario.
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+            {%endif%}
+            {% if msg == "cuenta-activada"%}
+              <div class="alert alert-success alert-dismissible fade show mt-2" role="alert">
+                <i class="fas fa-check-circle mr-2"></i>La cuenta ha sido habilitada correctamente.
                 <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
                 </button>
               </div>
             {%endif%}
             {% if msg == "error-añadir-rut"%}
-              <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                <i class="fas fa-times-circle mr-2"></i>Ha habido un error al ingresar el usuario, por favor revisa el rut.
+              <div class="alert alert-danger alert-dismissible fade show mt-2" role="alert">
+                <i class="fas fa-times-circle mr-2"></i>Ha ocurrido un error al ingresar el usuario, por favor revise el rut.
                 <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
                 </button>
               </div>
             {%endif%}
             {% if msg == "error-añadir-correo"%}
-              <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                <i class="fas fa-times-circle mr-2"></i>Ha habido un error al ingresar el usuario, por favor revisa el correo.
+              <div class="alert alert-danger alert-dismissible fade show mt-2" role="alert">
+                <i class="fas fa-times-circle mr-2"></i>Ha ocurrido un error al ingresar el usuario, por favor revise el correo.
                 <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
                 </button>
               </div>
             {%endif%}
             {% if msg == "error-correo-inicio"%}
-              <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                <i class="fas fa-times-circle mr-2"></i>Ha habido un problema al enviar el correo de bienvenida, porfavor revisa el correo o intentelo manualmente.
+              <div class="alert alert-danger alert-dismissible fade show mt-2" role="alert">
+                <i class="fas fa-times-circle mr-2"></i>Ha ocurrido un problema al enviar el correo de bienvenida, porfavor revise el correo o inténtelo manualmente.
                 <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
                 </button>
               </div>
             {%endif%}
             {% if msg == "error-digitoVerificador"%}
-              <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                <i class="fas fa-times-circle mr-2"></i>El rut ingresado no es valido.
+              <div class="alert alert-danger alert-dismissible fade show mt-2" role="alert">
+                <i class="fas fa-times-circle mr-2"></i>El RUT ingresado no es válido.
                 <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
                 </button>
               </div>
             {%endif%}
             {% if msg == "agregar-masivo-correcto"%}
-              <div class="alert alert-success alert-dismissible fade show" role="alert">
-                <i class="fas fa-check-circle mr-2"></i>Se agregaron los usuarios correctamente.
+              <div class="alert alert-success alert-dismissible fade show mt-2" role="alert">
+                <i class="fas fa-check-circle mr-2"></i>Los usuarios han sido registrados correctamente.
                 <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
                 </button>
               </div>
             {%endif%}
             {% if msg == "error-agregar-masivo"%}
-              <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                <i class="fas fa-times-circle mr-2"></i>El archivo no cumple con los requisitos de extension. 
+              <div class="alert alert-danger alert-dismissible fade show mt-2" role="alert">
+                <i class="fas fa-times-circle mr-2"></i>El archivo no cumple con los requisitos de extensión. 
                 <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
                 </button>
@@ -127,7 +135,7 @@
       {%endwith%}
       {%if session['error_rut']%}
       <div class="alert alert-danger alert-dismissible fade show" role="alert">
-        <i class="fas fa-times-circle mr-2"></i>Hubo un problema al ingresar los siguientes rut:
+        <i class="fas fa-times-circle mr-2"></i>Hubo un problema al ingresar los siguientes RUT:
         <ul>
         {%for error in session.pop('error_rut')%}
         <li>{{error}}</li>
@@ -172,6 +180,7 @@
                       <th scope="col">Apellido</th>
                       <th scope="col">Rut</th>
                       <th scope="col">Tipo de credencial</th>
+                      <th scope="col">Estado</th>
                       <th scope="col" class="text-center">Acciones</th>
                   </tr>
               </thead>
@@ -182,14 +191,30 @@
                           <td>{{usuario["apellidos"]}}</td>
                           <td>{{usuario["rut"]|formato_rut}}</td>
                           <td>{{usuario["credencial"]}}</td>
+                          <td>
+                            {% if usuario["activo"] %}
+                              <span class="badge badge-pill badge-success">Activo</span>
+                            {% else %}
+                              <span class="badge badge-pill badge-danger">Inactivo</span>
+                            {% endif %}
+                          </td>
                           <td class="text-center">
                              <button type="button" title="Editar información" id="editar_{{usuario['rut']}}" data-target="#editar_{{usuario['rut']}}" class= "btn btn-sm btn-warning" data-toggle="modal"><i class="fas fa-edit"></i></button>
                              <a class="btn btn-sm btn-info" title="Ver información detallada" href="/gestion_usuarios/ver_usuario/{{usuario['rut']}}"><i class="fas fa-search-plus"></i></a>
-                             <button type="button" title="Inhabilitar usuario" data-target="#inhab_{{usuario['rut']}}" class="btn btn-sm btn-danger" data-toggle="modal"><i class="fas fa-trash-alt"></i></button>
+                             {% if usuario["activo"] %}
+                              {% if session["usuario"]["rut"] != usuario["rut"] %}
+                                <button type="button" title="Inhabilitar usuario" data-target="#inhab_{{usuario['rut']}}" class="btn btn-sm btn-danger" data-toggle="modal"><i class="fas fa-user-slash"></i></button>
+                              {% else %}
+                                <button type="button" disabled title="Inhabilitar usuario" data-target="#inhab_{{usuario['rut']}}" class="btn btn-sm btn-danger" data-toggle="modal"><i class="fas fa-user-slash"></i></button>
+                              {% endif %}
+                             {% else %}
+                              <button type="button" title="Habilitar usuario" data-target="#habilitar_{{usuario['rut']}}" class="btn btn-sm btn-success" data-toggle="modal"><i class="fas fa-user-check"></i></button>
+                             {% endif %}
                           </td>
                           {% include 'vistas_gestion_usuarios/editar_usuario.html' %}
                           {% include 'vistas_gestion_usuarios/inhab_usuario.html' %}
-                      </tr>
+                          {% include 'vistas_gestion_usuarios/habilitar_usuario.html' %}
+                        </tr>
                       <script>
                         $(document).ready(function(){
                           var contadorRegion=0;

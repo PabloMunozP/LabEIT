@@ -17,7 +17,7 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.inputmask/3.3.4/inputmask/inputmask.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.inputmask/3.3.4/jquery.inputmask.bundle.js"></script>
         <link href="https://cdnjs.cloudflare.com/ajax/libs/jquery.inputmask/3.3.4/css/inputmask.min.css" rel="stylesheet"/>
-
+        <link rel="icon" href="{{ url_for('static', filename='../static/imgs/tab_icon.png') }}">
     </head>
 
     <body id="body-login">
@@ -53,6 +53,14 @@
               {% if msg == "ultimo-intento-login" %}
               <div class="alert alert-warning alert-dismissible fade show mt-2" role="alert">
             		<i class="fas fa-exclamation-triangle mr-2"></i>Al próximo error de autentificación será bloqueado por motivos de seguridad.
+                  <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                  </button>
+              </div>
+              {% endif %}
+              {% if msg == "cuenta-inactiva" %}
+              <div class="alert alert-warning alert-dismissible fade show mt-2" role="alert">
+            		<i class="fas fa-exclamation-triangle mr-2"></i>Tu cuenta se encuentra inhabilitada actualmente. Contacta a un laboratorista para más información.
                   <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                       <span aria-hidden="true">&times;</span>
                   </button>

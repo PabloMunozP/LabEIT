@@ -47,13 +47,13 @@
 
 		{% if lista_asignaturas_asociadas %}
 		<div class="table-responsive mt-2">
-			<div class="table-wrapper-scroll-y" style="position: relative; overflow:auto;">
+			<div class="table-wrapper-scroll-y" style="height: 400px; overflow-y:scroll;">
 					<table class="table" id="tabla_asignaturas_asociadas">
 						<thead class="text-white" style="background:#4D4D4D;">
 							<tr>
 								<th scope="col">Código de asignatura</th>
 								<th scope="col">Nombre de la asignatura</th>
-								<th scope="col" class="text-center">Cantidad asociada</th>
+								<th scope="col" class="text-center">Cantidad de detalles de solicitud asociados</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -61,8 +61,8 @@
 								<tr style="background:#ECF0F1;">
 										<td>{{curso["codigo_udp"]}}</td>
 										<td>{{curso["nombre"]}}</td>
-										<td class="text-center">{{curso["cantidad_asociaciones"]}}</td>
-								</tr>
+										<td class="text-center">{{curso["cantidad_detalles_asociados"]}}</td>
+									</tr>
 							{% endfor %}
 						</tbody>
 					</table>
@@ -104,7 +104,7 @@
 						</div>
 					</div>
 
-					{% if lista_asignaturas_asociadas %}
+					{% if lista_asignaturas_registradas %}
 						<div class="row">
 							<div class="col">
 								<div class="input-group mb-3">
@@ -112,7 +112,7 @@
 										<span class="input-group-text">Filtrar por asignaturas asociadas (opcional)</span>
 									</div>
 									<select class="custom-select" id="select_asignaturas_asociadas_c1" multiple="multiple">
-										{% for asignatura in lista_asignaturas_asociadas %}
+										{% for asignatura in lista_asignaturas_registradas %}
 											<option title="{{asignatura["nombre"]}}" value="{{asignatura["id"]}}">{{asignatura["nombre"]}}</option>
 										{% endfor %}
 									</select>
@@ -183,7 +183,7 @@
 					</div>
 
 
-					{% if lista_asignaturas_asociadas %}
+					{% if lista_asignaturas_registradas %}
 						<div class="row">
 							<div class="col">
 								<div class="input-group mb-3">
@@ -191,7 +191,7 @@
 										<span class="input-group-text">Filtrar por asignaturas asociadas (opcional)</span>
 									</div>
 									<select class="custom-select" id="select_asignaturas_asociadas_c2" multiple="multiple">
-										{% for asignatura in lista_asignaturas_asociadas %}
+										{% for asignatura in lista_asignaturas_registradas %}
 											<option title="{{asignatura["nombre"]}}" value="{{asignatura["id"]}}">{{asignatura["nombre"]}}</option>
 										{% endfor %}
 									</select>
@@ -291,6 +291,7 @@
 							 $("#notificacion_consulta_cantidad_equipos_solicitados").prop("hidden",true);
 							 $("#seccion_consulta_1").prop("hidden",false);
 							 $("#seccion_grafico_1").empty();
+
 							 google.charts.load("current", {packages:['corechart']});
     			 		 google.charts.setOnLoadCallback(function(){
 								 drawChart(data);
@@ -318,6 +319,8 @@
 					$("#fila_boton_eliminar_grafico_1").prop("hidden",true);
 					$("#fecha_desde_equipos_solicitados").val("");
 					$("#fecha_hasta_equipos_solicitados").val("");
+					// Se limpia el select de las asignaturas
+					$("#select_asignaturas_asociadas_c1").val([]);
 				});
 
 
@@ -397,6 +400,8 @@
 					$("#fila_boton_eliminar_grafico_2").prop("hidden",true);
 					$("#fecha_desde_consulta_2").val("");
 					$("#fecha_hasta_consulta_2").val("");
+					// Se limpia el select de las asignaturas
+					$("#select_asignaturas_asociadas_c2").val([]);
 				});
 
 		</script>

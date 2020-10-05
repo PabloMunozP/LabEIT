@@ -8,7 +8,7 @@
             <span aria-hidden="true">&times;</span>
           </button>
         </div>
-        <form id="editar_form" action="/gestion_inventario_admin/lista_equipo_diferenciado/actualizar_informacion" method="POST">
+        <form id="editar_form_detallado" action="/gestion_inventario_admin/lista_equipo_diferenciado/actualizar_informacion" method="POST">
           <div class="modal-body">
             <input class="form-control" type="text" name="codigo_equipo" value="" id="editar_equipo_hidden_id_equipo" hidden>
             <input class="form-control" type="text" name="codigo_sufijo_original" value="" id="editar_equipo_hidden_id_sufijo" hidden>
@@ -40,7 +40,7 @@
             </div>
 
             <div class="form-group">
-              <label for="comunas">Motivo inactivo</label>
+              <label for="motivo" id="motivo_inactivo_titulo">Motivo inactivo</label>
               <textarea class="form-control"   id="editar_equipo_razon_inactivo" name="razon_inactivo" rows="3" style="min-height:100px;max-height:300px;"></textarea>
             </div>
 
@@ -64,5 +64,30 @@
       $("#editar_codigo_activo").val(codigo_activo);
       $("#editar_equipo_activo").val(activo);
       $("#editar_equipo_razon_inactivo").val(razon_inactivo);
+      if (activo==0){
+        $('#editar_equipo_razon_inactivo').prop( "hidden", false);
+        $('#motivo_inactivo_titulo').prop( "hidden", false);
+      }
+      else {
+        $('#editar_equipo_razon_inactivo').prop( "hidden", true);
+        $('#motivo_inactivo_titulo').prop( "hidden", true);
+
+
+      }
+      $(document).ready(function()
+{
+
+$('#editar_equipo_activo').change(function(){
+ if (activo==0) {
+$('#editar_equipo_razon_inactivo').prop( "hidden", true);
+$('#motivo_inactivo_titulo').prop( "hidden", true);
+ }
+ else {
+   $('#editar_equipo_razon_inactivo').prop( "hidden", false);
+   $('#motivo_inactivo_titulo').prop( "hidden", false);
+
+ }
+});
+});
 }
   </script>

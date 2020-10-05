@@ -72,6 +72,7 @@
                 <div class="col-md-2">
                 </div>
                 {% if detalle_solicitud["motivo_academico"] %}
+                {% if motivo["id_curso"] %}
                 <label class="col-md-4 col-form-label texto-gris-eit">
                     <strong>Curso asociado:</strong>
                 </label>
@@ -84,6 +85,16 @@
                         {% endfor %}
                     </p>
                 </div>
+                {% else %}
+                <label class="col-md-4 col-form-label texto-gris-eit">
+                    <strong>Curso asociado:</strong>
+                </label>
+                <div class="col-md-2">
+                    <p class="form-control-plaintext text-break">
+                        Sin curso asociado
+                    </p>
+                </div>
+                {% endif %}
                 {% endif %}
             </div>
             <div class="form-group row">
@@ -143,15 +154,36 @@
                             <strong>Cotización adjunta:</strong>
                         </label>
                         <div class="col-md-10">
+                            {% if cotz["validar"][1] %}
                             <p class="form-control-plaintext
                                  text-break">
-                                {% if cotz["validar"][1] %}
-                                <a href="/cotizacion_wishlist/{{detalle_solicitud["id"]}}">
-                                    Descargar aquí
+                                Descargar cotización:
+                                <a title="Descargar cotización" href="/cotizacion_wishlist/{{detalle_solicitud["id"]}}"
+                                    style="margin-left: 10px;"><svg width="1.5em" height="1.5em" viewBox="0 0 16 16"
+                                        class="bi bi-download" fill="currentColor">
+                                        <path fill-rule="evenodd"
+                                            d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z" />
+                                        <path fill-rule="evenodd"
+                                            d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z" />
+                                    </svg>
                                 </a>
-                                {% else %}
-                                Sin cotización
-                                {% endif %}
+                            </p>
+                            <p class="form-control-plaintext
+                                 text-break" style="margin-right: 10px;">
+                                Visualizar cotización:
+                                <a href="/visualizacion_cotizacion/{{detalle_solicitud["id"]}}" title="Visualizar cotización" style="margin-left: 13px;">
+                                    <svg width="1.5em" height="1.5em" viewBox="0 0 16 16" class="bi bi-eye"
+                                        fill="currentColor">
+                                        <path fill-rule="evenodd"
+                                            d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8zM1.173 8a13.134 13.134 0 0 0 1.66 2.043C4.12 11.332 5.88 12.5 8 12.5c2.12 0 3.879-1.168 5.168-2.457A13.134 13.134 0 0 0 14.828 8a13.133 13.133 0 0 0-1.66-2.043C11.879 4.668 10.119 3.5 8 3.5c-2.12 0-3.879 1.168-5.168 2.457A13.133 13.133 0 0 0 1.172 8z" />
+                                        <path fill-rule="evenodd"
+                                            d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zM4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0z" />
+                                    </svg>
+                                </a>
+                            </p>
+                            {% else %}
+                            Sin cotización
+                            {% endif %}
                             </p>
                         </div>
                     </div>
@@ -285,12 +317,13 @@
                             del equipo.</p>
                         <p class="my-auto mt-1"><i class="fas fa-info-circle mr-2"></i>El aporte de información es
                             importante para que la escuela pueda
-                            aceptar tu solicitud, y es por ello que se permite adjuntar hasta un máximo de {{ cantidad_links }} links.</p>
-                            <small style="margin-bottom: 5px;" id="ejemploUrl" class="form-text text-muted">
-                                Ejemplo de url:
-                                <a href="https://www.mcielectronics.cl/shop/product/arduino-uno-wifi-r2-28297"
-                                    target="_blank">https://www.mcielectronics.cl/shop/product/arduino-uno-wifi-r2-28297</a>
-                            </small>
+                            aceptar tu solicitud, y es por ello que se permite adjuntar hasta un máximo de
+                            {{ cantidad_links }} links.</p>
+                        <small style="margin-bottom: 5px;" id="ejemploUrl" class="form-text text-muted">
+                            Ejemplo de url:
+                            <a href="https://www.mcielectronics.cl/shop/product/arduino-uno-wifi-r2-28297"
+                                target="_blank">https://www.mcielectronics.cl/shop/product/arduino-uno-wifi-r2-28297</a>
+                        </small>
                     </div>
                     <label for="url">URL:</label>
                     <div class="field_wrapper">
@@ -332,11 +365,11 @@
     var index = {{ url_count["count(id)"] }};
 
     function addHidden() {
-        document.getElementById('hiddeninput').innerHTML = '<input name="index" type="hidden" value='+index+'>';
+        document.getElementById('hiddeninput').innerHTML = '<input name="index" type="hidden" value=' + index + '>';
     }
 
     $(document).ready(function () {
-    var maxField = {{ cantidad_links }}; //Input fields increment limitation
+        var maxField = {{ cantidad_links }}; //Input fields increment limitation
     var addButton = $('.add_button'); //Add button selector
     var wrapper = $('.field_wrapper'); //Input field wrapper
     var fieldHTML = '<div class="input-group"><input name="url[';
@@ -381,8 +414,9 @@
                                                                 {% if cursos %} \
                                                                 <select class="custom-select" size="5" name="id" required> \
                                                                 {% for curso in cursos %} \
-                                                                    <option {% if curso["id"] == motivo["id_curso"] %} selected {% endif %} value="{{curso["id"]}}">{{curso["codigo_udp"]}} {{curso["nombre"]}}</option> \
+                                                                    <option {% if curso["id"] == motivo["id_curso"] %} selected {% endif %} value="{{curso["id"]}}">{{curso["nombre"]}}</option> \
                                                                 {% endfor %} \
+                                                                    <option {% if not motivo["id_curso"] %} selected {% endif %} value="">NO HE SIDO ASOCIADO A NINGÚN CURSO DE LA LISTA</option> \
                                                                 </select> \
                                                                 {% endif %} \
                                                                </fieldset>';

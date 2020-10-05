@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css" integrity="sha384-oS3vJWv+0UjzBfQzYUhtDYW+Pj2yciDJxpsK1OYPAYjqT085Qq/1cq5FLXAZQ7Ay" crossorigin="anonymous">
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.21/css/jquery.dataTables.css">
     <link rel="stylesheet" href="https://res.cloudinary.com/dxfq3iotg/raw/upload/v1569006288/BBBootstrap/choices.min.css?version=7.0.0">
+    <link rel="icon" href="{{ url_for('static', filename='../static/imgs/tab_icon.png') }}">
     <title>LabEIT UDP</title>
   </head>
   {% if session["sidebar_minimizado"] %}
@@ -45,7 +46,12 @@
 
                         <a class="nav-link" href="/solicitudes_prestamos">
                           <div class="sb-nav-link-icon"><i class="fas fa-laptop mr-1"></i></div>
-                          Solicitudes de préstamos
+                          Solicitudes de préstamos de equipos
+                        </a>
+
+                        <a class="nav-link" href="/solicitudes_prestamos_circuitos">
+                          <div class="sb-nav-link-icon"><i class="fas fa-microchip mr-1"></i></div>
+                          Solicitudes de préstamos de circuitos
                         </a>
 
                         <a class="nav-link" href="/wishlist_usuario">
@@ -72,10 +78,17 @@
 
                           <div class="sb-sidenav-menu-heading" style="color:#ECF0F1;">Administración</div>
 
-                          <a class="nav-link" href="/gestion_solicitudes_prestamos">
-                            <div class="sb-nav-link-icon"><i class="fas fa-file-invoice mr-1"></i></div>
-                            Gestión de solicitudes de préstamos
-                          </a>
+                            <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseLayouts" aria-expanded="false" aria-controls="collapseLayouts">
+                                <div class="sb-nav-link-icon"><i class="fas fa-file-invoice mr-1"></i></div>
+                                Gestión de solicitudes de préstamos
+                                <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
+                            </a>
+                            <div class="collapse" id="collapseLayouts" aria-labelledby="headingOne" data-parent="#sidenavAccordion">
+                                <nav class="sb-sidenav-menu-nested nav">
+                                    <a class="nav-link" href="/gestion_solicitudes_prestamos"><i class="fas fa-laptop mr-2"></i>Equipos</a>
+                                    <a class="nav-link" href="/gestion_solicitudes_prestamos_circuitos"><i class="fas fa-microchip mr-2"></i>Circuitos</a>
+                                </nav>
+                            </div>
 
                           <a class="nav-link" href="/gestion_inventario_admin">
                             <div class="sb-nav-link-icon"><i class="fas fa-boxes mr-1"></i></div>

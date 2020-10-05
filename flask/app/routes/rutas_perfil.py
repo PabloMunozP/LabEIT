@@ -10,7 +10,7 @@ from datetime import datetime, timedelta
 PATH = BASE_DIR # obtiene la ruta del directorio actual
 PROFILE_PICS_PATH = PATH.replace(os.sep, '/')+'/app/static/imgs/profile_pics/' #  remplaza [\\] por [/] en windows
 EXTENSIONES_PERMITIDAS = ["PNG","JPG","JPEG"]
-TAMAÑO_MAX_ARCHIVO = 500000 # 500kb
+TAMANO_MAX_ARCHIVO = 500000 # 500kb
 
 
 
@@ -263,9 +263,9 @@ def subir_foto():
     if request.method == "POST":
         image = request.files["image"] # obtiene la imagen del formulario
         print(request.content_length)
-        if request.content_length > TAMAÑO_MAX_ARCHIVO: # Si el tamaño del archivo es muy grande
+        if request.content_length > TAMANO_MAX_ARCHIVO: # Si el tamaño del archivo es muy grande
             print('el tamaño de la imagen es muy grande')
-            return 'muy grande\n' + request.content_length + '\n' + str(TAMAÑO_MAX_ARCHIVO)
+            return 'muy grande\n' + request.content_length + '\n' + str(TAMANO_MAX_ARCHIVO)
         if not allowed_image(image.filename): # Si la extension no está permitida lo redirige al perfil
             print('not allowed image')
             return redirect('/')
@@ -343,7 +343,7 @@ def consultar_contraseña_usuario(rut):
 def render_cambiar_contraseña():
     if 'usuario' not in session: # si no es administrador
         return redirect('/')
-    return render_template('/vistas_perfil/cambio_contraseña.html')
+    return render_template('/vistas_perfil/cambio_contrasena.html')
 
 
 @mod.route('/perfil/validar_cambiar_contraseña', methods = ['GET','POST'])

@@ -8,7 +8,7 @@
             <span aria-hidden="true">&times;</span>
           </button>
         </div>
-        <form id="editar_form" action="/gestion_inventario_admin/actualizar_informacion" method="POST">
+        <form id="editar_form_equipo" action="/gestion_inventario_admin/actualizar_informacion" method="POST">
 
           <div class="modal-body">
             <input class="form-control" type="text" name="codigo_original" value="" id="editar-equipo-hidden-id" hidden>
@@ -45,12 +45,12 @@
 
             <div class="form-group">
               <label for="dias_max_prestamo">Días de prestamo</label>
-              <input type="number" min="1" class="form-control" name="dias_max_prestamo" value="" id="editar-equipo-dias">
+              <input type="number" min="0" class="form-control" name="dias_max_prestamo" value="" id="editar-equipo-dias-equipo" autocomplete="off">
             </div>
 
             <div class="form-group">
               <label for="dias_max_prestamo">Días para renovar</label>
-              <input type="number" min="1" class="form-control" name="dias_renovacion" value="" id="editar-equipo-dias-renovacion">
+              <input type="number" min="0" class="form-control" name="dias_renovacion" value="" id="editar-equipo-dias-renovacion-equipo" autocomplete="off">
             </div>
 
           </div>
@@ -64,16 +64,17 @@
   </div>
 
   <script>
-    function cargar_datos_equipo_modal(codigo, nombre, modelo, marca, descripcion, dias_max_prestamo, imagen_url, dias_renovacion){
-      document.getElementById("modal-title").innerHTML = '<i class="fas fa-edit"></i> Editar equipo ' + codigo ;
-      $("#editar-equipo-hidden-id").val(codigo);
-      $("#editar-equipo-codigo").val(codigo);
-      $("#editar-equipo-nombre").val(nombre);
-      $("#editar-equipo-modelo").val(modelo);
-      $("#editar-equipo-marca").val(marca);
-      $("#editar-equipo-descripcion").val( descripcion);
-      $("#editar-equipo-dias").val(dias_max_prestamo);
-      $("#editar-equipo-dias-renovacion").val(dias_renovacion);
-      $("#editar-equipo-imagen").val(imagen_url);
+
+    function cargar_datos_equipo_modal(elemento){
+      document.getElementById("modal-title").innerHTML = '<i class="fas fa-edit"></i> Editar equipo ' + elemento.codigo ;
+      $("#editar-equipo-hidden-id").val(elemento.codigo);
+      $("#editar-equipo-codigo").val(elemento.codigo);
+      $("#editar-equipo-nombre").val(elemento.nombre);
+      $("#editar-equipo-modelo").val(elemento.modelo);
+      $("#editar-equipo-marca").val(elemento.marca);
+      $("#editar-equipo-descripcion").val(elemento.descripcion);
+      $("#editar-equipo-dias-equipo").val(elemento.dias_max_prestamo);
+      $("#editar-equipo-imagen").val(elemento.imagen);
+      $("#editar-equipo-dias-renovacion-equipo").val(elemento.dias_renovacion);
     };
   </script>

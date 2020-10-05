@@ -1,4 +1,4 @@
-{% if lista_wishlist_aceptada %} {% if count_wishlist["count(id)"] >= cantidad_wishlist %}
+{% if lista_wishlist_aceptada %}
 <div class="table-responsive mt-2">
     <div class="table-wrapper-scroll-y" style="position: relative;
 								max-height: 450px;
@@ -31,10 +31,7 @@
 </div>
 {% else %}
 <div class="alert alert-warning alert-dismissible fade show text-center mt-2" role="alert">
-    <i class="fas fa-exclamation-triangle mr-2"></i>No existen solicitudes de Wishlist aprobadas en el laboratorio. ¡Motívate a realizar la primera!
-</div>
-{% endif %} {% else %}
-<div class="alert alert-warning alert-dismissible fade show text-center mt-2" role="alert">
-    <i class="fas fa-exclamation-triangle mr-2"></i>No existen solicitudes de Wishlist aprobadas en el laboratorio. ¡Motívate a realizar la primera!
+    <i class="fas fa-exclamation-triangle mr-2"></i>No existen solicitudes de Wishlist aprobadas en el laboratorio.
+    ¡Motívate a realizar la primera!
 </div>
 {% endif %}

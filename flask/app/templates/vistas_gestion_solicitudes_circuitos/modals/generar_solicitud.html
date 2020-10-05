@@ -1,0 +1,225 @@
+<div class="modal fade" id="modal_nd2QHZ" tabindex="-1" role="dialog" aria-labelledby="" aria-modal="true">
+  <div class="modal-dialog modal-lg" role="document">
+
+    <form action="" id="form_sol_agil" role="form">
+      <div class="modal-content">
+      
+        <div class="modal-header bg-gris-eit">
+            <h5 class="modal-title text-white"><i class="fas fa-file-invoice mr-2"></i>Formulario de solicitud de préstamo</h5>
+            <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close" style="outline:none;">
+              <span aria-hidden="true">×</span>
+            </button>
+        </div>
+
+
+        <div class="modal-body">
+
+            <div class="row">
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label class="">Ingrese el RUT del usuario solicitante</label>
+                    <input required id="rut_input_login" name="rut_usuario" maxlength="9" type="text" class="form-control" >
+                    <div class="invalid-feedback">
+                      El Rut no esta registrado en la base datos
+                    </div>
+                    <small class="form-text text-muted">* Ingrese el RUT del usuario sin guión ni puntos.</small>
+                  </div>
+                </div>
+            </div>
+            <div class="form-group">
+              <label for="curso_id">Motivo</label>
+              <select class="form-control" name="curso_id" id="curso_id" required>
+                <option value="0">Personal</option>
+                {% for elemento in lista_cursos %}
+                <option value="{{elemento.id}}">{{elemento.codigo_udp}} {{elemento.nombre}}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div class="form-group">
+
+              <label>Seleccione los equipos a entregar al usuario</label>
+              <div class="table-responsive mt-2">
+                <div class="table-wrapper-scroll-y" style="position: relative; overflow:auto;">
+                  <table class="table" id="tabla_equipos_disponibles">
+                    <thead class="text-white" style="background:#4D4D4D;">
+                      <tr>
+                        <th>Componente</th>
+                        <th>Cantidad disponible</th>
+                        <th>Acciones</th>
+                      </tr>
+                    </thead>
+                    <tbody id="sol_agil_table_body">
+                      {% for elemento in lista_componentes %}
+                      <tr style="background:#ECF0F1;">
+                        <td>{{elemento.nombre}}</td>
+                        <td>{{elemento.cantidad-elemento.prestados}}/{{elemento.cantidad}}</td>
+                        <td><span class="btn-group"><button type="button" onclick='agregar_carro_generar_solicitud({{elemento | tojson}})' class="btn btn-sm btn-secondary mr-1 waves-effect waves-light"><i class="fas fa-plus"></i></button></span></td>
+                      </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+              <script>
+                $(document).ready(function() {
+                    $('#tabla_equipos_disponibles').DataTable( {
+                        "order": [[ 0, "desc" ]],
+                        "language": {
+                            "lengthMenu": "Mostrar _MENU_ registros por página",
+                            "zeroRecords": "No se han encontrado registros.",
+                            "info": "Mostrando página _PAGE_ de _PAGES_",
+                            "infoEmpty": "Sin registros disponibles.",
+                            "search":         "Buscar",
+                            "paginate": {
+                                "next":       "Siguiente",
+                                "previous":   "Anterior"
+                            },
+                            "infoFiltered": "(filtrado de _MAX_ registros totales)"
+                          }
+                      } );
+                  } );
+              </script>
+            <div class="card-header mt-4" style="background:#4D4D4D;">
+              <h5 class="card-title text-white my-auto">Equipos a prestar</h5>
+              <p class="text-white my-auto"><i class="fas fa-info-circle"></i> A continuación se muestran los componentes que se han seleccionado para el préstamo.</p>
+            </div>
+            <div class="table-wrapper-scroll-y" style="position: relative;
+                          max-height: 250px;
+                          overflow:auto;">
+              <ul class="list-group" id="lista_componentes_seleccionados">
+                {% include "vistas_gestion_solicitudes_circuitos/modals/solicitudes_ver_detalles.html" %}
+              </ul>
+              </div>
+            
+
+
+            </div>
+        </div>
+        <div class="modal-footer">
+            <p>
+                <i class="fas fa-info-circle mr-1"></i>
+                Al confirmar, los componentes serán automáticamente asignados al usuario solicitante y estos quedarán marcados como "en posesión" en la sección de gestión de solicitudes.
+            </p>
+            <button type="button" class="btn btn-secondary waves-effect waves-light" data-dismiss="modal">Cerrar</button>
+            <button type="submit" class="btn btn-success waves-effect waves-light" id="summit_solicitud_agil">Confirmar</button>
+        </div>
+          
+        
+      </div>
+    </form>
+  </div>
+</div>
+  
+
+
+
+
+<script>
+  $(document).ready(function () {  
+        $("#rut_input_login").keyup(function () {  
+            $(this).val($(this).val().toUpperCase());  
+        });
+        $("#form_sol_agil").submit(function(e) {
+          e.preventDefault();
+          $.ajax({
+            data : {
+              rut_usuario : $('#rut_input_login').val(),
+              curso_id : $('#curso_id').val(),
+            },
+            type : 'POST',
+            url : '/gestion_solicitudes_prestamos_circuitos/confirmar_solicitud_agil'
+          }).done(function(data){
+                if(data.error){
+                    console.log(data.error);
+                    switch (data.error){
+                      case 'user':
+                        $('#rut_input_login').addClass('is-invalid')
+                        break;
+                    }
+                }else{
+                  window.location.reload();
+                  }
+                });
+        });
+    });
+  function summit_solicitud_agil(){
+    $.ajax({
+            data : {
+              rut_usuario : $('#rut_input_login').val(),
+              curso_id : $('#curso_id').val(),
+            },
+            type : 'POST',
+            url : '/gestion_solicitudes_prestamos_circuitos/confirmar_solicitud_agil'
+          }).done(function(data){
+                if(data.error){
+                    console.log(data.error);
+                    switch (data.error){
+                      case 'user':
+                        $('#rut_input_login').addClass('is-invalid')
+                        break;
+                    }
+                }else{
+                  window.location.reload();
+                }
+            });
+  }
+    function show_modal_nd2QHZ(){
+        $('#modal_nd2QHZ').modal('show');
+    }
+    function agregar_carro_generar_solicitud(elemento){
+      disp = parseInt(elemento.cantidad,10) - parseInt(elemento.prestados,10);
+      $.ajax({
+            data : {
+              id_circuito: elemento.id,
+              nombre_circuito: elemento.nombre,
+              disponibles: disp
+            },
+            type : 'POST',
+            url : '/gestion_solicitudes_prestamos_circuitos/agregar_carro'
+          }).done(function(data){
+                if(data.error){
+                    console.log('error');
+                }
+                else{
+                  $("#lista_componentes_seleccionados").html(data);
+                }
+            });
+    }
+    function eliminar_carro_generar_solicitud(id){
+      $.ajax({
+            data : {
+              id_circuito: id,
+            },
+            type : 'POST',
+            url : '/gestion_solicitudes_prestamos_circuitos/eliminar_carro'
+          }).done(function(data){
+                if(data.error){
+                    console.log('error');
+                }
+                else{
+                  $("#lista_componentes_seleccionados").html(data);
+                }
+            });
+    }
+    function actualizar_carro_generar_solicitud(id, this_cantidad){
+      console.log('id: ' + id);
+      console.log('cantidad:' + this_cantidad);
+      if (this_cantidad == ''){
+        return;
+      }
+      $.ajax({
+            data : {
+              id_circuito: id,
+              cantidad: this_cantidad,
+            },
+            type : 'POST',
+            url : '/gestion_solicitudes_prestamos_circuitos/actualizar_carro'
+          }).done(function(data){
+                if(data.error){
+                    console.log('error');
+                }
+            });
+    }
+
+</script>

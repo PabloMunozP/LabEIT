@@ -7,8 +7,8 @@
       <form action="/gestion_inventario_admin/delete_circuito" id="form_confirmar_eliminar_circuito" method="POST">
         <div class="modal-body">
           <p>Al eliminar la unidad, otros registros podrían verse afectados.</p>
-          <input class="form-control" type="text" name="nombre_circuito" value="" id="form_eliminar_equipo_circuito_nombre" hidden>
-            <input class="form-control" type="text" name="descripcion_circuito" value="" id="form_eliminar_equipo_circuito_descripcion" hidden>
+          <input class="form-control" type="text" name="id" value="" id="form_eliminar_equipo_circuito_id" hidden>
+          <input class="form-control" type="text" name="prestados" value="" id="form_eliminar_equipo_circuito_prestados" hidden>
         </div>
         <div class="modal-footer">
           <button type="button" id="boton_cerrar"  class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
@@ -20,8 +20,8 @@
 </div>
 
 <script>
-  function cargar_codigo_delete_circuito(nombre_circuito, descripcion_circuito){
-    $("#form_eliminar_equipo_circuito_nombre").val(nombre_circuito);
-    $("#form_eliminar_equipo_circuito_descripcion").val(descripcion_circuito);
+  function cargar_codigo_delete_circuito(elemento){
+    $("#form_eliminar_equipo_circuito_id").val(elemento.id);
+        $("#form_eliminar_equipo_circuito_prestados").val(elemento.prestados);
   }
 </script>

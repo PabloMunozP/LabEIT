@@ -49,27 +49,46 @@
 					</div>
 				</div>
 
-
-
 				<div class="form-group row">
 					<label class="col-md-2 col-form-label texto-gris-eit">
-						<strong>Stock:</strong>
+						<strong>Nombre:</strong>
 					</label>
 					<div class="col-md-4">
 						<p class="form-control-plaintext text-break">
-							X/X
+							{{equipo_descripcion.nombre}}
 						</p>
 					</div>
 					<label class="col-md-4 col-form-label texto-gris-eit">
-						<strong>Cantidad de días permitidos:</strong>
+						<strong>Stock:</strong>
 					</label>
 					<div class="col-md-2">
 						<p class="form-control-plaintext
 							 text-break">
-							  {{equipo_descripcion.dias_max_prestamo}}
+							  {{equipo_descripcion.disponibles}}/{{equipo_descripcion.total_equipos}}
 						</p>
 					</div>
 				</div>
+
+				<div class="form-group row">
+					<label class="col-md-2 col-form-label texto-gris-eit">
+						<strong>Cantidad de días permitidos:</strong>
+					</label>
+					<div class="col-md-4">
+						<p class="form-control-plaintext text-break">
+							{{equipo_descripcion.dias_max_prestamo}}
+						</p>
+					</div>
+					<label class="col-md-4 col-form-label texto-gris-eit">
+						<strong>Cantidad de días para renovar:</strong>
+					</label>
+					<div class="col-md-2">
+						<p class="form-control-plaintext
+							 text-break">
+							  {{equipo_descripcion.dias_renovacion}}
+						</p>
+					</div>
+				</div>
+
 
 				<hr>
 
@@ -140,15 +159,26 @@
 										{% endif %}
 
 										<td>
-												{{solicitud.fecha_inicio}}
-
+											{% if solicitud.fecha_inicio == None %}
+												Sin definir
+											{% else %}
+										  {{solicitud.fecha_inicio}}
+                      {% endif %}
 										</td>
 
 										<td>
-			                  {{solicitud.fecha_termino}}
+											{% if solicitud.fecha_termino == None %}
+												Sin definir
+											{% else %}
+										  {{solicitud.fecha_termino}}
+                      {% endif %}
 										</td>
 										<td>
-												{{solicitud.fecha_vencimiento}}
+											{% if solicitud.fecha_vencimiento == None %}
+												Sin definir
+											{% else %}
+										  {{solicitud.fecha_vencimiento}}
+                      {% endif %}
 										</td>
 									</tr>
 								{% endfor %}
