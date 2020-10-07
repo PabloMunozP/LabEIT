@@ -14,6 +14,7 @@ import glob
 import platform
 from itertools import cycle
 from datetime import datetime, timedelta
+from .email_sender import enviar_correo_notificacion
 PATH = BASE_DIR  # obtiene la ruta del directorio actual
 # reemplaza [\\] por [/] en windows
 PROFILE_PICS_PATH = PATH.replace(os.sep, '/')+'/app/static/imgs/profile_pics/'
@@ -54,7 +55,7 @@ def ver_usuarios():
             """
     cursor.execute(query)
     usuarios = cursor.fetchall()
-
+    print(usuarios)
     return render_template("/vistas_gestion_usuarios/ver_usuarios.html", usuarios=usuarios)
 
 
@@ -134,33 +135,18 @@ def anadir_usuario():
                 html_restablecimiento = html_restablecimiento.replace(
                     "%token_restablecimiento%", token)
 
-                # Se crea el mensaje
-                correo = MIMEText(html_restablecimiento, "html")
-                correo.set_charset("utf-8")
-                correo["From"] = "labeit.udp@gmail.com"
-                correo["To"] = datos_usuario["correo"]
-                correo["Subject"] = "Establecer Contraseña - LabEIT UDP"
+                #Se envia el correo 
+                enviar_correo_notificacion(html_restablecimiento,"Establecer Contraseña - LabEIT UDP",datos_usuario["correo"])
+            
+                # Se registra el token en la base de datos según el RUT del usuario
+                sql_query = """
+                    INSERT INTO Token_recuperacion_password
+                        (token,rut_usuario)
+                            VALUES (%s,%s)
+                """
+                cursor.execute(
+                    sql_query, (str(token), datos_usuario["rut"]))
 
-                try:
-                    server = smtplib.SMTP_SSL("smtp.gmail.com")
-                    server.login("labeit.udp@gmail.com", "LabEIT_UDP_2020")
-                    str_correo = correo.as_string()
-                    server.sendmail("labeit.udp@gmail.com",
-                                    datos_usuario["correo"], str_correo)
-                    server.close()
-                    # Se registra el token en la base de datos según el RUT del usuario
-                    sql_query = """
-                       INSERT INTO Token_recuperacion_password
-                          (token,rut_usuario)
-                             VALUES (%s,%s)
-                    """
-                    cursor.execute(
-                        sql_query, (str(token), datos_usuario["rut"]))
-
-                except Exception as e:
-                    print(e)
-                    # Notificación de fallo al enviar el correo
-                    flash("error-correo-inicio")
                 flash('agregar-correcto')
                 return redirect("/gestion_usuarios")
             else:
@@ -413,34 +399,17 @@ def masivo():
                             html_restablecimiento = html_restablecimiento.replace(
                                 "%token_restablecimiento%", token)
 
-                            # Se crea el mensaje
-                            correo = MIMEText(html_restablecimiento, "html")
-                            correo.set_charset("utf-8")
-                            correo["From"] = "labeit.udp@gmail.com"
-                            correo["To"] = line[2]
-                            correo["Subject"] = "Establecer Contraseña - LabEIT UDP"
-                            # NombresApellidos,RUT,Email,Curso
-                            try:
-                                server = smtplib.SMTP_SSL("smtp.gmail.com")
-                                server.login(
-                                    "labeit.udp@gmail.com", "LabEIT_UDP_2020")
-                                str_correo = correo.as_string()
-                                server.sendmail(
-                                    "labeit.udp@gmail.com", line[2], str_correo)
-                                server.close()
-                                # Se registra el token en la base de datos según el RUT del usuario
-                                sql_query = """
-                                INSERT INTO Token_recuperacion_password
-                                    (token,rut_usuario)
-                                        VALUES (%s,%s)
-                                """
-                                cursor.execute(
-                                    sql_query, (str(token), line[1]))
+                            # Se envia el correo
+                            enviar_correo_notificacion(html_restablecimiento,"Establecer Contraseña - LabEIT UDP",line[2])
 
-                            except Exception as e:
-                                print(e)
-                                # Notificación de fallo al enviar el correo
-                                error_correo.append(line[2])
+                            # Se registra el token en la base de datos según el RUT del usuario
+                            sql_query = """
+                            INSERT INTO Token_recuperacion_password
+                                (token,rut_usuario)
+                                    VALUES (%s,%s)
+                            """
+                            cursor.execute(
+                                sql_query, (str(token), line[1]))
                         else:
                             error_rut.append(line[1])
 
@@ -462,7 +431,7 @@ def masivo():
             print(hoja.max_row)
             for row in hoja.iter_rows(min_row=2,max_col=5,values_only=True):
                 
-                print(row)
+                #print(row)
                 if not row[0] or not row[1] or not row[2] or not row[3] or not row[4]:
                     continue
 
@@ -485,12 +454,10 @@ def masivo():
                     error_correo.append(duplicados_correo['correo'])
                     continue    
                 
-                print('ok')
+                #print('ok')
                 if not duplicados_rut  and not duplicados_correo :#No exista nadie con rut ni correo repetido.
                     
-                    rut=str(row[2])
-                    print(rut[-1])
-                    print(rut[:-1])                
+                    rut=str(row[2])                
                     if rut[-1] == digito_verificador(rut[:-1]):
                         print(rut +'paso bien')
                         cursor.execute(query_add,(row[0],row[1],rut,row[4],row[3]))
@@ -513,31 +480,17 @@ def masivo():
                         html_restablecimiento = html_restablecimiento.replace("%codigo_restablecimiento%",str(random.randint(0,1000)))
                         html_restablecimiento = html_restablecimiento.replace("%token_restablecimiento%",token)
 
-                        # Se crea el mensaje
-                        correo = MIMEText(html_restablecimiento,"html")
-                        correo.set_charset("utf-8")
-                        correo["From"] = "labeit.udp@gmail.com"
-                        correo["To"] = row[3]
-                        correo["Subject"] = "Establecer Contraseña - LabEIT UDP"
-                        #NombresApellidos,RUT,Email,Curso
-                        try:
-                            server = smtplib.SMTP("smtp.gmail.com",587)
-                            server.starttls()
-                            server.login("labeit.udp@gmail.com","LabEIT_UDP_2020")
-                            str_correo = correo.as_string()
-                            server.sendmail("labeit.udp@gmail.com",row[3],str_correo)
-                            server.close()
-                            # Se registra el token en la base de datos según el RUT del usuario
-                            sql_query = """
-                            INSERT INTO Token_recuperacion_password
-                                (token,rut_usuario)
-                                    VALUES (%s,%s)
-                            """
-                            cursor.execute(sql_query,(str(token),rut))
-            
-                        except Exception as e:
-                            print(e)
-                            error_correo.append(row['correo']) # Notificación de fallo al enviar el correo
+                        # Se envia el correo
+                        enviar_correo_notificacion(html_restablecimiento,"Establecer Contraseña - LabEIT UDP",row[3])
+                        
+                        # Se registra el token en la base de datos según el RUT del usuario
+                        sql_query = """
+                        INSERT INTO Token_recuperacion_password
+                            (token,rut_usuario)
+                                VALUES (%s,%s)
+                        """
+                        cursor.execute(sql_query,(str(token),rut))
+        
                     else:
                         print(rut)
                         error_rut.append(rut)
