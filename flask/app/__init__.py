@@ -7,7 +7,6 @@ import json,requests,smtplib
 from email.mime.base import MIMEBase
 from email.mime.text import MIMEText
 from datetime import datetime,timedelta
-from flask_apscheduler import APScheduler
 from werkzeug.utils import secure_filename
 from email.mime.multipart import MIMEMultipart
 from flask import Flask,Blueprint,render_template,request,redirect,url_for,flash,session,jsonify,abort
@@ -20,14 +19,6 @@ def redirect_url(default='index'): # Redireccionamiento desde donde vino la requ
 # Define the WSGI application object
 app = Flask(__name__)
 
-# Se importan funciones desde /routines/sched_functions.py
-from app.routines.sched_functions import revisar_18_30,revisar_23_59
-
-# ========== Se inicializan las funciones con el objeto de APScheduler
-sched = APScheduler()
-sched.add_job(id="revisar_23_59",func=revisar_23_59,trigger='cron',hour=23,minute=59)
-sched.add_job(id="revisar_18_30",func=revisar_18_30,trigger='cron',hour=18,minute=30)
-sched.start()
 # ============================================================================
 # Blueprints (Routes)
 from app.routes.rutas_modulos_documentacion import mod
