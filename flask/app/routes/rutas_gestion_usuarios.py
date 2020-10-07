@@ -55,7 +55,6 @@ def ver_usuarios():
             """
     cursor.execute(query)
     usuarios = cursor.fetchall()
-    print(usuarios)
     return render_template("/vistas_gestion_usuarios/ver_usuarios.html", usuarios=usuarios)
 
 
@@ -92,10 +91,10 @@ def anadir_usuario():
         duplicados_correo = cursor.fetchone()
 
         if duplicados_rut is not None:  # Ya existe un usuario con ese rut
-            flash('error-añadir-rut')
+            flash('error-anadir-rut')
             return redirect("/gestion_usuarios")
         if duplicados_correo is not None:  # Ya existe alguien registrado con ese rut
-            flash('error-añadir-correo')
+            flash('error-anadir-correo')
             return redirect("/gestion_usuarios")
         # No exista nadie con rut ni correo repetido.
         if duplicados_rut is None and duplicados_correo is None:
