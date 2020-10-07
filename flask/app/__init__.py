@@ -27,7 +27,8 @@ from app.routes.rutas_perfil import mod
 from app.routes.rutas_wifi import mod
 from app.routes.rutas_gestion_inventario import mod
 from app.routes.rutas_wishlist import mod
-from app.routes.rutas_cony import mod
+from app.routes.rutas_solicitud_prestamos_equipos import mod
+from app.routes.rutas_gestion_cursos import mod
 from app.routes.rutas_solicitud_circuito import mod
 from app.routes.rutas_gestion_solicitudes import mod
 from app.routes.rutas_login import mod
@@ -40,7 +41,8 @@ app.register_blueprint(routes.rutas_perfil.mod)
 app.register_blueprint(routes.rutas_gestion_inventario.mod)
 app.register_blueprint(routes.rutas_wifi.mod)
 app.register_blueprint(routes.rutas_wishlist.mod)
-app.register_blueprint(routes.rutas_cony.mod)
+app.register_blueprint(routes.rutas_solicitud_prestamos_equipos.mod)
+app.register_blueprint(routes.rutas_gestion_cursos.mod)
 app.register_blueprint(routes.rutas_solicitud_circuito.mod)
 app.register_blueprint(routes.rutas_gestion_solicitudes.mod)
 app.register_blueprint(routes.rutas_login.mod)

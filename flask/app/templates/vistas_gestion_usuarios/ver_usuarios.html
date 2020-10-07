@@ -199,17 +199,19 @@
                             {% endif %}
                           </td>
                           <td class="text-center">
-                             <button type="button" title="Editar información" id="editar_{{usuario['rut']}}" data-target="#editar_{{usuario['rut']}}" class= "btn btn-sm btn-warning" data-toggle="modal"><i class="fas fa-edit"></i></button>
-                             <a class="btn btn-sm btn-info" title="Ver información detallada" href="/gestion_usuarios/ver_usuario/{{usuario['rut']}}"><i class="fas fa-search-plus"></i></a>
-                             {% if usuario["activo"] %}
-                              {% if session["usuario"]["rut"] != usuario["rut"] %}
-                                <button type="button" title="Inhabilitar usuario" data-target="#inhab_{{usuario['rut']}}" class="btn btn-sm btn-danger" data-toggle="modal"><i class="fas fa-user-slash"></i></button>
+                            <span class="btn-group">
+                              <button type="button" title="Editar información" id="editar_{{usuario['rut']}}" data-target="#editar_{{usuario['rut']}}" class= "btn btn-sm btn-warning mr-1" data-toggle="modal"><i class="fas fa-edit"></i></button>
+                              <a class="btn btn-sm btn-info mr-1" title="Ver información detallada" href="/gestion_usuarios/ver_usuario/{{usuario['rut']}}"><i class="fas fa-search-plus"></i></a>
+                              {% if usuario["activo"] %}
+                                {% if session["usuario"]["rut"] != usuario["rut"] %}
+                                  <button type="button" title="Inhabilitar usuario" data-target="#inhab_{{usuario['rut']}}" class="btn btn-sm btn-danger" data-toggle="modal"><i class="fas fa-user-slash"></i></button>
+                                {% else %}
+                                  <button type="button" disabled title="Inhabilitar usuario" data-target="#inhab_{{usuario['rut']}}" class="btn btn-sm btn-danger" data-toggle="modal"><i class="fas fa-user-slash"></i></button>
+                                {% endif %}
                               {% else %}
-                                <button type="button" disabled title="Inhabilitar usuario" data-target="#inhab_{{usuario['rut']}}" class="btn btn-sm btn-danger" data-toggle="modal"><i class="fas fa-user-slash"></i></button>
+                                <button type="button" title="Habilitar usuario" data-target="#habilitar_{{usuario['rut']}}" class="btn btn-sm btn-success" data-toggle="modal"><i class="fas fa-user-check"></i></button>
                               {% endif %}
-                             {% else %}
-                              <button type="button" title="Habilitar usuario" data-target="#habilitar_{{usuario['rut']}}" class="btn btn-sm btn-success" data-toggle="modal"><i class="fas fa-user-check"></i></button>
-                             {% endif %}
+                            </span>
                           </td>
                           {% include 'vistas_gestion_usuarios/editar_usuario.html' %}
                           {% include 'vistas_gestion_usuarios/inhab_usuario.html' %}

@@ -9,22 +9,30 @@
             </div>
             <form id="editar_seccion" action="/gestion_cursos/editar_seccion" method="POST">
                 <div class="modal-body">
-                    <input class="form-control" type="text" name="id" value="{{seccion['id']}}" id="editar-seccion-hidden-id" hidden>
-                    <input class="form-control" type="text" name="id_curso" value="{{curso['curso_id']}}" id="id_curso" hidden>
-                    <div class="form-group">
-                        <label for="codigo_seccion">Código de sección:</label>
-                        <input type="text" id="codigo_seccion" name="codigo_seccion" class="form-control" maxlength="10" value="{{seccion['codigo_seccion']}}" required>
-                    </div>
-                    <label for="rut_profesor">Profesor</label>
-                    <select class="form-control"  id="rut_profesor" name = "rut_profesor">
-                      {% for profesor in profesores %}
-                        <option id="rut_profesor" name = "rut_profesor" value="{{profesor['rut']}}">{{profesor["apellidos"]}} {{profesor["nombres"]}} </option>
-                      {% endfor %}
-                    </select>
+                    {% if profesores %}
+                        <input class="form-control" type="text" name="id" value="{{seccion['id']}}" id="editar-seccion-hidden-id" hidden>
+                        <input class="form-control" type="text" name="id_curso" value="{{curso['curso_id']}}" id="id_curso" hidden>
+                        <div class="form-group">
+                            <label for="codigo_seccion">Código de sección:</label>
+                            <input type="text" id="codigo_seccion" name="codigo_seccion" class="form-control" maxlength="10" value="{{seccion['codigo_seccion']}}" required>
+                        </div>
+                        <label for="rut_profesor">Profesor</label>
+                        <select class="form-control"  id="rut_profesor" name = "rut_profesor">
+                        {% for profesor in profesores %}
+                            <option id="rut_profesor" name = "rut_profesor" value="{{profesor['rut']}}">{{profesor["apellidos"]}} {{profesor["nombres"]}} </option>
+                        {% endfor %}
+                        </select>
+                    {% else %}
+                        <div class="alert alert-warning alert-dismissible fade show text-center mt-2" role="alert">
+                        <i class="fas fa-exclamation-triangle mr-2"></i>No se han encontrado profesores registrados en el sistema.
+                        </div>
+                    {% endif %}
                 </div>
                 <div class="modal-footer">
                     <button type="button" id="boton_cerrar" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-                    <button type="submit" id="boton_guardar" class="btn btn-info">Guardar cambios</button>
+                    {% if profesores %}
+                        <button type="submit" id="boton_guardar" class="btn btn-info">Guardar cambios</button>
+                    {% endif %}
                 </div>
             </form>
         </div>

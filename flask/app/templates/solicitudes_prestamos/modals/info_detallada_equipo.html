@@ -83,14 +83,15 @@
 
 					{% if lista_cursos %}
 
-						<div class="form-check form-check-inline">
+					<div class="card-header mt-4" style="background:#4D4D4D;">
+						<h5 class="card-title text-white my-auto"><i class="fas fa-chalkboard-teacher mr-2"></i>Asignatura asociada</h5>
+						<div class="form-check mt-1 form-check-inline">
 							<input class="form-check-input" name="asignatura_asociada" type="checkbox" id="checkbox_asignatura_asociada_{{equipo["id"]}}" onclick="check_asociacion_asignatura({{equipo["id"]}})">
-							<label class="form-check-label" for="checkbox_asignatura_asociada_{{equipo["id"]}}">Selecciona esta opción en caso de que el equipo a solicitar esté asociado a una asignatura.</label>
+							<label class="form-check-label text-white" for="checkbox_asignatura_asociada_{{equipo["id"]}}">Selecciona esta opción en caso de que el equipo a solicitar esté asociado a una asignatura.</label>
 						</div>
+					</div>
 
-						<div hidden id="form_asociacion_asignatura_{{equipo["id"]}}">
-
-							<hr>
+						<div class="mt-2" hidden id="form_asociacion_asignatura_{{equipo["id"]}}">
 
 							<p><i class="fas fa-info-circle mr-2"></i>Por favor, indícanos la asignatura a la que se encuentra asociada la solicitud de este equipo.
 											Esta información podrá ayudarnos a mejorar la calidad de nuestros servicios.
