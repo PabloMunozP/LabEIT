@@ -35,9 +35,9 @@
 {% endif %}
                     <h6 class="profile-subtext"> Credencial: {{perfil_info.credencial_nombre}} </h6>
                 {% if sancionado == False %}
-                    <h6 class="profile-subtext"> <span>Sanción activa:</span>    <span style="color: #339900;">No</span></h6>
+                    <h6 class="profile-subtext"> <span>Sanción activa:</span>    <span style="color: #339900;">SI</span></h6>
                 {% else %}
-                    <h6 class="profile-subtext"> <span>Sanción activa:</span>    <span style="color: #cc3300;">Si</span></h6>
+                    <h6 class="profile-subtext"> <span>Sanción activa:</span>    <span style="color: #cc3300;">NO</span></h6>
                 {% endif %}
 
                 {% if admin_inspeccionar_perfil == False%}

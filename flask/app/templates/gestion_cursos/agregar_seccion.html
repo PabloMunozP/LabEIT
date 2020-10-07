@@ -10,24 +10,30 @@
 
           <form action="/gestion_cursos/agregar_seccion" method="POST">
           <div class="modal-body">
-            <div class="form-group">
-              <input class="form-control" type="text" name="id_curso" value="{{curso['curso_id']}}" id="id_curso" hidden>
-              <label for="codigo">Código de sección</label>
-              <input class="form-control" type="text" name="codigo" maxlength="10" id="codigo" value="" required>
-            </div>
-            <label for="rut_profesor">Profesor</label>
-            <select class="form-control"  id="rut_profesor" name = "rut_profesor">
-              {% for profesor in profesores %}
-                <option id="rut_profesor" name = "rut_profesor" value="{{profesor['rut']}}">{{profesor["apellidos"]}} {{profesor["nombres"]}} </option>
-              {% endfor %}
-            </select>
-
-
-      </div>
+            {% if profesores %}
+              <div class="form-group">
+                <input class="form-control" type="text" name="id_curso" value="{{curso['curso_id']}}" id="id_curso" hidden>
+                <label for="codigo">Código de sección</label>
+                <input class="form-control" type="text" name="codigo" maxlength="10" id="codigo" value="" required>
+              </div>
+              <label for="rut_profesor">Profesor</label>
+              <select class="form-control"  id="rut_profesor" name = "rut_profesor">
+                {% for profesor in profesores %}
+                  <option id="rut_profesor" name = "rut_profesor" value="{{profesor['rut']}}">{{profesor["apellidos"]}} {{profesor["nombres"]}} </option>
+                {% endfor %}
+              </select>
+            {% else %}
+              <div class="alert alert-warning alert-dismissible fade show text-center mt-2" role="alert">
+                <i class="fas fa-exclamation-triangle mr-2"></i>No se han encontrado profesores registrados en el sistema.
+              </div>
+            {% endif %}
+          </div>
       <div class="modal-footer">
-              <button type="button" id="boton_cerrar" class="btn btn-secondary" data-dismiss="modal" onclick="Cargar_informacion()">Cancelar</button>
-              <button type="button" id="boton_cerrar" class="btn btn-secondary" data-dismiss="modal" onclick="Cargar_informacion()" hidden>Cancelar</button>
-              <button type="summit" id="boton_guardar" class="btn btn-info"> Guardar cambios</button>
+              <button type="button" id="boton_cerrar" class="btn btn-secondary" data-dismiss="modal" onclick="Cargar_informacion()">Cerrar</button>
+              <button type="button" id="boton_cerrar" class="btn btn-secondary" data-dismiss="modal" onclick="Cargar_informacion()" hidden>Cerrar</button>
+              {% if profesores %}
+                <button type="summit" id="boton_guardar" class="btn btn-success">Registrar</button>
+              {% endif %}
       </div>
     </form>
   </div>

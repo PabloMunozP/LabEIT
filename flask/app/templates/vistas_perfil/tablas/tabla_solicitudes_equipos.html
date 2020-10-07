@@ -33,11 +33,21 @@
           <td>{{elemento.fecha_inicio if elemento.fecha_inicio}}</td>
           <td>{{elemento.fecha_termino if elemento.fecha_termino}}</td>
           <td>{{elemento.fecha_devolucion if elemento.fecha_devolucion}}</td>
-          {% if elemento.estado == 'Con atraso' %}
-            <td class="text-center"><span class="badge badge-danger">{{elemento.estado}}</span></td>
-          {% else %}
-            <td class="text-center"><span class="badge badge-secondary">{{elemento.estado}}</span></td>
-          {% endif %}
+          {% if elemento.estado == 'Pendiente' %}
+						<td class="text-center"><span class="badge badge-primary">{{elemento.estado}}</span></td>
+					{% elif elemento.estado == 'Por retirar' %}
+						<td class="text-center"><span class="badge badge-info">{{elemento.estado}}</span></td>
+					{% elif elemento.estado == 'En posesión' %}
+						<td class="text-center"><span class="badge badge-success">{{elemento.estado}}</span></td>
+					{% elif elemento.estado == 'Con atraso' %}
+						<td class="text-center"><span class="badge badge-danger">{{elemento.estado}}</span></td>
+					{% elif elemento.estado == 'Devuelto' %}
+						<td class="text-center"><span class="badge badge-success">{{elemento.estado}}</span></td>
+					{% elif elemento.estado == 'Rechazada' or elemento.estado == 'Cancelada' %}
+						<td class="text-center"><span class="badge badge-danger">{{elemento.estado}}</span></td>
+					{% elif elemento.estado == 'Finalizada' %}
+						<td class="text-center"><span class="badge badge-secondary">{{elemento.estado}}</span></td>
+					{% endif %}
 
 
 {% if admin_inspeccionar_perfil == False%}

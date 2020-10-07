@@ -2,7 +2,7 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header bg-gris-eit">
-                <h5 class="modal-title text-white" id="editar_informacion_label"><i class="fas fa-user-edit mr-2"></i>Carga masiva de usuarios</h5>
+                <h5 class="modal-title text-white" id="editar_informacion_label"><i class="fas fa-users mr-2"></i>Carga masiva de usuarios</h5>
                 <button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar">
                 <span aria-hidden="true">&times; </span>
                 </button>
@@ -11,19 +11,20 @@
             <div class="modal-body">
                 <h6 class="modal-title text-black">Importar usuarios</h6>
                 <form action="/gestion_usuarios/anadir_masivo" method="POST" enctype="multipart/form-data">
-                    <p>Recuerde el formato de este archivo y su extension (.csv o .xlsx). ¿No conoces el formato? Haz click <a href="#formato_csv" data-toggle="collapse" > <strong> aquí.</strong></a></p>
+                    <p>Recuerde el formato de este archivo y su extension (.csv o .xlsx). ¿No conoce el formato? Haga click <a href="#formato_csv" data-toggle="collapse" > <strong> aquí.</strong></a></p>
                     <div id="formato_csv" class="collapse">
+                        <hr>
                         <h5>Formato CSV</h5>
-                        <p> Para obtener de forma más sencilla la lista de los alumnos a ingresar se sugiere exportar los datos desde Canvas, para esto deberá dirigirse al apartado 'Calificaciones' y exportar en formato CSV.
-                            Una vez que haya descargado la lista de alumnos deberá modificar algunas de sus columnas, ya que el sistema Canvas da más información de la necesitada para el registro de usuarios, 
-                            será necesario solo dejar las columnas con los nombres “Student, SIS User ID,SIS Login ID” que representan los nombres, Rut y correo respectivamente de cada alumno.
+                        <p> Para obtener de forma más sencilla la lista de los alumnos a ingresar se sugiere exportar los datos desde Canvas. Para esto deberá dirigirse al apartado <strong>'Calificaciones'</strong> y exportar en formato <strong>CSV</strong>.
+                           <br>Una vez que haya descargado la lista de alumnos deberá modificar algunas de sus columnas, ya que el sistema Canvas da más información de la necesitada para el registro de usuarios.<br> 
+                            Para esto será necesario solo dejar las columnas con los nombres <strong>'Student, SIS User ID, SIS Login ID'</strong> que representan los campos de nombre, RUT y correo respectivamente de cada alumno.
                         <h5>Formato XLSX</h5>
-                        <p>Si desea ingresar los valores de manera mas controlada en una hoja de cálculo puede probar con el formato xlsx haciendo <a href="/gestion_usuarios/anadir_masivo/formato" target="_blank">click aquí</a> para descargar una plantilla.</p>                   
-                        <br> Considere tambien que el tamaño maximo permitido es de 5 Mb.</p>
+                        <p>Si desea ingresar los valores de manera mas controlada en una hoja de cálculo, puede probar con el formato <strong>xlsx</strong> haciendo <a href="/gestion_usuarios/anadir_masivo/formato" target="_blank">click aquí</a> para descargar una plantilla y posteriormente subirla con los datos cargados.</p>             
                     </div>
                     <div class="custom-file">
                         <input type="file" class ="custom-file-input" id="CSV" name="file" accept=".csv,.xlsx">
                         <label for="CSV" class="custom-file-label"> Elige un archivo</label>
+                        <small class="text-muted">Considere que el tamaño máximo permitido para el archivo es de 5 Mb.</small>
                     </div>
             </div>
             <div class="modal-footer">
