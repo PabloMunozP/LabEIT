@@ -1,10 +1,13 @@
-from flask import Flask,Blueprint,render_template,request,redirect,url_for,flash,session,jsonify
-from config import db,cursor
+from flask import Flask,Blueprint,render_template,request,redirect,url_for,flash,session,jsonify, make_response,send_file
+from config import db,cursor,BASE_DIR
 import os, time, bcrypt
 import mysql.connector
 import rut_chile
 import glob
-from datetime import datetime, timedelta  
+from datetime import datetime, timedelta
+from openpyxl import Workbook
+from openpyxl.styles import Font, PatternFill, Alignment
+from openpyxl.styles.borders import Border, Side, BORDER_THIN
 
 mod = Blueprint("rutas_solicitud_circuito",__name__)
 
@@ -32,8 +35,8 @@ def consultar_cursos():
     ''')
     cursor.execute(query)
     return cursor.fetchall()
-    
-    
+
+
 @mod.route("/solicitudes_prestamos_circuitos")
 def solicitudes_prestamos_circuitos():
     return render_template('solicitudes_prestamos_circuitos/preview.html',
@@ -70,18 +73,18 @@ def agregar_al_carro_circuito():
         if id_circuito and cantidad:
             if 'carro_circuito' not in session: # si no hay carrito
                 session["carro_circuito"] = {}
-            
+
             if id_circuito not in session["carro_circuito"].keys(): # Si el circuito no esta en el carro, lo agrega
                 session["carro_circuito"][id_circuito] = {} # Crea un diccionario carro = { id : {}}
                 session["carro_circuito"][id_circuito]['id'] = str(id_circuito) # carro = { id : {'id': 'id'}}
                 session["carro_circuito"][id_circuito]['cantidad'] = int(cantidad)  # carro = { id : {'id': str , 'cantidad' : int}}
                 session["carro_circuito"][id_circuito]['nombre'] = nombre #agrega el nombre
             else: # Si el circuito está en el carro, le suma la cantidad
-                session["carro_circuito"][id_circuito]['cantidad'] = int(cantidad)    
+                session["carro_circuito"][id_circuito]['cantidad'] = int(cantidad)
             return render_template("solicitudes_prestamos_circuitos/tablas/lista_carro_circuito.html")
         else:
             return jsonify({'error':'missing data!'})
-    
+
     return jsonify({'error':'missing data!'})
 
 
@@ -98,16 +101,16 @@ def generar_solicitud_alumno(rut_alumno, motivo, id_curso_motivo, rut_profesor):
                           rut_profesor,
                           hora_registro))
     id_solicitud = cursor.lastrowid # Se obtiene el id de solicitud recién creada
-    
+
     db.commit()
-    query = (''' 
+    query = ('''
              INSERT INTO Detalle_solicitud_circuito (id_solicitud_circuito, id_circuito, cantidad, estado)
              VALUES (%s,%s,%s,0)
              ''')
     for ID,item in session["carro_circuito"].items():
         cursor.execute(query,(id_solicitud,ID,item["cantidad"]))
         db.commit()
-    return  
+    return
 
 
 @mod.route("/registrar_solicitud_circuito",methods=['POST'])
@@ -155,9 +158,9 @@ def consultar_solictudes_por_id(IDS):
                 Circuito.dias_renovacion,
                 Circuito.descripcion
             FROM Detalle_solicitud_circuito
-                LEFT JOIN Solicitud_circuito 
+                LEFT JOIN Solicitud_circuito
                     ON Solicitud_circuito.id = Detalle_solicitud_circuito.id_solicitud_circuito
-                LEFT JOIN Usuario 
+                LEFT JOIN Usuario
                     ON Usuario.rut = Solicitud_circuito.rut_alumno
                 LEFT JOIN Circuito
                     ON Circuito.id = Detalle_solicitud_circuito.id_circuito
@@ -192,9 +195,9 @@ def consultar_solictudes_pendientes():
                 Circuito.dias_renovacion,
                 Circuito.descripcion
             FROM Detalle_solicitud_circuito
-                LEFT JOIN Solicitud_circuito 
+                LEFT JOIN Solicitud_circuito
                     ON Solicitud_circuito.id = Detalle_solicitud_circuito.id_solicitud_circuito
-                LEFT JOIN Usuario 
+                LEFT JOIN Usuario
                     ON Usuario.rut = Solicitud_circuito.rut_alumno
                 LEFT JOIN Circuito
                     ON Circuito.id = Detalle_solicitud_circuito.id_circuito
@@ -232,9 +235,9 @@ def consultar_solictudes_activas():
                 Circuito.dias_renovacion,
                 Circuito.descripcion
             FROM Detalle_solicitud_circuito
-                LEFT JOIN Solicitud_circuito 
+                LEFT JOIN Solicitud_circuito
                     ON Solicitud_circuito.id = Detalle_solicitud_circuito.id_solicitud_circuito
-                LEFT JOIN Usuario 
+                LEFT JOIN Usuario
                     ON Usuario.rut = Solicitud_circuito.rut_alumno
                 LEFT JOIN Circuito
                     ON Circuito.id = Detalle_solicitud_circuito.id_circuito
@@ -275,9 +278,9 @@ def consultar_solictudes_historial():
                 Circuito.dias_renovacion,
                 Circuito.descripcion
             FROM Detalle_solicitud_circuito
-                LEFT JOIN Solicitud_circuito 
+                LEFT JOIN Solicitud_circuito
                     ON Solicitud_circuito.id = Detalle_solicitud_circuito.id_solicitud_circuito
-                LEFT JOIN Usuario 
+                LEFT JOIN Usuario
                     ON Usuario.rut = Solicitud_circuito.rut_alumno
                 LEFT JOIN Circuito
                     ON Circuito.id = Detalle_solicitud_circuito.id_circuito
@@ -304,7 +307,7 @@ def consultar_solcitudes_prestamos():
                         ELSE CONCAT(Curso.codigo_udp, ' ',Curso.nombre)
                         END AS curso_motivo
                 FROM Solicitud_circuito
-                LEFT JOIN Usuario 
+                LEFT JOIN Usuario
                     ON Usuario.rut = Solicitud_circuito.rut_alumno
                 LEFT JOIN Detalle_solicitud_circuito
                     ON Detalle_solicitud_circuito.id_solicitud_circuito = Solicitud_circuito.id
@@ -319,7 +322,7 @@ def gestion_solicitudes_prestamos_circuitos():
     if 'usuario' not in session or session["usuario"]["id_credencial"] != 3: # Si no es administrador
         return redirect('/')
     if 'carro_circuito_admin' in session:
-        del session["carro_circuito_admin"] 
+        del session["carro_circuito_admin"]
     return render_template('vistas_gestion_solicitudes_circuitos/main.html',
                            lista_solicitudes_pendientes = consultar_solictudes_pendientes(),
                            lista_solicitudes_activas = consultar_solictudes_activas(),
@@ -327,7 +330,7 @@ def gestion_solicitudes_prestamos_circuitos():
                            lista_solicitudes_prestamos = consultar_solcitudes_prestamos(),
                            lista_componentes = consultar_lista_circuito(),
                            lista_cursos = consultar_cursos())
-    
+
 
 @mod.route("/gestion_solicitudes_prestamos_circuitos/borrar_solcitud_detalle",methods=['POST']) # AJAX
 def gestion_borrar_solicitud_detalle():
@@ -354,7 +357,7 @@ def gestion_borrar_solicitud_detalle():
             db.commit()
         return jsonify({'nice':'nice!'})
     return jsonify({'error':'missing data!'})
- 
+
 
 @mod.route("/gestion_solicitudes_prestamos_circuitos/aprobar_solcitud_detalle",methods=['POST']) # AJAX
 def gestion_aprobar_solicitud_detalle():
@@ -411,10 +414,10 @@ def entregar_solicitud_detalle():
         fecha_inicio = datetime.now()
         fecha_termino = datetime.now() + timedelta(days=int(circuito_data["dias_max_prestamo"]))
         cursor.execute('''
-                    UPDATE Detalle_solicitud_circuito 
+                    UPDATE Detalle_solicitud_circuito
                     SET estado = 2,
                         fecha_inicio = %s,
-                        fecha_termino = %s, 
+                        fecha_termino = %s,
                         fecha_vencimiento = %s
                     WHERE id = %s;''',(fecha_inicio,
                                        fecha_termino.replace(hour=18, minute=30, second = 0, microsecond = 0),
@@ -441,7 +444,7 @@ def devolver_solicitud_detalle():
                 WHERE Detalle_solicitud_circuito.id = %s
                  ''') # Query para obtener datos de la solicitud y componente
         cursor.execute(query,(IDD,))
-        circuito_data = cursor.fetchone() 
+        circuito_data = cursor.fetchone()
         query = ('''
                 UPDATE Detalle_solicitud_circuito
                     SET estado = 4,
@@ -458,8 +461,8 @@ def devolver_solicitud_detalle():
                                                                                              circuito_data["id"]))
         # Actualiza los prestados = prestados - solicitados (los devuelve)
         return jsonify({'nice':'nice!'})
-    return jsonify({'error':'missing data!'})       
-    
+    return jsonify({'error':'missing data!'})
+
 @mod.route("/gestion_solicitudes_prestamos_circuitos/cancelar_activa_solicitud_detalle",methods=['POST']) # AJAX
 def cancelar_solicitud_detalle():
     if request.method == 'POST':
@@ -476,13 +479,13 @@ def cancelar_solicitud_detalle():
                  ''') # Query para obtener datos de la solicitud y componente
         cursor.execute(query,(IDD,)) # Ejecuta la query
         circuito_data = cursor.fetchone() # Almacena el resutado
-        query = (''' 
+        query = ('''
                 UPDATE Detalle_solicitud_circuito
                     SET estado = 7,
                         fecha_cancelacion = %s,
                         fecha_vencimiento = NULL
                     WHERE id = %s;
-                ''') # Actualiza la solicitud detalle como cancelada 
+                ''') # Actualiza la solicitud detalle como cancelada
         cursor.execute(query,(datetime.now(),IDD)) # Establece la fecha para la solicitud
         cursor.execute('UPDATE Circuito SET Circuito.prestados = %s WHERE Circuito.id = %s',
                        (int(circuito_data["prestados"])-int(circuito_data["solicitados"]),
@@ -513,7 +516,7 @@ def gestion_agregar_carro():
         if id_circuito and nombre:
             if 'carro_circuito_admin' not in session: # si no hay carrito
                 session["carro_circuito_admin"] = {}
-            
+
             if id_circuito not in session["carro_circuito_admin"].keys(): # Si el circuito no esta en el carro, lo agrega
                 session["carro_circuito_admin"][id_circuito] = {} # Crea un diccionario carro = { id : {}}
                 session["carro_circuito_admin"][id_circuito]['id'] = str(id_circuito) # carro = { id : {'id': 'id'}}
@@ -521,11 +524,11 @@ def gestion_agregar_carro():
                 session["carro_circuito_admin"][id_circuito]['nombre'] = nombre #agrega el nombre
                 session["carro_circuito_admin"][id_circuito]['disponibles'] = disponibles # determina la disponibilidad
             else: # Si el circuito está en el carro, le suma la cantidad
-                session["carro_circuito_admin"][id_circuito]['cantidad'] = int(cantidad)    
+                session["carro_circuito_admin"][id_circuito]['cantidad'] = int(cantidad)
             return render_template("vistas_gestion_solicitudes_circuitos/tablas/sub_solicitud_agil.html")
         else:
             return jsonify({'error':'missing data!'})
-    
+
     return jsonify({'error':'missing data!'})
 
 
@@ -550,8 +553,8 @@ def gestion_actualizar_carro():
         else:
             session["carro_circuito_admin"][id_circuito]['cantidad'] = int(cantidad)
             return jsonify({'nice':'nice!'})
-        
-    
+
+
 
 
 def generar_solicitud_agil(rut_alumno, motivo, id_curso_motivo, rut_profesor): # funcion para generar la solicitud de circuitos
@@ -567,9 +570,9 @@ def generar_solicitud_agil(rut_alumno, motivo, id_curso_motivo, rut_profesor): #
                           rut_profesor,
                           hora_registro))
     id_solicitud = cursor.lastrowid # Se obtiene el id de solicitud recién creada
-    
+
     db.commit()
-    query = (''' 
+    query = ('''
              INSERT INTO Detalle_solicitud_circuito (id_solicitud_circuito, id_circuito, cantidad, estado)
              VALUES (%s,%s,%s,0)
              ''')
@@ -586,30 +589,198 @@ def confirmar_solicitud_agil():
         fecha_registro = datetime.now()
         cursor.execute(''' SELECT rut FROM Usuario WHERE rut = %s''',(datos_solicitud['rut_usuario'],)) # Consulta para comprobar que el usuario existe
         if len(cursor.fetchall()) > 0:
-            
-            
+
+
             query_insert_sol = ('''INSERT INTO Solicitud_circuito (rut_alumno, motivo, id_curso_motivo, rut_profesor, fecha_registro) VALUES (%s, %s, %s, %s,  %s)''') # Query agregar una solicitud
             query_select_circuito_data = ('''SELECT * FROM Circuito WHERE id = %s''') # Query para consultar la informacion del componente
             query_insert_detalle = ('''INSERT INTO Detalle_solicitud_circuito (id_solicitud_circuito, id_circuito, cantidad, estado, fecha_inicio, fecha_termino) VALUES (%s,%s,%s,2,%s,%s)''')
             query_update_prestados = ('UPDATE Circuito SET Circuito.prestados = %s WHERE Circuito.id = %s')
-            
+
             cursor.execute(query_insert_sol,(datos_solicitud['rut_usuario'],None,datos_solicitud['curso_id'],None,fecha_registro)) # Agrega la solictud a la base de dato
             id_solicitud = cursor.lastrowid # Se obtiene el id de solicitud recién creada
-        
-            
+
+
             for ID,item in session["carro_circuito_admin"].items():
                 if item['cantidad'] > 0: # Si la cantidad solicitada es < 0 la registra
-                    
+
                     cursor.execute(query_select_circuito_data,(ID,)) # Obtiene los datos del componente
                     circuito_data = cursor.fetchone() # Almacena los datos del componente
-                    
+
                     fecha_termino = fecha_registro+timedelta(days=int(circuito_data["dias_max_prestamo"])) # Obtiene la fecha de termino
                     cursor.execute( query_insert_detalle, (id_solicitud,ID,item["cantidad"],fecha_registro,fecha_termino.replace(hour=18, minute=30, second = 0, microsecond = 0))) # Genera el registro de la solictud_detalle_circuito
-                    
+
                     cursor.execute(query_update_prestados, (int(circuito_data["cantidad"]) + int(circuito_data["prestados"]), ID))
-                    
+
             return jsonify({'nice':'nice!'})
         else:
             return jsonify({'error':'user'})
-        
+
     return jsonify({'error':'missing data!'})
+
+#Descarga excel gestion solicitudes circuitos
+@mod.route("/exportar_solicitudes_circuitos/<int:id_exportacion>",methods=["GET"])
+def exportar_inventario(id_exportacion):
+        if "usuario" not in session.keys():
+            return redirect("/")
+        if session["usuario"]["id_credencial"] != 3: # El usuario debe ser un administrador (Credencial = 3)
+            return redirect("/")
+
+            # 1: Equipos agrupados
+            # 2: Equipos separados
+            # 3: Circuitos
+
+        if id_exportacion == 1:
+            query = ('''
+            SELECT Detalle_solicitud_circuito.id AS 'ID de solicitud',
+                Detalle_solicitud_circuito.id_solicitud_circuito AS 'ID de detalle',
+                Usuario.rut AS 'RUT del solicitante',
+                CONCAT(Usuario.nombres," ",Usuario.apellidos) AS 'Nombre del solicitante',
+                Detalle_solicitud_circuito.id_circuito AS "Id circuito",
+                Circuito.nombre AS 'Circuito solicitado',
+                Detalle_solicitud_circuito.cantidad as "Cantidad",
+                Solicitud_circuito.fecha_registro AS 'Fecha de registro',
+                CASE WHEN Solicitud_circuito.id_curso_motivo = 0 THEN 'Personal'
+                    ELSE CONCAT(Curso.codigo_udp, ' ',Curso.nombre)
+                    END AS "Motivo"
+            FROM Detalle_solicitud_circuito
+                LEFT JOIN Solicitud_circuito
+                    ON Solicitud_circuito.id = Detalle_solicitud_circuito.id_solicitud_circuito
+                LEFT JOIN Usuario
+                    ON Usuario.rut = Solicitud_circuito.rut_alumno
+                LEFT JOIN Circuito
+                    ON Circuito.id = Detalle_solicitud_circuito.id_circuito
+                LEFT JOIN Curso
+                    ON Solicitud_circuito.id_curso_motivo = Curso.id
+            WHERE Detalle_solicitud_circuito.estado = 0
+             ''')
+            cursor.execute(query)
+            lista_detalles = cursor.fetchall()
+
+        elif id_exportacion == 2:
+            query = ('''
+            SELECT Detalle_solicitud_circuito.id AS 'ID de solicitud',
+                Detalle_solicitud_circuito.id_solicitud_circuito AS 'ID de detalle',
+                Usuario.rut AS 'RUT del solicitante',
+                CONCAT(Usuario.nombres," ",Usuario.apellidos) AS 'Nombre del solicitante',
+                Detalle_solicitud_circuito.id_circuito AS "Id circuito",
+                Circuito.nombre AS 'Circuito solicitado',
+                Detalle_solicitud_circuito.cantidad as "Cantidad",
+                Estado_detalle_solicitud.nombre AS "Estado",
+                Solicitud_circuito.fecha_registro AS 'Fecha de registro',
+                Detalle_solicitud_circuito.fecha_inicio AS'Fecha de inicio',
+                Detalle_solicitud_circuito.fecha_termino AS 'Fecha de término',
+                Detalle_solicitud_circuito.fecha_devolucion AS 'Fecha de devolución',
+                Detalle_solicitud_circuito.fecha_vencimiento AS 'Fecha de vencimiento',
+                Detalle_solicitud_circuito.renovaciones AS 'Cantidad de renovaciones',
+                CASE WHEN Solicitud_circuito.id_curso_motivo = 0 THEN 'Personal'
+                    ELSE CONCAT(Curso.codigo_udp, ' ',Curso.nombre)
+                    END AS "Motivo"
+            FROM Detalle_solicitud_circuito
+                LEFT JOIN Solicitud_circuito
+                    ON Solicitud_circuito.id = Detalle_solicitud_circuito.id_solicitud_circuito
+                LEFT JOIN Usuario
+                    ON Usuario.rut = Solicitud_circuito.rut_alumno
+                LEFT JOIN Circuito
+                    ON Circuito.id = Detalle_solicitud_circuito.id_circuito
+                LEFT JOIN Curso
+                    ON Solicitud_circuito.id_curso_motivo = Curso.id
+                LEFT JOIN Estado_detalle_solicitud
+                    ON Estado_detalle_solicitud.id = Detalle_solicitud_circuito.estado
+            WHERE Detalle_solicitud_circuito.estado IN (1,2,3)
+             ''')
+            cursor.execute(query)
+            lista_detalles = cursor.fetchall()
+
+        elif id_exportacion == 3:
+            query = ('''
+            SELECT Detalle_solicitud_circuito.id AS 'ID de solicitud',
+                Detalle_solicitud_circuito.id_solicitud_circuito AS 'ID de detalle',
+                Solicitud_circuito.rut_alumno AS "Rut solicitante",
+                CONCAT(Usuario.nombres," ",Usuario.apellidos) AS 'Nombre del solicitante',
+                Detalle_solicitud_circuito.id_circuito AS "Id circuito",
+                Circuito.nombre AS 'Circuito solicitado',
+                Detalle_solicitud_circuito.cantidad as "Cantidad",
+                Estado_detalle_solicitud.nombre AS Estado,
+                Solicitud_circuito.fecha_registro AS 'Fecha de registro',
+                Detalle_solicitud_circuito.fecha_inicio AS'Fecha de inicio',
+                Detalle_solicitud_circuito.fecha_termino AS 'Fecha de término',
+                Detalle_solicitud_circuito.fecha_devolucion AS 'Fecha de devolución',
+                Detalle_solicitud_circuito.fecha_vencimiento AS 'Fecha de vencimiento',
+                Detalle_solicitud_circuito.fecha_rechazo AS 'Fecha de rechazo',
+                Detalle_solicitud_circuito.fecha_cancelacion AS 'Fecha de cancelación',
+                Detalle_solicitud_circuito.renovaciones AS 'Cantidad de renovaciones',
+                CASE WHEN Solicitud_circuito.id_curso_motivo = 0 THEN 'Personal'
+                    ELSE CONCAT(Curso.codigo_udp, ' ',Curso.nombre)
+                    END AS Motivo
+            FROM Detalle_solicitud_circuito
+                LEFT JOIN Solicitud_circuito
+                    ON Solicitud_circuito.id = Detalle_solicitud_circuito.id_solicitud_circuito
+                LEFT JOIN Usuario
+                    ON Usuario.rut = Solicitud_circuito.rut_alumno
+                LEFT JOIN Circuito
+                    ON Circuito.id = Detalle_solicitud_circuito.id_circuito
+                LEFT JOIN Curso
+                    ON Solicitud_circuito.id_curso_motivo = Curso.id
+                LEFT JOIN Estado_detalle_solicitud
+                    ON Estado_detalle_solicitud.id = Detalle_solicitud_circuito.estado
+            WHERE Detalle_solicitud_circuito.estado NOT IN (0,1,2,3)
+             ''')
+            cursor.execute(query)
+            lista_detalles = cursor.fetchall()
+
+
+        wb = Workbook() # Instancia de libro Excel
+        ws = wb.active # Hoja activa para escribir
+        if id_exportacion == 1:
+            ws.title = "Sol. pendientes circuitos"
+            nombre_archivo = "circuitos_solicitudes_pendientes.xlsx"
+        elif id_exportacion == 2:
+            ws.title = "Sol. activas circuitos"
+            nombre_archivo = "circuitos_solicitudes_activas.xlsx"
+        else:
+            ws.title = "Historial sol. circuitos"
+            nombre_archivo = "circuitos_solicitudes_historial.xlsx"
+
+
+        borde_delgado = Border(
+            left=Side(border_style=BORDER_THIN, color='00000000'),
+            right=Side(border_style=BORDER_THIN, color='00000000'),
+            top=Side(border_style=BORDER_THIN, color='00000000'),
+            bottom=Side(border_style=BORDER_THIN, color='00000000'))
+
+        lista_columnas = []
+        if len(lista_detalles):
+            lista_columnas = [nombre_columna for nombre_columna in lista_detalles[0].keys()]
+        else:
+            return redirect(redirect_url())
+
+        for i in range(len(lista_columnas)):
+            celda = ws.cell(row=2,column=i+1)
+            celda.font = Font(bold=True,color="FFFFFF")
+            celda.border = borde_delgado
+            celda.fill = PatternFill("solid", fgColor="4D4D4D")
+            celda.alignment = Alignment(horizontal="left")
+            celda.value = lista_columnas[i]
+
+        # Se agregan los registros
+        index_row = 3
+        index_column = 1
+        for detalle in lista_detalles:
+            for key in detalle:
+                celda = ws.cell(row=index_row,column=index_column)
+                celda.value = detalle[key]
+                celda.border = borde_delgado
+                celda.alignment = Alignment(horizontal="left")
+                index_column += 1
+            index_column = 1
+            index_row += 1
+
+        # Ajuste automático de columnas en Excel
+        for column_cells in ws.columns:
+            length = max(len(str(cell.value)) for cell in column_cells)
+            ws.column_dimensions[column_cells[0].column_letter].width = length
+
+        direccion_archivo = os.path.normpath(os.path.join(BASE_DIR, "app/static/files/exportaciones/"+nombre_archivo))
+        wb.save(direccion_archivo)
+
+        return send_file(direccion_archivo,as_attachment=True)
