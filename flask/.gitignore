@@ -1,6 +1,6 @@
 __pycache__/
 app/routes/__pycache__/
 virtual_env/
-app/files/documentacion_softwares
-app/files/exportaciones
-app/files/cotizaciones_wishlist
+app/static/files/documentacion_softwares
+app/static/files/exportaciones
+app/static/files/cotizaciones_wishlist
