@@ -36,83 +36,85 @@ def consultar_cursos():
     
 @mod.route("/solicitudes_prestamos_circuitos")
 def solicitudes_prestamos_circuitos():
+    if 'usuario' not in session: # Protege la ruta si no esta logeado
+        return redirect('/')
     return render_template('solicitudes_prestamos_circuitos/preview.html',
                            lista_circuitos = consultar_lista_circuito(),
                            lista_cursos = consultar_cursos())
 
+@mod.route("/agregar_al_carro_circuito",methods=['POST']) # Ajax
+def agregar_al_carro_circuito():
+    if request.method == "POST" :
+        id_circuito = request.form["id_circuito"]
+        cantidad = request.form["cantidad"]
+        nombre = request.form["nombre_circuito"]
+        
+        if id_circuito and cantidad:
+            if 'carro_circuito' not in session: # si no hay carrito
+                session["carro_circuito"] = {}
+        
+            if id_circuito not in session["carro_circuito"].keys(): # Si el circuito no esta en el carro, lo agrega
+                session["carro_circuito"][id_circuito] = {} # Crea un diccionario carro = { id : {}}
+                session["carro_circuito"][id_circuito]['id'] = str(id_circuito) # carro = { id : {'id': 'id'}}
+                session["carro_circuito"][id_circuito]['cantidad'] = int(cantidad)  # carro = { id : {'id': str , 'cantidad' : int}}
+                session["carro_circuito"][id_circuito]['nombre'] = nombre #agrega el nombre
+                
+            else: # Si el circuito está en el carro, le suma la cantidad
+                session["carro_circuito"][id_circuito]['cantidad'] = int(cantidad)    
+                
+            return render_template("solicitudes_prestamos_circuitos/tablas/lista_carro_circuito.html")
+        
+        else:
+            return jsonify({'error':'missing data!'})
+        
+    return jsonify({'error':'missing data!'})
 
-
-@mod.route("/eliminar_carro_circuito",methods=['POST'])
+@mod.route("/eliminar_carro_circuito",methods=['POST']) # Ajax
 def eliminar_carro_circuito():
     if request.method == "POST":
         id_circuito = request.form["id_circuito"]
         del session["carro_circuito"][id_circuito]
         if len(session["carro_circuito"]) == 0:
             del session["carro_circuito"]
+            
         return render_template("solicitudes_prestamos_circuitos/tablas/lista_carro_circuito.html")
+    
     return jsonify({'error':'missing data!'})
 
 
-@mod.route("/vaciar_carro_circuito",methods=['POST'])
+@mod.route("/vaciar_carro_circuito",methods=['POST']) #Ajax
 def vaciar_carro_circuito():
     if request.method == "POST":
         del session["carro_circuito"]
         return render_template("solicitudes_prestamos_circuitos/tablas/lista_carro_circuito.html")
-    return jsonify({'error':'missing data!'})
-
-
-@mod.route("/agregar_al_carro_circuito",methods=['POST'])
-def agregar_al_carro_circuito():
-    if request.method == "POST":
-        id_circuito = request.form["id_circuito"]
-        cantidad = request.form["cantidad"]
-        nombre = request.form["nombre_circuito"]
-        if id_circuito and cantidad:
-            if 'carro_circuito' not in session: # si no hay carrito
-                session["carro_circuito"] = {}
-            
-            if id_circuito not in session["carro_circuito"].keys(): # Si el circuito no esta en el carro, lo agrega
-                session["carro_circuito"][id_circuito] = {} # Crea un diccionario carro = { id : {}}
-                session["carro_circuito"][id_circuito]['id'] = str(id_circuito) # carro = { id : {'id': 'id'}}
-                session["carro_circuito"][id_circuito]['cantidad'] = int(cantidad)  # carro = { id : {'id': str , 'cantidad' : int}}
-                session["carro_circuito"][id_circuito]['nombre'] = nombre #agrega el nombre
-            else: # Si el circuito está en el carro, le suma la cantidad
-                session["carro_circuito"][id_circuito]['cantidad'] = int(cantidad)    
-            return render_template("solicitudes_prestamos_circuitos/tablas/lista_carro_circuito.html")
-        else:
-            return jsonify({'error':'missing data!'})
     
     return jsonify({'error':'missing data!'})
+
+
+
 
 
 def generar_solicitud_alumno(rut_alumno, motivo, id_curso_motivo, rut_profesor): # funcion para generar la solicitud de circuitos
-    # generar Solicitud_circuito
     hora_registro = datetime.now()
-    query = ('''
-            INSERT INTO Solicitud_circuito (rut_alumno, motivo, id_curso_motivo, rut_profesor, fecha_registro)
-            VALUES (%s, %s, %s, %s,  %s)
-            ''')
-    cursor.execute(query,(rut_alumno,
-                          motivo,
-                          id_curso_motivo,
-                          rut_profesor,
-                          hora_registro))
+    query = ('''INSERT INTO Solicitud_circuito (rut_alumno, motivo, id_curso_motivo, rut_profesor, fecha_registro)
+                VALUES (%s, %s, %s, %s,  %s) ''') # Query para crear la solicitud general
+    cursor.execute(query,(rut_alumno, motivo, id_curso_motivo, rut_profesor, hora_registro))
     id_solicitud = cursor.lastrowid # Se obtiene el id de solicitud recién creada
     
-    db.commit()
-    query = (''' 
-             INSERT INTO Detalle_solicitud_circuito (id_solicitud_circuito, id_circuito, cantidad, estado)
-             VALUES (%s,%s,%s,0)
-             ''')
+    query = ('''INSERT INTO Detalle_solicitud_circuito (id_solicitud_circuito, id_circuito, cantidad, estado)
+                VALUES (%s,%s,%s,0) ''') # Query para generar el detalle de la solicitud
+    
     for ID,item in session["carro_circuito"].items():
-        cursor.execute(query,(id_solicitud,ID,item["cantidad"]))
-        db.commit()
+        cursor.execute(query, (id_solicitud, ID, item["cantidad"]))
+        
     return  
 
 
-@mod.route("/registrar_solicitud_circuito",methods=['POST'])
+@mod.route("/registrar_solicitud_circuito",methods=['POST']) # Ajax
 def registrar_solicitud_circuito():
-    if request.method == "POST":
+    if 'usuario' not in session: # Si no es administrador
+            return redirect('/')
+    if request.method == "POST":    
         datos_solicitud = request.form.to_dict()
         generar_solicitud_alumno(session["usuario"]["rut"],
                                  datos_solicitud["descripcion_motivo"],
@@ -318,7 +320,7 @@ def consultar_solcitudes_prestamos():
 def gestion_solicitudes_prestamos_circuitos():
     if 'usuario' not in session or session["usuario"]["id_credencial"] != 3: # Si no es administrador
         return redirect('/')
-    if 'carro_circuito_admin' in session:
+    if 'carro_circuito_admin' in session: # Si hau un carro para solicitud agil, lo borra
         del session["carro_circuito_admin"] 
     return render_template('vistas_gestion_solicitudes_circuitos/main.html',
                            lista_solicitudes_pendientes = consultar_solictudes_pendientes(),
@@ -328,99 +330,111 @@ def gestion_solicitudes_prestamos_circuitos():
                            lista_componentes = consultar_lista_circuito(),
                            lista_cursos = consultar_cursos())
     
+@mod.route("/gestion_solicitudes_prestamos_circuitos/aprobar_solcitud_detalle",methods=['POST']) # AJAX
+def gestion_aprobar_solicitud_detalle():
+    if request.method == "POST" and session["usuario"]["id_credencial"] == 3: # Si el metodo es POST y la sesion es nivel administrador
+        IDD = request.form["id_solicitud_detalle"]
+        fecha_vencimiento_solicitud = request.form["fecha_vencimiento_solicitud"]
+
+        fecha_vencimiento_solicitud = datetime.strptime(fecha_vencimiento_solicitud, "%Y-%m-%d") # Cambio el formato de la fecha
+        fecha_vencimiento_solicitud = str(fecha_vencimiento_solicitud.replace(hour=18, minute=30, second=0)) # Cambia la hora a las 18:30
+        
+        query = ('''SELECT Circuito.id,
+                        Circuito.dias_max_prestamo,
+                        Circuito.cantidad - Circuito.prestados AS disponibles,
+                        Circuito.prestados,
+                        Detalle_solicitud_circuito.cantidad AS solicitados
+                    FROM Circuito
+                    LEFT JOIN Detalle_solicitud_circuito
+                        ON Detalle_solicitud_circuito.id_circuito = Circuito.id
+                    WHERE Detalle_solicitud_circuito.id = %s''') # Query para consultar la informacion del componente antes de actualizar la solicitud
+        cursor.execute(query,(IDD,)) 
+        circuito_data = cursor.fetchone() # Guarda la informacion del componente
+        
+        if circuito_data == None: # Si no se encuentra informacion del componente envia el error
+            return jsonify({'error':'no existe componente'})
+        
+        elif int(circuito_data["solicitados"]) <= int(circuito_data["disponibles"]): # Comprueba que la disponibilidad del componente
+            cursor.execute('UPDATE Circuito SET prestados = %s WHERE id = %s;', (int(circuito_data["solicitados"]) + int(circuito_data["prestados"]),circuito_data["id"]))
+            cursor.execute('UPDATE Detalle_solicitud_circuito SET estado = 1, fecha_vencimiento = %s WHERE id = %s;',(fecha_vencimiento_solicitud, IDD))
+            
+            # Enviar correo
+            return jsonify({'sucess':'actualizado correctamente'})
+        
+        else:
+            return jsonify({'error':'no hay suficientes componentes!'})
+        
+    return jsonify({'error':'acceso denegado'})
 
 @mod.route("/gestion_solicitudes_prestamos_circuitos/borrar_solcitud_detalle",methods=['POST']) # AJAX
 def gestion_borrar_solicitud_detalle():
-    if request.method == "POST" :
+    if request.method == "POST" and session["usuario"]["id_credencial"] != 3:
         IDD = request.form["id_solicitud_detalle"]
         IDS = request.form["id_solicitud"]
-        query = ('''
-            DELETE FROM Detalle_solicitud_circuito
-            WHERE Detalle_solicitud_circuito.id = %s
-                ''') # borra la solicitud detalle circuit
+        
+        query = ('''DELETE FROM Detalle_solicitud_circuito
+                    WHERE Detalle_solicitud_circuito.id = %s''') # borra la solicitud detalle circuito
         cursor.execute(query,(IDD,))
-        db.commit()
-        query = ('''
-            SELECT * FROM Detalle_solicitud_circuito
-            WHERE Detalle_solicitud_circuito.id_solicitud_circuito = %s
-                ''') # consulta los elementos con esa ID solicutud
-        cursor.execute(query,(IDS,))
-        if len(cursor.fetchall()) < 1: # si de esa ID solicutud son < 1 los borra
-            query = ('''
-                DELETE FROM Solicitud_circuito
-                WHERE Solicitud_circuito.id = %s
-                    ''')
+        
+        query = ('''SELECT * FROM Detalle_solicitud_circuito
+                    WHERE Detalle_solicitud_circuito.id_solicitud_circuito = %s''') # consulta los elementos con esa ID solicutud
+        cursor.execute(query,(IDS,)) # consulta la solicitud
+        
+        if len(cursor.fetchall()) < 1: # si los resultados de esa ID solicitud son < 1 los borra
+            query = ('''DELETE FROM Solicitud_circuito
+                        WHERE Solicitud_circuito.id = %s''')
             cursor.execute(query,(IDS,))
-            db.commit()
         return jsonify({'nice':'nice!'})
+    
     return jsonify({'error':'missing data!'})
  
 
-@mod.route("/gestion_solicitudes_prestamos_circuitos/aprobar_solcitud_detalle",methods=['POST']) # AJAX
-def gestion_aprobar_solicitud_detalle():
-    if request.method == "POST" :
-        IDD = request.form["id_solicitud_detalle"]
-        query = ('''
-                SELECT Circuito.id,
-                    Circuito.dias_max_prestamo,
-                    Circuito.cantidad - Circuito.prestados AS disponibles,
-                    Circuito.prestados,
-                    Detalle_solicitud_circuito.cantidad AS solicitados
-                FROM Circuito
-                LEFT JOIN Detalle_solicitud_circuito
-                    ON Detalle_solicitud_circuito.id_circuito = Circuito.id
-                WHERE Detalle_solicitud_circuito.id = %s
-                 ''')
-        cursor.execute(query,(IDD,))
-        circuito_data = cursor.fetchone()
-
-        if circuito_data["disponibles"] >= circuito_data["solicitados"]:
-            cursor.execute('UPDATE Circuito SET prestados = %s WHERE id = %s;', (int(circuito_data["solicitados"]) + int(circuito_data["prestados"]),circuito_data["id"]))
-            db.commit()
-            vencimiento = datetime.now()+timedelta(days=7)
-            cursor.execute('UPDATE Detalle_solicitud_circuito SET estado = 1, fecha_vencimiento = %s WHERE id = %s;',(vencimiento.replace(hour=18, minute=30, second = 0, microsecond = 0), IDD))
-            db.commit()
-            return jsonify({'nice':'nice!'})
-        return jsonify({'error':'no hay suficientes componentes!'})
-    return jsonify({'error':'missing data!'})
 
 @mod.route("/gestion_solicitudes_prestamos_circuitos/rechazar_solicitud_detalle",methods=['POST']) # AJAX
 def rechazar_solcitud_detalle():
+    if 'usuario' not in session or session["usuario"]["id_credencial"] != 3: # Si no es administrador
+        return redirect('/')
     if request.method == 'POST':
         IDD = request.form["id_solicitud_detalle"]
         motivo = request.form["motivo"]
         cursor.execute('UPDATE Detalle_solicitud_circuito SET estado = 5, fecha_rechazo = %s, fecha_vencimiento = %s WHERE id = %s;',(datetime.now(), None,IDD))
-        db.commit()
+        # Enviar correo con el motivo
         return jsonify({'nice':'nice!'})
     return jsonify({'error':'missing data!'})
 
 @mod.route("/gestion_solicitudes_prestamos_circuitos/entregar_solicitud_detalle",methods=['POST']) # AJAX
 def entregar_solicitud_detalle():
-    if request.method == 'POST':
+    if request.method == 'POST' and session["usuario"]["id_credencial"] == 3:
         IDD = request.form["id_solicitud_detalle"]
-        query = ('''
-                SELECT Circuito.id,
-                    Circuito.dias_max_prestamo
-                FROM Circuito
-                RIGHT JOIN Detalle_solicitud_circuito
-                    ON Detalle_solicitud_circuito.id_circuito = Circuito.id
-                WHERE Detalle_solicitud_circuito.id = %s
-                 ''')
+        fecha_termino = request.form["fecha_devolucion_solicitud"]
+        fecha_inicio = datetime.now()
+        
+        print(IDD)
+        print(fecha_termino)
+        
+        query = ('''SELECT Circuito.id,
+                        Circuito.dias_max_prestamo
+                    FROM Circuito
+                    RIGHT JOIN Detalle_solicitud_circuito
+                        ON Detalle_solicitud_circuito.id_circuito = Circuito.id
+                    WHERE Detalle_solicitud_circuito.id = %s''')
         cursor.execute(query,(IDD,))
         circuito_data = cursor.fetchone()
-        fecha_inicio = datetime.now()
-        fecha_termino = datetime.now() + timedelta(days=int(circuito_data["dias_max_prestamo"]))
-        cursor.execute('''
-                    UPDATE Detalle_solicitud_circuito 
+        
+        if fecha_termino != '': # Si hay una fecha establecida
+            fecha_termino = datetime.strptime(fecha_termino, "%Y-%m-%d") # Cambia el formato de la fecha
+            fecha_termino = str(fecha_termino.replace(hour=18, minute=30, second=0)) # Cambia la hora a las 18:30
+        else: # Si no hay una fecha establecida
+            fecha_termino = datetime.now() + timedelta(days=int(circuito_data["dias_max_prestamo"])) # Establece la fecha de termino a los dias predeterminados del equipo
+            fecha_termino = str(fecha_termino.replace(hour=18, minute=30, second=0)) # Cambia la hora a las 18:30
+        query = ('''UPDATE Detalle_solicitud_circuito 
                     SET estado = 2,
                         fecha_inicio = %s,
                         fecha_termino = %s, 
                         fecha_vencimiento = %s
-                    WHERE id = %s;''',(fecha_inicio,
-                                       fecha_termino.replace(hour=18, minute=30, second = 0, microsecond = 0),
-                                       None,
-                                       IDD))
-        db.commit()
+                    WHERE id = %s;''')
+        cursor.execute(query,(fecha_inicio, fecha_termino, None, IDD))
+        # Enviar correo ?
         return jsonify({'nice':'nice!'})
     return jsonify({'error':'missing data!'})
 
@@ -428,6 +442,8 @@ def entregar_solicitud_detalle():
 
 @mod.route("/gestion_solicitudes_prestamos_circuitos/devolver_solicitud_detalle",methods=['POST']) # AJAX
 def devolver_solicitud_detalle():
+    if 'usuario' not in session or session["usuario"]["id_credencial"] != 3: # Si no es administrador
+        return redirect('/')
     if request.method == 'POST':
         IDD = request.form["id_solicitud_detalle"]
         fecha_devolucion = request.form["fecha_devolucion"]
@@ -462,6 +478,8 @@ def devolver_solicitud_detalle():
     
 @mod.route("/gestion_solicitudes_prestamos_circuitos/cancelar_activa_solicitud_detalle",methods=['POST']) # AJAX
 def cancelar_solicitud_detalle():
+    if 'usuario' not in session or session["usuario"]["id_credencial"] != 3: # Si no es administrador
+        return redirect('/')
     if request.method == 'POST':
         IDD = request.form["id_solicitud_detalle"]
         motivo = request.form["motivo"]
@@ -494,6 +512,8 @@ def cancelar_solicitud_detalle():
 
 @mod.route("/gestion_solicitudes_prestamos_circuitos/consultar_tabla_solicitud",methods=['POST']) # AJAX
 def consultar_tabla_solicitud():
+    if 'usuario' not in session or session["usuario"]["id_credencial"] != 3: # Si no es administrador
+        return redirect('/')
     if request.method == 'POST':
         IDS = request.form["id_solicitud"]
         return render_template('vistas_gestion_solicitudes_circuitos/tablas/sub_detalle.html',
@@ -503,8 +523,10 @@ def consultar_tabla_solicitud():
 
 
 
-@mod.route("/gestion_solicitudes_prestamos_circuitos/agregar_carro",methods=['POST'])
+@mod.route("/gestion_solicitudes_prestamos_circuitos/agregar_carro",methods=['POST']) # Ajax
 def gestion_agregar_carro():
+    if 'usuario' not in session or session["usuario"]["id_credencial"] != 3: # Si no es administrador
+        return redirect('/')
     if request.method == "POST":
         id_circuito = request.form["id_circuito"]
         disponibles = request.form["disponibles"]
@@ -529,8 +551,10 @@ def gestion_agregar_carro():
     return jsonify({'error':'missing data!'})
 
 
-@mod.route("/gestion_solicitudes_prestamos_circuitos/eliminar_carro",methods=['POST'])
+@mod.route("/gestion_solicitudes_prestamos_circuitos/eliminar_carro",methods=['POST']) # Ajax
 def gestion_eliminar_carro():
+    if 'usuario' not in session or session["usuario"]["id_credencial"] != 3: # Si no es administrador
+        return redirect('/')
     if request.method == "POST":
         id_circuito = request.form["id_circuito"]
         del session["carro_circuito_admin"][id_circuito]
@@ -542,6 +566,8 @@ def gestion_eliminar_carro():
 
 @mod.route("/gestion_solicitudes_prestamos_circuitos/actualizar_carro",methods=['POST'])
 def gestion_actualizar_carro():
+    if 'usuario' not in session or session["usuario"]["id_credencial"] != 3: # Si no es administrador
+        return redirect('/')
     if request.method == "POST":
         id_circuito = request.form["id_circuito"]
         cantidad = request.form["cantidad"]
@@ -581,6 +607,8 @@ def generar_solicitud_agil(rut_alumno, motivo, id_curso_motivo, rut_profesor): #
 
 @mod.route("/gestion_solicitudes_prestamos_circuitos/confirmar_solicitud_agil",methods=['POST']) # AJAX
 def confirmar_solicitud_agil():
+    if 'usuario' not in session or session["usuario"]["id_credencial"] != 3: # Si no es administrador
+        return redirect('/')
     if request.method == "POST":
         datos_solicitud = request.form.to_dict()
         fecha_registro = datetime.now()

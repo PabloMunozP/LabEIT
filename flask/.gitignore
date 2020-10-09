@@ -4,3 +4,5 @@ virtual_env/
 app/files/documentacion_softwares
 app/files/exportaciones
 app/files/cotizaciones_wishlist
+../env
+config.py
