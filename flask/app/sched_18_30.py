@@ -44,49 +44,6 @@ def enviar_correo_notificacion(archivo, str_asunto, correo_usuario):
         print(e)
 
 # ============= Funciones programadas ======================
-
-# Función para eliminar mensajes administrativos que cumplan con la fecha de eliminación indicada
-# Revisión a las 23:59 todos los días
-
-
-def revisar_mensajes_administrativos():
-    fecha_actual = datetime.now().replace(microsecond=0)
-    sql_query = """
-        DELETE FROM
-            Mensaje_administrativo
-                WHERE datediff(fecha_eliminacion,%s) <= 0
-    """
-    cursor.execute(sql_query, (fecha_actual,))
-
-# Función para eliminar tokens de passwords que hayan vencido (máx 1 día para usarlo)
-# Revisión a las 23:59 todos los días
-
-
-def revisar_tokens_password():
-    fecha_actual = datetime.now().replace(microsecond=0)
-
-    sql_query = """
-        DELETE FROM
-            Token_recuperacion_password
-                WHERE datediff(fecha_registro,%s) <= -1
-    """
-    cursor.execute(sql_query, (fecha_actual,))
-
-# Función para revisar los bloqueos de ip y eliminarlos en caso de que se cumplan las condiciones
-# (Se desbloquea al finalizar el día en el que fue bloqueado)
-# Revisión a las 23:59 todos los días
-
-
-def revisar_bloqueos_ips():
-    fecha_actual = datetime.now().replace(microsecond=0)
-
-    sql_query = """
-        DELETE FROM
-            Bloqueos_IP
-                WHERE datediff(fecha_bloqueo,%s) <= 0
-    """
-    cursor.execute(sql_query, (fecha_actual,))
-
 # Función para eliminar detalles de solicitudes aprobados que hayan cumplido con la fecha de vencimiento
 # Revisión a las 18:30 todos los días
 
@@ -239,18 +196,6 @@ def descontar_dias_sanciones():
     """
     cursor.execute(sql_query)
 
-
-def revisar_23_59():
-    # Eliminación de mensajes administrativos
-    revisar_mensajes_administrativos()
-
-    # Eliminación de tokens de password
-    revisar_tokens_password()
-
-    # Revisar bloqueos de IPs
-    revisar_bloqueos_ips()
-
-
 def revisar_18_30():
     # Eliminación de solicitudes vencidas
     eliminar_detalles_vencidos()
@@ -261,12 +206,9 @@ def revisar_18_30():
     # Se descuentan los días de sanciones de las sanciones inactivas
     descontar_dias_sanciones()
 
-
 if __name__ == "__main__":
-
-    # Se ejecutan las funciones
+    # Se ejecutan las funciones establecidas para las 18:30 (crontab)
     revisar_18_30()
-    revisar_23_59()
-
+    # Se cierra la conexión con la base de datos
     cursor.close()
     db.close()
