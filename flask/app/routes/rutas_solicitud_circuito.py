@@ -631,8 +631,8 @@ def exportar_inventario(id_exportacion):
 
         if id_exportacion == 1:
             query = ('''
-            SELECT Detalle_solicitud_circuito.id AS 'ID de solicitud',
-                Detalle_solicitud_circuito.id_solicitud_circuito AS 'ID de detalle',
+            SELECT Detalle_solicitud_circuito.id_solicitud_circuito AS 'ID de solicitud',
+                Detalle_solicitud_circuito.id AS 'ID de detalle',
                 Usuario.rut AS 'RUT del solicitante',
                 CONCAT(Usuario.nombres," ",Usuario.apellidos) AS 'Nombre del solicitante',
                 Detalle_solicitud_circuito.id_circuito AS "Id circuito",
@@ -652,14 +652,15 @@ def exportar_inventario(id_exportacion):
                 LEFT JOIN Curso
                     ON Solicitud_circuito.id_curso_motivo = Curso.id
             WHERE Detalle_solicitud_circuito.estado = 0
+            ORDER BY Detalle_solicitud_circuito.id_solicitud_circuito
              ''')
             cursor.execute(query)
             lista_detalles = cursor.fetchall()
 
         elif id_exportacion == 2:
             query = ('''
-            SELECT Detalle_solicitud_circuito.id AS 'ID de solicitud',
-                Detalle_solicitud_circuito.id_solicitud_circuito AS 'ID de detalle',
+            SELECT Detalle_solicitud_circuito.id_solicitud_circuito AS 'ID de solicitud',
+                Detalle_solicitud_circuito.id AS 'ID de detalle',
                 Usuario.rut AS 'RUT del solicitante',
                 CONCAT(Usuario.nombres," ",Usuario.apellidos) AS 'Nombre del solicitante',
                 Detalle_solicitud_circuito.id_circuito AS "Id circuito",
@@ -687,14 +688,15 @@ def exportar_inventario(id_exportacion):
                 LEFT JOIN Estado_detalle_solicitud
                     ON Estado_detalle_solicitud.id = Detalle_solicitud_circuito.estado
             WHERE Detalle_solicitud_circuito.estado IN (1,2,3)
+            ORDER BY Detalle_solicitud_circuito.id_solicitud_circuito
              ''')
             cursor.execute(query)
             lista_detalles = cursor.fetchall()
 
         elif id_exportacion == 3:
             query = ('''
-            SELECT Detalle_solicitud_circuito.id AS 'ID de solicitud',
-                Detalle_solicitud_circuito.id_solicitud_circuito AS 'ID de detalle',
+            SELECT Detalle_solicitud_circuito.id_solicitud_circuito AS 'ID de solicitud',
+                Detalle_solicitud_circuito.id AS 'ID de detalle',
                 Solicitud_circuito.rut_alumno AS "Rut solicitante",
                 CONCAT(Usuario.nombres," ",Usuario.apellidos) AS 'Nombre del solicitante',
                 Detalle_solicitud_circuito.id_circuito AS "Id circuito",
@@ -724,6 +726,7 @@ def exportar_inventario(id_exportacion):
                 LEFT JOIN Estado_detalle_solicitud
                     ON Estado_detalle_solicitud.id = Detalle_solicitud_circuito.estado
             WHERE Detalle_solicitud_circuito.estado NOT IN (0,1,2,3)
+            ORDER BY Detalle_solicitud_circuito.id_solicitud_circuito
              ''')
             cursor.execute(query)
             lista_detalles = cursor.fetchall()
