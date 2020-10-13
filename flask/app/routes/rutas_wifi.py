@@ -1,6 +1,6 @@
 from flask import Flask,Blueprint,render_template,request,redirect,url_for,flash,session,jsonify, make_response,send_file
 from flask_csv import send_csv
-from config import db,cursor,BASE_DIR
+from config import db,BASE_DIR
 import os,time,bcrypt
 from datetime import datetime
 import json
@@ -23,7 +23,9 @@ def consultar_datos_wifi():
         FROM Wifi
     '''
     )
-    cursor.execute(query)
+    #cursor.execute(query)
+    cursor = db.query(query,None)
+
     wifi = cursor.fetchone()
     return wifi
 
@@ -42,18 +44,22 @@ def editar_datos_wifi(informacion_a_actualizar):  # Query UPDATE
                 FROM Wifi
             '''
             )
-            cursor.execute(query)
+            #cursor.execute(query)
+            cursor = db.query(query,None)
+
             wifi = cursor.fetchone()
             if wifi is None:
                 query = ('''
                     INSERT INTO Wifi (ssid, bssid, password)
                     VALUES (%s, %s, %s);
                     ''')
-                cursor.execute(query,(
-                    informacion_a_actualizar['ssid'],
-                    informacion_a_actualizar['bssid'],
-                    informacion_a_actualizar['contraseña']))
-                db.commit()
+                #cursor.execute(query,(
+                #    informacion_a_actualizar['ssid'],
+                #    informacion_a_actualizar['bssid'],
+                #    informacion_a_actualizar['contraseña']))
+
+                db.query(query,(informacion_a_actualizar['ssid'],informacion_a_actualizar['bssid'],informacion_a_actualizar['contraseña']))
+
                 return "OK"
             else:
                 query = ('''
@@ -64,14 +70,15 @@ def editar_datos_wifi(informacion_a_actualizar):  # Query UPDATE
                         WHERE Wifi.ssid = %s
                         AND Wifi.bssid = %s
                         ''')
-                cursor.execute(query,(
-                informacion_a_actualizar['ssid'],
-                informacion_a_actualizar['bssid'],
-                informacion_a_actualizar['contraseña'],
-                informacion_a_actualizar['ssid_original'],
-                informacion_a_actualizar['bssid_original']
-                ))
-                db.commit()
+                #cursor.execute(query,(
+                #informacion_a_actualizar['ssid'],
+                #informacion_a_actualizar['bssid'],
+                #informacion_a_actualizar['contraseña'],
+                #informacion_a_actualizar['ssid_original'],
+                #informacion_a_actualizar['bssid_original']
+                #))
+
+                db.query(query,(informacion_a_actualizar['ssid'],informacion_a_actualizar['bssid'],informacion_a_actualizar['contraseña'],informacion_a_actualizar['ssid_original'],informacion_a_actualizar['bssid_original']))
                 return "OK"
 
 @mod.route('/modificar_wifi/actualizar', methods = ['POST'])

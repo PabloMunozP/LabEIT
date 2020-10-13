@@ -2,7 +2,6 @@ import os
 import time
 import bcrypt
 from email import encoders
-from config import db,cursor
 import json,requests,smtplib
 from email.mime.base import MIMEBase
 from email.mime.text import MIMEText

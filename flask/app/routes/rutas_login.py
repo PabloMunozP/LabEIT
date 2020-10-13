@@ -13,7 +13,7 @@ from email.mime.base import MIMEBase
 from email.mime.text import MIMEText
 from datetime import datetime, timedelta
 from .email_sender import enviar_correo_notificacion
-from config import db, cursor, BASE_DIR, ALLOWED_EXTENSIONS, MAX_CONTENT_LENGTH
+from config import db, BASE_DIR, ALLOWED_EXTENSIONS, MAX_CONTENT_LENGTH
 from flask import Flask, Blueprint, render_template, request, redirect, url_for, flash, session, jsonify, send_file
 
 mod = Blueprint("rutas_login", __name__)
@@ -35,7 +35,8 @@ def principal():
                 WHERE ip = %s
                 AND activo = 1
     """
-    cursor.execute(sql_query, (request.remote_addr,))
+    #cursor.execute(sql_query, (request.remote_addr,))
+    cursor = db.query(sql_query, (request.remote_addr,))
     registro_bloqueo_activo = bool(cursor.fetchone()["cantidad_bloqueos"])
 
     if registro_bloqueo_activo:
@@ -65,7 +66,8 @@ def iniciar_sesion():
             FROM Usuario
                 WHERE rut = %s
     """
-    cursor.execute(sql_query, (datos_solicitante["rut"],))
+    #cursor.execute(sql_query, (datos_solicitante["rut"],))
+    cursor = db.query(sql_query, (datos_solicitante["rut"],))
     # Se obtienen los datos asociados al rut ingresado en el formulario
     datos_usuario_registrado = cursor.fetchone()
 
@@ -87,7 +89,9 @@ def iniciar_sesion():
                 INSERT INTO Bloqueos_IP (ip,fecha_bloqueo)
                     VALUES (%s,%s)
             """
-            cursor.execute(sql_query, (request.remote_addr, fecha_bloqueo))
+            #cursor.execute(sql_query, (request.remote_addr, fecha_bloqueo))
+            db.query(sql_query, (request.remote_addr, fecha_bloqueo))
+
             del session["intentos_login"]
 
         return redirect("/")
@@ -115,7 +119,9 @@ def iniciar_sesion():
                 INSERT INTO Bloqueos_IP (ip,fecha_bloqueo)
                     VALUES (%s,%s)
             """
-            cursor.execute(sql_query, (request.remote_addr, fecha_bloqueo))
+            #cursor.execute(sql_query, (request.remote_addr, fecha_bloqueo))
+            db.query(sql_query, (request.remote_addr, fecha_bloqueo))
+
             del session["intentos_login"]
 
             # Se notifica el bloqueo de IP y el intento de acceso al correo del usuario
@@ -127,7 +133,9 @@ def iniciar_sesion():
                     FROM Usuario
                         WHERE rut = %s
             """
-            cursor.execute(sql_query, (datos_solicitante["rut"],))
+            #cursor.execute(sql_query, (datos_solicitante["rut"],))
+            cursor = db.query(sql_query, (datos_solicitante["rut"],))
+
             datos_usuario_cuenta = cursor.fetchone()
 
             if datos_usuario_cuenta is not None:
@@ -175,7 +183,9 @@ def iniciar_sesion():
                 WHERE rut_alumno = %s
                 AND activa = 1
     """
-    cursor.execute(sql_query, (session["usuario"]["rut"],))
+    #cursor.execute(sql_query, (session["usuario"]["rut"],))
+    cursor = db.query(sql_query, (session["usuario"]["rut"],))
+
     sancion_usuario = cursor.fetchone()
 
     if sancion_usuario is not None:
@@ -212,8 +222,10 @@ def enviar_recuperacion_password():
                 WHERE rut = %s
                 OR email = %s
     """
-    cursor.execute(
-        sql_query, (datos_recuperacion["identificacion_usuario"], datos_recuperacion["identificacion_usuario"]))
+    #cursor.execute(
+    #    sql_query, (datos_recuperacion["identificacion_usuario"], datos_recuperacion["identificacion_usuario"]))
+    cursor = db.query(sql_query, (datos_recuperacion["identificacion_usuario"], datos_recuperacion["identificacion_usuario"]))
+
     datos_usuario = cursor.fetchone()
 
     # Si el correo o el rut no se encuentran registrados, se alerta al usuario
@@ -236,7 +248,8 @@ def enviar_recuperacion_password():
         DELETE FROM Token_recuperacion_password
             WHERE rut_usuario = %s
     """
-    cursor.execute(sql_query, (datos_usuario["rut"],))
+    #cursor.execute(sql_query, (datos_usuario["rut"],))
+    db.query(sql_query, (datos_usuario["rut"],))
 
     # Se reemplazan los datos del usuario en el template a enviar vía correo
     archivo_html = archivo_html.replace(
@@ -252,7 +265,8 @@ def enviar_recuperacion_password():
             (token,rut_usuario,fecha_registro)
                 VALUES (%s,%s,%s)
     """
-    cursor.execute(sql_query, (str(token), datos_usuario["rut"], fecha_actual))
+    #cursor.execute(sql_query, (str(token), datos_usuario["rut"], fecha_actual))
+    db.query(sql_query, (str(token), datos_usuario["rut"], fecha_actual))
 
     # Se envía el correo electrónico al usuario solicitante
     enviar_correo_notificacion(
@@ -276,7 +290,9 @@ def restablecer_password(token):
             FROM Token_recuperacion_password
                 WHERE token = %s
     """
-    cursor.execute(sql_query, (token,))
+    #cursor.execute(sql_query, (token,))
+    cursor = db.query(sql_query, (token,))
+
     registro_token = cursor.fetchone()
 
     # En caso de que el token sea inválido, se redirecciona a la sección de recuperación de contraseña
@@ -289,7 +305,9 @@ def restablecer_password(token):
             FROM Usuario
                 WHERE rut = %s
     """
-    cursor.execute(sql_query, (registro_token["rut_usuario"],))
+    #cursor.execute(sql_query, (registro_token["rut_usuario"],))
+    cursor = db.query(sql_query, (registro_token["rut_usuario"],))
+
     registro_nombre_usuario = cursor.fetchone()
 
     if registro_nombre_usuario is not None:
@@ -313,7 +331,9 @@ def modificar_password_recuperacion():
             FROM Token_recuperacion_password
                 WHERE token_id = %s
     """
-    cursor.execute(sql_query, (int(datos_formulario["token_id"]),))
+    #cursor.execute(sql_query, (int(datos_formulario["token_id"]),))
+    cursor = db.query(sql_query, (int(datos_formulario["token_id"]),))
+
     datos_usuario = cursor.fetchone()
 
     # Si se ha obtenido un registro, se obtiene el rut
@@ -345,14 +365,16 @@ def modificar_password_recuperacion():
             SET contraseña = %s
                 WHERE rut = %s
     """
-    cursor.execute(sql_query, (hashpass.decode("UTF-8"), rut_usuario))
+    #cursor.execute(sql_query, (hashpass.decode("UTF-8"), rut_usuario))
+    db.query(sql_query, (hashpass.decode("UTF-8"), rut_usuario))
 
     # Se elimina el token generado de la base de datos
     sql_query = """
         DELETE FROM Token_recuperacion_password
             WHERE token_id = %s
     """
-    cursor.execute(sql_query, (int(datos_formulario["token_id"]),))
+    #cursor.execute(sql_query, (int(datos_formulario["token_id"]),))
+    db.query(sql_query, (int(datos_formulario["token_id"]),))
 
     # Se notifica el éxito al modificar la contraseña
     flash("contraseña-actualizada")
