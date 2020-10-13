@@ -2,7 +2,7 @@ import timeago
 from jinja2 import Environment
 from datetime import datetime,timedelta
 from openpyxl.styles.borders import Border, Side, BORDER_THIN
-from config import db,cursor,BASE_DIR,ALLOWED_EXTENSIONS,MAX_CONTENT_LENGTH
+from config import db,BASE_DIR,ALLOWED_EXTENSIONS,MAX_CONTENT_LENGTH
 from flask import Flask,Blueprint,render_template,request,redirect,url_for,flash,session,jsonify,send_file
 
 mod = Blueprint("rutas_mensajes_administrativos",__name__)
@@ -25,7 +25,9 @@ def mensajes_administrativos():
         SELECT * FROM Mensaje_administrativo
             ORDER BY fecha_registro DESC
     """
-    cursor.execute(sql_query)
+    #cursor.execute(sql_query)
+    cursor = db.query(sql_query,None)
+
     lista_mensajes_administrativos = cursor.fetchall()
 
     # Se obtiene el timeago para cada una de las fechas de registro de cada mensaje
@@ -54,7 +56,8 @@ def registrar_mensaje_administrativo():
             (titulo,mensaje,fecha_eliminacion,fecha_registro)
                 VALUES (%s,%s,%s,%s)
     """
-    cursor.execute(sql_query,(datos_formulario["titulo"],datos_formulario["mensaje"],datos_formulario["fecha_eliminacion"],datetime.now().replace(microsecond=0)))
+    #cursor.execute(sql_query,(datos_formulario["titulo"],datos_formulario["mensaje"],datos_formulario["fecha_eliminacion"],datetime.now().replace(microsecond=0)))
+    db.query(sql_query,(datos_formulario["titulo"],datos_formulario["mensaje"],datos_formulario["fecha_eliminacion"],datetime.now().replace(microsecond=0)))
 
     return redirect(redirect_url())
 
@@ -64,7 +67,8 @@ def eliminar_mensaje_administrativo(id_mensaje):
         DELETE FROM Mensaje_administrativo
             WHERE id = %s
     """
-    cursor.execute(sql_query,(id_mensaje,))
+    #cursor.execute(sql_query,(id_mensaje,))
+    db.query(sql_query,(id_mensaje,))
 
     flash("mensaje-borrado")
     return redirect(redirect_url())
@@ -87,7 +91,8 @@ def modificar_mensaje_administrativo(id_mensaje):
             SET titulo=%s,mensaje=%s,fecha_eliminacion=%s,fecha_actualizacion=%s
                 WHERE id=%s
     """
-    cursor.execute(sql_query,(datos_formulario["titulo"],datos_formulario["mensaje"],datos_formulario["fecha_eliminacion"],str(datetime.now()),id_mensaje))
+    #cursor.execute(sql_query,(datos_formulario["titulo"],datos_formulario["mensaje"],datos_formulario["fecha_eliminacion"],str(datetime.now()),id_mensaje))
+    db.query(sql_query,(datos_formulario["titulo"],datos_formulario["mensaje"],datos_formulario["fecha_eliminacion"],str(datetime.now()),id_mensaje))
 
     flash("mensaje-modificado")
     return redirect(redirect_url())

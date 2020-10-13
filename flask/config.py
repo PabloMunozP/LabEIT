@@ -1,5 +1,6 @@
 import os
-import mysql.connector
+#import mysql.connector
+from app import db_wrapper
 
 SEND_FILE_MAX_AGE_DEFAULT = 0
 MAX_CONTENT_LENGTH = 500 * 1024 * 1024  # 500mb máximos de largo de contenido
@@ -19,14 +20,22 @@ BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 #                            autocommit=True)
 #cursor = db.cursor(dictionary=True,buffered=True)
 #cursor.execute("SET NAMES utf8mb4;")
-db = mysql.connector.connect(user="root",
-                             passwd="@ProdLabEIT2020",
-                             host="localhost",
-                             port="3306",
-                             database="LabEITDB",
-                             autocommit=True)
-cursor = db.cursor(dictionary=True, buffered=True)
-cursor.execute("SET NAMES utf8mb4;")
+#db = mysql.connector.connect(user="root",
+#                             passwd="@ProdLabEIT2020",
+#                             host="localhost",
+#                             port="3306",
+#                             database="LabEITDB",
+#                             autocommit=True)
+#cursor = db.cursor(dictionary=True, buffered=True)
+#cursor.execute("SET NAMES utf8mb4;")
+
+db = db_wrapper.DB(user="root",
+                   passwd="@ProdLabEIT2020",
+                   host="localhost",
+                   port="3306",
+                   database="LabEITDB",
+                   autocommit=True)
+
 # -----------------------------------------------------------------------------
 
 # Configuraciones de archivos

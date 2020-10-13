@@ -1,5 +1,5 @@
 from flask import Flask,Blueprint,render_template,request,redirect,url_for,flash,session,jsonify
-from config import db,cursor
+from config import db
 from datetime import datetime,timedelta
 import os,time
 
@@ -22,7 +22,8 @@ def solicitudes_prestamos():
             FROM Sanciones
                 WHERE rut_alumno = %s
     """
-    cursor.execute(sql_query,(session["usuario"]["rut"],))
+    #cursor.execute(sql_query,(session["usuario"]["rut"],))
+    cursor = db.query(sql_query,(session["usuario"]["rut"],))
     sancion = cursor.fetchone()
 
     # Se obtiene la lista de detalles que se encuentran con sanción activa
@@ -35,7 +36,9 @@ def solicitudes_prestamos():
                 AND Solicitud.rut_alumno = %s
                 AND Detalle_solicitud.sancion_activa = 1
     """
-    cursor.execute(sql_query,(session["usuario"]["rut"],))
+    #cursor.execute(sql_query,(session["usuario"]["rut"],))
+    cursor = db.query(sql_query,(session["usuario"]["rut"],))
+
     lista_detalles_sancionados = cursor.fetchall()
 
     if sancion is not None:
@@ -51,7 +54,9 @@ def solicitudes_prestamos():
     sql_query = """
         SELECT * FROM Equipo
     """
-    cursor.execute(sql_query)
+    #cursor.execute(sql_query)
+    cursor = db.query(sql_query,None)
+
     lista_equipos = cursor.fetchall()
 
     for equipo in lista_equipos:
@@ -62,7 +67,9 @@ def solicitudes_prestamos():
                     WHERE codigo_equipo = %s
                     AND activo = 1
         """
-        cursor.execute(sql_query,(equipo["codigo"],))
+        #cursor.execute(sql_query,(equipo["codigo"],))
+        cursor = db.query(sql_query,(equipo["codigo"],))
+
         equipo["cantidad_total"] = cursor.fetchone()["cantidad_total"]
 
         if equipo["cantidad_total"] is None:
@@ -80,7 +87,9 @@ def solicitudes_prestamos():
                                 AND Equipo.codigo = %s
                     )
         """
-        cursor.execute(sql_query,(equipo["codigo"],equipo["codigo"]))
+        #cursor.execute(sql_query,(equipo["codigo"],equipo["codigo"]))
+        cursor = db.query(sql_query,(equipo["codigo"],equipo["codigo"]))
+        
         equipo["cantidad_equipos_prestados"] = cursor.fetchone()["cantidad_equipos_prestados"]
         if equipo["cantidad_equipos_prestados"] is None:
             equipo["cantidad_equipos_prestados"] = 0
@@ -102,7 +111,9 @@ def solicitudes_prestamos():
                 FROM Equipo
                     WHERE id = %s
         """
-        cursor.execute(sql_query,(pedido[0],))
+        #cursor.execute(sql_query,(pedido[0],))
+        cursor = db.query(sql_query,(pedido[0],))
+
         equipo = cursor.fetchone()
 
         if equipo is not None:
@@ -117,7 +128,9 @@ def solicitudes_prestamos():
                         FROM Curso
                             WHERE id = %s
                 """
-                cursor.execute(sql_query,(pedido[2],))
+                #cursor.execute(sql_query,(pedido[2],))
+                cursor = db.query(sql_query,(pedido[2],))
+
                 curso = cursor.fetchone()
 
                 if curso is not None:
@@ -131,7 +144,9 @@ def solicitudes_prestamos():
             FROM Curso
                 ORDER BY Curso.nombre
     """
-    cursor.execute(query)
+    #cursor.execute(query)
+    cursor = db.query(query,None)
+
     lista_cursos = cursor.fetchall()
 
     return render_template("/solicitudes_prestamos/solicitud_equipos.html",
@@ -167,7 +182,9 @@ def agregar_al_carro():
                 FROM Equipo
                     WHERE id = %s
         """
-        cursor.execute(sql_query,(pedido[0],))
+        #cursor.execute(sql_query,(pedido[0],))
+        cursor = db.query(sql_query,(pedido[0],))
+
         equipo = cursor.fetchone()
 
         if equipo is not None:
@@ -182,7 +199,9 @@ def agregar_al_carro():
                         FROM Curso
                             WHERE id = %s
                 """
-                cursor.execute(sql_query,(pedido[2],))
+                #cursor.execute(sql_query,(pedido[2],))
+                cursor = db.query(sql_query,(pedido[2],))
+
                 curso = cursor.fetchone()
 
                 if curso is not None:
@@ -219,7 +238,9 @@ def eliminar_del_carro():
                 FROM Equipo
                     WHERE id = %s
         """
-        cursor.execute(sql_query,(pedido[0],))
+        #cursor.execute(sql_query,(pedido[0],))
+        cursor = db.query(sql_query,(pedido[0],))
+
         equipo = cursor.fetchone()
 
         if equipo is not None:
@@ -234,7 +255,9 @@ def eliminar_del_carro():
                         FROM Curso
                             WHERE id = %s
                 """
-                cursor.execute(sql_query,(pedido[2],))
+                #cursor.execute(sql_query,(pedido[2],))
+                cursor = db.query(sql_query,(pedido[2],))
+
                 curso = cursor.fetchone()
 
                 if curso is not None:
@@ -256,7 +279,9 @@ def registrar_solicitud():
             INSERT INTO Solicitud (rut_alumno,fecha_registro)
                 VALUES (%s,%s)
         """
-        cursor.execute(sql_query,(session["usuario"]["rut"],fecha_registro))
+        #cursor.execute(sql_query,(session["usuario"]["rut"],fecha_registro))
+        cursor = db.query(sql_query,(session["usuario"]["rut"],fecha_registro))
+        
         id_solicitud = cursor.lastrowid # Se obtiene el id de solicitud recién creada
 
         # Se registran los detalles de solicitud por cada pedido (unitario)
@@ -269,7 +294,8 @@ def registrar_solicitud():
                     FROM Equipo
                         WHERE id = %s
             """
-            cursor.execute(sql_query,(pedido[0],))
+            #cursor.execute(sql_query,(pedido[0],))
+            cursor = db.query(sql_query,(pedido[0],))
             registro_equipo = cursor.fetchone()
 
             # Si no existe, se omite el detalle y se notifica
@@ -287,13 +313,15 @@ def registrar_solicitud():
                         INSERT INTO Detalle_solicitud (id_solicitud,id_equipo,id_curso_asociado,estado)
                             VALUES (%s,%s,%s,0)
                     """
-                    cursor.execute(sql_query,(id_solicitud,pedido[0],pedido[2]))
+                    #cursor.execute(sql_query,(id_solicitud,pedido[0],pedido[2]))
+                    db.query(sql_query,(id_solicitud,pedido[0],pedido[2]))
                 else:
                     sql_query = """
                         INSERT INTO Detalle_solicitud (id_solicitud,id_equipo,estado)
                             VALUES (%s,%s,0)
                     """
-                    cursor.execute(sql_query,(id_solicitud,pedido[0]))
+                    #cursor.execute(sql_query,(id_solicitud,pedido[0]))
+                    db.query(sql_query,(id_solicitud,pedido[0]))
                 
         # En caso de que no se haya podido registrar ningún detalle
         # se elimina el encabezado de solicitud
@@ -302,7 +330,9 @@ def registrar_solicitud():
                 FROM Detalle_solicitud
                     WHERE id_solicitud = %s
         """
-        cursor.execute(sql_query,(id_solicitud,))
+        #cursor.execute(sql_query,(id_solicitud,))
+        cursor = db.query(sql_query,(id_solicitud,))
+
         cantidad_detalles_generados = cursor.fetchone()
 
         if cantidad_detalles_generados is not None:
@@ -312,7 +342,9 @@ def registrar_solicitud():
                     DELETE FROM Solicitud
                         WHERE id = %s
                 """
-                cursor.execute(sql_query,(id_solicitud,))
+                #cursor.execute(sql_query,(id_solicitud,))
+                db.query(sql_query,(id_solicitud,))
+
                 flash("error-general-detalles") # Ningún detalle pudo ser registrado
         
         if error_equipo_inexistente:

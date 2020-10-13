@@ -1,5 +1,5 @@
 from flask import Flask,Blueprint,render_template,request,redirect,url_for,flash,session,jsonify, make_response,send_file
-from config import db,cursor,BASE_DIR
+from config import db,BASE_DIR
 import os, time, bcrypt
 import mysql.connector
 import rut_chile
@@ -22,7 +22,9 @@ def consultar_lista_circuito():
         SELECT *
         FROM Circuito
     ''')
-    cursor.execute(query)
+    #cursor.execute(query)
+    cursor = db.query(query,None)
+
     return cursor.fetchall()
 
 
@@ -33,7 +35,9 @@ def consultar_cursos():
             nombre
         FROM Curso
     ''')
-    cursor.execute(query)
+    #cursor.execute(query)
+    cursor = db.query(query,None)
+
     return cursor.fetchall()
 
 
@@ -95,21 +99,23 @@ def generar_solicitud_alumno(rut_alumno, motivo, id_curso_motivo, rut_profesor):
             INSERT INTO Solicitud_circuito (rut_alumno, motivo, id_curso_motivo, rut_profesor, fecha_registro)
             VALUES (%s, %s, %s, %s,  %s)
             ''')
-    cursor.execute(query,(rut_alumno,
-                          motivo,
-                          id_curso_motivo,
-                          rut_profesor,
-                          hora_registro))
+    #cursor.execute(query,(rut_alumno,
+    #                      motivo,
+    #                      id_curso_motivo,
+    #                      rut_profesor,
+    #                      hora_registro))
+    cursor = db.query(query,(rut_alumno,motivo,id_curso_motivo,rut_profesor,hora_registro))
+
     id_solicitud = cursor.lastrowid # Se obtiene el id de solicitud recién creada
 
-    db.commit()
+
     query = ('''
              INSERT INTO Detalle_solicitud_circuito (id_solicitud_circuito, id_circuito, cantidad, estado)
              VALUES (%s,%s,%s,0)
              ''')
     for ID,item in session["carro_circuito"].items():
-        cursor.execute(query,(id_solicitud,ID,item["cantidad"]))
-        db.commit()
+        #cursor.execute(query,(id_solicitud,ID,item["cantidad"]))
+        db.query(query,(id_solicitud,ID,item["cantidad"]))
     return
 
 
@@ -170,7 +176,9 @@ def consultar_solictudes_por_id(IDS):
                     ON Estado_detalle_solicitud.id = Detalle_solicitud_circuito.estado
             WHERE Solicitud_circuito.id = %s
              ''')
-    cursor.execute(query,(IDS,))
+    #cursor.execute(query,(IDS,))
+    cursor = db.query(query,(IDS,))
+
     return cursor.fetchall()
 
 def consultar_solictudes_pendientes():
@@ -205,7 +213,9 @@ def consultar_solictudes_pendientes():
                     ON Solicitud_circuito.id_curso_motivo = Curso.id
             WHERE Detalle_solicitud_circuito.estado = 0
              ''')
-    cursor.execute(query)
+    #cursor.execute(query)
+    cursor = db.query(query,None)
+
     return cursor.fetchall()
 
 def consultar_solictudes_activas():
@@ -247,7 +257,9 @@ def consultar_solictudes_activas():
                     ON Estado_detalle_solicitud.id = Detalle_solicitud_circuito.estado
             WHERE Detalle_solicitud_circuito.estado IN (1,2,3)
              ''')
-    cursor.execute(query)
+    #cursor.execute(query)
+    cursor = db.query(query,None)
+
     return cursor.fetchall()
 
 def consultar_solictudes_historial():
@@ -290,11 +302,13 @@ def consultar_solictudes_historial():
                     ON Estado_detalle_solicitud.id = Detalle_solicitud_circuito.estado
             WHERE Detalle_solicitud_circuito.estado NOT IN (0,1,2,3)
              ''')
-    cursor.execute(query)
+    #cursor.execute(query)
+    cursor = db.query(query,None)
+
     return cursor.fetchall()
 
 def consultar_solcitudes_prestamos():
-    cursor.execute('''
+    sql_query = ('''
                 SELECT Solicitud_circuito.id,
                     Solicitud_circuito.rut_alumno,
                     Solicitud_circuito.motivo,
@@ -315,6 +329,8 @@ def consultar_solcitudes_prestamos():
                     ON Solicitud_circuito.id_curso_motivo = Curso.id
                 GROUP BY Detalle_solicitud_circuito.id_solicitud_circuito
                    ''')
+    cursor = db.query(sql_query,None)
+
     return cursor.fetchall()
 
 @mod.route("/gestion_solicitudes_prestamos_circuitos")
@@ -341,20 +357,24 @@ def gestion_borrar_solicitud_detalle():
             DELETE FROM Detalle_solicitud_circuito
             WHERE Detalle_solicitud_circuito.id = %s
                 ''') # borra la solicitud detalle circuit
-        cursor.execute(query,(IDD,))
-        db.commit()
+        #cursor.execute(query,(IDD,))
+        db.query(query,(IDD,))
+
         query = ('''
             SELECT * FROM Detalle_solicitud_circuito
             WHERE Detalle_solicitud_circuito.id_solicitud_circuito = %s
                 ''') # consulta los elementos con esa ID solicutud
-        cursor.execute(query,(IDS,))
+        #cursor.execute(query,(IDS,))
+        cursor = db.query(query,(IDS,))
+
         if len(cursor.fetchall()) < 1: # si de esa ID solicutud son < 1 los borra
             query = ('''
                 DELETE FROM Solicitud_circuito
                 WHERE Solicitud_circuito.id = %s
                     ''')
-            cursor.execute(query,(IDS,))
-            db.commit()
+            #cursor.execute(query,(IDS,))
+            db.query(query,(IDS,))
+            
         return jsonify({'nice':'nice!'})
     return jsonify({'error':'missing data!'})
 
@@ -374,15 +394,20 @@ def gestion_aprobar_solicitud_detalle():
                     ON Detalle_solicitud_circuito.id_circuito = Circuito.id
                 WHERE Detalle_solicitud_circuito.id = %s
                  ''')
-        cursor.execute(query,(IDD,))
+        #cursor.execute(query,(IDD,))
+        cursor = db.query(query,(IDD,))
+
         circuito_data = cursor.fetchone()
 
         if circuito_data["disponibles"] >= circuito_data["solicitados"]:
-            cursor.execute('UPDATE Circuito SET prestados = %s WHERE id = %s;', (int(circuito_data["solicitados"]) + int(circuito_data["prestados"]),circuito_data["id"]))
-            db.commit()
+            #cursor.execute('UPDATE Circuito SET prestados = %s WHERE id = %s;', (int(circuito_data["solicitados"]) + int(circuito_data["prestados"]),circuito_data["id"]))
+            db.query('UPDATE Circuito SET prestados = %s WHERE id = %s;', (int(circuito_data["solicitados"]) + int(circuito_data["prestados"]),circuito_data["id"]))
+    
             vencimiento = datetime.now()+timedelta(days=7)
-            cursor.execute('UPDATE Detalle_solicitud_circuito SET estado = 1, fecha_vencimiento = %s WHERE id = %s;',(vencimiento.replace(hour=18, minute=30, second = 0, microsecond = 0), IDD))
-            db.commit()
+
+            #cursor.execute('UPDATE Detalle_solicitud_circuito SET estado = 1, fecha_vencimiento = %s WHERE id = %s;',(vencimiento.replace(hour=18, minute=30, second = 0, microsecond = 0), IDD))
+            db.query('UPDATE Detalle_solicitud_circuito SET estado = 1, fecha_vencimiento = %s WHERE id = %s;',(vencimiento.replace(hour=18, minute=30, second = 0, microsecond = 0), IDD))
+
             return jsonify({'nice':'nice!'})
         return jsonify({'error':'no hay suficientes componentes!'})
     return jsonify({'error':'missing data!'})
@@ -392,8 +417,9 @@ def rechazar_solcitud_detalle():
     if request.method == 'POST':
         IDD = request.form["id_solicitud_detalle"]
         motivo = request.form["motivo"]
-        cursor.execute('UPDATE Detalle_solicitud_circuito SET estado = 5, fecha_rechazo = %s, fecha_vencimiento = %s WHERE id = %s;',(datetime.now(), None,IDD))
-        db.commit()
+        #cursor.execute('UPDATE Detalle_solicitud_circuito SET estado = 5, fecha_rechazo = %s, fecha_vencimiento = %s WHERE id = %s;',(datetime.now(), None,IDD))
+        db.query('UPDATE Detalle_solicitud_circuito SET estado = 5, fecha_rechazo = %s, fecha_vencimiento = %s WHERE id = %s;',(datetime.now(), None,IDD))
+
         return jsonify({'nice':'nice!'})
     return jsonify({'error':'missing data!'})
 
@@ -409,11 +435,23 @@ def entregar_solicitud_detalle():
                     ON Detalle_solicitud_circuito.id_circuito = Circuito.id
                 WHERE Detalle_solicitud_circuito.id = %s
                  ''')
-        cursor.execute(query,(IDD,))
+        #cursor.execute(query,(IDD,))
+        cursor = db.query(query,(IDD,))
+
         circuito_data = cursor.fetchone()
         fecha_inicio = datetime.now()
         fecha_termino = datetime.now() + timedelta(days=int(circuito_data["dias_max_prestamo"]))
-        cursor.execute('''
+        #cursor.execute('''
+        #            UPDATE Detalle_solicitud_circuito
+        #            SET estado = 2,
+        #                fecha_inicio = %s,
+        #                fecha_termino = %s,
+        #                fecha_vencimiento = %s
+        #            WHERE id = %s;''',(fecha_inicio,
+        #                               fecha_termino.replace(hour=18, minute=30, second = 0, microsecond = 0),
+        #                               None,
+        #                               IDD))
+        db.query('''
                     UPDATE Detalle_solicitud_circuito
                     SET estado = 2,
                         fecha_inicio = %s,
@@ -423,7 +461,7 @@ def entregar_solicitud_detalle():
                                        fecha_termino.replace(hour=18, minute=30, second = 0, microsecond = 0),
                                        None,
                                        IDD))
-        db.commit()
+
         return jsonify({'nice':'nice!'})
     return jsonify({'error':'missing data!'})
 
@@ -443,7 +481,9 @@ def devolver_solicitud_detalle():
                     ON Detalle_solicitud_circuito.id_circuito = Circuito.id
                 WHERE Detalle_solicitud_circuito.id = %s
                  ''') # Query para obtener datos de la solicitud y componente
-        cursor.execute(query,(IDD,))
+        #cursor.execute(query,(IDD,))
+        cursor = db.query(query,(IDD,))
+
         circuito_data = cursor.fetchone()
         query = ('''
                 UPDATE Detalle_solicitud_circuito
@@ -452,12 +492,16 @@ def devolver_solicitud_detalle():
                     WHERE id = %s;
                 ''') # Actualiza la solicitud detalle como devuelto
         if fecha_devolucion == '': # Si en el formulario no hay una fecha designada
-            cursor.execute(query,(datetime.now(), # Le da fecha y hora actual
-                                  IDD))
+            #cursor.execute(query,(datetime.now(), # Le da fecha y hora actual
+            #                      IDD))
+            db.query(query,(datetime.now(),IDD))
         else:                      # Si en el formario hay una fecha designada
-            cursor.execute(query,(fecha_devolucion, # Usa la fecha del formulario
-                                  IDD))
-        cursor.execute('UPDATE Circuito SET Circuito.prestados = %s WHERE Circuito.id = %s',(int(circuito_data["prestados"])-int(circuito_data["solicitados"]),
+            #cursor.execute(query,(fecha_devolucion, # Usa la fecha del formulario
+            #                      IDD))
+            db.query(query,(fecha_devolucion,IDD))
+        #cursor.execute('UPDATE Circuito SET Circuito.prestados = %s WHERE Circuito.id = %s',(int(circuito_data["prestados"])-int(circuito_data["solicitados"]),
+        #                                                                                     circuito_data["id"]))
+        db.query('UPDATE Circuito SET Circuito.prestados = %s WHERE Circuito.id = %s',(int(circuito_data["prestados"])-int(circuito_data["solicitados"]),
                                                                                              circuito_data["id"]))
         # Actualiza los prestados = prestados - solicitados (los devuelve)
         return jsonify({'nice':'nice!'})
@@ -477,7 +521,9 @@ def cancelar_solicitud_detalle():
                     ON Detalle_solicitud_circuito.id_circuito = Circuito.id
                 WHERE Detalle_solicitud_circuito.id = %s
                  ''') # Query para obtener datos de la solicitud y componente
-        cursor.execute(query,(IDD,)) # Ejecuta la query
+        #cursor.execute(query,(IDD,)) # Ejecuta la query
+        cursor = db.query(query,(IDD,))
+
         circuito_data = cursor.fetchone() # Almacena el resutado
         query = ('''
                 UPDATE Detalle_solicitud_circuito
@@ -486,10 +532,17 @@ def cancelar_solicitud_detalle():
                         fecha_vencimiento = NULL
                     WHERE id = %s;
                 ''') # Actualiza la solicitud detalle como cancelada
-        cursor.execute(query,(datetime.now(),IDD)) # Establece la fecha para la solicitud
-        cursor.execute('UPDATE Circuito SET Circuito.prestados = %s WHERE Circuito.id = %s',
+        #cursor.execute(query,(datetime.now(),IDD)) # Establece la fecha para la solicitud
+        db.query(query,(datetime.now(),IDD))
+
+        #cursor.execute('UPDATE Circuito SET Circuito.prestados = %s WHERE Circuito.id = %s',
+        #               (int(circuito_data["prestados"])-int(circuito_data["solicitados"]),
+        #                circuito_data["id"])) # Actualiza los prestados = prestados - solicitados (los devuelve)
+        
+        db.query('UPDATE Circuito SET Circuito.prestados = %s WHERE Circuito.id = %s',
                        (int(circuito_data["prestados"])-int(circuito_data["solicitados"]),
                         circuito_data["id"])) # Actualiza los prestados = prestados - solicitados (los devuelve)
+        
         return jsonify({'nice':'nice!'})
     return jsonify({'error':'missing data!'})
 
@@ -564,21 +617,23 @@ def generar_solicitud_agil(rut_alumno, motivo, id_curso_motivo, rut_profesor): #
             INSERT INTO Solicitud_circuito (rut_alumno, motivo, id_curso_motivo, rut_profesor, fecha_registro)
             VALUES (%s, %s, %s, %s,  %s)
             ''')
-    cursor.execute(query,(rut_alumno,
-                          motivo,
-                          id_curso_motivo,
-                          rut_profesor,
-                          hora_registro))
+    #cursor.execute(query,(rut_alumno,
+    #                      motivo,
+    #                      id_curso_motivo,
+    #                      rut_profesor,
+    #                      hora_registro))
+    cursor = db.query(query,(rut_alumno,motivo,id_curso_motivo,rut_profesor,hora_registro))
+
     id_solicitud = cursor.lastrowid # Se obtiene el id de solicitud recién creada
 
-    db.commit()
     query = ('''
              INSERT INTO Detalle_solicitud_circuito (id_solicitud_circuito, id_circuito, cantidad, estado)
              VALUES (%s,%s,%s,0)
              ''')
     for ID,item in session["carro_circuito"].items():
-        cursor.execute(query,(id_solicitud,ID,item["cantidad"]))
-        db.commit()
+        #cursor.execute(query,(id_solicitud,ID,item["cantidad"]))
+        db.query(query,(id_solicitud,ID,item["cantidad"]))
+
     return
 
 
@@ -587,7 +642,9 @@ def confirmar_solicitud_agil():
     if request.method == "POST":
         datos_solicitud = request.form.to_dict()
         fecha_registro = datetime.now()
-        cursor.execute(''' SELECT rut FROM Usuario WHERE rut = %s''',(datos_solicitud['rut_usuario'],)) # Consulta para comprobar que el usuario existe
+        #cursor.execute(''' SELECT rut FROM Usuario WHERE rut = %s''',(datos_solicitud['rut_usuario'],)) # Consulta para comprobar que el usuario existe
+        cursor = db.query(''' SELECT rut FROM Usuario WHERE rut = %s''',(datos_solicitud['rut_usuario'],))
+        
         if len(cursor.fetchall()) > 0:
 
 
@@ -596,20 +653,26 @@ def confirmar_solicitud_agil():
             query_insert_detalle = ('''INSERT INTO Detalle_solicitud_circuito (id_solicitud_circuito, id_circuito, cantidad, estado, fecha_inicio, fecha_termino) VALUES (%s,%s,%s,2,%s,%s)''')
             query_update_prestados = ('UPDATE Circuito SET Circuito.prestados = %s WHERE Circuito.id = %s')
 
-            cursor.execute(query_insert_sol,(datos_solicitud['rut_usuario'],None,datos_solicitud['curso_id'],None,fecha_registro)) # Agrega la solictud a la base de dato
+            #cursor.execute(query_insert_sol,(datos_solicitud['rut_usuario'],None,datos_solicitud['curso_id'],None,fecha_registro)) # Agrega la solictud a la base de dato
+            cursor = db.query(query_insert_sol,(datos_solicitud['rut_usuario'],None,datos_solicitud['curso_id'],None,fecha_registro))
+            
             id_solicitud = cursor.lastrowid # Se obtiene el id de solicitud recién creada
 
 
             for ID,item in session["carro_circuito_admin"].items():
                 if item['cantidad'] > 0: # Si la cantidad solicitada es < 0 la registra
 
-                    cursor.execute(query_select_circuito_data,(ID,)) # Obtiene los datos del componente
+                    #cursor.execute(query_select_circuito_data,(ID,)) # Obtiene los datos del componente
+                    cursor = db.query(query_select_circuito_data,(ID,))
+                    
                     circuito_data = cursor.fetchone() # Almacena los datos del componente
 
                     fecha_termino = fecha_registro+timedelta(days=int(circuito_data["dias_max_prestamo"])) # Obtiene la fecha de termino
-                    cursor.execute( query_insert_detalle, (id_solicitud,ID,item["cantidad"],fecha_registro,fecha_termino.replace(hour=18, minute=30, second = 0, microsecond = 0))) # Genera el registro de la solictud_detalle_circuito
+                    #cursor.execute( query_insert_detalle, (id_solicitud,ID,item["cantidad"],fecha_registro,fecha_termino.replace(hour=18, minute=30, second = 0, microsecond = 0))) # Genera el registro de la solictud_detalle_circuito
+                    db.query(query_insert_detalle, (id_solicitud,ID,item["cantidad"],fecha_registro,fecha_termino.replace(hour=18, minute=30, second = 0, microsecond = 0)))
 
-                    cursor.execute(query_update_prestados, (int(circuito_data["cantidad"]) + int(circuito_data["prestados"]), ID))
+                    #cursor.execute(query_update_prestados, (int(circuito_data["cantidad"]) + int(circuito_data["prestados"]), ID))
+                    db.query(query_update_prestados, (int(circuito_data["cantidad"]) + int(circuito_data["prestados"]), ID))
 
             return jsonify({'nice':'nice!'})
         else:
@@ -654,7 +717,9 @@ def exportar_inventario(id_exportacion):
             WHERE Detalle_solicitud_circuito.estado = 0
             ORDER BY Detalle_solicitud_circuito.id_solicitud_circuito
              ''')
-            cursor.execute(query)
+            #cursor.execute(query)
+            cursor = db.query(query,None)
+
             lista_detalles = cursor.fetchall()
 
         elif id_exportacion == 2:
@@ -690,7 +755,9 @@ def exportar_inventario(id_exportacion):
             WHERE Detalle_solicitud_circuito.estado IN (1,2,3)
             ORDER BY Detalle_solicitud_circuito.id_solicitud_circuito
              ''')
-            cursor.execute(query)
+            #cursor.execute(query)
+            cursor = db.query(query,None)
+
             lista_detalles = cursor.fetchall()
 
         elif id_exportacion == 3:
@@ -728,7 +795,9 @@ def exportar_inventario(id_exportacion):
             WHERE Detalle_solicitud_circuito.estado NOT IN (0,1,2,3)
             ORDER BY Detalle_solicitud_circuito.id_solicitud_circuito
              ''')
-            cursor.execute(query)
+            #cursor.execute(query)
+            cursor = db.query(query,None)
+
             lista_detalles = cursor.fetchall()
 
 

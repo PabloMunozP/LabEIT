@@ -3,7 +3,7 @@ from jinja2 import Environment
 from datetime import datetime,timedelta
 from werkzeug.utils import secure_filename
 import os,time,bcrypt,random,timeago,shutil
-from config import db,cursor,BASE_DIR,ALLOWED_EXTENSIONS,MAX_CONTENT_LENGTH
+from config import db,BASE_DIR,ALLOWED_EXTENSIONS,MAX_CONTENT_LENGTH
 from flask import Flask,Blueprint,render_template,request,redirect,url_for,flash,session,jsonify,send_file
 
 mod = Blueprint("rutas_estadisticas_solicitudes",__name__)
@@ -29,7 +29,8 @@ def estadisticas_solicitudes():
             FROM Detalle_solicitud
                 WHERE estado = 0
     """
-    cursor.execute(sql_query)
+    #cursor.execute(sql_query)
+    cursor = db.query(sql_query,None)
     cantidades_solicitudes_estados["solicitudes_entrantes"] = cursor.fetchone()["cantidad_solicitudes_entrantes"]
 
     # Retiros pendientes de solicitudes aprobadas
@@ -38,7 +39,8 @@ def estadisticas_solicitudes():
             FROM Detalle_solicitud
                 WHERE estado = 1
     """
-    cursor.execute(sql_query)
+    #cursor.execute(sql_query)
+    cursor = db.query(sql_query,None)
     cantidades_solicitudes_estados["retiros_pendientes"] = cursor.fetchone()["cantidad_retiros_pendientes"]
 
     # Préstamos activos (en posesión)
@@ -47,7 +49,8 @@ def estadisticas_solicitudes():
             FROM Detalle_solicitud
                 WHERE estado = 2
     """
-    cursor.execute(sql_query)
+    #cursor.execute(sql_query)
+    cursor = db.query(sql_query,None)
     cantidades_solicitudes_estados["en_posesion"] = cursor.fetchone()["cantidad_en_posesion"]
 
     # Préstamos con atrasos
@@ -56,7 +59,8 @@ def estadisticas_solicitudes():
             FROM Detalle_solicitud
                 WHERE estado = 3
     """
-    cursor.execute(sql_query)
+    #cursor.execute(sql_query)
+    cursor = db.query(sql_query,None)
     cantidades_solicitudes_estados["con_atrasos"] = cursor.fetchone()["cantidad_con_atrasos"]
 
     # Préstamos finalizados (Se contabilizan los que se encuentran aún en estado 'devuelto')
@@ -66,7 +70,8 @@ def estadisticas_solicitudes():
                 WHERE estado = 4
                 OR estado = 6
     """
-    cursor.execute(sql_query)
+    #cursor.execute(sql_query)
+    cursor = db.query(sql_query,None)
     cantidades_solicitudes_estados["finalizados"] = cursor.fetchone()["cantidad_finalizados"]
 
     # Solicitudes rechazadas y canceladas
@@ -77,7 +82,8 @@ def estadisticas_solicitudes():
                 WHERE estado = 5
                 OR estado = 7
     """
-    cursor.execute(sql_query)
+    #cursor.execute(sql_query)
+    cursor = db.query(sql_query,None)
     cantidades_solicitudes_estados["rechazadas_canceladas"] = cursor.fetchone()["cantidad_rechazadas_canceladas"]
 
     # Se obtiene la lista de usuarios registrados
@@ -86,7 +92,8 @@ def estadisticas_solicitudes():
             FROM Usuario
                 ORDER BY apellidos,nombres
     """
-    cursor.execute(sql_query)
+    #cursor.execute(sql_query)
+    cursor = db.query(sql_query,None)
     lista_usuarios = cursor.fetchall()
 
     # Se obtiene la lista de asignaturas asociadas a los detalles de solicitud junto a su cantidad
@@ -96,7 +103,8 @@ def estadisticas_solicitudes():
                 FROM Curso
                     ORDER BY cantidad_detalles_asociados DESC
     """
-    cursor.execute(sql_query)
+    #cursor.execute(sql_query)
+    cursor = db.query(sql_query,None)
     lista_asignaturas_asociadas = cursor.fetchall()
 
     # Lista de asignaturas ordenadas alfabéticamente para elementos select html
@@ -105,7 +113,8 @@ def estadisticas_solicitudes():
             FROM Curso
                 ORDER BY Curso.nombre
     """
-    cursor.execute(sql_query)
+    #cursor.execute(sql_query)
+    cursor = db.query(sql_query,None)
     lista_asignaturas_registradas = cursor.fetchall()
 
     return render_template("/estadisticas/estadisticas_solicitudes.html",
@@ -147,7 +156,8 @@ def consultar_estadisticas_solicitudes():
             SELECT Equipo.id,Equipo.nombre,Equipo.marca,Equipo.modelo
                 FROM Equipo
         """
-        cursor.execute(sql_query)
+        #cursor.execute(sql_query)
+        cursor = db.query(sql_query,None)
         lista_equipos_registrados = cursor.fetchall()
 
         if not len(lista_equipos_registrados):
@@ -187,7 +197,8 @@ def consultar_estadisticas_solicitudes():
                     """
                     string_lista_ids = str(datos_formulario["ids_asignaturas_filtro"]).replace("[","(").replace("]",")")
                     sql_query = sql_query.format(string_lista_ids)
-                    cursor.execute(sql_query,(limite_inferior_iteracion,limite_superior_iteracion,equipo["id"]))
+                    #cursor.execute(sql_query,(limite_inferior_iteracion,limite_superior_iteracion,equipo["id"]))
+                    cursor = db.query(sql_query,(limite_inferior_iteracion,limite_superior_iteracion,equipo["id"]))
                     registro_cantidad = cursor.fetchone()
                 else:
                     sql_query = """
@@ -200,7 +211,8 @@ def consultar_estadisticas_solicitudes():
                             AND Equipo.id = %s
                             GROUP BY Equipo.id
                     """
-                    cursor.execute(sql_query,(limite_inferior_iteracion,limite_superior_iteracion,equipo["id"]))
+                    #cursor.execute(sql_query,(limite_inferior_iteracion,limite_superior_iteracion,equipo["id"]))
+                    cursor = db.query(sql_query,(limite_inferior_iteracion,limite_superior_iteracion,equipo["id"]))
                     registro_cantidad = cursor.fetchone()
 
                 if registro_cantidad is None:
@@ -231,7 +243,8 @@ def consultar_estadisticas_solicitudes():
             SELECT Estado_detalle_solicitud.id,Estado_detalle_solicitud.nombre
                 FROM Estado_detalle_solicitud
         """
-        cursor.execute(sql_query)
+        #cursor.execute(sql_query)
+        cursor = db.query(sql_query,None)
         lista_estados = cursor.fetchall()
 
         # Se obtienen los equipos según las fechas del formulario para categorías en el gráfico
@@ -244,7 +257,8 @@ def consultar_estadisticas_solicitudes():
                     AND Solicitud.fecha_registro <= %s
                     GROUP BY Equipo.id
         """
-        cursor.execute(sql_query,(datos_formulario["limite_inferior"],datos_formulario["limite_superior"]))
+        #cursor.execute(sql_query,(datos_formulario["limite_inferior"],datos_formulario["limite_superior"]))
+        cursor = db.query(sql_query,(datos_formulario["limite_inferior"],datos_formulario["limite_superior"]))
         lista_equipos = cursor.fetchall()
 
         if not len(lista_equipos):
@@ -283,7 +297,8 @@ def consultar_estadisticas_solicitudes():
                     """
                     string_lista_ids = str(datos_formulario["ids_asignaturas_filtro"]).replace("[","(").replace("]",")")
                     sql_query = sql_query.format(string_lista_ids)
-                    cursor.execute(sql_query,(datos_formulario["limite_inferior"],datos_formulario["limite_superior"],estado["id"],equipo["id"]))
+                    #cursor.execute(sql_query,(datos_formulario["limite_inferior"],datos_formulario["limite_superior"],estado["id"],equipo["id"]))
+                    cursor = db.query(sql_query,(datos_formulario["limite_inferior"],datos_formulario["limite_superior"],estado["id"],equipo["id"]))
                     cantidad_equipos = cursor.fetchone()
                 else:
                     sql_query = """
@@ -298,7 +313,8 @@ def consultar_estadisticas_solicitudes():
                                 AND Equipo.id = %s
                                 GROUP BY Equipo.id
                     """
-                    cursor.execute(sql_query,(datos_formulario["limite_inferior"],datos_formulario["limite_superior"],estado["id"],equipo["id"]))
+                    #cursor.execute(sql_query,(datos_formulario["limite_inferior"],datos_formulario["limite_superior"],estado["id"],equipo["id"]))
+                    cursor = db.query(sql_query,(datos_formulario["limite_inferior"],datos_formulario["limite_superior"],estado["id"],equipo["id"]))
                     cantidad_equipos = cursor.fetchone()
 
                 if cantidad_equipos is None:
