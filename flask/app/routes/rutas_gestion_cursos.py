@@ -1,5 +1,5 @@
 from flask import Flask,Blueprint,render_template,request,redirect,url_for,flash,session,jsonify
-from config import db,cursor
+from config import db
 from datetime import datetime,timedelta
 import os,time
 
@@ -24,7 +24,8 @@ def consultar_lista_cursos():
     SELECT *
         FROM Curso
     ''')
-    cursor.execute(query)
+    #cursor.execute(query)
+    cursor = db.query(query,None)
     cursos = cursor.fetchall()
     return cursos
 def consultar_lista_cursos_secciones():
@@ -39,7 +40,8 @@ def consultar_lista_cursos_secciones():
             FROM Seccion
             LEFT JOIN Curso ON Curso.id = Seccion.id_curso
     """)
-    cursor.execute(query)
+    #cursor.execute(query)
+    cursor = db.query(query,None)
     secciones = cursor.fetchall()
     return secciones
 
@@ -66,7 +68,8 @@ def consultar_curso(codigo):
             FROM Curso
             WHERE Curso.codigo_udp = %s
     ''')
-    cursor.execute(query,(codigo,))
+    #cursor.execute(query,(codigo,))
+    cursor = db.query(query,(codigo,))
     curso = cursor.fetchone()
     return curso
 
@@ -85,7 +88,8 @@ def consultar_curso_secciones(codigo):
             LEFT JOIN Usuario On Usuario.rut = Seccion.rut_profesor
             WHERE Curso.codigo_udp = %s
     ''')
-    cursor.execute(query,(codigo,))
+    #cursor.execute(query,(codigo,))
+    cursor = db.query(query,(codigo,))
     secciones = cursor.fetchall()
     return secciones
 
@@ -99,7 +103,8 @@ def consultar_profesores():
             FROM Usuario
             WHERE Usuario.id_credencial = 2 AND Usuario.activo = 1
     ''')
-    cursor.execute(query)
+    #cursor.execute(query)
+    cursor = db.query(query,None)
     profesores = cursor.fetchall()
     return profesores
 
@@ -121,11 +126,11 @@ def agregar_curso(val):
     INSERT INTO Curso (codigo_udp, nombre, descripcion)
     VALUES (%s, %s, %s);
     ''')
-    cursor.execute(query, (
-        val['codigo_udp'],
-        val['nombre'],
-        val['descripcion']))
-    db.commit()
+    #cursor.execute(query, (
+    #    val['codigo_udp'],
+    #    val['nombre'],
+    #    val['descripcion']))
+    db.query(query,(val['codigo_udp'],val['nombre'],val['descripcion']))
     return 'OK'
 
 @mod.route("/gestion_cursos/agregar_curso", methods = ['POST'])
@@ -146,18 +151,19 @@ def agregar_curso_seccion(val):
     INSERT INTO Seccion (id_curso, rut_profesor, codigo)
     VALUES (%s, %s, %s);
     ''')
-    cursor.execute(query, (
-        val['id_curso'],
-        val['rut_profesor'],
-        val['codigo']))
-    db.commit()
+    #cursor.execute(query, (
+    #    val['id_curso'],
+    #    val['rut_profesor'],
+    #    val['codigo']))
+    db.query(query,(val['id_curso'],val['rut_profesor'],val['codigo']))
     return 'OK'
 
 def redirigir_detalle(val):
     query = ('''
         SELECT codigo_udp FROM Curso WHERE Curso.id = %s
     ''')
-    cursor.execute(query, (val,))
+    #cursor.execute(query, (val,))
+    cursor = db.query(query,(val,))
     resultado = cursor.fetchone()
     return resultado
 
@@ -185,13 +191,13 @@ def editar_curso(val):
             descripcion = %s
         WHERE Curso.id = %s
     ''')
-    cursor.execute(query, (
-        val['codigo_udp'],
-        val['nombre'],
-        val['descripcion'],
-        val['id']
-        ))
-    db.commit()
+    #cursor.execute(query, (
+    #    val['codigo_udp'],
+    #    val['nombre'],
+    #    val['descripcion'],
+    #    val['id']
+    #    ))
+    db.query(query,(val['codigo_udp'],val['nombre'],val['descripcion'],val['id']))
     return val
 
 @mod.route('/gestion_cursos/editar_curso', methods = ['POST'])
@@ -209,13 +215,13 @@ def editar_curso_form():
                 Curso.descripcion = %s
             WHERE Curso.id = %s
         ''')
-        cursor.execute(query, (
-            val['nuevo_codigo_udp'],
-            val['nombre'],
-            val['descripcion'],
-            val['id']
-            ))
-        db.commit()
+        #cursor.execute(query, (
+        #    val['nuevo_codigo_udp'],
+        #    val['nombre'],
+        #    val['descripcion'],
+        #    val['id']
+        #    ))
+        db.query(query,(val['nuevo_codigo_udp'],val['nombre'],val['descripcion'],val['id']))
         flash("El curso se ha actualizado correctamente")
         #se redirige de vuelta a la pagina principal de gestion usuarios
         return redirect("/gestion_cursos")
@@ -245,12 +251,12 @@ def editar_seccion_form():
                 Seccion.codigo = %s
             WHERE Seccion.id = %s
         ''')
-        cursor.execute(query, (
-            val['rut_profesor'],
-            val['codigo_seccion'],
-            val['id']
-            ))
-        db.commit()
+        #cursor.execute(query, (
+        #    val['rut_profesor'],
+        #    val['codigo_seccion'],
+        #    val['id']
+        #    ))
+        db.query(query,(val['rut_profesor'],val['codigo_seccion'],val['id']))
         curso = redirigir_detalle(val["id_curso"])
         flash("La sección se ha actualizado correctamente")
         return redirect('/gestion_cursos/detalles_curso/'+curso['codigo_udp'])
@@ -267,10 +273,14 @@ def eliminar_curso(curso):
     query2 = ('''
         DELETE Curso FROM Curso WHERE Curso.id = %s
     ''')
-    cursor.execute(query0,(curso['id'],))
-    cursor.execute(query1,(curso['id'],))
-    cursor.execute(query2,(curso['id'],))
-    db.commit()
+    #cursor.execute(query0,(curso['id'],))
+    #cursor.execute(query1,(curso['id'],))
+    #cursor.execute(query2,(curso['id'],))
+
+    db.query(query0,(curso['id'],))
+    db.query(query1,(curso['id'],))
+    db.query(query2,(curso['id'],))
+
     return 'OK'
 
 @mod.route("/gestion_cursos/eliminar_curso",methods=["POST"])
@@ -290,7 +300,9 @@ def eliminar_curso_form():
                 SET id_curso_asociado = NULL
                     WHERE id_curso_asociado = %s
         """
-        cursor.execute(sql_query,(curso_por_eliminar["id"],))
+        #cursor.execute(sql_query,(curso_por_eliminar["id"],))
+
+        db.query(sql_query,(curso_por_eliminar["id"],))
 
         flash("El curso fue eliminado correctamente")
         return redirect("/gestion_cursos")
@@ -303,9 +315,12 @@ def eliminar_seccion(seccion):
     query2 = ('''
         DELETE Seccion FROM Seccion WHERE Seccion.id = %s
     ''')
-    cursor.execute(query1,(seccion['id'],))
-    cursor.execute(query2,(seccion['id'],))
-    db.commit()
+    #cursor.execute(query1,(seccion['id'],))
+    #cursor.execute(query2,(seccion['id'],))
+
+    db.query(query1,(seccion['id'],))
+    db.query(query2,(seccion['id'],))
+
     return 'OK'
 
 @mod.route("/gestion_cursos/eliminar_seccion",methods=["POST"])
@@ -327,7 +342,8 @@ def consultar_curso_descripcion(codigo_curso):
         FROM Curso
         WHERE Curso.codigo_udp = %s
     ''')
-    cursor.execute(query,(codigo_curso,))
+    #cursor.execute(query,(codigo_curso,))
+    cursor = db.query(query,(codigo_curso,))
     curso_detalle = cursor.fetchone()
     return curso_detalle
 @mod.route("/gestion_cursos/detalles_curso/<string:codigo_udp>",methods=["GET"])
@@ -347,7 +363,8 @@ def obtener_seccion_id(codigo_udp,codigo_seccion):
         LEFT JOIN Curso ON Curso.id = Seccion.id_curso
         WHERE Curso.codigo_udp = %s AND Seccion.codigo = %s
     ''')
-    cursor.execute(query,(codigo_udp,codigo_seccion,))
+    #cursor.execute(query,(codigo_udp,codigo_seccion,))
+    cursor = db.query(query,(codigo_udp,codigo_seccion,))
     seccion_id = cursor.fetchone()
     return seccion_id
 def consultar_alumnos_seccion(id_seccion):
@@ -364,7 +381,8 @@ def consultar_alumnos_seccion(id_seccion):
             LEFT JOIN Usuario ON Usuario.rut = Seccion_alumno.rut_alumno
             WHERE Seccion_alumno.id_seccion = %s
     ''')
-    cursor.execute(query,(id_seccion,))
+    #cursor.execute(query,(id_seccion,))
+    cursor = db.query(query,(id_seccion,))
     alumnos = cursor.fetchall()
     return alumnos
 
@@ -392,7 +410,8 @@ def consultar_alumnos(id_seccion):
             WHERE Usuario.id_credencial = 1 AND Usuario.activo = 1
             AND Usuario.rut NOT IN (SELECT Seccion_alumno.rut_alumno FROM Seccion_alumno WHERE Seccion_alumno.id_seccion=%s)
     ''')
-    cursor.execute(query,(id_seccion,))
+    #cursor.execute(query,(id_seccion,))
+    cursor = db.query(query,(id_seccion,))
     alumnos = cursor.fetchall()
     return alumnos
 
@@ -401,8 +420,10 @@ def agregar_alumno(val):
     INSERT INTO Seccion_alumno (id_seccion, rut_alumno)
     VALUES (%s,%s);
     ''')
-    cursor.execute(query, (val['id'],val['rut_alumno']))
-    db.commit()
+    #cursor.execute(query, (val['id'],val['rut_alumno']))
+
+    db.query(query, (val['id'],val['rut_alumno']))
+
     return 'OK'
 
 @mod.route("/gestion_cursos/agregar_alumno", methods = ['POST'])
@@ -424,7 +445,8 @@ def obtener_seccion(id):
         SELECT * FROM Seccion
         WHERE Seccion.id = %s
     ''')
-    cursor.execute(query,(id,))
+    #cursor.execute(query,(id,))
+    cursor = db.query(query,(id,))
     seccion = cursor.fetchone()
     return seccion
 def obtener_curso(id):
@@ -432,7 +454,8 @@ def obtener_curso(id):
         SELECT * FROM Curso
         WHERE Curso.id = %s
     ''')
-    cursor.execute(query,(id,))
+    #cursor.execute(query,(id,))
+    cursor = db.query(query,(id,))
     curso = cursor.fetchone()
     return curso
 @mod.route('/gestion_cursos/editar_alumno', methods = ['POST'])
@@ -448,12 +471,14 @@ def editar_alumno_form():
             SET Seccion_alumno.rut_alumno = %s
             WHERE Seccion_alumno.id_seccion = %s AND Seccion_alumno.rut_alumno = %s
         ''')
-        cursor.execute(query, (
-            val['rut_alumno'],
-            val['id'],
-            val['rut_original']
-            ))
-        db.commit()
+        #cursor.execute(query, (
+        #    val['rut_alumno'],
+        #    val['id'],
+        #    val['rut_original']
+        #    ))
+
+        db.query(query,(val['rut_alumno'],val['id'],val['rut_original']))
+
         seccion = obtener_seccion(val['id'])
         curso = obtener_curso(seccion['id_curso'])
         flash("El alumno se ha actualizado correctamente")
@@ -463,8 +488,10 @@ def eliminar_alumno(alumno):
     query = ('''
         DELETE Seccion_alumno FROM Seccion_alumno WHERE Seccion_alumno.rut_alumno = %s
     ''')
-    cursor.execute(query,(alumno['rut_alumno'],))
-    db.commit()
+    #cursor.execute(query,(alumno['rut_alumno'],))
+
+    db.query(query,(alumno['rut_alumno'],))
+
     return 'OK'
 
 @mod.route("/gestion_cursos/eliminar_alumno",methods=["POST"])
