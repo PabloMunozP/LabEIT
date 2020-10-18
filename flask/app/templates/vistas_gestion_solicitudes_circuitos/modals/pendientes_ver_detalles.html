@@ -200,7 +200,7 @@
             <div class="modal-footer">
                 <span class="btn-group flex-wrap">			
                     <button type="button" onclick="modal_rechazo_pendiente_detalle()" class="btn btn-danger mr-1 waves-effect waves-light" data-toggle="modal" data-target="#confirmacion_rechazo_solicitud"><i class="fas fa-times-circle mr-1"></i>Rechazar solicitud</button>
-                    <button type="button" id="btn_aprobar_pendiente_detalle" class="btn btn-success mr-1 waves-effect waves-light" onclick="pendiente_aprobar_solicitud()" data-toggle="modal" data-target="#confirmacion_aprobacion_solicitud"><i class="fas fa-clipboard-check mr-1"></i>Aprobar solicitud</button>
+                    <button type="button" id="btn_aprobar_pendiente_detalle" class="btn btn-success mr-1 waves-effect waves-light" onclick="modal_confirmar_solicutud_pendiente()"  data-toggle="modal" data-target="#confirmacion_aprobacion_solicitud"><i class="fas fa-clipboard-check mr-1"></i>Aprobar solicitud</button>
                     <button type="button" class="btn btn-danger mr-1 waves-effect waves-light" onclick="pendiente_eliminar_solicitud()"><i class="fas fa-minus-circle mr-1"></i>Eliminar solicitud</button>
                 </span>
             </div>
@@ -208,11 +208,71 @@
     </div>
 </div>
 
+
+<div class="modal fade" id="modal_confirmar_solicutud_pendiente" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-modal="true">    
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-gris-eit">
+            <h5 class="modal-title text-white"><i class="fas fa-question-circle mr-2"></i>Confirmación de aprobación de solicitud</h5>
+            <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close" style="outline:none;">
+                <span aria-hidden="true">×</span>
+            </button>
+            </div>
+            <form id="form_confirmar_fecha">
+                <div class="modal-body">
+                    <input type="text" hidden="" name="id_encabezado_solicitud" value="241">
+                    <input type="text" hidden="" name="codigo_equipo" value="AAD832">
+                    
+                    <p>La solicitud de préstamo será marcada automáticamente como <strong>aprobada</strong> y el usuario solicitante será notificado para retirar el equipo.</p>
+                    <p>Componente solicitado: <strong id="confirmar_componente_strong"></strong></p>
+                    <p>Cantidad: <strong id="confirmar_cantidad_strong"></strong></p>
+                    <div class="form-group">
+                        <label class="col-form-label">Seleccione la fecha de vencimiento de la solicitud:</label>
+                        <input type="date" required class="form-control" id="fecha_vencimiento_solicitud" name="fecha_vencimiento_solicitud" >
+                        <small class="form-text text-muted">El sistema eliminará automáticamente las solicitudes de préstamos de componentes que no hayan sido retirados al cumplirse la fecha de vencimiento.</small>
+                    </div>
+                    
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary waves-effect waves-light" data-dismiss="modal">Cerrar</button>
+                    <button type="submit" class="btn btn-success waves-effect waves-light" id="submit_pendiente_aprobar_solicitud">Confirmar</button>
+                    
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    function modal_confirmar_solicutud_pendiente(){
+        $("#modal_info_solicitud_pendiente").modal('toggle');
+        $("#modal_confirmar_solicutud_pendiente").modal("show");
+    }
+    $( document ).ready(function() {
+        var today = new Date();
+        var dd = today.getDate();
+        var mm = today.getMonth()+1; //January is 0!
+        var yyyy = today.getFullYear();
+        if(dd<10){
+            dd='0'+dd
+        }
+        if(mm<10){
+            mm='0'+mm
+        }
+
+        today = yyyy+'-'+mm+'-'+dd;
+        document.getElementById("fecha_vencimiento_solicitud").setAttribute("min", today);
+        document.getElementById("input_fecha_especifica_retiro").setAttribute("min", today);
+    });
+    
+</script>
+
+
 <input type="hidden" id="pendiente_id_solicitud_detalle" name="pendiente_id_solicitud_detalle">
 <input type="hidden" id="pendiente_id_solicitud" name="pendiente_id_solicitud">
 <script>
     function modal_ver_detalle_pendiente(elemento){
-        console.log(elemento)
         document.getElementById("modal_solicitudes_pendientes_fecha").textContent = elemento.fecha_registro;
         $('#pendiente_id_solicitud_detalle').val(elemento.IDD) ;
         $('#pendiente_id_solicitud').val(elemento.IDS),
@@ -231,6 +291,10 @@
         document.getElementById("modal_pendientes_dias_renovacion").textContent = elemento.dias_renovacion + ' día(s)';
         document.getElementById("modal_pendientes_curso").textContent = elemento.curso_motivo;
         document.getElementById("modal_pendientes_razon").textContent = elemento.motivo;
+
+        document.getElementById("confirmar_componente_strong").textContent = elemento.componente;
+        document.getElementById("confirmar_cantidad_strong").textContent = elemento.cantidad;
+        
         if(elemento.disponibles < elemento.cantidad){
             $('#btn_aprobar_pendiente_detalle').attr('disabled', true);
             document.getElementById("modal_pendientes_resultado").textContent = 'No hay suficientes unidades para prestar';
@@ -261,20 +325,30 @@
             });
           
     }
-    function pendiente_aprobar_solicitud(){
-        $.ajax({
-            data : {
-                id_solicitud_detalle: $('#pendiente_id_solicitud_detalle').val()
-            },
-            type : 'POST',
-            url : '/gestion_solicitudes_prestamos_circuitos/aprobar_solcitud_detalle'
-          }).done(function(data){
+    
+    $(document).ready(function(){
+        $('#form_confirmar_fecha').submit(function(e){
+
+            e.preventDefault();
+
+            $.ajax({
+                data : {
+                    id_solicitud_detalle: $('#pendiente_id_solicitud_detalle').val(),
+                    fecha_vencimiento_solicitud :  $('#fecha_vencimiento_solicitud').val()
+                },
+                type : 'POST',
+                url : '/gestion_solicitudes_prestamos_circuitos/aprobar_solcitud_detalle'
+            }).done(function(data){
                 if(data.error){
                     console.log('error');
                 }
-                else{
-                    window.location.reload();
+                else{window.location.reload();
                 }
             });
-    }
+
+        });
+        return false;
+
+    });
+
 </script>

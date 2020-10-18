@@ -7,12 +7,13 @@
             <span aria-hidden="true">×</span>
           </button>
         </div>
-        <form action="/eliminar_solicitud/480" method="post">
+        <form>
           <div class="modal-body">
             <p>La solicitud de préstamo será eliminada del sistema y se perderán todos los datos asociados a esta.</p>
             <p>Adicionalmente, las estadísticas de solicitudes podrían verse afectadas.</p>
-                <input type="hidden" id="HVgYxv" name="HVgYxv">
-                <input type="hidden" id="hzhENV" name="hzhENV">
+            
+            <input type="hidden" id="HVgYxv" name="HVgYxv">
+            <input type="hidden" id="hzhENV" name="hzhENV">
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary waves-effect waves-light" data-dismiss="modal">Cerrar</button>
@@ -30,7 +31,7 @@
 
 <script>
     function modal_borrar_solicitud_historial(){
-        $('#modal_borrar_solicitud_historial').modal('show')
+        $('#modal_borrar_solicitud_historial').modal('show');
     }
 
     function borrar_solicitud_historial(){

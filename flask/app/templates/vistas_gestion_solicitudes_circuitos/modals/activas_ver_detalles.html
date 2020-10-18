@@ -156,7 +156,7 @@
         <div class="col-md-4">
             <p class="form-control-plaintext text-break" id="modal_solicitudes_activas_componente"></p>
         </div>
-        <label class="col-md-2 col-form-label texto-gris-eit">
+        <!-- <label class="col-md-2 col-form-label texto-gris-eit">
             <strong>Stock:</strong>
         </label>
         <div class="col-md-4">
@@ -167,7 +167,7 @@
                 <br>
                 <strong id="modal_activas_resultado" style="color: #F31431;"></strong> 
             </p>
-        </div>
+        </div> -->
     </div>
 
     <div class="form-group row">
@@ -222,7 +222,7 @@
 
 <script>
     function modal_ver_detalle_activos(elemento){
-        console.log(elemento);
+
         document.getElementById("modal_solicitudes_activas_fecha").textContent = elemento.fecha_registro;
         $('#pendiente_id_solicitud_detalle').val(elemento.IDD) ;
         $('#pendiente_id_solicitud').val(elemento.IDS);
@@ -235,8 +235,10 @@
         document.getElementById("modal_solicitudes_activas_idcomponente").textContent = elemento.id_componente;
         document.getElementById("modal_solicitudes_activas_descripcion").textContent = elemento.descripcion;
         document.getElementById("modal_solicitudes_activas_cantidad").textContent = elemento.cantidad;
-        document.getElementById("modal_activas_disponibles").textContent = elemento.disponibles;
-        document.getElementById("modal_activas_total").textContent = elemento.total;
+
+        // document.getElementById("modal_activas_disponibles").textContent = elemento.disponibles;
+        // document.getElementById("modal_activas_total").textContent = elemento.total;
+
         document.getElementById("modal_activas_dias_max").textContent = elemento.dias_max_prestamo + ' día(s)';
         document.getElementById("modal_activas_dias_renovacion").textContent = elemento.dias_renovacion + ' día(s)';
         document.getElementById("modal_activas_curso").textContent = elemento.curso_motivo;
