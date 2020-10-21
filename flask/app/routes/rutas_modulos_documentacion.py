@@ -123,7 +123,7 @@ def eliminar_modulo(id_modulo):
     if data_modulo is None:
         # Si el registro se eliminó inesperadamente, se retorna a la lista.
         flash("error-inesperado")
-        return redirect(redirect_url())
+        return redirect("/documentacion_softwares")
     
     # Se construye la ruta según el nombre de la carpeta
     ruta_carpeta_modulo = os.path.normpath(os.path.join(os.getcwd(),"app/static/files/documentacion_softwares/"+data_modulo["nombre_carpeta"]))
@@ -241,7 +241,7 @@ def subir_documentacion_software(id_modulo):
         if data_modulo is None:
             # Si el registro se eliminó inesperadamente, se retorna a la lista.
             flash("error-inesperado")
-            return redirect(redirect_url())
+            return redirect("/documentacion_softwares")
 
         # Se obtiene la carpeta donde se encuentra registrada la documentación
         ruta_carpeta_documentos = os.path.normpath(os.path.join(os.getcwd(),"app/static/files/documentacion_softwares/"+data_modulo["nombre_carpeta"]))
@@ -289,7 +289,7 @@ def eliminar_archivo(id_archivo):
     if data_modulo_archivo is None:
         # Si el registro se eliminó inesperadamente, se retorna a la lista.
         flash("error-inesperado")
-        return redirect(redirect_url())
+        return redirect("/documentacion_softwares")
     
     # Se construye la ruta hacia el archivo
     ruta_archivo = os.path.normpath(os.path.join(os.getcwd(),"app/static/files/documentacion_softwares/"+data_modulo_archivo["nombre_carpeta"]+"/"+data_modulo_archivo["nombre_archivo"]))
@@ -330,7 +330,7 @@ def descargar_archivo_modulo(id_archivo):
     if datos_modulo is None:
             # Si el registro se eliminó inesperadamente, se retorna a la lista.
             flash("error-inesperado")
-            return redirect(redirect_url())
+            return redirect("/documentacion_softwares")
     
     # Se arma la ruta hacia el archivo
     ruta_archivo = os.path.normpath(os.path.join(os.getcwd(),"app/static/files/documentacion_softwares/"+datos_modulo["nombre_carpeta"]+"/"+datos_modulo["nombre_archivo"]))
@@ -338,7 +338,7 @@ def descargar_archivo_modulo(id_archivo):
     # Se verifica que el archivo exista, verificando la ruta
     if not os.path.exists(ruta_archivo):
         flash("error-inesperado")
-        return redirect(redirect_url())
+        return redirect("/documentacion_softwares")
     
     # Se envía el archivo
     return send_file(ruta_archivo,as_attachment=True)
@@ -361,7 +361,7 @@ def eliminar_archivos_modulo(id_modulo):
     if data_modulo is None:
         # Si el registro se eliminó inesperadamente, se retorna a la lista.
         flash("error-inesperado")
-        return redirect(redirect_url())
+        return redirect("/documentacion_softwares")
 
     # Se obtiene la lista de nombres de archivos registrados en el módulo
     sql_query = """
@@ -417,7 +417,7 @@ def visualizar_documento(id_archivo):
     if datos_archivo is None:
         # Si el registro se eliminó inesperadamente, se retorna a la lista.
         flash("error-inesperado")
-        return redirect(redirect_url())
+        return redirect("/documentacion_softwares")
     
     # Se obtiene la extensión del archivo
     datos_archivo["extension"] = os.path.splitext(datos_archivo["nombre"])[1]
