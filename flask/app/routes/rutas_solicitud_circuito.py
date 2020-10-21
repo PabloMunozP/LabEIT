@@ -690,3 +690,176 @@ def confirmar_solicitud_agil():
             session["flash"] = 'error-BDD'
             return jsonify({'error':'BDD'})
     return jsonify({'error':'missing data!'})
+
+@mod.route("/exportar_solicitudes_circuitos/<int:id_exportacion>",methods=["GET"])
+def exportar_inventario(id_exportacion):
+        if "usuario" not in session.keys():
+            return redirect("/")
+        if session["usuario"]["id_credencial"] != 3: # El usuario debe ser un administrador (Credencial = 3)
+            return redirect("/")
+
+            # 1: Equipos agrupados
+            # 2: Equipos separados
+            # 3: Circuitos
+
+        if id_exportacion == 1:
+            query = ('''
+            SELECT Detalle_solicitud_circuito.id_solicitud_circuito AS 'ID de solicitud',
+                Detalle_solicitud_circuito.id AS 'ID de detalle',
+                Usuario.rut AS 'RUT del solicitante',
+                CONCAT(Usuario.nombres," ",Usuario.apellidos) AS 'Nombre del solicitante',
+                Detalle_solicitud_circuito.id_circuito AS "Id circuito",
+                Circuito.nombre AS 'Circuito solicitado',
+                Detalle_solicitud_circuito.cantidad as "Cantidad",
+                Solicitud_circuito.fecha_registro AS 'Fecha de registro',
+                CASE WHEN Solicitud_circuito.id_curso_motivo = 0 THEN 'Personal'
+                    ELSE CONCAT(Curso.codigo_udp, ' ',Curso.nombre)
+                    END AS "Motivo"
+            FROM Detalle_solicitud_circuito
+                LEFT JOIN Solicitud_circuito
+                    ON Solicitud_circuito.id = Detalle_solicitud_circuito.id_solicitud_circuito
+                LEFT JOIN Usuario
+                    ON Usuario.rut = Solicitud_circuito.rut_alumno
+                LEFT JOIN Circuito
+                    ON Circuito.id = Detalle_solicitud_circuito.id_circuito
+                LEFT JOIN Curso
+                    ON Solicitud_circuito.id_curso_motivo = Curso.id
+            WHERE Detalle_solicitud_circuito.estado = 0
+            ORDER BY Detalle_solicitud_circuito.id_solicitud_circuito
+             ''')
+            #cursor.execute(query)
+            cursor = db.query(query,None)
+            lista_detalles = cursor.fetchall()
+
+        elif id_exportacion == 2:
+            query = ('''
+            SELECT Detalle_solicitud_circuito.id_solicitud_circuito AS 'ID de solicitud',
+                Detalle_solicitud_circuito.id AS 'ID de detalle',
+                Usuario.rut AS 'RUT del solicitante',
+                CONCAT(Usuario.nombres," ",Usuario.apellidos) AS 'Nombre del solicitante',
+                Detalle_solicitud_circuito.id_circuito AS "Id circuito",
+                Circuito.nombre AS 'Circuito solicitado',
+                Detalle_solicitud_circuito.cantidad as "Cantidad",
+                Estado_detalle_solicitud.nombre AS "Estado",
+                Solicitud_circuito.fecha_registro AS 'Fecha de registro',
+                Detalle_solicitud_circuito.fecha_inicio AS'Fecha de inicio',
+                Detalle_solicitud_circuito.fecha_termino AS 'Fecha de término',
+                Detalle_solicitud_circuito.fecha_devolucion AS 'Fecha de devolución',
+                Detalle_solicitud_circuito.fecha_vencimiento AS 'Fecha de vencimiento',
+                Detalle_solicitud_circuito.renovaciones AS 'Cantidad de renovaciones',
+                CASE WHEN Solicitud_circuito.id_curso_motivo = 0 THEN 'Personal'
+                    ELSE CONCAT(Curso.codigo_udp, ' ',Curso.nombre)
+                    END AS "Motivo"
+            FROM Detalle_solicitud_circuito
+                LEFT JOIN Solicitud_circuito
+                    ON Solicitud_circuito.id = Detalle_solicitud_circuito.id_solicitud_circuito
+                LEFT JOIN Usuario
+                    ON Usuario.rut = Solicitud_circuito.rut_alumno
+                LEFT JOIN Circuito
+                    ON Circuito.id = Detalle_solicitud_circuito.id_circuito
+                LEFT JOIN Curso
+                    ON Solicitud_circuito.id_curso_motivo = Curso.id
+                LEFT JOIN Estado_detalle_solicitud
+                    ON Estado_detalle_solicitud.id = Detalle_solicitud_circuito.estado
+            WHERE Detalle_solicitud_circuito.estado IN (1,2,3)
+            ORDER BY Detalle_solicitud_circuito.id_solicitud_circuito
+             ''')
+            #cursor.execute(query)
+            cursor = db.query(query,None)
+            lista_detalles = cursor.fetchall()
+
+        elif id_exportacion == 3:
+            query = ('''
+            SELECT Detalle_solicitud_circuito.id_solicitud_circuito AS 'ID de solicitud',
+                Detalle_solicitud_circuito.id AS 'ID de detalle',
+                Solicitud_circuito.rut_alumno AS "Rut solicitante",
+                CONCAT(Usuario.nombres," ",Usuario.apellidos) AS 'Nombre del solicitante',
+                Detalle_solicitud_circuito.id_circuito AS "Id circuito",
+                Circuito.nombre AS 'Circuito solicitado',
+                Detalle_solicitud_circuito.cantidad as "Cantidad",
+                Estado_detalle_solicitud.nombre AS Estado,
+                Solicitud_circuito.fecha_registro AS 'Fecha de registro',
+                Detalle_solicitud_circuito.fecha_inicio AS'Fecha de inicio',
+                Detalle_solicitud_circuito.fecha_termino AS 'Fecha de término',
+                Detalle_solicitud_circuito.fecha_devolucion AS 'Fecha de devolución',
+                Detalle_solicitud_circuito.fecha_vencimiento AS 'Fecha de vencimiento',
+                Detalle_solicitud_circuito.fecha_rechazo AS 'Fecha de rechazo',
+                Detalle_solicitud_circuito.fecha_cancelacion AS 'Fecha de cancelación',
+                Detalle_solicitud_circuito.renovaciones AS 'Cantidad de renovaciones',
+                CASE WHEN Solicitud_circuito.id_curso_motivo = 0 THEN 'Personal'
+                    ELSE CONCAT(Curso.codigo_udp, ' ',Curso.nombre)
+                    END AS Motivo
+            FROM Detalle_solicitud_circuito
+                LEFT JOIN Solicitud_circuito
+                    ON Solicitud_circuito.id = Detalle_solicitud_circuito.id_solicitud_circuito
+                LEFT JOIN Usuario
+                    ON Usuario.rut = Solicitud_circuito.rut_alumno
+                LEFT JOIN Circuito
+                    ON Circuito.id = Detalle_solicitud_circuito.id_circuito
+                LEFT JOIN Curso
+                    ON Solicitud_circuito.id_curso_motivo = Curso.id
+                LEFT JOIN Estado_detalle_solicitud
+                    ON Estado_detalle_solicitud.id = Detalle_solicitud_circuito.estado
+            WHERE Detalle_solicitud_circuito.estado NOT IN (0,1,2,3)
+            ORDER BY Detalle_solicitud_circuito.id_solicitud_circuito
+             ''')
+            #cursor.execute(query)
+            cursor = db.query(query,None)
+            lista_detalles = cursor.fetchall()
+
+
+        wb = Workbook() # Instancia de libro Excel
+        ws = wb.active # Hoja activa para escribir
+        if id_exportacion == 1:
+            ws.title = "Sol. pendientes circuitos"
+            nombre_archivo = "circuitos_solicitudes_pendientes.xlsx"
+        elif id_exportacion == 2:
+            ws.title = "Sol. activas circuitos"
+            nombre_archivo = "circuitos_solicitudes_activas.xlsx"
+        else:
+            ws.title = "Historial sol. circuitos"
+            nombre_archivo = "circuitos_solicitudes_historial.xlsx"
+
+
+        borde_delgado = Border(
+            left=Side(border_style=BORDER_THIN, color='00000000'),
+            right=Side(border_style=BORDER_THIN, color='00000000'),
+            top=Side(border_style=BORDER_THIN, color='00000000'),
+            bottom=Side(border_style=BORDER_THIN, color='00000000'))
+
+        lista_columnas = []
+        if len(lista_detalles):
+            lista_columnas = [nombre_columna for nombre_columna in lista_detalles[0].keys()]
+        else:
+            return redirect(redirect_url())
+
+        for i in range(len(lista_columnas)):
+            celda = ws.cell(row=2,column=i+1)
+            celda.font = Font(bold=True,color="FFFFFF")
+            celda.border = borde_delgado
+            celda.fill = PatternFill("solid", fgColor="4D4D4D")
+            celda.alignment = Alignment(horizontal="left")
+            celda.value = lista_columnas[i]
+
+        # Se agregan los registros
+        index_row = 3
+        index_column = 1
+        for detalle in lista_detalles:
+            for key in detalle:
+                celda = ws.cell(row=index_row,column=index_column)
+                celda.value = detalle[key]
+                celda.border = borde_delgado
+                celda.alignment = Alignment(horizontal="left")
+                index_column += 1
+            index_column = 1
+            index_row += 1
+
+        # Ajuste automático de columnas en Excel
+        for column_cells in ws.columns:
+            length = max(len(str(cell.value)) for cell in column_cells)
+            ws.column_dimensions[column_cells[0].column_letter].width = length
+
+        direccion_archivo = os.path.normpath(os.path.join(BASE_DIR, "app/static/files/exportaciones/"+nombre_archivo))
+        wb.save(direccion_archivo)
+
+        return send_file(direccion_archivo,as_attachment=True)
