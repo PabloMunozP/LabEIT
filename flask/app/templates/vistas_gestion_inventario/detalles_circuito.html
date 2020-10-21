@@ -78,5 +78,58 @@
 				</div>
 			</div>
 
+			<div class="card-header mt-2" style="background:#0db26b;">
+				<h5 class="card-title text-white my-auto">Lista de solicitudes de préstamos activas</h5>
+			</div>
+
+
+				<div class="table-responsive mt-2">
+					<div class="table-wrapper-scroll-y" style="position: relative;
+											max-height: 450px;
+											overflow:auto;">
+						<table class="table">
+							<thead class="text-white" style="background:#4D4D4D;">
+								<tr>
+									<th scope="col">RUT solicitante</th>
+									<th scope="col">Fecha de inicio</th>
+									<th scope="col">Fecha de término</th>
+									<th scope="col">Fecha de vencimiento</th>
+								</tr>
+							</thead>
+							<tbody>
+								{% for solicitud in circuito_prestamos %}
+									<tr style="background:#ECF0F1;">
+										<td>{{solicitud.rut}}</td>
+										<td>
+											{% if solicitud.fecha_inicio == None %}
+												Sin definir
+											{% else %}
+											{{solicitud.fecha_inicio}}
+											{% endif %}
+										</td>
+
+										<td>
+											{% if solicitud.fecha_termino == None %}
+												Sin definir
+											{% else %}
+											{{solicitud.fecha_termino}}
+											{% endif %}
+										</td>
+										<td>
+											{% if solicitud.fecha_vencimiento == None %}
+												Sin definir
+											{% else %}
+											{{solicitud.fecha_vencimiento}}
+											{% endif %}
+										</td>
+									</tr>
+								{% endfor %}
+							</tbody>
+						</table>
+					</div>
+				</div>
+
+</div>
+
 
 {% endblock %}

@@ -11,22 +11,22 @@ DEBUG = True
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 
 # ----------------------- Conexión a base de datos MySQL ------------------------------------------------------------
-# db = mysql.connector.connect(user="sql10342433",
-#                            passwd="fCQ6jJWFUY",
-#                            host="sql10.freemysqlhosting.net",
-#                            port="3306",
-#                            database="sql10342433",
-#                            autocommit=True)
-#cursor = db.cursor(dictionary=True,buffered=True)
-#cursor.execute("SET NAMES utf8mb4;")
-db = mysql.connector.connect(user="root",
-                             passwd="@ProdLabEIT2020",
-                             host="localhost",
-                             port="3306",
-                             database="LabEITDB",
-                             autocommit=True)
-cursor = db.cursor(dictionary=True, buffered=True)
+db = mysql.connector.connect(user="sql10342433",
+                            passwd="fCQ6jJWFUY",
+                            host="sql10.freemysqlhosting.net",
+                            port="3306",
+                            database="sql10342433",
+                            autocommit=True)
+cursor = db.cursor(dictionary=True,buffered=True)
 cursor.execute("SET NAMES utf8mb4;")
+#db = mysql.connector.connect(user="root",
+#                             passwd="@ProdLabEIT2020",
+#                             host="localhost",
+#                             port="3306",
+#                             database="LabEITDB",
+#                             autocommit=True)
+#cursor = db.cursor(dictionary=True, buffered=True)
+#cursor.execute("SET NAMES utf8mb4;")
 # -----------------------------------------------------------------------------
 
 # Configuraciones de archivos

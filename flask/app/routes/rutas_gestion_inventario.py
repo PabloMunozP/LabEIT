@@ -390,7 +390,7 @@ def validar_form_añadir_equipo_espeficio(codigo_equipo):
         informacion_a_insertar = request.form.to_dict()
         equipos = consultar_lista_equipos_detalle(codigo_equipo)
         for val in equipos:
-            if (val["codigo_sufijo"]==informacion_a_insertar["codigo_sufijo"]):
+            if (val["codigo_sufijo"]==informacion_a_insertar["codigo_sufijo"] or val["codigo_activo"]==informacion_a_insertar["codigo_activo"]):
                     flash("equipo-existente")
                     return redirect("/gestion_inventario_admin/lista_equipo_diferenciado/"+codigo_equipo)
         flash("equipo-agregado")
@@ -551,23 +551,67 @@ def funcion_eliminar_circuito():
 
 
 
-def consultar_circuito_especifico(nombre_circuito):
+def consultar_circuito_especifico(id_circuito):
     query = ('''
         SELECT *
         FROM Circuito
-        WHERE Circuito.nombre = %s
+        WHERE Circuito.id = %s
     '''
     )
-    cursor.execute(query,(nombre_circuito,))
+    cursor.execute(query,(id_circuito,))
     circuito = cursor.fetchone()
     return circuito
 
+def consultar_circuito_estado(id_circuito):
+    query = ('''
+            SELECT Detalle_solicitud_circuito.id AS IDD,
+                Detalle_solicitud_circuito.id_solicitud_circuito AS IDS,
+                Detalle_solicitud_circuito.cantidad,
+                Detalle_solicitud_circuito.id_circuito AS id_componente,
+                Detalle_solicitud_circuito.fecha_inicio,
+                Detalle_solicitud_circuito.fecha_termino,
+                Detalle_solicitud_circuito.fecha_vencimiento,
+                Detalle_solicitud_circuito.renovaciones,
+                Solicitud_circuito.fecha_registro,
+                Solicitud_circuito.rut_alumno AS rut,
+                Estado_detalle_solicitud.nombre AS estado,
+                CASE WHEN Solicitud_circuito.id_curso_motivo = 0 THEN 'Personal'
+                    ELSE CONCAT(Curso.codigo_udp, ' ',Curso.nombre)
+                    END AS curso_motivo,
+                Solicitud_circuito.motivo,
+                Usuario.nombres,
+                Usuario.apellidos,
+                Usuario.email,
+                Circuito.nombre as componente,
+                Circuito.cantidad - Circuito.prestados AS disponibles,
+                Circuito.cantidad AS total,
+                Circuito.dias_max_prestamo,
+                Circuito.dias_renovacion,
+                Circuito.descripcion
+            FROM Detalle_solicitud_circuito
+                LEFT JOIN Solicitud_circuito
+                    ON Solicitud_circuito.id = Detalle_solicitud_circuito.id_solicitud_circuito
+                LEFT JOIN Usuario
+                    ON Usuario.rut = Solicitud_circuito.rut_alumno
+                LEFT JOIN Circuito
+                    ON Circuito.id = Detalle_solicitud_circuito.id_circuito
+                LEFT JOIN Curso
+                    ON Solicitud_circuito.id_curso_motivo = Curso.id
+                LEFT JOIN Estado_detalle_solicitud
+                    ON Estado_detalle_solicitud.id = Detalle_solicitud_circuito.estado
+            WHERE Detalle_solicitud_circuito.estado IN (1,2,3)
+            AND Circuito.id = %s
+             ''')
+    cursor.execute(query,(id_circuito,))
+    return cursor.fetchall()
 
-@mod.route("/gestion_inventario_admin/detalles_circuito/<string:nombre_circuito>",methods=["GET"])
-def detalle_info_circuito(nombre_circuito):
-    circuito=consultar_circuito_especifico(nombre_circuito)
+
+@mod.route("/gestion_inventario_admin/detalles_circuito/<string:id_circuito>",methods=["GET"])
+def detalle_info_circuito(id_circuito):
+    circuito=consultar_circuito_especifico(id_circuito)
+    circuito_estado=consultar_circuito_estado(id_circuito)
     return render_template("/vistas_gestion_inventario/detalles_circuito.html",
-    circuito_descripcion=circuito)
+    circuito_descripcion=circuito, circuito_prestamos=circuito_estado)
 
 
 @mod.route("/exportar_inventario/<int:id_exportacion>",methods=["GET"])
@@ -582,21 +626,37 @@ def exportar_inventario(id_exportacion):
             # 3: Circuitos
 
         if id_exportacion == 1:
-            query = ('''
-                    SELECT
-                            Equipo.id AS equipo_id,
-                            Equipo.codigo as "Código equipo",
-                            Equipo.nombre as "Nombre",
-                            Equipo.modelo as "Modelo",
-                            Equipo.marca as "Marca",
-                            Equipo.dias_max_prestamo as "Días max de prestamo",
-                            Equipo.dias_renovacion as "Días para renovar",
-                            COUNT(CASE WHEN Equipo_diferenciado.activo = 1 THEN 1 ELSE NULL END) AS "Disponibles",
-                            COUNT(Equipo_diferenciado.activo) AS "Total equipos"
+            query =     ('''
+                        SELECT Equipo_id,
+                        Código_equipo,
+                        Nombre,
+                        Modelo,
+                        Marca,
+                        Días_de_prestamo,
+                        Días_para_renovar,
+                        COUNT(CASE WHEN Detalle_solicitud.estado IN (1, 2, 3) THEN 1
+                        ELSE NULL END) AS "Prestados",
+                        Funcional,
+                        Total
+                    FROM (SELECT
+                            Equipo.id AS Equipo_id,
+                            Equipo.codigo as Código_equipo,
+                            Equipo.nombre as Nombre,
+                            Equipo.modelo as Modelo,
+                            Equipo.marca as Marca,
+                            Equipo.descripcion,
+                            Equipo.dias_max_prestamo as Días_de_prestamo,
+                            Equipo.dias_renovacion as Días_para_renovar,
+                            Equipo.imagen,
+                            COUNT(CASE WHEN Equipo_diferenciado.activo = 1 THEN 1 ELSE NULL END) AS Funcional,
+                            COUNT(Equipo_diferenciado.activo) AS Total
                             FROM Equipo
-                            LEFT JOIN Equipo_diferenciado ON  Equipo.codigo = Equipo_diferenciado.codigo_equipo
-                        GROUP BY Equipo.id
-                    ''')
+                                LEFT JOIN Equipo_diferenciado ON  Equipo.codigo = Equipo_diferenciado.codigo_equipo
+                            GROUP BY Equipo.id) AS inventario_general
+                        LEFT JOIN Detalle_solicitud ON inventario_general.Equipo_id = Detalle_solicitud.id_equipo
+                    GROUP BY inventario_general.Equipo_id
+                    ORDER BY Código_equipo
+                        ''')
             cursor.execute(query)
             lista_detalles = cursor.fetchall()
 
@@ -605,7 +665,6 @@ def exportar_inventario(id_exportacion):
                 SELECT Equipo_diferenciado.id AS "ID equipo",
                     Equipo_diferenciado.codigo_equipo AS "Código equipo",
                     Equipo_diferenciado.codigo_sufijo AS "Código sufijo",
-                    Detalle_solicitud.codigo_sufijo_equipo as "Código sufijo equipo",
                     Equipo_diferenciado.codigo_activo AS "Código activo",
                     Equipo_diferenciado.fecha_compra AS "Fecha de compra",
                     Equipo.nombre AS "Nombre",
