@@ -2,7 +2,7 @@ from jinja2 import Environment
 from datetime import datetime,timedelta
 from werkzeug.utils import secure_filename
 import os,time,bcrypt,random,timeago,shutil
-from config import db,cursor,BASE_DIR,ALLOWED_EXTENSIONS,MAX_CONTENT_LENGTH
+from config import db,BASE_DIR,ALLOWED_EXTENSIONS,MAX_CONTENT_LENGTH
 from flask import Flask,Blueprint,render_template,request,redirect,url_for,flash,session,jsonify,send_file
 
 mod = Blueprint("rutas_modulos_documentacion",__name__)
@@ -46,7 +46,9 @@ def documentacion_softwares():
                 ORDER BY fecha_registro DESC
         """
 
-    cursor.execute(sql_query)
+    #cursor.execute(sql_query)
+    cursor = db.query(sql_query,None)
+
     lista_modulos = cursor.fetchall()
 
     # Se obtienen los archivos registrados para cada módulo
@@ -57,7 +59,9 @@ def documentacion_softwares():
                 FROM Documentacion_software
                     WHERE id_modulo = %s
         """
-        cursor.execute(sql_query,(modulo["id"],))
+        #cursor.execute(sql_query,(modulo["id"],))
+        cursor = db.query(sql_query,(modulo["id"],))
+
         lista_archivos[modulo["id"]] = cursor.fetchall()
     
     return render_template("/vistas_softwares/documentacion_softwares.html",
@@ -75,7 +79,9 @@ def registrar_modulo():
         INSERT INTO Modulo (titulo,descripcion,visible,fecha_registro)
             VALUES (%s,%s,%s,%s)
     """
-    cursor.execute(sql_query,(datos_formulario["titulo"],datos_formulario["descripcion"],datos_formulario["visible"],fecha_actual))
+    #cursor.execute(sql_query,(datos_formulario["titulo"],datos_formulario["descripcion"],datos_formulario["visible"],fecha_actual))
+    cursor = db.query(sql_query,(datos_formulario["titulo"],datos_formulario["descripcion"],datos_formulario["visible"],fecha_actual))
+    
     id_modulo = cursor.lastrowid
 
     # Se crea la sub-carpeta en la carpeta de documentación
@@ -95,7 +101,8 @@ def registrar_modulo():
                 SET nombre_carpeta = %s
                     WHERE id = %s
         """
-        cursor.execute(sql_query,(nombre_carpeta,id_modulo))
+        #cursor.execute(sql_query,(nombre_carpeta,id_modulo))
+        db.query(sql_query,(nombre_carpeta,id_modulo))
 
     flash("modulo-agregado")
     return redirect(redirect_url())
@@ -108,13 +115,15 @@ def eliminar_modulo(id_modulo):
             FROM Modulo
                 WHERE id = %s
     """
-    cursor.execute(sql_query,(id_modulo,))
+    #cursor.execute(sql_query,(id_modulo,))
+    cursor = db.query(sql_query,(id_modulo,))
+
     data_modulo = cursor.fetchone()
 
     if data_modulo is None:
         # Si el registro se eliminó inesperadamente, se retorna a la lista.
         flash("error-inesperado")
-        return redirect(redirect_url())
+        return redirect("/documentacion_softwares")
     
     # Se construye la ruta según el nombre de la carpeta
     ruta_carpeta_modulo = os.path.normpath(os.path.join(os.getcwd(),"app/static/files/documentacion_softwares/"+data_modulo["nombre_carpeta"]))
@@ -130,13 +139,15 @@ def eliminar_modulo(id_modulo):
         DELETE FROM Modulo
             WHERE id = %s
     """
-    cursor.execute(sql_query,(id_modulo,))
+    #cursor.execute(sql_query,(id_modulo,))
+    db.query(sql_query,(id_modulo,))
 
     sql_query = """
         DELETE FROM Documentacion_software
             WHERE id_modulo = %s
     """
-    cursor.execute(sql_query,(id_modulo,))
+    #cursor.execute(sql_query,(id_modulo,))
+    db.query(sql_query,(id_modulo,))
 
     flash("modulo-eliminado")
     return redirect(redirect_url())
@@ -151,7 +162,8 @@ def modificar_modulo(id_modulo):
             SET titulo=%s,descripcion=%s,visible=%s
                 WHERE id = %s
     """
-    cursor.execute(sql_query,(datos_form["titulo"],datos_form["descripcion"],datos_form["visible"],id_modulo))
+    #cursor.execute(sql_query,(datos_form["titulo"],datos_form["descripcion"],datos_form["visible"],id_modulo))
+    db.query(sql_query,(datos_form["titulo"],datos_form["descripcion"],datos_form["visible"],id_modulo))
 
     flash("modulo-modificado")
     return redirect(redirect_url())
@@ -205,7 +217,9 @@ def subir_documentacion_software(id_modulo):
                     WHERE nombre = %s
                     AND id_modulo = %s
         """
-        cursor.execute(sql_query,(nombre_archivo,id_modulo))
+        #cursor.execute(sql_query,(nombre_archivo,id_modulo))
+        cursor = db.query(sql_query,(nombre_archivo,id_modulo))
+
         registro_archivo = cursor.fetchone()
 
         if registro_archivo is not None:
@@ -219,13 +233,15 @@ def subir_documentacion_software(id_modulo):
                 FROM Modulo
                     WHERE id = %s
         """
-        cursor.execute(sql_query,(id_modulo,))
+        #cursor.execute(sql_query,(id_modulo,))
+        cursor = db.query(sql_query,(id_modulo,))
+
         data_modulo = cursor.fetchone()
 
         if data_modulo is None:
             # Si el registro se eliminó inesperadamente, se retorna a la lista.
             flash("error-inesperado")
-            return redirect(redirect_url())
+            return redirect("/documentacion_softwares")
 
         # Se obtiene la carpeta donde se encuentra registrada la documentación
         ruta_carpeta_documentos = os.path.normpath(os.path.join(os.getcwd(),"app/static/files/documentacion_softwares/"+data_modulo["nombre_carpeta"]))
@@ -239,7 +255,9 @@ def subir_documentacion_software(id_modulo):
                 INSERT INTO Documentacion_software (nombre,fecha_registro,id_modulo)
                     VALUES (%s,%s,%s)
             """
-            cursor.execute(sql_query,(nombre_archivo,fecha_registro,id_modulo))
+            #cursor.execute(sql_query,(nombre_archivo,fecha_registro,id_modulo))
+            db.query(sql_query,(nombre_archivo,fecha_registro,id_modulo))
+
             flash("archivo-agregado")
         else:
             flash("archivo-sobrescrito")
@@ -263,13 +281,15 @@ def eliminar_archivo(id_archivo):
                     WHERE Documentacion_software.id = %s
                     AND Documentacion_software.id_modulo = Modulo.id
     """
-    cursor.execute(sql_query,(id_archivo,))
+    #cursor.execute(sql_query,(id_archivo,))
+    cursor = db.query(sql_query,(id_archivo,))
+
     data_modulo_archivo = cursor.fetchone()
 
     if data_modulo_archivo is None:
         # Si el registro se eliminó inesperadamente, se retorna a la lista.
         flash("error-inesperado")
-        return redirect(redirect_url())
+        return redirect("/documentacion_softwares")
     
     # Se construye la ruta hacia el archivo
     ruta_archivo = os.path.normpath(os.path.join(os.getcwd(),"app/static/files/documentacion_softwares/"+data_modulo_archivo["nombre_carpeta"]+"/"+data_modulo_archivo["nombre_archivo"]))
@@ -284,7 +304,8 @@ def eliminar_archivo(id_archivo):
             DELETE FROM Documentacion_software
                 WHERE id = %s
         """
-        cursor.execute(sql_query,(id_archivo,))
+        #cursor.execute(sql_query,(id_archivo,))
+        db.query(sql_query,(id_archivo,))
     
     flash("archivo-eliminado")
     return redirect(redirect_url())
@@ -301,13 +322,15 @@ def descargar_archivo_modulo(id_archivo):
                 WHERE Documentacion_software.id_modulo = Modulo.id
                 AND Documentacion_software.id = %s
     """
-    cursor.execute(sql_query,(id_archivo,))
+    #cursor.execute(sql_query,(id_archivo,))
+    cursor = db.query(sql_query,(id_archivo,))
+
     datos_modulo = cursor.fetchone()
 
     if datos_modulo is None:
             # Si el registro se eliminó inesperadamente, se retorna a la lista.
             flash("error-inesperado")
-            return redirect(redirect_url())
+            return redirect("/documentacion_softwares")
     
     # Se arma la ruta hacia el archivo
     ruta_archivo = os.path.normpath(os.path.join(os.getcwd(),"app/static/files/documentacion_softwares/"+datos_modulo["nombre_carpeta"]+"/"+datos_modulo["nombre_archivo"]))
@@ -315,7 +338,7 @@ def descargar_archivo_modulo(id_archivo):
     # Se verifica que el archivo exista, verificando la ruta
     if not os.path.exists(ruta_archivo):
         flash("error-inesperado")
-        return redirect(redirect_url())
+        return redirect("/documentacion_softwares")
     
     # Se envía el archivo
     return send_file(ruta_archivo,as_attachment=True)
@@ -330,13 +353,15 @@ def eliminar_archivos_modulo(id_modulo):
             FROM Modulo
                 WHERE id = %s
     """
-    cursor.execute(sql_query,(id_modulo,))
+    #cursor.execute(sql_query,(id_modulo,))
+    cursor = db.query(sql_query,(id_modulo,))
+
     data_modulo = cursor.fetchone()
 
     if data_modulo is None:
         # Si el registro se eliminó inesperadamente, se retorna a la lista.
         flash("error-inesperado")
-        return redirect(redirect_url())
+        return redirect("/documentacion_softwares")
 
     # Se obtiene la lista de nombres de archivos registrados en el módulo
     sql_query = """
@@ -344,7 +369,9 @@ def eliminar_archivos_modulo(id_modulo):
             FROM Documentacion_software
                 WHERE id_modulo = %s
     """
-    cursor.execute(sql_query,(id_modulo,))
+    #cursor.execute(sql_query,(id_modulo,))
+    cursor = db.query(sql_query,(id_modulo,))
+
     lista_nombres_archivos = cursor.fetchall()
 
     # Se elimina cada uno de los archivos si existen en la carpeta
@@ -364,7 +391,8 @@ def eliminar_archivos_modulo(id_modulo):
         DELETE FROM Documentacion_software
             WHERE id_modulo = %s
     """
-    cursor.execute(sql_query,(id_modulo,))
+    #cursor.execute(sql_query,(id_modulo,))
+    db.query(sql_query,(id_modulo,))
 
     flash("archivos-modulo-eliminados")
     return redirect(redirect_url())
@@ -381,13 +409,15 @@ def visualizar_documento(id_archivo):
                 WHERE Documentacion_software.id = %s
                 AND Modulo.id = Documentacion_software.id_modulo
     """
-    cursor.execute(sql_query,(id_archivo,))
+    #cursor.execute(sql_query,(id_archivo,))
+    cursor = db.query(sql_query,(id_archivo,))
+
     datos_archivo = cursor.fetchone()
 
     if datos_archivo is None:
         # Si el registro se eliminó inesperadamente, se retorna a la lista.
         flash("error-inesperado")
-        return redirect(redirect_url())
+        return redirect("/documentacion_softwares")
     
     # Se obtiene la extensión del archivo
     datos_archivo["extension"] = os.path.splitext(datos_archivo["nombre"])[1]

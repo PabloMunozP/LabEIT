@@ -1,5 +1,5 @@
 from flask import Flask,Blueprint,render_template,request,redirect,url_for,flash,session,jsonify,send_from_directory
-from config import db,cursor, BASE_DIR
+from config import db, BASE_DIR
 from werkzeug.utils import secure_filename
 import os, time, bcrypt, timeago
 import mysql.connector
@@ -44,7 +44,9 @@ def consultar_solicitudes(rut): # Query para poder consultar las solicitudes
             LEFT JOIN Usuario AS Usuario_profesor ON Usuario_profesor.rut = Solicitud.rut_profesor
             WHERE Solicitud.rut_alumno = %s
         ''')
-    cursor.execute(query,(rut,))
+    #cursor.execute(query,(rut,))
+    cursor = db.query(query,(rut,))
+
     query_solicitud = cursor.fetchall()
     return query_solicitud
 
@@ -71,7 +73,9 @@ def consultar_equipos_por_id_solicitudes(list_id_solicitudes): # Query para cons
         LEFT JOIN Estado_detalle_solicitud ON Estado_detalle_solicitud.id = Detalle_solicitud.estado
         WHERE Detalle_solicitud.id_solicitud IN (%s)
     ''' % format_strings)
-    cursor.execute(query,tuple(list_id_solicitudes))
+    #cursor.execute(query,tuple(list_id_solicitudes))
+    cursor = db.query(query,tuple(list_id_solicitudes))
+
     query_resultado = cursor.fetchall()
     return query_resultado
 
@@ -95,7 +99,9 @@ def consultar_informacion_perfil(rut_perfil): # Query para consultar la informac
             ON Credencial.id = Usuario.id_credencial
             WHERE rut = %s
         ''')
-    cursor.execute(query,(rut_perfil,))
+    #cursor.execute(query,(rut_perfil,))
+    cursor = db.query(query,(rut_perfil,))
+
     resultado_perfil = cursor.fetchone()
     return resultado_perfil
 
@@ -114,7 +120,9 @@ def consultar_sancion(rut_usuario): # Función para consultar si un usuario esta
         FROM Sanciones
         WHERE rut_alumno = %s
             AND activa = 1''')
-    cursor.execute(query,( rut_usuario,))
+    #cursor.execute(query,( rut_usuario,))
+    cursor = db.query(query,( rut_usuario,))
+
     sancion_usuario = cursor.fetchone()
 
     if sancion_usuario is not None: # Si hay una sancion
@@ -129,7 +137,9 @@ def consultar_mensajes_administrativos(): # Se obtienen los mensajes administrat
             Mensaje_administrativo
             ORDER BY fecha_registro DESC
             ''')
-    cursor.execute(sql_query)
+    #cursor.execute(sql_query)
+    cursor = db.query(sql_query,None)
+
     lista_mensajes_administrativos = cursor.fetchall()
 
     for mensaje_administrativo in lista_mensajes_administrativos:
@@ -146,7 +156,9 @@ def consultar_red_wifi():
             SELECT ssid,password
             FROM Wifi
         """)
-        cursor.execute(sql_query)
+        #cursor.execute(sql_query)
+        cursor = db.query(sql_query,None)
+
         datos_wifi = cursor.fetchone()
         return datos_wifi
         
@@ -227,16 +239,23 @@ def configurar_perfil():
                 celular = %s
             Where Usuario.rut = %s
         ''')
-        cursor.execute(query,(
-            informacion_a_actualizar['nombres'],
-            informacion_a_actualizar['apellidos'],
-            informacion_a_actualizar['region'],
-            informacion_a_actualizar['comuna'],
-            informacion_a_actualizar['direccion'],
-            informacion_a_actualizar['celular'],
-            session['usuario']['rut']
-            ))
-        db.commit()
+        #cursor.execute(query,(
+        #    informacion_a_actualizar['nombres'],
+        #    informacion_a_actualizar['apellidos'],
+        #    informacion_a_actualizar['region'],
+        #    informacion_a_actualizar['comuna'],
+        #    informacion_a_actualizar['direccion'],
+        #    informacion_a_actualizar['celular'],
+        #    session['usuario']['rut']
+        #    ))
+        db.query(query,(informacion_a_actualizar['nombres'],
+                        informacion_a_actualizar['apellidos'],
+                        informacion_a_actualizar['region'],
+                        informacion_a_actualizar['comuna'],
+                        informacion_a_actualizar['direccion'],
+                        informacion_a_actualizar['celular'],
+                        session['usuario']['rut']))
+
         return redirect('/')
 
 
@@ -300,8 +319,9 @@ def cancelar_solicitud():
                 WHERE Detalle_solicitud.id = %s
                     AND Detalle_solicitud.estado = 0
                 ''') # 7 == cancelado
-        cursor.execute(query,(solicitud["id_solicitud_detalle"],))
-        db.commit()
+        #cursor.execute(query,(solicitud["id_solicitud_detalle"],))
+        db.query(query,(solicitud["id_solicitud_detalle"],))
+
         return redirect('/')
     return redirect('/')
 
@@ -319,8 +339,8 @@ def extender_prestamo():
                     AND Detalle_solicitud.estado = 2;
                 """)
         # comprobar que la solicitud sea de de la secion
-        cursor.execute(query,(solicitud_detalle_a_extender["id_solicitud_detalle"],))
-        db.commit()
+        #cursor.execute(query,(solicitud_detalle_a_extender["id_solicitud_detalle"],))
+        db.query(query,(solicitud_detalle_a_extender["id_solicitud_detalle"],))
 
         return redirect('/')
 
@@ -333,7 +353,9 @@ def consultar_contraseña_usuario(rut):
                 FROM Usuario
                 WHERE rut = %s;
                 ''')
-    cursor.execute(sql_query,(rut,))
+    #cursor.execute(sql_query,(rut,))
+    cursor = db.query(sql_query,(rut,))
+
     resultado = cursor.fetchone()
     return resultado["contraseña"]
     
@@ -365,8 +387,9 @@ def cambiar_contraseña():
                 SET contraseña = %s
                 WHERE rut = %s
             ''') # update de la contraseña donde coincida el rut
-            cursor.execute(sql_query,(hashpass.decode("UTF-8"),session["usuario"]["rut"]))
-            db.commit()
+            #cursor.execute(sql_query,(hashpass.decode("UTF-8"),session["usuario"]["rut"]))
+            db.query(sql_query,(hashpass.decode("UTF-8"),session["usuario"]["rut"]))
+
             flash('success')
         return redirect ('/perfil/cambiar_contraseña') # Retorna al formulario
     return redirect('/')

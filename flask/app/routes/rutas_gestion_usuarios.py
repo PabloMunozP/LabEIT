@@ -1,5 +1,5 @@
 from flask import Flask,Blueprint,render_template,request,redirect,url_for,flash,session,jsonify,send_file
-from config import db,cursor, BASE_DIR
+from config import db,BASE_DIR
 import os,time,bcrypt,random
 import smtplib
 from email import encoders
@@ -53,7 +53,9 @@ def ver_usuarios():
                 FROM Usuario,Credencial
                     WHERE Usuario.id_credencial= Credencial.id
             """
-    cursor.execute(query)
+    #cursor.execute(query)
+    cursor = db.query(query,None)
+
     usuarios = cursor.fetchall()
     return render_template("/vistas_gestion_usuarios/ver_usuarios.html", usuarios=usuarios)
 
@@ -83,11 +85,15 @@ def anadir_usuario():
         # Comprobar que el usuario no exista previamente
 
         query = ''' SELECT Usuario.rut as rut FROM Usuario WHERE rut=%s '''
-        cursor.execute(query, (datos_usuario['rut'],))
+        #cursor.execute(query, (datos_usuario['rut'],))
+        cursor = db.query(query, (datos_usuario['rut'],))
+
         duplicados_rut = cursor.fetchone()
 
         query = ''' SELECT Usuario.email as correo FROM Usuario WHERE email=%s '''
-        cursor.execute(query, (datos_usuario['correo'],))
+        #cursor.execute(query, (datos_usuario['correo'],))
+        cursor = db.query(query, (datos_usuario['correo'],))
+
         duplicados_correo = cursor.fetchone()
 
         if duplicados_rut is not None:  # Ya existe un usuario con ese rut
@@ -107,8 +113,9 @@ def anadir_usuario():
 
                 query = ''' INSERT INTO Usuario(rut, id_credencial, email, nombres, apellidos)
                     VALUES (%s, %s, %s, %s, %s)'''
-                cursor.execute(query, (datos_usuario['rut'], datos_usuario['credencial'],
-                                       datos_usuario['correo'], datos_usuario['nombres'], datos_usuario['apellidos']))
+                #cursor.execute(query, (datos_usuario['rut'], datos_usuario['credencial'],
+                #                       datos_usuario['correo'], datos_usuario['nombres'], datos_usuario['apellidos']))
+                db.query(query, (datos_usuario['rut'], datos_usuario['credencial'],datos_usuario['correo'], datos_usuario['nombres'], datos_usuario['apellidos']))
 
                 # Una vez creado, se le notifica al usuario para que cambie su contraseña y complete sus datos
 
@@ -124,7 +131,8 @@ def anadir_usuario():
                 # Se eliminan los registros de token asociados al rut del usuario en caso de existir
                 sql_query = """ DELETE FROM Token_recuperacion_password
                       WHERE rut_usuario = %s   """
-                cursor.execute(sql_query, (datos_usuario["rut"],))
+                #cursor.execute(sql_query, (datos_usuario["rut"],))
+                db.query(sql_query, (datos_usuario["rut"],))
 
                 # Se reemplazan los datos del usuario en el template a enviar vía correo
                 html_restablecimiento = html_restablecimiento.replace(
@@ -143,8 +151,9 @@ def anadir_usuario():
                         (token,rut_usuario)
                             VALUES (%s,%s)
                 """
-                cursor.execute(
-                    sql_query, (str(token), datos_usuario["rut"]))
+                #cursor.execute(
+                #    sql_query, (str(token), datos_usuario["rut"]))
+                db.query(sql_query, (str(token), datos_usuario["rut"]))
 
                 flash('agregar-correcto')
                 return redirect("/gestion_usuarios")
@@ -164,7 +173,9 @@ def editar():
         datos_usuario = request.form.to_dict()
         # Comprobar que no se repita el correo.
         query = ''' SELECT rut FROM Usuario WHERE email= %s'''
-        cursor.execute(query, (datos_usuario['correo'],))
+        #cursor.execute(query, (datos_usuario['correo'],))
+        cursor = db.query(query, (datos_usuario['correo'],))
+
         error_correo = cursor.fetchone()
         if error_correo['rut'] != datos_usuario['rut']:
             # hay otro usuario que ya utiliza el correo
@@ -173,8 +184,10 @@ def editar():
         # query para actualizar datos del usuario
         query = ''' UPDATE Usuario SET id_credencial = %s, email=%s, nombres =%s, apellidos= %s, region = %s, comuna = %s, direccion = %s
                     WHERE rut= %s'''
-        cursor.execute(query, (datos_usuario['id_credencial'], datos_usuario['correo'], datos_usuario['nombres'],
-                               datos_usuario['apellidos'], datos_usuario['region'], datos_usuario['comuna'], datos_usuario['direccion'], datos_usuario['rut']))
+        #cursor.execute(query, (datos_usuario['id_credencial'], datos_usuario['correo'], datos_usuario['nombres'],
+        #                       datos_usuario['apellidos'], datos_usuario['region'], datos_usuario['comuna'], datos_usuario['direccion'], datos_usuario['rut']))
+        db.query(query, (datos_usuario['id_credencial'], datos_usuario['correo'], datos_usuario['nombres'],datos_usuario['apellidos'], datos_usuario['region'], datos_usuario['comuna'], datos_usuario['direccion'], datos_usuario['rut']))
+
         flash('editado-correcto')
         # se redirige de vuelta a la pagina principal de gestion usuarios
         return redirect("/gestion_usuarios")
@@ -191,14 +204,17 @@ def eliminar():
         rut = request.form['rut']
         # Comprobar que el usuario no tenga equipos pendientes
         query = '''SELECT id FROM Solicitud Where rut_alumno = %s'''
-        cursor.execute(query, (rut,))
+        #cursor.execute(query, (rut,))
+        cursor = db.query(query, (rut,))
+
         solicitudes = cursor.fetchone()
         if solicitudes is not None:  # El usuario tiene solicitudes activas
             flash("error-eliminar")
             return redirect("/gestion_usuarios")
         else:  # El usuario no tiene solicitudes pendientes.
             query = ''' DELETE FROM Usuario WHERE rut= %s'''
-            cursor.execute(query, (rut,))
+            #cursor.execute(query, (rut,))
+            db.query(query, (rut,))
             flash('eliminar-correcto')
             return redirect("/gestion_usuarios")
 
@@ -219,7 +235,9 @@ def inhabilitar():
                 AND Solicitud.rut_alumno = %s
                 AND Detalle_solicitud.estado IN (0,1,2,3)
         """
-        cursor.execute(query, (rut,))
+        #cursor.execute(query, (rut,))
+        cursor = db.query(query, (rut,))
+
         solicitudes = cursor.fetchone()
 
         if solicitudes is None:
@@ -233,7 +251,9 @@ def inhabilitar():
                 return redirect("/gestion_usuarios")
             else:
                 query = '''UPDATE Usuario SET Usuario.activo = 0 WHERE rut= %s'''
-                cursor.execute(query, (rut,))
+                #cursor.execute(query, (rut,))
+                db.query(query, (rut,))
+
                 flash('inhabilitar-correcto')
                 return redirect("/gestion_usuarios")
 
@@ -252,7 +272,8 @@ def habilitar_usuario():
             SET activo = 1
                 WHERE rut = %s
     """
-    cursor.execute(sql_query, (rut,))
+    #cursor.execute(sql_query, (rut,))
+    db.query(sql_query, (rut,))
 
     flash("cuenta-activada")
     return redirect("/gestion_usuarios")
@@ -270,14 +291,18 @@ def detalle_usuario(rut):
         query = ''' SELECT Usuario.nombres as nombres, Usuario.apellidos as apellidos, Credencial.nombre as credencial,
             Usuario.email as correo, Usuario.region as region, Usuario.comuna as comuna, Usuario.rut as rut,
             Usuario.direccion as direccion, Usuario.celular as celular FROM Usuario,Credencial WHERE Credencial.id=Usuario.id_credencial AND Usuario.rut=%s '''
-        cursor.execute(query, (rut,))
+        #cursor.execute(query, (rut,))
+        cursor = db.query(query, (rut,))
+
         usuario = cursor.fetchone()
 
         query = ''' SELECT Solicitud.id as id, Solicitud.rut_profesor as profesor, Solicitud.rut_alumno as alumno, Solicitud.motivo as motivo, Solicitud.fecha_registro as registro,
             Detalle_solicitud.estado as estado, Detalle_solicitud.id as id_detalle, Equipo.nombre as equipo, Equipo.modelo as modelo, Equipo.marca as marca_equipo
             FROM Solicitud, Detalle_solicitud, Equipo
             WHERE Solicitud.id = Detalle_solicitud.id_solicitud AND Solicitud.rut_alumno= %s AND Equipo.id = Detalle_solicitud.id_equipo '''
-        cursor.execute(query, (rut,))
+        #cursor.execute(query, (rut,))
+        cursor = db.query(query, (rut,))
+
         solicitudes = cursor.fetchall()
 
         query = """
@@ -288,11 +313,15 @@ def detalle_usuario(rut):
                     AND Seccion_alumno.rut_alumno = %s
                     ORDER BY Curso.nombre
         """
-        cursor.execute(query, (rut,))
+        #cursor.execute(query, (rut,))
+        cursor = db.query(query, (rut,))
+
         cursos = cursor.fetchall()
 
         query = '''SELECT * FROM Sanciones WHERE rut_alumno = %s'''
-        cursor.execute(query, (rut,))
+        #cursor.execute(query, (rut,))
+        cursor = db.query(query, (rut,))
+
         sancion = cursor.fetchone()
 
         archivo_foto_perfil = obtener_foto_perfil(rut)
@@ -355,11 +384,15 @@ def masivo():
 
                     #print(nombres+' '+apellidos+' '+line[1]+' '+ line[2])
                     query= ''' SELECT Usuario.rut as rut FROM Usuario WHERE rut=%s '''
-                    cursor.execute(query,(line[1],))
+                    #cursor.execute(query,(line[1],))
+                    cursor = db.query(query,(line[1],))
+
                     duplicados_rut=cursor.fetchone()
                     
                     query= ''' SELECT Usuario.email as correo FROM Usuario WHERE email=%s '''
-                    cursor.execute(query,(line[2],))
+                    #cursor.execute(query,(line[2],))
+                    cursor = db.query(query,(line[2],))
+
                     duplicados_correo=cursor.fetchone()
                            
                     if duplicados_rut is not None : #Ya existe un usuario con ese rut
@@ -373,7 +406,8 @@ def masivo():
                     if duplicados_rut is None and duplicados_correo is None:
                         if line[1][-1] == digito_verificador(line[1][:-1]):
                             #print('paso bien')
-                            cursor.execute(query_add,(nombres,apellidos,line[1],'1',line[2]))
+                            #cursor.execute(query_add,(nombres,apellidos,line[1],'1',line[2]))
+                            db.query(query_add,(nombres,apellidos,line[1],'1',line[2]))
                             #Una vez creado, se le notifica al usuario para que cambie su contraseña y complete sus datos
                             
                             # Se abre el template HTML correspondiente al restablecimiento de contraseña
@@ -388,7 +422,8 @@ def masivo():
                             # Se eliminan los registros de token asociados al rut del usuario en caso de existir
                             sql_query = """ DELETE FROM Token_recuperacion_password
                                 WHERE rut_usuario = %s   """
-                            cursor.execute(sql_query, (line[1],))
+                            #cursor.execute(sql_query, (line[1],))
+                            db.query(sql_query, (line[1],))
 
                             # Se reemplazan los datos del usuario en el template a enviar vía correo
                             html_restablecimiento = html_restablecimiento.replace(
@@ -407,8 +442,9 @@ def masivo():
                                 (token,rut_usuario)
                                     VALUES (%s,%s)
                             """
-                            cursor.execute(
-                                sql_query, (str(token), line[1]))
+                            #cursor.execute(
+                            #    sql_query, (str(token), line[1]))
+                            db.query(sql_query, (str(token), line[1]))
                         else:
                             error_rut.append(line[1])
 
@@ -427,7 +463,6 @@ def masivo():
             #Cargar usuarios
             carga = load_workbook(ruta)
             hoja=carga.active
-            print(hoja.max_row)
             for row in hoja.iter_rows(min_row=2,max_col=5,values_only=True):
                 
                 #print(row)
@@ -437,11 +472,15 @@ def masivo():
                 query_add=''' INSERT INTO Usuario(nombres,apellidos,rut,id_credencial,email) VALUES (%s,%s,%s,%s,%s)'''
 
                 query= ''' SELECT Usuario.rut as rut FROM Usuario WHERE rut=%s '''
-                cursor.execute(query,(row[2],))
+                #cursor.execute(query,(row[2],))
+                cursor = db.query(query,(row[2],))
+
                 duplicados_rut=cursor.fetchone()
                 
                 query= ''' SELECT Usuario.email as correo FROM Usuario WHERE email=%s '''
-                cursor.execute(query,(row[3],))
+                #cursor.execute(query,(row[3],))
+                cursor = db.query(query,(row[3],))
+
                 duplicados_correo=cursor.fetchone()
                 
                 if duplicados_rut : #Ya existe un usuario con ese rut
@@ -459,7 +498,8 @@ def masivo():
                     rut=str(row[2])                
                     if rut[-1] == digito_verificador(rut[:-1]):
                         print(rut +'paso bien')
-                        cursor.execute(query_add,(row[0],row[1],rut,row[4],row[3]))
+                        #cursor.execute(query_add,(row[0],row[1],rut,row[4],row[3]))
+                        db.query(query_add,(row[0],row[1],rut,row[4],row[3]))
                         #Una vez creado, se le notifica al usuario para que cambie su contraseña y complete sus datos
                         
                         # Se abre el template HTML correspondiente al restablecimiento de contraseña
@@ -472,7 +512,8 @@ def masivo():
                         # Se eliminan los registros de token asociados al rut del usuario en caso de existir
                         sql_query = """ DELETE FROM Token_recuperacion_password
                             WHERE rut_usuario = %s   """
-                        cursor.execute(sql_query,(rut,))
+                        #cursor.execute(sql_query,(rut,))
+                        db.query(sql_query,(rut,))
 
                         # Se reemplazan los datos del usuario en el template a enviar vía correo
                         html_restablecimiento = html_restablecimiento.replace("%nombre_usuario%",row[0])
@@ -488,7 +529,8 @@ def masivo():
                             (token,rut_usuario)
                                 VALUES (%s,%s)
                         """
-                        cursor.execute(sql_query,(str(token),rut))
+                        #cursor.execute(sql_query,(str(token),rut))
+                        db.query(sql_query,(str(token),rut))
         
                     else:
                         print(rut)
@@ -517,7 +559,9 @@ def sancion():
         flash("sin-cambio")
     else:
         query = ''' SELECT cantidad_dias FROM Sanciones WHERE rut_alumno= %s'''
-        cursor.execute(query, (data['rut'],))
+        #cursor.execute(query, (data['rut'],))
+        cursor = db.query(query, (data['rut'],))
+
         dias = cursor.fetchone()
         dias = dias['cantidad_dias']
         if data['op_sancion'] == '1':  # Aumentar dias de sancion
@@ -529,12 +573,15 @@ def sancion():
             return redirect(redirect_url())
         elif dias == 0:
             query = ''' DELETE FROM  Sanciones WHERE rut_alumno= %s '''
-            cursor.execute(query, (data['rut'],))
+            #cursor.execute(query, (data['rut'],))
+            db.query(query, (data['rut'],))
+
             flash("cambio-realizado")
             return redirect(redirect_url())
         # Se actualiza el registro y se comprueba si se debe eliminar.
         query = ''' UPDATE Sanciones SET cantidad_dias = %s WHERE rut_alumno = %s'''
-        cursor.execute(query, (dias, data['rut']))
+        #cursor.execute(query, (dias, data['rut']))
+        cursor = db.query(query, (dias, data['rut']))
         # print("cambio-realizado")
         flash("cambio-realizado")
     return redirect(redirect_url())

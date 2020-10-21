@@ -1,5 +1,5 @@
 from flask import Flask, Blueprint, render_template, request, redirect, url_for, flash, session, jsonify, send_file
-from config import db, cursor, BASE_DIR
+from config import db, BASE_DIR
 from werkzeug.utils import secure_filename
 import os
 import time
@@ -35,14 +35,18 @@ def redirect_url(default='index'):  # Redireccionamiento desde donde vino la req
         url_for(default)
 
 def verificar_edicion(id_wishlist):
-    cursor.execute(
-        "SELECT estado_wishlist FROM Wishlist WHERE id = %s", (id_wishlist,))
+    #cursor.execute(
+    #    "SELECT estado_wishlist FROM Wishlist WHERE id = %s", (id_wishlist,))
+    cursor = db.query("SELECT estado_wishlist FROM Wishlist WHERE id = %s", (id_wishlist,))
+    
     estado = cursor.fetchone()["estado_wishlist"]
     return True if estado == 7 or estado == 8 else False
 
 def verificar_rut(id_wishlist,Rut):
-    cursor.execute(
-        "SELECT rut_solicitante FROM Wishlist WHERE id = %s", (id_wishlist,))
+    #cursor.execute(
+    #    "SELECT rut_solicitante FROM Wishlist WHERE id = %s", (id_wishlist,))
+    cursor = db.query("SELECT rut_solicitante FROM Wishlist WHERE id = %s", (id_wishlist,))
+    
     rut = cursor.fetchone()["rut_solicitante"]
     return True if rut == Rut else False
 
@@ -86,10 +90,12 @@ def tabla_wishlist():
                 (rut_solicitante,nombre_equipo,marca_equipo,modelo_equipo,motivo_academico,fecha_solicitud)
                     VALUES (%s,%s,%s,%s,%s,%s)
         """
-        cursor.execute(sql_query, (session["usuario"]["rut"], form["nombre"],
-                                   form["marca"], form["modelo"], form["motivo"], fecha_solicitud_wishlist))
+        #cursor.execute(sql_query, (session["usuario"]["rut"], form["nombre"],
+        #                           form["marca"], form["modelo"], form["motivo"], fecha_solicitud_wishlist))
+        cursor = db.query(sql_query, (session["usuario"]["rut"], form["nombre"],form["marca"], form["modelo"], form["motivo"], fecha_solicitud_wishlist))
 
-        cursor.execute("SELECT MAX(id) FROM Wishlist")
+        #cursor.execute("SELECT MAX(id) FROM Wishlist")
+        cursor = db.query("SELECT MAX(id) FROM Wishlist",None)
         last_id = cursor.lastrowid
 
         if "id" in form:
@@ -98,7 +104,8 @@ def tabla_wishlist():
                     (id_wishlist,id_curso)
                     VALUES (%s,%s)
             """
-            cursor.execute(sql_query, (last_id, form["id"]))
+            #cursor.execute(sql_query, (last_id, form["id"]))
+            db.query(sql_query, (last_id, form["id"]))
 
         if form["adjuntar"] == "1":
             documento = request.files["cotizacion"]
@@ -118,7 +125,8 @@ def tabla_wishlist():
                     INSERT INTO Url_wishlist (url,id_wishlist)
                         VALUES (%s,%s)
                 """
-                cursor.execute(sql_query, (url, last_id))
+                #cursor.execute(sql_query, (url, last_id))
+                db.query(sql_query, (url, last_id))
 
         flash("solicitud-registrada")
 
@@ -128,7 +136,9 @@ def tabla_wishlist():
                 WHERE estado_wishlist = 8
                     ORDER BY Wishlist.fecha_solicitud DESC
     """
-    cursor.execute(sql_query)
+    #cursor.execute(sql_query)
+    cursor = db.query(sql_query,None)
+
     lista_wishlist_aceptada = cursor.fetchall()
 
     sql_query = """
@@ -138,7 +148,8 @@ def tabla_wishlist():
                 AND Wishlist.estado_wishlist = Estado_detalle_solicitud.id
                 ORDER BY Wishlist.fecha_solicitud DESC
     """
-    cursor.execute(sql_query, (session["usuario"]["rut"],))
+    #cursor.execute(sql_query, (session["usuario"]["rut"],))
+    cursor = db.query(sql_query, (session["usuario"]["rut"],))
     lista_solicitudes_wishlist = cursor.fetchall()
 
     sql_query = """
@@ -146,7 +157,9 @@ def tabla_wishlist():
             FROM Wishlist
                 WHERE estado_wishlist = 8
     """
-    cursor.execute(sql_query)
+    #cursor.execute(sql_query)
+    cursor = db.query(sql_query,None)
+
     count_wishlist = cursor.fetchone()
 
     sql_query = """
@@ -154,7 +167,9 @@ def tabla_wishlist():
             FROM Curso
                 ORDER BY nombre
     """
-    cursor.execute(sql_query)
+    #cursor.execute(sql_query)
+    cursor = db.query(sql_query,None)
+
     cursos = cursor.fetchall()
 
     return render_template("/wishlist/user_wishlist.html",
@@ -189,8 +204,10 @@ def editar_solicitud(id_detalle_solicitud):
                 modificacion = 1
                     WHERE id = %s
         """
-        cursor.execute(sql_query, (form["nombre"], form["marca"], form["modelo"],
-                                   form["motivo"], fecha_modificacion, id_detalle_solicitud))
+        #cursor.execute(sql_query, (form["nombre"], form["marca"], form["modelo"],
+        #                           form["motivo"], fecha_modificacion, id_detalle_solicitud))
+
+        db.query(sql_query,(form["nombre"], form["marca"], form["modelo"],form["motivo"], fecha_modificacion, id_detalle_solicitud))
 
         if form["adjuntar"] == "1":
             doc = request.files["documento"]
@@ -212,7 +229,8 @@ def editar_solicitud(id_detalle_solicitud):
                 FROM Url_wishlist
                     WHERE id_wishlist = %s
         """
-        cursor.execute(sql_query, (id_detalle_solicitud,))
+        #cursor.execute(sql_query, (id_detalle_solicitud,))
+        db.query(sql_query, (id_detalle_solicitud,))
 
         for i in range(int(form["index"])+1):
             if 'url[{}]'.format(str(i)) in form:
@@ -222,7 +240,8 @@ def editar_solicitud(id_detalle_solicitud):
                     INSERT INTO Url_wishlist (url,id_wishlist)
                         VALUES (%s,%s)
                 """
-                cursor.execute(sql_query, (url, id_detalle_solicitud))
+                #cursor.execute(sql_query, (url, id_detalle_solicitud))
+                db.query(sql_query, (url, id_detalle_solicitud))
 
         flash("solicitud-modificada")
 
@@ -232,7 +251,9 @@ def editar_solicitud(id_detalle_solicitud):
                 WHERE Wishlist.estado_wishlist = Estado_detalle_solicitud.id
                 AND Wishlist.id = %s
     """
-    cursor.execute(sql_query, (id_detalle_solicitud,))
+    #cursor.execute(sql_query, (id_detalle_solicitud,))
+    cursor = db.query(sql_query, (id_detalle_solicitud,))
+
     detalle_solicitud = cursor.fetchone()
 
     if detalle_solicitud is None:
@@ -244,7 +265,9 @@ def editar_solicitud(id_detalle_solicitud):
             FROM Curso
                 ORDER BY nombre
     """
-    cursor.execute(sql_query)
+    #cursor.execute(sql_query)
+    cursor = db.query(sql_query,None)
+
     cursos = cursor.fetchall()
 
     sql_query = """
@@ -252,7 +275,9 @@ def editar_solicitud(id_detalle_solicitud):
             FROM Motivo_academico_wishlist
                 WHERE id_wishlist = %s
     """
-    cursor.execute(sql_query, (id_detalle_solicitud,))
+    #cursor.execute(sql_query, (id_detalle_solicitud,))
+    cursor = db.query(sql_query, (id_detalle_solicitud,))
+
     motivo = cursor.fetchone()
 
     cotz = {}
@@ -263,7 +288,9 @@ def editar_solicitud(id_detalle_solicitud):
             FROM Url_wishlist
                 WHERE id_wishlist = %s
     """
-    cursor.execute(sql_query, (id_detalle_solicitud,))
+    #cursor.execute(sql_query, (id_detalle_solicitud,))
+    cursor = db.query(sql_query, (id_detalle_solicitud,))
+
     url_count = cursor.fetchone()
 
     sql_query = """
@@ -271,7 +298,9 @@ def editar_solicitud(id_detalle_solicitud):
             FROM Url_wishlist
                 WHERE id_wishlist = %s
     """
-    cursor.execute(sql_query, (id_detalle_solicitud,))
+    #cursor.execute(sql_query, (id_detalle_solicitud,))
+    cursor = db.query(sql_query, (id_detalle_solicitud,))
+
     urls = cursor.fetchall()
 
     return render_template("/wishlist/user_wishlist_edit.html",
@@ -292,7 +321,8 @@ def cancelar_solicitud_user(id_detalle):
             SET estado_wishlist = 7
                 WHERE id = %s
     """
-    cursor.execute(sql_query, (id_detalle,))
+    #cursor.execute(sql_query, (id_detalle,))
+    db.query(sql_query, (id_detalle,))
 
     flash("solicitud-cancelada")
     return redirect("/wishlist_usuario")
@@ -313,7 +343,9 @@ def gestionar_wishlist():
                 AND Wishlist.rut_solicitante = Usuario.rut
                     ORDER BY Wishlist.fecha_solicitud DESC
     """
-    cursor.execute(sql_query)
+    #cursor.execute(sql_query)
+    cursor = db.query(sql_query,None)
+
     lista_solicitudes_wishlist = cursor.fetchall()
 
     return render_template("/wishlist/admin_wishlist.html",
@@ -334,7 +366,9 @@ def detalle_solicitud(id_detalle_solicitud):
                 AND Wishlist.rut_solicitante = Usuario.rut
                 AND Wishlist.id = %s
     """
-    cursor.execute(sql_query, (id_detalle_solicitud,))
+    #cursor.execute(sql_query, (id_detalle_solicitud,))
+    cursor = db.query(sql_query, (id_detalle_solicitud,))
+
     detalle_solicitud = cursor.fetchone()
 
     if detalle_solicitud is None:
@@ -347,7 +381,8 @@ def detalle_solicitud(id_detalle_solicitud):
 	        FROM Url_wishlist
 		        WHERE Url_wishlist.id_wishlist = %s
     """
-    cursor.execute(sql_query, (id_detalle_solicitud,))
+    #cursor.execute(sql_query, (id_detalle_solicitud,))
+    cursor = db.query(sql_query, (id_detalle_solicitud,))
 
     url_solicitud["url"] = []
     for row in cursor:
@@ -358,7 +393,9 @@ def detalle_solicitud(id_detalle_solicitud):
             FROM Curso
                 ORDER BY nombre
     """
-    cursor.execute(sql_query)
+    #cursor.execute(sql_query)
+    cursor = db.query(sql_query,None)
+
     cursos = cursor.fetchall()
 
     sql_query = """
@@ -366,7 +403,9 @@ def detalle_solicitud(id_detalle_solicitud):
             FROM Motivo_academico_wishlist
                 WHERE id_wishlist = %s
     """
-    cursor.execute(sql_query, (id_detalle_solicitud,))
+    #cursor.execute(sql_query, (id_detalle_solicitud,))
+    cursor = db.query(sql_query, (id_detalle_solicitud,))
+
     motivo = cursor.fetchone()
 
     cotz = {}
@@ -394,14 +433,17 @@ def aceptar_solicitud(id_detalle):
             SET estado_wishlist = 8,fecha_revision=%s,motivo = NULL
                 WHERE id = %s
     """
-    cursor.execute(sql_query, (fecha_revision_solicitud, id_detalle))
+    #cursor.execute(sql_query, (fecha_revision_solicitud, id_detalle))
+    db.query(sql_query, (fecha_revision_solicitud, id_detalle))
 
     sql_query = """
         SELECT *
             FROM Wishlist
                 WHERE id = %s
     """
-    cursor.execute(sql_query, (id_detalle,))
+    #cursor.execute(sql_query, (id_detalle,))
+    cursor = db.query(sql_query, (id_detalle,))
+
     datos_solicitud = cursor.fetchone()
 
     sql_query = """
@@ -409,7 +451,9 @@ def aceptar_solicitud(id_detalle):
             FROM Usuario
                 WHERE rut = %s
     """
-    cursor.execute(sql_query, (datos_solicitud["rut_solicitante"],))
+    #cursor.execute(sql_query, (datos_solicitud["rut_solicitante"],))
+    cursor = db.query(sql_query, (datos_solicitud["rut_solicitante"],))
+
     datos_usuario = cursor.fetchone()
 
     direccion_template = os.path.normpath(os.path.join(BASE_DIR, "app/templates/wishlist/templates_mail/aceptacion_solicitud.html"))
@@ -450,7 +494,9 @@ def rechazar_solicitud(id_detalle):
             FROM Wishlist
                 WHERE id = %s
     """
-    cursor.execute(sql_query, (id_detalle,))
+    #cursor.execute(sql_query, (id_detalle,))
+    cursor = db.query(sql_query, (id_detalle,))
+
     datos_solicitud = cursor.fetchone()
 
     if datos_solicitud is None:
@@ -462,14 +508,17 @@ def rechazar_solicitud(id_detalle):
             SET estado_wishlist = 5,fecha_revision=%s
                 WHERE id = %s
     """
-    cursor.execute(sql_query, (fecha_revision_solicitud, id_detalle))
+    #cursor.execute(sql_query, (fecha_revision_solicitud, id_detalle))
+    db.query(sql_query, (fecha_revision_solicitud, id_detalle))
 
     sql_query = """
         SELECT nombres,apellidos,email
             FROM Usuario
                 WHERE rut = %s
     """
-    cursor.execute(sql_query, (datos_solicitud["rut_solicitante"],))
+    #cursor.execute(sql_query, (datos_solicitud["rut_solicitante"],))
+    cursor = db.query(sql_query, (datos_solicitud["rut_solicitante"],))
+
     datos_usuario = cursor.fetchone()
 
     direccion_template = os.path.normpath(os.path.join(
@@ -497,7 +546,8 @@ def rechazar_solicitud(id_detalle):
             SET motivo=%s
                 WHERE id = %s
     """
-    cursor.execute(sql_query, (motivo, id_detalle))
+    #cursor.execute(sql_query, (motivo, id_detalle))
+    db.query(sql_query, (motivo, id_detalle))
 
     archivo_html = archivo_html.replace("%razon_rechazo%", razon_rechazo)
 
@@ -516,21 +566,24 @@ def eliminar_solicitud(id_detalle):
             Url_wishlist
                 WHERE id_wishlist = %s
     """
-    cursor.execute(sql_query, (id_detalle,))
+    #cursor.execute(sql_query, (id_detalle,))
+    db.query(sql_query, (id_detalle,))
 
     sql_query = """
         DELETE FROM
             Wishlist
                 WHERE id = %s
     """
-    cursor.execute(sql_query, (id_detalle,))
+    #cursor.execute(sql_query, (id_detalle,))
+    db.query(sql_query, (id_detalle,))
 
     sql_query = """
         DELETE FROM
             Motivo_academico_wishlist
                 WHERE id_wishlist = %s
     """
-    cursor.execute(sql_query, (id_detalle,))
+    #cursor.execute(sql_query, (id_detalle,))
+    db.query(sql_query, (id_detalle,))
 
     borrar_cotizacion(id_detalle)
 
@@ -547,14 +600,17 @@ def marcar_pendiente_w(id_detalle):
             SET estado_wishlist = 0,fecha_revision=%s,motivo = NULL
                 WHERE id = %s
     """
-    cursor.execute(sql_query, (fecha_revision_solicitud, id_detalle))
+    #cursor.execute(sql_query, (fecha_revision_solicitud, id_detalle))
+    db.query(sql_query, (fecha_revision_solicitud, id_detalle))
 
     sql_query = """
         SELECT *
             FROM Wishlist
                 WHERE id = %s
     """
-    cursor.execute(sql_query, (id_detalle,))
+    #cursor.execute(sql_query, (id_detalle,))
+    cursor = db.query(sql_query, (id_detalle,))
+
     datos_solicitud = cursor.fetchone()
 
     sql_query = """
@@ -562,7 +618,9 @@ def marcar_pendiente_w(id_detalle):
             FROM Usuario
                 WHERE rut = %s
     """
-    cursor.execute(sql_query, (datos_solicitud["rut_solicitante"],))
+    #cursor.execute(sql_query, (datos_solicitud["rut_solicitante"],))
+    cursor = db.query(sql_query, (datos_solicitud["rut_solicitante"],))
+
     datos_usuario = cursor.fetchone()
 
     direccion_template = os.path.normpath(os.path.join(BASE_DIR, "app/templates/wishlist/templates_mail/pendiente_solicitud.html"))
@@ -597,7 +655,9 @@ def descargar_cotizacion(id_detalle_solicitud):
                 WHERE Wishlist.estado_wishlist = Estado_detalle_solicitud.id
                 AND Wishlist.id = %s
     """
-    cursor.execute(sql_query, (id_detalle_solicitud,))
+    #cursor.execute(sql_query, (id_detalle_solicitud,))
+    cursor = db.query(sql_query, (id_detalle_solicitud,))
+
     detalle_solicitud = cursor.fetchone()
 
     if detalle_solicitud is None:
@@ -621,7 +681,9 @@ def visualizar_cotizacion(id_detalle_solicitud):
                 WHERE Wishlist.estado_wishlist = Estado_detalle_solicitud.id
                 AND Wishlist.id = %s
     """
-    cursor.execute(sql_query, (id_detalle_solicitud,))
+    #cursor.execute(sql_query, (id_detalle_solicitud,))
+    cursor = db.query(sql_query, (id_detalle_solicitud,))
+
     detalle_solicitud = cursor.fetchone()
 
     if detalle_solicitud is None:
@@ -638,7 +700,9 @@ def visualizar_cotizacion(id_detalle_solicitud):
                 AND Wishlist.rut_solicitante = Usuario.rut
                 AND Wishlist.id = %s
     """
-    cursor.execute(sql_query, (id_detalle_solicitud,))
+    #cursor.execute(sql_query, (id_detalle_solicitud,))
+    cursor = db.query(sql_query, (id_detalle_solicitud,))
+
     detalle_solicitud = cursor.fetchone()
 
     if detalle_solicitud is None:
