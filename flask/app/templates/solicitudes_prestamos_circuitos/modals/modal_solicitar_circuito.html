@@ -61,7 +61,7 @@
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary waves-effect waves-light" data-dismiss="modal">Cerrar</button>
-            <button type="submit" class="btn btn-success submit-agregar-pedido-circuito waves-effect waves-light"><i class="fas fa-cart-plus mr-2"></i>Agregar al carro</button>
+            <button type="submit" id="agregar_carro_btn" class="btn btn-success submit-agregar-pedido-circuito waves-effect waves-light"><i class="fas fa-cart-plus mr-2"></i>Agregar al carro</button>
           </div>
       </form>
     </div>
@@ -70,13 +70,20 @@
 
   <script type="text/javascript">
       function cargar_info_modal_circuito(elemento){
+        console.log(elemento)
         document.getElementById("id_circuito").value = elemento.id;
         document.getElementById("nombre_circuito").value = elemento.nombre;
-        document.getElementById("cantidad_unidades_solicitadas").max = elemento.unidades_disponibles;
+        document.getElementById("cantidad_unidades_solicitadas").max = elemento.cantidad -elemento.prestados;
         document.getElementById("modal_circuito_nombre").textContent = elemento.nombre;
         document.getElementById("modal_circuito_dias_prestamo").textContent = elemento.dias_max_prestamo;
         document.getElementById("modal_circuito_unidades").textContent = elemento.cantidad-elemento.prestados + "/" + elemento.cantidad;
         document.getElementById("modal_circuito_descripcion").textContent = elemento.descripcion;
+        if (elemento.cantidad -elemento.prestados < 1){
+          document.getElementById("agregar_carro_btn").disabled = true;
+        }
+        else{
+          document.getElementById("agregar_carro_btn").disabled = false;
+        }
         $("#modal_info_circuito").modal("show");
       };
 

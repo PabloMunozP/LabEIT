@@ -45,10 +45,10 @@
           url : '/gestion_solicitudes_prestamos_circuitos/devolver_solicitud_detalle'
         }).done(function(data){
               if(data.error){
-                  console.log('error');
+                window.location.replace("/gestion_solicitudes_prestamos_circuitos");
               }
               else{
-                  window.location.reload();
+                  window.location.replace("/gestion_solicitudes_prestamos_circuitos");
               }
           });
   }
