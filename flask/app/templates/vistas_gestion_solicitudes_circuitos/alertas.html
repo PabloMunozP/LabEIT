@@ -1,13 +1,95 @@
+<div style="justify-content: center; align-items: center; display: flex;">
 {% with messages = get_flashed_messages() %}
   {% if messages %}
-    <ul class=flashes>
     {% for message in messages %}
-      <li>{{ message }}</li>
+
+        {% if message == 'sol-aprobada-correctamente' %}
+        <div class="alert alert-success alert-dismissible fade show pop-top" role="alert" >
+          Solicitud aprobada correctamente.
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+
+        {% elif message == 'sol-eliminada-correctamente' %}
+        <div class="alert alert-dark alert-dismissible fade show pop-top" role="alert" >
+          Solicitud eliminada correctamente.
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        {% elif message == 'agil-correctamente' %}
+        <div class="alert alert-success alert-dismissible fade show pop-top" role="alert" >
+          Solicitud generada correctamente
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+      
+        {% elif message == 'error-BDD' %}
+        <div class="alert alert-danger alert-dismissible fade show pop-top" role="alert" >
+          Error al realizar la acción (BDD)
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        {% elif message == 'error-solicitud' %}
+        <div class="alert alert-danger alert-dismissible fade show pop-top" role="alert" >
+          Error en la solicitud
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        {% elif message == 'rechazo-correcto' %}
+        <div class="alert alert-info alert-dismissible fade show pop-top" role="alert" >
+          Solicitud rechazada correctamente
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+
+        {% elif message == 'cancelar-activa' %}
+        <div class="alert alert-info alert-dismissible fade show pop-top" role="alert" >
+          Solicitud cancelada correctamente
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+
+        {% elif message == 'sol-actualizada-entrega' %}
+        <div class="alert alert-success alert-dismissible fade show pop-top" role="alert" >
+          Solicitud actualizada correctamente
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        
+
+        
+
+        {% endif %}
     {% endfor %}
-    </ul>
   {% endif %}
 {% endwith %}
 
+</div>
 
 
-mensajes
+
+
+
+<style>
+  .pop-top{
+    position: absolute;
+    z-index: 101;
+    top: 50px;
+  }
+</style>
+<script>
+  $(document).ready(function() {
+    // show the alert
+    setTimeout(function() {
+        $(".alert").alert('close');
+    }, 3000);
+});
+</script>

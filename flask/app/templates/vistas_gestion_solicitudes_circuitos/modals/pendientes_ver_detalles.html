@@ -317,10 +317,10 @@
             url : '/gestion_solicitudes_prestamos_circuitos/borrar_solcitud_detalle'
           }).done(function(data){
                 if(data.error){
-                    console.log('error');
+                    window.location.replace("/gestion_solicitudes_prestamos_circuitos");
                 }
                 else{
-                    window.location.reload();
+                    window.location.replace("/gestion_solicitudes_prestamos_circuitos");
                 }
             });
           
@@ -340,9 +340,9 @@
                 url : '/gestion_solicitudes_prestamos_circuitos/aprobar_solcitud_detalle'
             }).done(function(data){
                 if(data.error){
-                    console.log('error');
+                    window.location.replace("/gestion_solicitudes_prestamos_circuitos");
                 }
-                else{window.location.reload();
+                else{window.location.replace("/gestion_solicitudes_prestamos_circuitos");
                 }
             });
 

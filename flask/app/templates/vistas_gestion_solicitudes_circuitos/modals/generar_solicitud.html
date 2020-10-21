@@ -54,7 +54,11 @@
                       <tr style="background:#ECF0F1;">
                         <td>{{elemento.nombre}}</td>
                         <td>{{elemento.cantidad-elemento.prestados}}/{{elemento.cantidad}}</td>
-                        <td><span class="btn-group"><button type="button" onclick='agregar_carro_generar_solicitud({{elemento | tojson}})' class="btn btn-sm btn-secondary mr-1 waves-effect waves-light"><i class="fas fa-plus"></i></button></span></td>
+                        {% if elemento.cantidad-elemento.prestados > 0 %}
+                          <td><span class="btn-group"><button type="button" onclick='agregar_carro_generar_solicitud({{elemento | tojson}})' class="btn btn-sm btn-secondary mr-1 waves-effect waves-light"><i class="fas fa-plus"></i></button></span></td>
+                        {% else %}
+                        <td><span class="btn-group"><button type="button" disabled class="btn btn-sm btn-secondary mr-1 waves-effect waves-light"><i class="fas fa-plus"></i></button></span></td>
+                        {% endif %}
                       </tr>
                       {% endfor %}
                     </tbody>
@@ -139,7 +143,7 @@
                         break;
                     }
                 }else{
-                  window.location.reload();
+                  window.location.replace("/gestion_solicitudes_prestamos_circuitos");
                   }
                 });
         });

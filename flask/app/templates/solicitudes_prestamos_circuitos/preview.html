@@ -1,7 +1,48 @@
 {% extends "layout_in.html"%}
 {%block body%}
 <div class="container-fluid">
-    
+    <div style="justify-content: center; align-items: center; display: flex;">
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+        {% for message in messages %}
+
+            {% if message == 'registro-correcto' %}
+                <div class="alert alert-success alert-dismissible fade show pop-top" role="alert" >
+                Solicitud generada correctamente
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              {% elif  message == 'registro-error'%}
+              <div class="alert alert-danger alert-dismissible fade show pop-top" role="alert" >
+                Hubo un problema al generar la solicitud                 <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+            {% endif %}
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+    </div>
+
+
+
+
+    <style>
+        .pop-top{
+          position: absolute;
+          z-index: 101;
+          top: 50px;
+        }
+      </style>
+      <script>
+        $(document).ready(function() {
+          // show the alert
+          setTimeout(function() {
+              $(".alert").alert('close');
+          }, 3000);
+      });
+      </script>
 
 <div class="card-header mt-4" style="background:#0db26b;">
     <h5 class="card-title text-white my-auto">Solicitudes de préstamos</h5>
