@@ -29,11 +29,11 @@ BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 #cursor = db.cursor(dictionary=True, buffered=True)
 #cursor.execute("SET NAMES utf8mb4;")
 
-db = db_wrapper.DB(user="sql10342433",
-                           passwd="fCQ6jJWFUY",
-                           host="sql10.freemysqlhosting.net",
+db = db_wrapper.DB(user="root",
+                           passwd="@ProdLabEIT2020",
+                           host="localhost",
                            port="3306",
-                           database="sql10342433",
+                           database="LabEITDB",
                            autocommit=True)
 
 # -----------------------------------------------------------------------------
