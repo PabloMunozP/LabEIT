@@ -4,7 +4,8 @@ import os, time, bcrypt
 import mysql.connector
 import rut_chile
 import glob
-from datetime import datetime, timedelta  
+from datetime import datetime, timedelta
+from openpyxl import Workbook
 
 mod = Blueprint("rutas_solicitud_circuito",__name__)
 
