@@ -29,11 +29,11 @@ BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 #cursor = db.cursor(dictionary=True, buffered=True)
 #cursor.execute("SET NAMES utf8mb4;")
 
-db = db_wrapper.DB(user="root",
-                           passwd="@ProdLabEIT2020",
-                           host="localhost",
+db = db_wrapper.DB(user="sql10342433",
+                           passwd="fCQ6jJWFUY",
+                           host="sql10.freemysqlhosting.net",
                            port="3306",
-                           database="LabEITDB",
+                           database="sql10342433",
                            autocommit=True)
 
 # -----------------------------------------------------------------------------
@@ -59,4 +59,3 @@ CSRF_SESSION_KEY = os.urandom(24)
 
 # Secret key for signing cookies
 SECRET_KEY = b'6hc/_gsh,./;2ZZx3c6_s,1//'
-

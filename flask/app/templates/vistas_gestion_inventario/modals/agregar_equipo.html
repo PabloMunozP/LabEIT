@@ -8,12 +8,15 @@
         </button>
       </div>
 
-          <form action="/gestion_inventario_admin/insert" method="POST">
+          <form action="/gestion_inventario_admin/insert" method="POST" id="form_agregar_equipo" onsubmit="return validar_codigo_agregar_equipo();">
           <div class="modal-body">
 
             <div class="form-group">
               <label for="nombres">Código </label>
-              <input class="form-control" type="text" name="codigo" id="codigo" maxlength="6" pattern="[A-Z0-9]+"required placeholder="AAA111" autocomplete="off">
+              <input class="form-control" type="text" name="codigo" id="codigo" required placeholder="Laboratorio/Ubicación/Sub ubicación" maxlength="50" autocomplete="off" onkeyup="this.value = this.value.toUpperCase();">
+              <div class="invalid-feedback">
+                El código del equipo ya está registrado.
+              </div>
             </div>
 
             <div class="form-group">
@@ -56,22 +59,102 @@
               <input class="form-control" type="text" name="imagen" id="imagen" autocomplete="off">
             </div>
 
-            <div class="form-group">
-              <label for="apellidos">Cantidad de días de préstamo</label>
-              <input class="form-control" type="number" min="1" max="999" name="dias_maximo_prestamo" id="dias_maximo_prestamo"   value="1" autocomplete="off">
-            </div>
 
-            <div class="form-group">
-              <label for="apellidos">Cantidad de días para renovar</label>
-              <input class="form-control" type="number" min="1" max="999" name="dias_renovacion" id="dias_renovacion"   value="1" autocomplete="off">
-            </div>
+            <div class="row">
+              <div class="col">
+                <div class="form-group">
+                  <label for="apellidos">Días de préstamo</label>
+                  <input class="form-control" type="number" min="1" max="999" name="dias_maximo_prestamo" id="dias_maximo_prestamo"   value="1" autocomplete="off">
+                </div>
+              </div>
 
+              <div class="col">
+                <div class="form-group">
+                  <label for="apellidos">Días para renovar</label>
+                  <input class="form-control" type="number" min="1" max="999" name="dias_renovacion" id="dias_renovacion"   value="1" autocomplete="off">
+                </div>
+              </div>
+
+            </div>
+            <div class="form-check">
+              <input type="checkbox" class="form-check-input" id="checkbox-agregar-varios" name="checkbox-agregar-varios" onclick="checkbox_agregar_varios(this)">
+              <label class="form-check-label" for="exampleCheck1"><strong>Agregar unidades</strong></label>
+            </div>
+            <br>
+            <div class="row" id="div-check-serie">
+
+              <div class="col">
+                <div class="form-group">
+                  <label for="unidad_inicio">Unidad inicial</label>
+                  <input disabled class="form-control" type="number" name="unidad_inicio" id="unidad_inicio" autocomplete="off" required>
+                </div>
+                
+              </div>
+
+              <div class="col">
+                <div class="form-group">
+                  <label for="unidad_final">Unidad final</label>
+                  <input disabled class="form-control" type="number" name="unidad_final" id="unidad_final" autocomplete="off" required>
+                </div>
+
+              </div>
+
+            </div>
+            <div class="form-group">
+              <label for="nombres"> Fecha de compra</label>
+              <input type="date" max="3000-01-01" class="form-control" id="fecha_compra" name="fecha_compra" required>
+            </div>
       </div>
       <div class="modal-footer">
               <button type="button" id="boton_cerrar" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
-              <button type="summit" id="boton_guardar" class="btn btn-info"> Guardar cambios</button>
+              <button type="submit" id="boton_guardar"  class="btn btn-info"> Confirmar</button>
       </div>
     </form>
   </div>
 </div>
 </div>
+
+<script>
+  function checkbox_agregar_varios(checkbox) {
+    // Get the output text
+    var div_serie = document.getElementById("div-check-serie");
+    // If the checkbox is checked, display the output text
+    if (checkbox.checked == true){
+      $( "#unidad_inicio" ).prop( "disabled", false );
+      $( "#unidad_final" ).prop( "disabled", false );
+      $( "#fecha_compra" ).prop( "disabled", false );
+    } else {
+      $( "#unidad_inicio" ).prop( "disabled", true );
+      $( "#unidad_final" ).prop( "disabled", true );
+      $( "#fecha_compra" ).prop( "disabled", true );
+    }
+  }
+
+
+
+
+    function validar_codigo_agregar_equipo(){
+
+      var match = false;
+      $.ajax({
+            data : {codigo : $('#codigo').val()},
+            type : 'POST',
+            url : '/gestion_inventario_admin/insertar/validar_codigo',
+            async:false,
+            success: function(data){
+              if (data.match == 'True'){
+                
+                $('#codigo').addClass('is-invalid');
+                $('#agregar_equipo').scrollTop(0);
+
+              }
+              else{
+                match = true;
+              }
+            }
+          })
+      return match
+    }
+
+
+</script>

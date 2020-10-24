@@ -8,14 +8,17 @@
             <span aria-hidden="true">&times;</span>
           </button>
         </div>
-        <form id="editar_form_detallado" action="/gestion_inventario_admin/lista_equipo_diferenciado/actualizar_informacion" method="POST">
+        <form id="editar_form_detallado" action="/gestion_inventario_admin/lista_equipo_diferenciado/actualizar_informacion" method="POST" onsubmit="return validar_codigo_sufijo_edit()">
           <div class="modal-body">
-            <input class="form-control" type="text" name="codigo_equipo" value="" id="editar_equipo_hidden_id_equipo" hidden>
+            <input class="form-control" type="hidden" name="codigo_equipo" value="" id="editar_equipo_hidden_id_equipo" >
             <input class="form-control" type="text" name="codigo_sufijo_original" value="" id="editar_equipo_hidden_id_sufijo" hidden>
 
             <div class="form-group">
               <label for="editar_equipo_codigo_sufijo"> Código sufijo </label>
-              <input class="form-control" type="text" name="codigo_sufijo" id="editar_equipo_codigo_sufijo" maxlength="3" pattern="[0-9]+"required placeholder="111">
+              <input class="form-control" type="text" name="codigo_sufijo" id="editar_equipo_codigo_sufijo" maxlength="50" required placeholder="123456">
+              <div class="invalid-feedback">
+                El código del equipo ya está registrado.
+              </div>
             </div>
 
 
@@ -26,7 +29,7 @@
 
 
             <div class="form-group">
-              <label for="editar_equipo_codigo_sufijo"> Código activo </label>
+              <label for="editar_codigo_activo"> Código activo </label>
               <input class="form-control" type="text" name="codigo_activo" id="editar_codigo_activo">
             </div>
 
@@ -91,3 +94,33 @@ $('#motivo_inactivo_titulo').prop( "hidden", true);
 });
 }
   </script>
+<script>
+  function validar_codigo_sufijo_edit(){
+
+  var match = false;
+
+  $.ajax({
+        data : {
+              codigo_equipo : $("#editar_equipo_hidden_id_equipo").val(),
+              codigo_sufijo : $("#editar_equipo_hidden_id_sufijo").val(),
+              codigo_sufijo_nuevo: $("#editar_equipo_codigo_sufijo").val(),
+              },
+        type : 'POST',
+        url : '/gestion_inventario_admin/lista_equipo_diferenciado/actualizar_informacion/validar_codigo',
+        async:false,
+        success: function(data){
+          console.log(data);
+          if (data.match == 'True'){
+            
+            $('#editar_equipo_codigo_sufijo').addClass('is-invalid');
+            $('#editar_equipo_similar').scrollTop(0);
+
+          }
+          else{
+            match = true;
+          }
+        }
+      })
+  return match;
+}
+</script>
