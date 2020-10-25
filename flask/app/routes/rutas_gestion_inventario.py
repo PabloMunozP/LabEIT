@@ -737,7 +737,7 @@ def consultar_circuito_estado(id_circuito):
             WHERE Detalle_solicitud_circuito.estado IN (1,2,3)
             AND Circuito.id = %s
              ''')
-    cursor.execute(query,(id_circuito,))
+    cursor = db.query(query,(id_circuito,))
     return cursor.fetchall()
 
 
