@@ -11,16 +11,15 @@
                 <div class="modal-body">
                     <div class="form-group">
                         <label for="nombres">Nombres:</label>
-                        <input type="text" id="nombres_{{usuario['rut']}}" name="nombres" title="Solo se permiten letras del lenguaje español. Formato Nombre1 Nombre2 " class="form-control" value="{{usuario['nombres']}}"  maxlength="30" pattern="[a-zA-Z\u00C0-\u00D6\u00D8-\u00f6\u00f8-\u00ff\s ]{0,30}\S" required>
+                        <input type="text" id="nombres_{{usuario['rut']}}" name="nombres" class="form-control" value="{{usuario['nombres']}}"  maxlength="30" required>
                     </div>
                     <div class="form-group">
                         <label for="apellidos">Apellidos:</label>
-                        <input type="text" name="apellidos" id="apellidos_{{usuario['rut']}}" title="Solo se permiten letras del lenguaje español. Formato Apellido1 Apellido2" class="form-control" value="{{usuario['apellidos']}}" maxlength="30" pattern="[a-zA-Z\u00C0-\u00D6\u00D8-\u00f6\u00f8-\u00ff\s ]{0,30}\S" required>
+                        <input type="text" name="apellidos" id="apellidos_{{usuario['rut']}}" class="form-control" value="{{usuario['apellidos']}}" maxlength="30" required>
                     </div>
-                    <div class="form-group">
-                        <label for="correo">Correo:</label>
-                        <input type="email" name="correo" id="correo_{{usuario['rut']}}" title="Ingrese un correo valido. Formato nombre@mail.com "class="form-control"  value="{{usuario['correo']}}" maxlength="41"  required>
-                    </div>
+
+                    <input type="email" hidden name="correo" id="correo_{{usuario['rut']}}" title="Ingrese un correo valido. Formato nombre@mail.com "class="form-control"  value="{{usuario['correo']}}" maxlength="41"  required>
+                    
                     <div class="form-group">
                         <label for="crendencial">Crendencial:</label>
                         <select  name="id_credencial" id="credencial_{{usuario['rut']}}" class="form-control" required>
@@ -42,7 +41,7 @@
                     </div>
                     <div class="form-group">
                         <label for="direccion">Dirección</label>
-                        <input type="text" name="direccion" id="direccion_{{usuario['rut']}}" title="Ingrese una direccion valida, solo se permiten letras del lenguaje español." class="form-control" value="{{usuario['direccion']}}" maxlength="30" pattern="[a-zA-Z\u00C0-\u00D6\u00D8-\u00f6\u00f8-\u00ff\s 0-9 ]{3,30}" required>
+                        <input type="text" name="direccion" id="direccion_{{usuario['rut']}}" title="Ingrese una direccion valida, solo se permiten letras del lenguaje español." class="form-control" value="{{usuario['direccion']}}" required>
                     </div>
                     <input type="hidden" name="rut" value="{{usuario['rut']}}">
                 </div>

@@ -197,11 +197,11 @@ def editar():
             flash('error-editar-correo')
             return redirect("/gestion_usuarios")
         # query para actualizar datos del usuario
-        query = ''' UPDATE Usuario SET id_credencial = %s, email=%s, nombres =%s, apellidos= %s, region = %s, comuna = %s, direccion = %s
+        query = ''' UPDATE Usuario SET id_credencial = %s, nombres =%s, apellidos= %s, region = %s, comuna = %s, direccion = %s
                     WHERE rut= %s'''
         #cursor.execute(query, (datos_usuario['id_credencial'], datos_usuario['correo'], datos_usuario['nombres'],
         #                       datos_usuario['apellidos'], datos_usuario['region'], datos_usuario['comuna'], datos_usuario['direccion'], datos_usuario['rut']))
-        db.query(query, (datos_usuario['id_credencial'], datos_usuario['correo'], datos_usuario['nombres'],datos_usuario['apellidos'], datos_usuario['region'], datos_usuario['comuna'], datos_usuario['direccion'], datos_usuario['rut']))
+        db.query(query, (datos_usuario['id_credencial'], datos_usuario['nombres'],datos_usuario['apellidos'], datos_usuario['region'], datos_usuario['comuna'], datos_usuario['direccion'], datos_usuario['rut']))
 
         flash('editado-correcto')
         # se redirige de vuelta a la pagina principal de gestion usuarios
@@ -217,22 +217,175 @@ def eliminar():
 
     if request.method == 'POST':
         rut = request.form['rut']
-        # Comprobar que el usuario no tenga equipos pendientes
-        query = '''SELECT id FROM Solicitud Where rut_alumno = %s'''
+        # Se verifica que el usuario no tenga detalles de solicitudes de equipo en los estados correspondientes
+        # por retirar (1) / en posesión (2) / con atraso (3)
+        query = """
+            SELECT COUNT(*) AS cantidad_detalles_solicitud_activos
+                FROM Solicitud,Detalle_solicitud
+                    WHERE Detalle_solicitud.estado IN (1,2,3)
+                    AND Solicitud.id = Detalle_solicitud.id_solicitud
+                    AND Solicitud.rut_alumno = %s
+        """
         #cursor.execute(query, (rut,))
         cursor = db.query(query, (rut,))
+        detalles_solicitudes = cursor.fetchone()
 
-        solicitudes = cursor.fetchone()
-        if solicitudes is not None:  # El usuario tiene solicitudes activas
+        if detalles_solicitudes is not None:
+            cantidad_detalles_solicitudes_activos = detalles_solicitudes["cantidad_detalles_solicitud_activos"]
+        else:
             flash("error-eliminar")
             return redirect("/gestion_usuarios")
-        else:  # El usuario no tiene solicitudes pendientes.
-            query = ''' DELETE FROM Usuario WHERE rut= %s'''
-            #cursor.execute(query, (rut,))
-            db.query(query, (rut,))
-            flash('eliminar-correcto')
+        
+        if cantidad_detalles_solicitudes_activos != 0:
+            # En caso de tener detalles de solicitud activos según los estados respectivos
+            # Se notifica acerca del error
+            flash("error-eliminar")
             return redirect("/gestion_usuarios")
+        
+        # Si tiene 0 detalles de solicitudes en actividad, se comprueban
+        # las solicitudes de circuitos
+        query = """
+            SELECT COUNT(*) AS cantidad_detalles_circuitos_activos
+                FROM Solicitud_circuito,Detalle_solicitud_circuito
+                    WHERE Detalle_solicitud_circuito.estado IN (1,2,3)
+                    AND Solicitud_circuito.id = Detalle_solicitud_circuito.id_solicitud_circuito
+                    AND Solicitud_circuito.rut_alumno = %s
+        """
+        cursor = db.query(query, (rut,))
+        detalles_solicitudes = cursor.fetchone()
 
+        if detalles_solicitudes is not None:
+            cantidad_detalles_circuitos_activos = detalles_solicitudes["cantidad_detalles_circuitos_activos"]
+        else:
+            flash("error-eliminar")
+            return redirect("/gestion_usuarios")
+        
+        if cantidad_detalles_circuitos_activos != 0:
+            # En caso de tener detalles de solicitud (CIRCUITOS) activos según los estados respectivos
+            # Se notifica acerca del error
+            flash("error-eliminar")
+            return redirect("/gestion_usuarios")
+        
+        # En caso de que no tenga ninguna solicitud en los estados mencionados
+        # Tanto de circuitos como equipos, se eliminan los registros del usuario
+
+        # Se obtienen los IDs de las solicitudes (equipos y circuitos) para eliminar los registros
+        sql_query = """
+            SELECT id FROM Solicitud
+                WHERE rut_alumno = %s
+        """
+        cursor = db.query(sql_query,(rut,))
+        lista_ids_solicitudes_equipos = cursor.fetchall()
+
+        if len(lista_ids_solicitudes_equipos) != 0:
+            # Se genera una lista con los ids obtenidos en caso de obtener registros
+            lista_ids = []
+            for registro_id in lista_ids_solicitudes_equipos:
+                lista_ids.append(registro_id["id"])
+        
+            sql_query = """
+                DELETE FROM Detalle_solicitud
+                    WHERE id_solicitud IN {0}
+            """
+            string_lista_ids = str(lista_ids).replace("[","(").replace("]",")")
+            sql_query = sql_query.format(string_lista_ids)
+            db.query(sql_query,None)
+        
+        sql_query = """
+            SELECT id FROM Solicitud_circuito
+                WHERE rut_alumno = %s
+        """
+        cursor = db.query(sql_query,(rut,))
+        lista_ids_solicitudes_circuitos = cursor.fetchall()
+        
+        if len(lista_ids_solicitudes_circuitos) != 0:
+            # Se genera una lista con los ids obtenidos en caso de obtener registros
+            lista_ids = []
+            for registro_id in lista_ids_solicitudes_circuitos:
+                lista_ids.append(registro_id["id"])
+            
+            sql_query = """
+                DELETE FROM Detalle_solicitud_circuito
+                    WHERE id_solicitud_circuito IN {0}
+            """
+            string_lista_ids = str(lista_ids).replace("[","(").replace("]",")")
+            sql_query = sql_query.format(string_lista_ids)
+            db.query(sql_query,None)
+
+        # Se deben eliminar registros de sanciones, seccion_alumno, token_recuperacion_password, wishlist
+
+        # Eliminación de sanciones asociadas al usuario
+        sql_query = """
+            DELETE FROM Sanciones
+                WHERE rut_alumno = %s
+        """
+        db.query(sql_query,(rut,))
+
+        # Eliminación de la relación de secciones con el usuario
+        sql_query = """
+            DELETE FROM Seccion_alumno
+                WHERE rut_alumno = %s
+        """
+        db.query(sql_query,(rut,))
+
+        # Eliminación de registros de sanciones del usuario
+        sql_query = """
+            DELETE FROM Token_recuperacion_password
+                WHERE rut_usuario = %s
+        """
+        db.query(sql_query,(rut,))
+
+        # Eliminación de registros de wishlist
+
+        # Se obtienen los ids de wishlist asociados al rut del usuario a eliminar
+        sql_query = """
+            SELECT id FROM Wishlist
+                WHERE rut_solicitante = %s
+        """
+        cursor = db.query(sql_query,(rut,))
+        lista_ids_wishlist = cursor.fetchall()
+
+        if len(lista_ids_wishlist) != 0:
+            lista_ids = []
+            for registro_id in lista_ids_wishlist:
+                lista_ids.append(registro_id["id"])
+
+            # Se eliminan los registros de Wishlist
+            sql_query = """
+                DELETE FROM Wishlist
+                    WHERE id IN {0}
+            """
+            string_lista_ids = str(lista_ids).replace("[","(").replace("]",")")
+            sql_query = sql_query.format(string_lista_ids)
+            db.query(sql_query,None)
+
+            # Se eliminan las urls asociadas
+            sql_query = """
+                DELETE FROM Url_wishlist
+                    WHERE id_wishlist IN {0}
+            """
+            string_lista_ids = str(lista_ids).replace("[","(").replace("]",")")
+            sql_query = sql_query.format(string_lista_ids)
+            db.query(sql_query,None)
+
+            # Se eliminan los motivos académicos asociados
+            sql_query = """
+                DELETE FROM Motivo_academico_wishlist
+                    WHERE id_wishlist IN {0}
+            """
+            string_lista_ids = str(lista_ids).replace("[","(").replace("]",")")
+            sql_query = sql_query.format(string_lista_ids)
+            db.query(sql_query,None)
+        
+        # Finalmente, se elimina al usuario
+        sql_query = """
+            DELETE FROM Usuario
+                WHERE rut = %s
+        """
+        db.query(sql_query,(rut,))
+
+        flash('eliminar-correcto')
+        return redirect("/gestion_usuarios")
 
 @mod.route("/gestion_usuarios/inhabilitar", methods=["POST"])
 def inhabilitar():
@@ -311,10 +464,15 @@ def detalle_usuario(rut):
 
         usuario = cursor.fetchone()
 
-        query = ''' SELECT Solicitud.id as id, Solicitud.rut_profesor as profesor, Solicitud.rut_alumno as alumno, Solicitud.motivo as motivo, Solicitud.fecha_registro as registro,
-            Detalle_solicitud.estado as estado, Detalle_solicitud.id as id_detalle, Equipo.nombre as equipo, Equipo.modelo as modelo, Equipo.marca as marca_equipo
-            FROM Solicitud, Detalle_solicitud, Equipo
-            WHERE Solicitud.id = Detalle_solicitud.id_solicitud AND Solicitud.rut_alumno= %s AND Equipo.id = Detalle_solicitud.id_equipo '''
+        query = ''' 
+            SELECT Solicitud.id as id, Solicitud.rut_profesor as profesor, Solicitud.rut_alumno as alumno, Solicitud.motivo as motivo, Solicitud.fecha_registro as registro,
+                Detalle_solicitud.estado as estado, Detalle_solicitud.id as id_detalle, Equipo.nombre as equipo, Equipo.modelo as modelo, Equipo.marca as marca_equipo, Estado_detalle_solicitud.nombre AS nombre_estado
+                    FROM Solicitud, Detalle_solicitud, Equipo, Estado_detalle_solicitud
+                        WHERE Solicitud.id = Detalle_solicitud.id_solicitud 
+                        AND Solicitud.rut_alumno= %s 
+                        AND Equipo.id = Detalle_solicitud.id_equipo 
+                        AND Detalle_solicitud.estado = Estado_detalle_solicitud.id
+        '''
         #cursor.execute(query, (rut,))
         cursor = db.query(query, (rut,))
 
