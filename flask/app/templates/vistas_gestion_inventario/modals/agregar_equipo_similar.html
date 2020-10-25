@@ -7,13 +7,18 @@
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
-          <form id="editar_form" action="/gestion_inventario_admin/lista_equipo_diferenciado/validar_add/{{equipos_descripcion.codigo}}" method="POST">
+          <form id="editar_form" action="/gestion_inventario_admin/lista_equipo_diferenciado/agregar_equipo" method="POST" onsubmit="return validar_codigo_sufijo();">
+            <input type="hidden" name="codigo_equipo" id="codigo_equipo" value="{{equipos_descripcion.codigo}}">
           <div class="modal-body">
 
             <div class="form-group">
               <label for="nombres"> Código sufijo </label>
-              <input class="form-control" type="text" name="codigo_sufijo" id="codigo" maxlength="3" pattern="[0-9]+"required placeholder="111" autocomplete="off">
+              <input class="form-control" type="number" name="codigo_sufijo" id="codigo_sufijo" maxlength="50" onkeyup="this.value = this.value.toUpperCase();" required placeholder="123456" autocomplete="off">
+              <div class="invalid-feedback">
+                El código del equipo ya está registrado.
+              </div>
             </div>
+            
 
             <div class="form-group">
               <label for="nombres"> Fecha de compra</label>
@@ -28,9 +33,40 @@
       </div>
       <div class="modal-footer">
               <button type="button" id="boton_cerrar" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
-              <button type="summit" id="boton_guardar" class="btn btn-info"> Guardar cambios</button>
+              <button type="summit" id="boton_guardar" class="btn btn-info"> Agregar equipo</button>
       </div>
     </form>
   </div>
 </div>
 </div>
+
+
+<script>
+      function validar_codigo_sufijo(){
+
+      var match = false;
+
+      $.ajax({
+            data : {
+                  codigo_equipo : $('#codigo_equipo').val(),
+                  codigo_sufijo : $('#codigo_sufijo').val(),
+                  },
+            type : 'POST',
+            url : "/gestion_inventario_admin/lista_equipo_diferenciado/agregar_equipo/validar_codigo",
+            async:false,
+            success: function(data){
+              console.log(data);
+              if (data.match == 'True'){
+                
+                $('#codigo_sufijo').addClass('is-invalid');
+                $('#agregar_equipo_similar').scrollTop(0);
+
+              }
+              else{
+                match = true;
+              }
+            }
+          })
+      return match;
+    }
+</script>

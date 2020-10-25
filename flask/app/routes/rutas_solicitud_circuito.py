@@ -41,7 +41,7 @@ def consultar_cursos():
     
 @mod.route("/solicitudes_prestamos_circuitos")
 def solicitudes_prestamos_circuitos():
-    if 'usuario' not in session: # Protege la ruta si no esta logeado
+    if 'usuario' not in session: # Si no está logeado, redirigie al login
         return redirect('/')
     return render_template('solicitudes_prestamos_circuitos/preview.html',
                            lista_circuitos = consultar_lista_circuito(),
@@ -699,7 +699,7 @@ def confirmar_solicitud_agil():
 def exportar_inventario(id_exportacion):
         if "usuario" not in session.keys():
             return redirect("/")
-        if session["usuario"]["id_credencial"] != 3: # El usuario debe ser un administrador (Credencial = 3)
+        if session["usuario"]["id_credencial"] != 3: # El usuario debe ser un administrador (Credencial = 3 'Admin')
             return redirect("/")
 
             # 1: Equipos agrupados

@@ -25,7 +25,6 @@ db = db_wrapper.DB(user="root",
                    port="3306",
                    database="LabEITDB",
                    autocommit=True)
-
 # -----------------------------------------------------------------------------
 
 # Configuraciones de archivos

@@ -2,7 +2,7 @@ from flask import Flask,Blueprint,render_template,request,redirect,url_for,flash
 from flask_csv import send_csv
 from config import db,BASE_DIR
 import os,time,bcrypt
-from datetime import datetime
+from datetime import datetime, timedelta
 import json
 from jinja2 import Environment
 from openpyxl import Workbook
@@ -102,130 +102,165 @@ def insertar_lista_equipos_general(valores_a_insertar):
         INSERT INTO Equipo (codigo, nombre, modelo, marca, descripcion, imagen, dias_max_prestamo, dias_renovacion)
         VALUES (%s, %s, %s, %s, %s, %s, %s, %s);
     ''')
-    #cursor.execute(query,(
-    #    valores_a_insertar['codigo'],
-    #    valores_a_insertar['nombre'],
-    #    valores_a_insertar['modelo'],
-    #    valores_a_insertar['marca'],
-    #    valores_a_insertar['descripcion'],
-    #    valores_a_insertar['imagen'],
-    #    valores_a_insertar['dias_maximo_prestamo'],
-    #    valores_a_insertar['dias_renovacion']))
-
-    db.query(query,(
-        valores_a_insertar['codigo'],
-        valores_a_insertar['nombre'],
-        valores_a_insertar['modelo'],
-        valores_a_insertar['marca'],
-        valores_a_insertar['descripcion'],
-        valores_a_insertar['imagen'],
-        valores_a_insertar['dias_maximo_prestamo'],
-        valores_a_insertar['dias_renovacion']))
+    db.query(query,(valores_a_insertar['codigo'],
+                    valores_a_insertar['nombre'],
+                    valores_a_insertar['modelo'],
+                    valores_a_insertar['marca'],
+                    valores_a_insertar['descripcion'],
+                    valores_a_insertar['imagen'],
+                    valores_a_insertar['dias_maximo_prestamo'],
+                    valores_a_insertar['dias_renovacion']))
 
     return valores_a_insertar['codigo']
 
+def insertar_lista_equipos_detalle_masiva(codigo_equipo, fecha_compra, unidad_inicial, unidad_final):
+    for codigo_sufijo in range(unidad_inicial, unidad_final + 1):
+        equipo = {  'codigo_sufijo': codigo_sufijo,
+                    'codigo_activo': '',
+                    'fecha_compra': fecha_compra}
+        insertar_lista_equipos_detalle(codigo_equipo, equipo) 
+    return
+# Funcion en AJAX para validar que el codigo del equipo a insertar no esté duplicado 
+@mod.route("/gestion_inventario_admin/insertar/validar_codigo", methods = ['POST']) # AJAX
+def validar_codigo_equipo_nuevo():
+    if request.method == "POST" and session["usuario"]["id_credencial"] == 3:
+        
+        try:
+            
+            CODIGO = request.form["codigo"]
+            query = ('''SELECT *
+                        FROM Equipo
+                        WHERE Equipo.codigo = %s''')
+            cursor = db.query(query,(CODIGO,))
+            
+            if len(cursor.fetchall()) > 0: # Si hay coincidencias retorna verdadero
+                
+                return jsonify({'match':'True'})
+            
+            else: # Si no hay coicidencias retorna False
+                
+                return jsonify({'match':'False'})
+        except:
+            
+            return jsonify({'error':'missing_data'})
+            
+    return jsonify({'error':'missing data!'})
+
 @mod.route("/gestion_inventario_admin/insert", methods = ['POST'])
 def funcion_añadir_equipo_form():
-    if request.method == 'POST':
-        informacion_a_insertar = request.form.to_dict()
-        equipos = consultar_lista_equipos_general()
-        for val in equipos:
-            if (val["codigo"]==informacion_a_insertar["codigo"]):
-                flash("equipo-existente")
-                return redirect('/gestion_inventario_admin')
-        insertar_lista_equipos_general(informacion_a_insertar)
-        flash("equipo-agregado")
-        equipos = consultar_lista_equipos_general()
-        return redirect('/gestion_inventario_admin')
+    if request.method == "POST" and session["usuario"]["id_credencial"] == 3:
+        try:
+
+            informacion_a_insertar = request.form.to_dict() 
+
+            if "checkbox-agregar-varios" in informacion_a_insertar:
+                
+                unidad_inicial = int(informacion_a_insertar["unidad_inicio"])   # Obtiene el sufijo inicial
+                unidad_final = int(informacion_a_insertar["unidad_final"])      # Obtiene el sufijo final
+                
+                insertar_lista_equipos_detalle_masiva(informacion_a_insertar["codigo"], 
+                                                      informacion_a_insertar["fecha_compra"], 
+                                                      unidad_inicial, unidad_final)
+                
+
+            insertar_lista_equipos_general(informacion_a_insertar)
+            flash("equipo-agregado")
+            
+        except:
+            flash("error")
+
+    return redirect('/gestion_inventario_admin')        
 
 
 # **** VISTA_PRINCIPAL/MODAL "EDITAR EQUIPO" **** #
-
-def editar_equipo_general(informacion_a_actualizar):  # Query UPDATE
-            query = ('''
-                UPDATE Equipo
+# Funcion para actualizar la informacion de equipo, junto a los equipos relacionados 
+def editar_equipo_general(informacion_a_actualizar):
+    query = ('''UPDATE Equipo
                 LEFT JOIN Equipo_diferenciado ON Equipo_diferenciado.codigo_equipo = Equipo.codigo
-                SET Equipo_diferenciado.codigo_equipo = %s,
-                    Equipo.codigo = %s,
-                    Equipo.nombre = %s,
-                    Equipo.modelo = %s,
-                    Equipo.marca = %s,
-                    Equipo.imagen = %s,
-                    Equipo.descripcion = %s,
-                    Equipo.dias_max_prestamo = %s,
-                    Equipo.dias_renovacion = %s
-                WHERE
-                    Equipo.codigo = %s
-
-            ''')
-            #cursor.execute(query,(
-            #    informacion_a_actualizar['codigo'],
-            #    informacion_a_actualizar['codigo'],
-            #    informacion_a_actualizar['nombre'],
-            #    informacion_a_actualizar['modelo'],
-            #    informacion_a_actualizar['marca'],
-            #    informacion_a_actualizar['imagen'],
-            #    informacion_a_actualizar['descripcion'],
-            #    informacion_a_actualizar['dias_max_prestamo'],
-            #    informacion_a_actualizar['dias_renovacion'],
-            #    informacion_a_actualizar['codigo_original']
-            #    ))
-
-            db.query(query,(
-                informacion_a_actualizar['codigo'],
-                informacion_a_actualizar['codigo'],
-                informacion_a_actualizar['nombre'],
-                informacion_a_actualizar['modelo'],
-                informacion_a_actualizar['marca'],
-                informacion_a_actualizar['imagen'],
-                informacion_a_actualizar['descripcion'],
-                informacion_a_actualizar['dias_max_prestamo'],
-                informacion_a_actualizar['dias_renovacion'],
-                informacion_a_actualizar['codigo_original']
-                ))
-
-            return informacion_a_actualizar
+                    SET Equipo_diferenciado.codigo_equipo = %s,
+                        Equipo.codigo = %s,
+                        Equipo.nombre = %s,
+                        Equipo.modelo = %s,
+                        Equipo.marca = %s,
+                        Equipo.imagen = %s,
+                        Equipo.descripcion = %s,
+                        Equipo.dias_max_prestamo = %s,
+                        Equipo.dias_renovacion = %s
+                    WHERE
+                        Equipo.codigo = %s''')
+    # A partir del codigo original se actualizan los equipos
+    db.query(query,(informacion_a_actualizar['codigo'],
+                    informacion_a_actualizar['codigo'],
+                    informacion_a_actualizar['nombre'],
+                    informacion_a_actualizar['modelo'],
+                    informacion_a_actualizar['marca'],
+                    informacion_a_actualizar['imagen'],
+                    informacion_a_actualizar['descripcion'],
+                    informacion_a_actualizar['dias_max_prestamo'],
+                    informacion_a_actualizar['dias_renovacion'],
+                    informacion_a_actualizar['codigo_original']))
+    return informacion_a_actualizar
 
 def editar_equipo_especifico(informacion_a_actualizar):
-            query = ('''
-                UPDATE Equipo_diferenciado
+    query = ('''UPDATE Equipo_diferenciado
                 SET Equipo_diferenciado.codigo_sufijo = %s,
                     Equipo_diferenciado.fecha_compra = %s,
                     Equipo_diferenciado.codigo_activo = %s,
                     Equipo_diferenciado.activo = %s,
                     Equipo_diferenciado.razon_inactivo = %s
                 WHERE Equipo_diferenciado.codigo_sufijo = %s
-                AND Equipo_diferenciado.codigo_equipo = %s
-            ''')
+                AND Equipo_diferenciado.codigo_equipo = %s''')
 
-            #cursor.execute(query,(
-            #    informacion_a_actualizar['codigo_sufijo'],
-            #    informacion_a_actualizar['fecha_compra'],
-            #    informacion_a_actualizar['codigo_activo'],
-            #    informacion_a_actualizar['activo'],
-            #    informacion_a_actualizar['razon_inactivo'],
-            #    informacion_a_actualizar['codigo_sufijo_original'],
-            #    informacion_a_actualizar['codigo_equipo']
-            #    ))
 
-            db.query(query,(
-                informacion_a_actualizar['codigo_sufijo'],
-                informacion_a_actualizar['fecha_compra'],
-                informacion_a_actualizar['codigo_activo'],
-                informacion_a_actualizar['activo'],
-                informacion_a_actualizar['razon_inactivo'],
-                informacion_a_actualizar['codigo_sufijo_original'],
-                informacion_a_actualizar['codigo_equipo']
-                ))
+    db.query(query,(informacion_a_actualizar['codigo_sufijo'],
+                    informacion_a_actualizar['fecha_compra'],
+                    informacion_a_actualizar['codigo_activo'],
+                    informacion_a_actualizar['activo'],
+                    informacion_a_actualizar['razon_inactivo'],
+                    informacion_a_actualizar['codigo_sufijo_original'],
+                    informacion_a_actualizar['codigo_equipo']))
 
-            return informacion_a_actualizar
+    return informacion_a_actualizar
 
+
+
+@mod.route("/gestion_inventario_admin/lista_equipo_diferenciado/actualizar_informacion/validar_codigo", methods = ['POST'])
+def validar_codigo_sufijo_editar():
+    if request.method == "POST" and session["usuario"]["id_credencial"] == 3:
+        
+        try:
+            
+            CODIGO_EQUIPO = request.form["codigo_equipo"]
+            CODIGO_SUFIJO = request.form["codigo_sufijo"]
+            CODIGO_SUFIJO_NUEVO = request.form["codigo_sufijo_nuevo"]
+
+            if CODIGO_SUFIJO_NUEVO == CODIGO_SUFIJO: # Si el codigo no varia, valida el codigo
+                return jsonify({'match':'False'})
+            
+            query = ('''SELECT * FROM Equipo_diferenciado
+                        WHERE Equipo_diferenciado.codigo_equipo = %s 
+                            AND Equipo_diferenciado.codigo_sufijo = %s''')
+            cursor = db.query(query,(CODIGO_EQUIPO, CODIGO_SUFIJO_NUEVO)) # Busca si hay un equipo con el codigo:sufijo nuevo
+            
+            
+            
+            if len(cursor.fetchall()) > 0: # Si hay coincidencias retorna verdadero
+                
+                return jsonify({'match':'True'})
+            
+            else: # Si no hay coicidencias retorna False
+                
+                return jsonify({'match':'False'})
+        except:
+            
+            return jsonify({'error':'missing_data'})
+            
+    return jsonify({'error':'missing data!'})
 
 #Actualizar informacion equipo diferenciado
-
 @mod.route('/gestion_inventario_admin/lista_equipo_diferenciado/actualizar_informacion', methods = ['POST'])
 def funcion_editar_equipo_diferenciado_form():
-    if request.method == 'POST':
+    if request.method == "POST" and session["usuario"]["id_credencial"] == 3:
         informacion_a_actualizar = request.form.to_dict()
         equipos = consultar_lista_equipos_detalle(informacion_a_actualizar["codigo_equipo"])
         if(informacion_a_actualizar["codigo_sufijo_original"]==informacion_a_actualizar["codigo_sufijo"]):
@@ -244,7 +279,7 @@ def funcion_editar_equipo_diferenciado_form():
 
 @mod.route('/gestion_inventario_admin/actualizar_informacion', methods = ['POST'])
 def funcion_editar_equipo():
-    if request.method == 'POST':
+    if request.method == "POST" and session["usuario"]["id_credencial"] == 3:
         informacion_a_actualizar = request.form.to_dict()
         equipos = consultar_lista_equipos_general()
         if (informacion_a_actualizar["codigo"]==informacion_a_actualizar["codigo_original"]):
@@ -279,7 +314,7 @@ def eliminar_equipo_general(equipo):
 
 @mod.route("/gestion_inventario_admin/delete",methods=["POST"])
 def funcion_eliminar_equipo():
-    if request.method == 'POST':
+    if request.method == "POST" and session["usuario"]["id_credencial"] == 3:
         equipo_a_eliminar = request.form.to_dict()
         equipos = consultar_lista_equipos_detalle_estado(equipo_a_eliminar["codigo"])
         for val in equipos:
@@ -347,7 +382,7 @@ def consultar_equipo_especifico_estado(codigo_equipo,codigo_sufijo):
 
 @mod.route("/gestion_inventario_admin/lista_equipo_diferenciado/delete",methods=["POST"])
 def funcion_eliminar_equipo_diferenciado():
-    if request.method == 'POST':
+    if request.method == "POST" and session["usuario"]["id_credencial"] == 3:
         equipo_a_eliminar = request.form.to_dict()
         equipos = consultar_equipo_especifico_estado(equipo_a_eliminar["codigo_equipo"],equipo_a_eliminar["codigo_sufijo"])
         if (equipos["estado"]==1 or equipos["estado"]==2 or equipos["estado"]==3):
@@ -426,39 +461,66 @@ def detalle_info_equipo(codigo_equipo):
 
 
 # Importante FUNCION() ENCARGADA DE INGRESAR LOS VALORES DEL FORMULARIO "AGREGAR" EN VISTA GESTION INVENTARIO DIFERENCIAD0 ** #
-@mod.route("/gestion_inventario_admin/lista_equipo_diferenciado/validar_add/<string:codigo_equipo>", methods = ['POST'])
-def validar_form_añadir_equipo_espeficio(codigo_equipo):
-    if request.method == 'POST':
-        informacion_a_insertar = request.form.to_dict()
-        equipos = consultar_lista_equipos_detalle(codigo_equipo)
-        for val in equipos:
-            if (val["codigo_sufijo"]==informacion_a_insertar["codigo_sufijo"] or val["codigo_activo"]==informacion_a_insertar["codigo_activo"]):
-                    flash("equipo-existente")
-                    return redirect("/gestion_inventario_admin/lista_equipo_diferenciado/"+codigo_equipo)
-        flash("equipo-agregado")
-        insertar_lista_equipos_detalle(codigo_equipo, informacion_a_insertar)
-        return redirect("/gestion_inventario_admin/lista_equipo_diferenciado/"+codigo_equipo)
+
+# Funcion en AJAX para validar que el codigo_sufijo del equipo no exista
+@mod.route("/gestion_inventario_admin/lista_equipo_diferenciado/agregar_equipo/validar_codigo", methods = ['POST'])
+def validar_codigo_sufijo_nuevo():
+    if request.method == "POST" and session["usuario"]["id_credencial"] == 3:
+        
+        try:
+            
+            CODIGO_EQUIPO = request.form["codigo_equipo"]
+            CODIGO_SUFIJO = request.form["codigo_sufijo"]
+
+            
+            query = ('''SELECT * FROM Equipo_diferenciado
+                        WHERE Equipo_diferenciado.codigo_equipo = %s 
+                            AND Equipo_diferenciado.codigo_sufijo = %s''')
+            
+            cursor = db.query(query,(CODIGO_EQUIPO, CODIGO_SUFIJO))
+            
+            if len(cursor.fetchall()) > 0: # Si hay coincidencias retorna verdadero
+                
+                return jsonify({'match':'True'})
+            
+            else: # Si no hay coicidencias retorna False
+                
+                return jsonify({'match':'False'})
+        except:
+            
+            return jsonify({'error':'missing_data'})
+            
+    return jsonify({'error':'missing data!'})
+
+
+@mod.route("/gestion_inventario_admin/lista_equipo_diferenciado/agregar_equipo", methods = ['POST'])
+def validar_form_añadir_equipo_espeficio():
+    if request.method == "POST" and session["usuario"]["id_credencial"] == 3: # si es admin y metodo POST
+        try:
+            
+            informacion_a_insertar = request.form.to_dict() # Obtiene la informacion del formulario
+            
+            codigo_equipo = informacion_a_insertar["codigo_equipo"] # obtiene el codigo general del equipo
+            
+            insertar_lista_equipos_detalle(codigo_equipo, informacion_a_insertar)
+            
+            flash("equipo-agregado")
+        except:
+            flash("error")
+
+        return redirect("/gestion_inventario_admin/lista_equipo_diferenciado/" + codigo_equipo)
 
 
 # Agrega un equipo a partir de la relacion que tenga DIF
 def insertar_lista_equipos_detalle(codigo_equipo, valores_a_insertar):
-    query = ('''
-        INSERT INTO Equipo_diferenciado (codigo_equipo, codigo_sufijo, codigo_activo, fecha_compra)
-        VALUES (%s, %s, %s, %s);
-    ''')
-    #cursor.execute(query,(
-    #    codigo_equipo,
-    #    valores_a_insertar['codigo_sufijo'],
-    #    valores_a_insertar['codigo_activo'],
-    #    valores_a_insertar['fecha_compra']))
+    query = ('''INSERT INTO Equipo_diferenciado (codigo_equipo, codigo_sufijo, codigo_activo, fecha_compra)
+                VALUES (%s, %s, %s, %s)''')
+    db.query(query,(codigo_equipo,
+                    valores_a_insertar['codigo_sufijo'],
+                    valores_a_insertar['codigo_activo'],
+                    valores_a_insertar['fecha_compra']))
 
-    db.query(query,(
-        codigo_equipo,
-        valores_a_insertar['codigo_sufijo'],
-        valores_a_insertar['codigo_activo'],
-        valores_a_insertar['fecha_compra']))
-
-    return 'OK'
+    return
 
 
 def consultar_lista_equipos_detalle(codigo_equipo):
@@ -476,6 +538,8 @@ def consultar_lista_equipos_detalle(codigo_equipo):
 # ** Importante VISTA GESTION INVENTARIO DIFERENCIADO ** #
 @mod.route("/gestion_inventario_admin/lista_equipo_diferenciado/<string:codigo_equipo>")
 def gestion_inventario_admin_equipo(codigo_equipo):
+    if 'usuario' not in session or session["usuario"]["id_credencial"] != 3: # Si no está logeado, redirigie al login
+        return redirect('/')
     equipos = consultar_lista_equipos_detalle(codigo_equipo)
     equipos_descripcion = consultar_equipo_descripcion(codigo_equipo)
     return render_template('vistas_gestion_inventario/similares_tabla.html',
@@ -527,7 +591,7 @@ def insertar_lista_circuitos(valores_a_insertar):
 #funcion insertar nuevo circuito
 @mod.route("/gestion_inventario_admin/insert_circuito", methods = ['POST'])
 def funcion_añadir_circuito_form():
-    if request.method == 'POST':
+    if request.method == "POST" and session["usuario"]["id_credencial"] == 3:
         informacion_a_insertar = request.form.to_dict()
         circuitos=consultar_lista_circuito()
         for val in circuitos:
@@ -576,7 +640,7 @@ def editar_circuito(informacion_a_actualizar):  # Query UPDATE
 #Funcion editar circuito
 @mod.route('/gestion_inventario_admin/actualizar_informacion_circuito', methods = ['POST'])
 def funcion_editar_circuito():
-    if request.method == 'POST':
+    if request.method == "POST" and session["usuario"]["id_credencial"] == 3:
         informacion_a_actualizar = request.form.to_dict()
         flash("equipo-editado")
         editar_circuito(informacion_a_actualizar)
@@ -606,7 +670,7 @@ def eliminar_circuito(circuito):
 
 @mod.route("/gestion_inventario_admin/delete_circuito",methods=["POST"])
 def funcion_eliminar_circuito():
-    if request.method == 'POST':
+    if request.method == "POST" and session["usuario"]["id_credencial"] == 3:
         equipo_a_eliminar = request.form.to_dict()
         circuitos=consultar_lista_circuito()
         if (int(equipo_a_eliminar["prestados"]) > 0):
