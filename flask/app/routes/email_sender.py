@@ -5,7 +5,7 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
 # Envío de correo (notificaciones de solicitudes de préstamo)
-def enviar_correo_notificacion(archivo, str_asunto, correo_usuario):
+def enviar_correo_notificacion(archivo, str_asunto, correo_usuario, masivo=False):
     # Se crea el mensaje
     correo = MIMEText(archivo, "html")
     correo.set_charset("utf-8")
@@ -19,8 +19,18 @@ def enviar_correo_notificacion(archivo, str_asunto, correo_usuario):
         str_correo = correo.as_string()
         server.sendmail("labeit.udp@gmail.com", correo_usuario, str_correo)
         server.close()
-        flash("correo-exito")  # Notificación de éxito al enviar el correo
+        if not masivo:
+            # Si el correo no es masivo, se generan las alertas flash
+            flash("correo-exito")  # Notificación de éxito al enviar el correo
+        else:
+            # En caso de que sean envíos masivos, se devuleve el estado del envío
+            return True
 
     except Exception as e:
         print(e)
-        flash("correo-fallido")  # Notificación de fallo al enviar el correo
+        if not masivo:
+            # Si el correo no es masivo, se generan las alertas flash
+            flash("correo-fallido")  # Notificación de fallo al enviar el correo
+        else:
+            # En caso de que sean envíos masivos, se devuleve el estado del envío
+            return False

@@ -1,20 +1,16 @@
 from flask import Flask,Blueprint,render_template,request,redirect,url_for,flash,session,jsonify,send_file
 from config import db,BASE_DIR
-import os,time,bcrypt,random
-import smtplib
-from email import encoders
-from email.mime.base import MIMEBase
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
+import os,time,bcrypt,random,re,ast
 from jinja2 import Environment
 from uuid import uuid4  # Token
-import csv
 from werkzeug.utils import secure_filename
 import glob
 import platform
 from itertools import cycle
 from datetime import datetime, timedelta
 from .email_sender import enviar_correo_notificacion
+from openpyxl import load_workbook
+from openpyxl.utils import get_column_letter
 PATH = BASE_DIR  # obtiene la ruta del directorio actual
 # reemplaza [\\] por [/] en windows
 PROFILE_PICS_PATH = PATH.replace(os.sep, '/')+'/app/static/imgs/profile_pics/'
@@ -46,6 +42,25 @@ def ver_usuarios():
         return redirect("/")
     if session["usuario"]["id_credencial"] != 3:
         return redirect("/")
+    
+    # Se obtienen los parámetros en caso de haber 
+    # sido redireccionado desde la carga masiva de usuarios desde la base de datos con el ID respectivo
+    if request.args:
+        id_resultado_carga_masiva = request.args.get("id_resultado_carga_masiva")
+        sql_query = """
+            SELECT * FROM Resultados_carga_masiva_usuarios
+             WHERE id = %s
+        """
+        cursor = db.query(sql_query,(id_resultado_carga_masiva,))
+
+        resultados_carga_masiva = cursor.fetchone()
+
+        if resultados_carga_masiva is not None:
+            # Se transforman los strings a diccionario y lista para errores y resultados respectivamente
+            resultados_carga_masiva["dict_errores"] = ast.literal_eval(resultados_carga_masiva["dict_errores"])
+            resultados_carga_masiva["registros_exitosos"] = ast.literal_eval(resultados_carga_masiva["registros_exitosos"])
+    else:
+        resultados_carga_masiva = None
 
     query = """
             SELECT Usuario.nombres AS nombres, Usuario.apellidos AS apellidos, Usuario.rut AS rut, Credencial.nombre AS credencial, Usuario.email as correo, Usuario.region as region, 
@@ -57,7 +72,9 @@ def ver_usuarios():
     cursor = db.query(query,None)
 
     usuarios = cursor.fetchall()
-    return render_template("/vistas_gestion_usuarios/ver_usuarios.html", usuarios=usuarios)
+    return render_template("/vistas_gestion_usuarios/ver_usuarios.html", 
+                            usuarios=usuarios,
+                            resultados_carga_masiva=resultados_carga_masiva)
 
 
 def digito_verificador(rut):
@@ -137,8 +154,6 @@ def anadir_usuario():
                 # Se reemplazan los datos del usuario en el template a enviar vía correo
                 html_restablecimiento = html_restablecimiento.replace(
                     "%nombre_usuario%", datos_usuario["nombres"])
-                html_restablecimiento = html_restablecimiento.replace(
-                    "%codigo_restablecimiento%", str(random.randint(0, 1000)))
                 html_restablecimiento = html_restablecimiento.replace(
                     "%token_restablecimiento%", token)
 
@@ -352,205 +367,215 @@ def masivo():
         return redirect("/")
     if session["usuario"]["id_credencial"] != 3:
         return redirect("/")
-
-    if request.method == 'POST':
+    
+    try:
         archivo = request.files["file"]
         if not "." in archivo.filename:
             flash("error-agregar-masivo")
             return redirect("/gestion_usuarios")
-        ext= os.path.splitext(archivo.filename)[1]
-        
-        #print(get_size(archivo))
-        if get_size(archivo) > 1024*1024*5: #si el archivo es mayor a 5 Mb se rechazara
+    
+        if get_size(archivo) > 1024*1024*5: #si el archivo es mayor a 5 Mb se rechaza
             flash('error-tamano')
             return redirect("/gestion_usuarios")
+    
+        # Se obtiene la extensión del archivo subido
+        ext= os.path.splitext(archivo.filename)[1]
 
-        if ext  == '.csv' :
-            date=time.localtime()
-            archivo.filename =   str(date.tm_mday) + str(date.tm_mon) + str(date.tm_year) +"." + archivo.filename.split('.')[1].lower()
-            archivo.save(os.path.join( PATH+'/app/static/files/uploads/', secure_filename(archivo.filename) ) )
-            with open(os.path.join( PATH+'/app/static/files/uploads/', secure_filename(archivo.filename)) , 'rt',encoding='utf8')  as csvfile:
-                read = csv.reader(csvfile, delimiter=';',skipinitialspace=True)
-                lines=list(read)
-                query_add=''' INSERT INTO Usuario(nombres,apellidos,rut,id_credencial,email) VALUES (%s,%s,%s,%s,%s)'''
-                del lines[0]
-                error_rut = []
-                error_correo = []
-                for line in lines:
-                    nombres = line[0].split(' ')
-                    nombres = nombres[0]+' '+nombres[1]
-                    apellidos = line[0].split(' ')
-                    apellidos = apellidos[-2]+' '+apellidos[-1]
-
-                    #print(nombres+' '+apellidos+' '+line[1]+' '+ line[2])
-                    query= ''' SELECT Usuario.rut as rut FROM Usuario WHERE rut=%s '''
-                    #cursor.execute(query,(line[1],))
-                    cursor = db.query(query,(line[1],))
-
-                    duplicados_rut=cursor.fetchone()
-                    
-                    query= ''' SELECT Usuario.email as correo FROM Usuario WHERE email=%s '''
-                    #cursor.execute(query,(line[2],))
-                    cursor = db.query(query,(line[2],))
-
-                    duplicados_correo=cursor.fetchone()
-                           
-                    if duplicados_rut is not None : #Ya existe un usuario con ese rut
-                        error_rut.append(line[1])
-                        continue
-                    if duplicados_correo is not None:  # Ya existe alguien registrado con ese rut
-                        error_correo.append(line[2])
-                        continue
-
-                    # No exista nadie con rut ni correo repetido.
-                    if duplicados_rut is None and duplicados_correo is None:
-                        if line[1][-1] == digito_verificador(line[1][:-1]):
-                            #print('paso bien')
-                            #cursor.execute(query_add,(nombres,apellidos,line[1],'1',line[2]))
-                            db.query(query_add,(nombres,apellidos,line[1],'1',line[2]))
-                            #Una vez creado, se le notifica al usuario para que cambie su contraseña y complete sus datos
-                            
-                            # Se abre el template HTML correspondiente al restablecimiento de contraseña
-                            direccion_template = os.path.normpath(os.path.join(
-                                os.getcwd(), "app/templates/vistas_exteriores/establecer_password_mail.html"))
-                            html_restablecimiento = open(
-                                direccion_template, encoding="utf-8").read()
-
-                            # Se crea el token único para restablecimiento de contraseña
-                            token = str(uuid4())
-
-                            # Se eliminan los registros de token asociados al rut del usuario en caso de existir
-                            sql_query = """ DELETE FROM Token_recuperacion_password
-                                WHERE rut_usuario = %s   """
-                            #cursor.execute(sql_query, (line[1],))
-                            db.query(sql_query, (line[1],))
-
-                            # Se reemplazan los datos del usuario en el template a enviar vía correo
-                            html_restablecimiento = html_restablecimiento.replace(
-                                "%nombre_usuario%", nombres)
-                            html_restablecimiento = html_restablecimiento.replace(
-                                "%codigo_restablecimiento%", str(random.randint(0, 1000)))
-                            html_restablecimiento = html_restablecimiento.replace(
-                                "%token_restablecimiento%", token)
-
-                            # Se envia el correo
-                            enviar_correo_notificacion(html_restablecimiento,"Establecer Contraseña - LabEIT UDP",line[2])
-
-                            # Se registra el token en la base de datos según el RUT del usuario
-                            sql_query = """
-                            INSERT INTO Token_recuperacion_password
-                                (token,rut_usuario)
-                                    VALUES (%s,%s)
-                            """
-                            #cursor.execute(
-                            #    sql_query, (str(token), line[1]))
-                            db.query(sql_query, (str(token), line[1]))
-                        else:
-                            error_rut.append(line[1])
-
-                session['error_rut'] = error_rut
-                session['error_correo'] = error_correo
-                flash('agregar-masivo-correcto')
-                return redirect("/gestion_usuarios")
-        elif ext =='.xlsx':
-            #Es un archivo excel
-            date=time.localtime()
-            archivo.filename =   str(date.tm_mday) + str(date.tm_mon) + str(date.tm_year) +"." + archivo.filename.split('.')[1].lower()
-            ruta=os.path.join( PATH+'/app/static/files/uploads/', secure_filename(archivo.filename) )
-            archivo.save(ruta)
-            error_rut=[]
-            error_correo=[]
-            #Cargar usuarios
-            carga = load_workbook(ruta)
-            hoja=carga.active
-            for row in hoja.iter_rows(min_row=2,max_col=5,values_only=True):
-                
-                #print(row)
-                if not row[0] or not row[1] or not row[2] or not row[3] or not row[4]:
-                    continue
-
-                query_add=''' INSERT INTO Usuario(nombres,apellidos,rut,id_credencial,email) VALUES (%s,%s,%s,%s,%s)'''
-
-                query= ''' SELECT Usuario.rut as rut FROM Usuario WHERE rut=%s '''
-                #cursor.execute(query,(row[2],))
-                cursor = db.query(query,(row[2],))
-
-                duplicados_rut=cursor.fetchone()
-                
-                query= ''' SELECT Usuario.email as correo FROM Usuario WHERE email=%s '''
-                #cursor.execute(query,(row[3],))
-                cursor = db.query(query,(row[3],))
-
-                duplicados_correo=cursor.fetchone()
-                
-                if duplicados_rut : #Ya existe un usuario con ese rut
-                    print('rut doble'+duplicados_rut['rut'])
-                    error_rut.append(duplicados_rut['rut'])
-                    continue
-                if duplicados_correo : #Ya existe alguien registrado con ese rut
-                    print('correo doble'+duplicados_correo['correo'])
-                    error_correo.append(duplicados_correo['correo'])
-                    continue    
-                
-                #print('ok')
-                if not duplicados_rut  and not duplicados_correo :#No exista nadie con rut ni correo repetido.
-                    
-                    rut=str(row[2])                
-                    if rut[-1] == digito_verificador(rut[:-1]):
-                        print(rut +'paso bien')
-                        #cursor.execute(query_add,(row[0],row[1],rut,row[4],row[3]))
-                        db.query(query_add,(row[0],row[1],rut,row[4],row[3]))
-                        #Una vez creado, se le notifica al usuario para que cambie su contraseña y complete sus datos
-                        
-                        # Se abre el template HTML correspondiente al restablecimiento de contraseña
-                        direccion_template = os.path.normpath(os.path.join(os.getcwd(), "app/templates/vistas_exteriores/establecer_password_mail.html"))
-                        html_restablecimiento = open(direccion_template,encoding="utf-8").read()
-
-                        # Se crea el token único para restablecimiento de contraseña
-                        token = str(uuid4())
-
-                        # Se eliminan los registros de token asociados al rut del usuario en caso de existir
-                        sql_query = """ DELETE FROM Token_recuperacion_password
-                            WHERE rut_usuario = %s   """
-                        #cursor.execute(sql_query,(rut,))
-                        db.query(sql_query,(rut,))
-
-                        # Se reemplazan los datos del usuario en el template a enviar vía correo
-                        html_restablecimiento = html_restablecimiento.replace("%nombre_usuario%",row[0])
-                        html_restablecimiento = html_restablecimiento.replace("%codigo_restablecimiento%",str(random.randint(0,1000)))
-                        html_restablecimiento = html_restablecimiento.replace("%token_restablecimiento%",token)
-
-                        # Se envia el correo
-                        enviar_correo_notificacion(html_restablecimiento,"Establecer Contraseña - LabEIT UDP",row[3])
-                        
-                        # Se registra el token en la base de datos según el RUT del usuario
-                        sql_query = """
-                        INSERT INTO Token_recuperacion_password
-                            (token,rut_usuario)
-                                VALUES (%s,%s)
-                        """
-                        #cursor.execute(sql_query,(str(token),rut))
-                        db.query(sql_query,(str(token),rut))
-        
-                    else:
-                        print(rut)
-                        error_rut.append(rut)
-                        continue
-
-            session['error_rut']=error_rut
-            session['error_correo']=error_correo   
-            flash('agregar-masivo-correcto')
-            return redirect("/gestion_usuarios")
-
-        else:
-
+        if ext != ".xlsx":
+            # El archivo subido no corresponde a un archivo Excel
             flash('error-agregar-masivo')
             return redirect("/gestion_usuarios")
+    
+        # El archivo subido corresponde a un archivo Excel
+        # Se abre el archivo con load_workbook
+        wb = load_workbook(archivo)
+        ws = wb.active # Se abre la hoja activa del libro
+
+        fila_inicial = 2 # Los inicios de registros en la planilla inician en la fila 2
+        dict_errores = {} # Permite almacenar las coordenadas de los errores detectados
+        # Se inicializan las llaves con los mensajes de error
+        dict_errores["RUT no valido"] = []
+        dict_errores["RUT en uso"] = []
+        dict_errores["Email no valido"] = []
+        dict_errores["Email en uso"] = []
+        dict_errores["Correos fallidos"] = []
+
+        registros_exitosos = [] # Permite almacenar los usuarios registrados correctamente
+
+        # Se recorre cada uno de los registros en el archivo (no nulos)
+        for index_fila in range(fila_inicial,ws.max_row+1):
+            # Se crean los arreglos con la información de cada usuario
+            registro_usuario = []
+            celdas_vacias = False
+            for celda in ws[index_fila]:
+                # Se registra el valor en la información del registro de usuario
+                registro_usuario.append(str(celda.value))
+                if celda.value is None:
+                    # En caso de que existan celdas vacías, se continúa con la siguiente fila
+                    celdas_vacias = True
+                    break
+                # En caso de llegar a la última fila (fila 5 correspondiente a credencial)
+                # Se termina de agregar información
+                if celda.column == 5:
+                    break
+            
+            if celdas_vacias:
+                # Si existen celdas vacías, se omite la fila actual y se continúa con la siguiente
+                continue
+
+            # Se continúa con las validaciones una vez obtenidos los datos del usuario
+            # Se modifica a False en caso de detectar algún error y no registrar finalmente.
+            # Además permite obtener todos los errores en las distintas columnas de la fila correspondiente.
+            registro_valido = True
+            
+            # Validaciones de RUT
+            # Se remueven los puntos o guiones en caso de que existan y se ponen en mayúscula los caracteres (en caso de la 'K')
+            registro_usuario[2] = registro_usuario[2].replace(".","").replace("-","").upper()
+            
+            # Se verifica el largo del RUT ingresado
+            if (len(registro_usuario[2]) <= 7 or len(registro_usuario[2]) > 9):
+                # El largo del string de RUT no corresponde a la cantidad de caracteres
+                dict_errores["RUT no valido"].append(get_column_letter(3)+str(celda.row))
+                registro_valido = False
+            
+            # Se intenta revisar y calcular el dígito verificador y en caso de error se agrega al log.
+            if registro_valido:
+                try:
+                    rut_base = registro_usuario[2][:len(registro_usuario[2])-1] # Sin contemplar dígito verificador
+                    if digito_verificador(rut_base) != registro_usuario[2][len(registro_usuario[2])-1]:
+                        # El rut ingresado no es válido
+                        dict_errores["RUT no valido"].append(get_column_letter(3)+str(celda.row))
+                        registro_valido = False
+
+                except:
+                    # El rut ingresado no es válido
+                    dict_errores["RUT no valido"].append(get_column_letter(3)+str(celda.row))
+                    registro_valido = False
+                
+                if registro_valido:
+                    # Si el registro sigue siendo válido, se revisa la existencia del RUT
+                    # en la base de datos 
+                    sql_query = """
+                        SELECT COUNT(*) AS cantidad_registros
+                            FROM Usuario
+                                WHERE rut = %s
+                    """
+                    cursor = db.query(sql_query,(registro_usuario[2],))
+                    cantidad_registros = cursor.fetchone()["cantidad_registros"]
+
+                    if cantidad_registros != 0:
+                        # El RUT ingresado ya se encuentra asociado a un usuario registrado
+                        dict_errores["RUT en uso"].append(get_column_letter(3)+str(celda.row))
+                        registro_valido = False
+
+            # Luego de validar el RUT, se revisa la existencia y formato del correo electrónico
+
+            # Se verifica el dominio del correo (mail.udp.cl o udp.cl)
+            dominio_correo = re.search("@[\w.]+", registro_usuario[3]).group()
+            
+            if dominio_correo != "@mail.udp.cl" and dominio_correo != "@udp.cl":
+                dict_errores["Email no valido"].append(get_column_letter(4)+str(celda.row))
+                registro_valido = False
+            
+            if registro_valido:
+                # Se verifica si el correo electrónico se encuentra registrado en la base de datos
+                sql_query = """
+                    SELECT COUNT(*) AS cantidad_registros FROM Usuario
+                        WHERE email = %s
+                """
+                cursor = db.query(sql_query,(registro_usuario[3],))
+                registro_correo = cursor.fetchone()["cantidad_registros"]
+
+                if registro_correo != 0:
+                    # El correo ya se encuentra asociado a un usuario registrado
+                    dict_errores["Email en uso"].append(get_column_letter(4)+str(celda.row))
+                    registro_valido = False
+                
+                else:
+                    # Si el correo no se encuentra registrado, se realiza el registro
+                    # en base al último campo del tipo de usuario
+                    
+                    # Si la credencial no corresponde a 1 ni a 2, se deja como 1 (alumno) por defecto
+                    if registro_usuario[4] not in ["1","2"]:
+                        registro_usuario[4] = "1" # Se setea a alumno por default
+                    
+                    # Se realiza el registro del usuario y envío de token
+                    sql_query = """
+                        INSERT INTO Usuario (rut,id_credencial,email,nombres,apellidos)
+                            VALUES (%s,%s,%s,%s,%s)
+                    """
+                    db.query(sql_query,(registro_usuario[2],registro_usuario[4],registro_usuario[3],registro_usuario[0],registro_usuario[1]))
+
+                    # Se eliminan los posibles tokens asociados al usuario
+                    sql_query = """
+                        DELETE FROM Token_recuperacion_password
+                            WHERE rut_usuario = %s
+                    """
+                    db.query(sql_query,(registro_usuario[2],))
+
+                    # Se crea el token único para restablecimiento de contraseña
+                    token = str(uuid4())
+                    fecha_actual = datetime.now().replace(microsecond=0)
+
+                    # Se registra el token del nuevo usuario en la base de datos
+                    sql_query = """
+                        INSERT INTO Token_recuperacion_password (token,rut_usuario,fecha_registro)
+                            VALUES (%s,%s,%s)
+                    """
+                    db.query(sql_query,(token,registro_usuario[2],fecha_actual))
+
+                    # Se abre el template HTML correspondiente al restablecimiento de contraseña
+                    direccion_template = os.path.normpath(os.path.join(
+                    os.getcwd(), "app/templates/vistas_exteriores/establecer_password_mail.html"))
+                    html_restablecimiento = open(direccion_template, encoding="utf-8").read()
+
+                    # Se reemplazan los datos del usuario en el template a enviar vía correo
+                    html_restablecimiento = html_restablecimiento.replace("%nombre_usuario%", registro_usuario[0])
+                    html_restablecimiento = html_restablecimiento.replace("%token_restablecimiento%", token)
+
+                    # Se intenta enviar el correo y se revisa el estado
+                    estado_envio = enviar_correo_notificacion(html_restablecimiento,"Establecer Contraseña - LabEIT UDP",registro_usuario[3],masivo=True)
+
+                    if estado_envio:
+                        # El correo fue enviado correctamente al usuario
+                        registros_exitosos.append(str(celda.row))
+                    else:
+                        # Se produjo un error interno al intentar enviar el correo
+                        dict_errores["Correos fallidos"].append(str(celda.row))
+        
+        # Se eliminan los posibles registros de resultados anteriores
+        sql_query = """
+            DELETE FROM Resultados_carga_masiva_usuarios
+        """
+        db.query(sql_query,None)
+
+        # Se genera el registro de los resultados de la carga masiva en la base de datos
+        fecha_actual = datetime.now().replace(microsecond=0)
+        sql_query = """
+            INSERT INTO Resultados_carga_masiva_usuarios (dict_errores,registros_exitosos,fecha_registro)
+                VALUES (%s,%s,%s)
+        """
+        cursor = db.query(sql_query,(str(dict_errores),str(registros_exitosos),fecha_actual))              
+
+        # Se obtiene el ID de resultado generado en la base de datos
+        id_resultado_carga_masiva = cursor.lastrowid
+
+        return redirect(url_for("rutas_gestion_usuarios.ver_usuarios",id_resultado_carga_masiva=id_resultado_carga_masiva))
+    
+    except BaseException as e:
+        print(e)
+        flash('error-desconocido-carga-masiva')
+        return redirect("/gestion_usuarios")
 
 @mod.route("/gestion_usuarios/anadir_masivo/formato",methods=["GET"])
 def formato_xlsx():
-    ruta=os.path.join( PATH +'/app/static/files/uploads/', 'formato.xlsx' )
-    return send_file(ruta)
+    if "usuario" not in session.keys():
+        return redirect("/")
+    if session["usuario"]["id_credencial"] != 3:
+        return redirect("/")
+    
+    ruta = os.path.normpath(os.path.join( PATH +'/app/static/files/plantillas/', 'carga_masiva_usuarios.xlsx' ))
+    return send_file(ruta, as_attachment=True)
 
 @mod.route("/gestion_usuarios/sancion", methods=["POST"])
 def sancion():
