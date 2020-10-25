@@ -115,6 +115,14 @@
                 </button>
               </div>
             {%endif%}
+            {% if msg == "error-desconocido-carga-masiva"%}
+              <div class="alert alert-danger alert-dismissible fade show mt-2" role="alert">
+                <i class="fas fa-times-circle mr-2"></i>Se ha producido un error al procesar el archivo. Revise que la planilla corresponda a la solicitada y compruebe los datos ingresados. 
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+            {%endif%}
             {% if msg == "error-tamano"%}
               <div class="alert alert-danger alert-dismissible fade show" role="alert">
                 <i class="fas fa-times-circle mr-2"></i> El archivo supera el tamaño maximo permitido.
