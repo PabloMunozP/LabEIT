@@ -9,6 +9,7 @@
             <th scope="col">IDD</th>
             <th scope="col">Equipo solicitado</th>
             <th scope="col">Fecha de registro</th>
+            <th scope="col">Estado de solicitud</th>
             <th scope="col" class="text-center">Acciones</th>
         </tr>
     </thead>
@@ -19,6 +20,21 @@
             <td>{{solicitud["id_detalle"]}}</td>
             <td>{{solicitud["equipo"]}} {{solicitud["marca_equipo"]}} {{solicitud["modelo"]}}</td>
             <td>{{solicitud["registro"]}}</td>
+            {% if solicitud["nombre_estado"] == 'Pendiente' %}
+              <td class="text-center"><span class="badge badge-primary">{{solicitud["nombre_estado"]}}</span></td>
+            {% elif solicitud["nombre_estado"] == 'Por retirar' %}
+              <td class="text-center"><span class="badge badge-info">{{solicitud["nombre_estado"]}}</span></td>
+            {% elif solicitud["nombre_estado"] == 'En posesión' %}
+              <td class="text-center"><span class="badge badge-success">{{solicitud["nombre_estado"]}}</span></td>
+            {% elif solicitud["nombre_estado"] == 'Con atraso' %}
+              <td class="text-center"><span class="badge badge-danger">{{solicitud["nombre_estado"]}}</span></td>
+            {% elif solicitud["nombre_estado"] == 'Devuelto' %}
+              <td class="text-center"><span class="badge badge-success">{{solicitud["nombre_estado"]}}</span></td>
+            {% elif solicitud["nombre_estado"] == 'Rechazada' or solicitud["nombre_estado"] == 'Cancelada' %}
+              <td class="text-center"><span class="badge badge-danger">{{solicitud["nombre_estado"]}}</span></td>
+            {% elif solicitud["nombre_estado"] == 'Finalizada' %}
+              <td class="text-center"><span class="badge badge-secondary">{{solicitud["nombre_estado"]}}</span></td>
+            {% endif %}
             <td class="text-center">
               <a href="/gestion_solicitudes_prestamos/detalle_solicitud/{{solicitud["id_detalle"]}}">
                 <button type="button" title="Ver detalle de solicitud" class="btn btn-sm btn-secondary mr-1"><i class="fas fa-search-plus"></i></button>

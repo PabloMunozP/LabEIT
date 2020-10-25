@@ -207,10 +207,24 @@
                         {{usuario['region']}}
           						</p>
           					</div>
-          				</div>
+                  </div>
 
-                  <button type="button" title="Eliminar usuario" data-target="#eliminar_{{usuario['rut']}}" class="btn btn-sm btn-danger" data-toggle="modal"><i class="fas fa-trash-alt mr-1"></i>Eliminar usuario</button>
-                  {% include 'vistas_gestion_usuarios/eliminar_usuario.html' %}
+                  <div class="form-group row">
+          					<label class="col-md-4 col-form-label texto-gris-eit">
+          						<i class="fas fa-mobile-alt mr-1"></i>
+                      <strong>Celular:</strong>
+          					</label>
+          					<div class="col-md-8">
+          						<p class="form-control-plaintext">
+                        (+56) {{usuario['celular']}}
+          						</p>
+          					</div>
+                  </div>
+                  
+                  {% if usuario["rut"] != session["usuario"]["rut"] %}
+                    <button type="button" title="Eliminar usuario" data-target="#eliminar_{{usuario['rut']}}" class="btn btn-sm btn-danger" data-toggle="modal"><i class="fas fa-trash-alt mr-1"></i>Eliminar usuario</button>
+                    {% include 'vistas_gestion_usuarios/eliminar_usuario.html' %}
+                  {% endif %}
 
                   {% if sancion %}
                     <hr>
