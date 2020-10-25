@@ -1,0 +1,46 @@
+<div id="resultados_carga_masiva" class="modal fade in" tabindex="-1" role="dialog"  aria-hidden="true" data-keyboard="true" data-backdrop="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-gris-eit">
+                <h5 class="modal-title text-white" id="editar_informacion_label"><i class="fas fa-exclamation-circle mr-2"></i>Resultados de la carga masiva de usuarios</h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar">
+                <span aria-hidden="true">&times; </span>
+                </button>
+            </div>
+            <form action="/gestion_usuarios/anadir_masivo" method="POST" enctype="multipart/form-data">
+            <div class="modal-body">
+                <p>A continuación se muestran los resultados obtenidos de la carga masiva según el archivo subido.</p>
+                <p><strong>ID de resultado:</strong> {{resultados_carga_masiva["id"]}}</p>
+                <p><strong>Fecha de carga:</strong> {{resultados_carga_masiva["fecha_registro"]}}</p>
+                <hr>
+                <p><strong>Errores detectados (por celdas):</strong>
+                    {% for error in resultados_carga_masiva["dict_errores"] %}
+                    {% if resultados_carga_masiva["dict_errores"][error] %}
+                        <p><strong>{{error}}:</strong></p>
+                        <p> {% for coord in resultados_carga_masiva["dict_errores"][error] %} <span class="badge badge-secondary">{{coord}}</span> {% endfor %} </p>
+                    {% endif %}
+                {% endfor %}
+                </p>
+                <p>
+                    <hr>
+                 {% if resultados_carga_masiva["registros_exitosos"] %}
+                    <div class="alert alert-success" role="alert">
+                        <i class="fas fa-check-circle mr-2"></i><strong>Filas correctamente registradas:</strong> 
+                        <br>
+                        {% for fila in resultados_carga_masiva["registros_exitosos"] %} <span class="badge badge-secondary">{{fila}}</span>  {% endfor %}
+                    </div>   
+                 {% else %}
+                    <div class="alert alert-warning" role="alert">
+                        <i class="fas fa-exclamation-triangle mr-2"></i>No se han realizado registros a partir del archivo cargado. Revise los posibles errores en las celdas.
+                    </div>
+                 {% endif %}
+                </p>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+            </div>
+            </form>
+        </div>
+    </div>
+</div>
+

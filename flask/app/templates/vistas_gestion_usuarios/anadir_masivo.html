@@ -11,28 +11,46 @@
             <div class="modal-body">
                 <h6 class="modal-title text-black">Importar usuarios</h6>
                 <form action="/gestion_usuarios/anadir_masivo" method="POST" enctype="multipart/form-data">
-                    <p>Recuerde el formato de este archivo y su extension (.csv o .xlsx). ¿No conoce el formato? Haga click <a href="#formato_csv" data-toggle="collapse" > <strong> aquí.</strong></a></p>
+                    <p>Recuerde el formato de este archivo y su extensión (.xlsx).</p>
+                    <p>¿No conoce el formato? Haga click <a href="#formato_csv" data-toggle="collapse" > <strong> aquí.</strong></a></p>
                     <div id="formato_csv" class="collapse">
                         <hr>
-                        <h5>Formato CSV</h5>
-                        <p> Para obtener de forma más sencilla la lista de los alumnos a ingresar se sugiere exportar los datos desde Canvas. Para esto deberá dirigirse al apartado <strong>'Calificaciones'</strong> y exportar en formato <strong>CSV</strong>.
-                           <br>Una vez que haya descargado la lista de alumnos deberá modificar algunas de sus columnas, ya que el sistema Canvas da más información de la necesitada para el registro de usuarios.<br> 
-                            Para esto será necesario solo dejar las columnas con los nombres <strong>'Student, SIS User ID, SIS Login ID'</strong> que representan los campos de nombre, RUT y correo respectivamente de cada alumno.
                         <h5>Formato XLSX</h5>
-                        <p>Si desea ingresar los valores de manera mas controlada en una hoja de cálculo, puede probar con el formato <strong>xlsx</strong> haciendo <a href="/gestion_usuarios/anadir_masivo/formato" target="_blank">click aquí</a> para descargar una plantilla y posteriormente subirla con los datos cargados.</p>             
+                        <p>Para ingresar los valores de manera controlada en una hoja de cálculo, <a href="/gestion_usuarios/anadir_masivo/formato" target="_blank">descargue la planilla</a> y posteriormente suba el archivo con los datos cargados.</p>     
+                    
+                        <p>La información de los usuarios se puede obtener a través de la plataforma Canvas, accediendo a la sección de <strong>'Calificaciones'</strong> y utilizando la opción de exportación ubicada en el menú de <strong>'Acciones'</strong>.</p>
+                        <p>En dicho archivo exportado encontrará las columnas necesarias según el formato solicitado, donde <strong>'Student'</strong>, <strong>'SIS User ID'</strong> y <strong>'SIS Login ID'</strong> corresponden al <strong>nombre del usuario</strong>, su <strong>RUT</strong> y <strong>correo electrónico</strong> respectivamente.</p>
+
                     </div>
                     <div class="custom-file">
-                        <input type="file" class ="custom-file-input" id="CSV" name="file" accept=".csv,.xlsx">
+                        <input required type="file" id="file" class ="custom-file-input" id="CSV" onchange="revisarExtension(this)" name="file" accept=".xlsx">
                         <label for="CSV" class="custom-file-label"> Elige un archivo</label>
-                        <small class="text-muted">Considere que el tamaño máximo permitido para el archivo es de 5 Mb.</small>
+                        <small class="text-muted">Considere que el tamaño máximo permitido para el archivo es de 5 MB.</small>
+                        <small id="ext-error" hidden class="form-text text-danger">
+                            * La extensión del archivo seleccionado no es la adecuada.
+                        </small>
                     </div>
             </div>
             <div class="modal-footer">
               <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-              <button class="btn btn-success" type="submit">Cargar usuarios</button>
+              <button id="btn-submit-archivo" class="btn btn-success" type="submit">Cargar usuarios</button>
             </div>
             </form>
         </div>
     </div>
 </div>
 
+<script>
+    function revisarExtension (sender) {
+        var re = /(?:\.([^.]+))?$/;
+        fileExt = re.exec(sender.value)[1];
+
+        if (fileExt !== 'xlsx'){
+            document.getElementById('ext-error').hidden = false;
+            document.getElementById('btn-submit-archivo').disabled = true;
+        } else {
+            document.getElementById('ext-error').hidden = true;
+            document.getElementById('btn-submit-archivo').disabled = false;
+        }
+    }
+</script>
