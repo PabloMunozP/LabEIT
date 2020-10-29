@@ -79,7 +79,30 @@ def consultar_equipos_por_id_solicitudes(list_id_solicitudes): # Query para cons
     query_resultado = cursor.fetchall()
     return query_resultado
 
+# Funcion para consultar las solicitudes de componentes
+def consultar_solicitudes_componentes_detalle(rut):
+    query = ('''SELECT 
+                    Detalle_solicitud_circuito.id AS IDD,
+                    Detalle_solicitud_circuito.id_solicitud_circuito AS IDS,
+                    Detalle_solicitud_circuito.cantidad,
+                    Detalle_solicitud_circuito.estado,
+                    Detalle_solicitud_circuito.fecha_inicio,
+                    Detalle_solicitud_circuito.fecha_termino,
+                    Detalle_solicitud_circuito.fecha_devolucion,
+                    Detalle_solicitud_circuito.fecha_vencimiento,
+                    Estado_detalle_solicitud.nombre AS estado,
+                    Circuito.nombre AS componente
+                FROM Detalle_solicitud_circuito
+                LEFT JOIN Solicitud_circuito on Solicitud_circuito.id = Detalle_solicitud_circuito.id_solicitud_circuito
+                LEFT JOIN Estado_detalle_solicitud ON Estado_detalle_solicitud.id = Detalle_solicitud_circuito.estado
+                LEFT JOIN Circuito ON Circuito.id = Detalle_solicitud_circuito.id_circuito
+                WHERE Solicitud_circuito.rut_alumno = %s''')
+    cursor = db.query(query,(rut,))
 
+    return cursor.fetchall()
+
+    
+    
 def consultar_informacion_perfil(rut_perfil): # Query para consultar la informacion del perfil
     query = ('''
             SELECT
@@ -217,6 +240,7 @@ def perfil():
             admin_inspeccionar_perfil = False,
             lista_mensajes_administrativos = consultar_mensajes_administrativos(),
             sancionado = session["usuario"]["sancionado"],
+            componentes = consultar_solicitudes_componentes_detalle(session['usuario']['rut']),
             datos_wifi = consultar_red_wifi())
 
 
@@ -268,6 +292,8 @@ def allowed_image(filename): # funcion que valida la extension de la imagen
         return True
     else:
         return False
+    
+    
 
 
 # ************Acciones de fotos de perfil****************
@@ -312,38 +338,140 @@ def borrar_foto_perfil_gestion(rut_perfil):
 @mod.route('/perfil/cancelar_solicitud', methods = ['GET','POST']) # funcion para cancelar una solicitud
 def cancelar_solicitud():
     if request.method == "POST":
+        
         solicitud = request.form.to_dict()
-        query = ('''
-                UPDATE Detalle_solicitud
-                SET Detalle_solicitud.estado = 7
-                WHERE Detalle_solicitud.id = %s
-                    AND Detalle_solicitud.estado = 0
-                ''') # 7 == cancelado
-        #cursor.execute(query,(solicitud["id_solicitud_detalle"],))
-        db.query(query,(solicitud["id_solicitud_detalle"],))
+        
+        query = ''' SELECT Detalle_solicitud.id
+                    FROM Detalle_solicitud
+                        LEFT JOIN Solicitud ON Solicitud.id = Detalle_solicitud.id_solicitud
+                        
+                    WHERE Detalle_solicitud.id = %s
+                        AND Solicitud.rut_alumno = %s
+                        AND Detalle_solicitud.estado = 0'''
+                        
+        
+                    
+        cursor = db.query(query,(solicitud["id_solicitud_detalle"], session["usuario"]["rut"]))
+        if len(cursor.fetchall()) == 0:
+            flash('')        
+        else:
+        
+            query = ('''UPDATE Detalle_solicitud
+                            SET Detalle_solicitud.estado = 7
+                            WHERE Detalle_solicitud.id = %s''') # 7 == cancelado
+            db.query(query,(solicitud["id_solicitud_detalle"],))
 
         return redirect('/')
     return redirect('/')
 
+        # query = ''' SELECT Detalle_solicitud_circuito.id
+        #             FROM Detalle_solicitud_circuito
+        #                 LEFT JOIN Solicitud_circuito ON Detalle_solicitud_circuito.id = Detalle_solicitud_circuito.id_solicitud_circuito
+        #             WHERE Detalle_solicitud_circuito.id = %s'''
+
+@mod.route('/perfil/cancelar_solicitud/componentes', methods = ['GET','POST']) # funcion para cancelar una solicitud
+def cancelar_solicitud_componente():
+    if request.method == "POST":
+        
+        solicitud = request.form.to_dict()
+        print(solicitud)
+        
+        query = ''' SELECT Detalle_solicitud_circuito.id
+                    FROM Detalle_solicitud_circuito
+                        LEFT JOIN Solicitud_circuito ON Solicitud_circuito.id = Detalle_solicitud_circuito.id_solicitud_circuito
+                    WHERE Detalle_solicitud_circuito.id = %s
+                        AND Solicitud_circuito.rut_alumno = %s
+                        AND Detalle_solicitud_circuito.estado = 0''' # Query para consultar si es que el usuario esta autorizado a realizar la siguiente accion
+        
+        cursor = db.query(query,(solicitud["id_sol_componente"],
+                                 session["usuario"]["rut"]))  
+        if len(cursor.fetchone()) == 0: 
+            print("error")
+            flash('') # Si no hay resultados, debe noficar que no tiene permisos para realizar la accion
+            return redirect('/')
+        else:
+            print( "succes")
+            query = ''' UPDATE Detalle_solicitud_circuito
+                        SET Detalle_solicitud_circuito.estado = 7
+                        WHERE Detalle_solicitud_circuito.id = %s
+                            AND Detalle_solicitud_circuito.estado = 0'''
+            
+            db.query(query,(solicitud["id_sol_componente"],))   
+            
+            flash('') # Si se realiza correctamente, debe notificar          
+            return redirect('/')
+        # query = ('''UPDATE Detalle_solicitud
+        #             SET Detalle_solicitud.estado = 7
+        #             WHERE Detalle_solicitud.id = %s
+        #                 AND Detalle_solicitud.estado = 0
+        #          ''')
+        
+        
+    return redirect('/')
 
 @mod.route('/perfil/extender_prestamo', methods = ['GET','POST']) # funcion para cancelar una solicitud
 def extender_prestamo():
     if request.method == "POST" and session["usuario"]["sancionado"] == False: # Si el usuario esta sancionado no podra extender el prestamo
         solicitud_detalle_a_extender = request.form.to_dict()
+        
+        query = ''' SELECT Detalle_solicitud.id,
+                        Equipo.dias_renovacion
+                    FROM Detalle_solicitud
+                        LEFT JOIN Solicitud ON Solicitud.id = Detalle_solicitud.id_solicitud
+                        LEFT JOIN Equipo ON  Equipo.id = Detalle_solicitud.id_equipo
+                    WHERE Detalle_solicitud.id = %s
+                        AND Solicitud.rut_alumno = %s
+                        AND Detalle_solicitud.estado = 2'''
+                        
+        cursor = db.query(query,(solicitud_detalle_a_extender["id_solicitud_detalle"], 
+                                 session["usuario"]["rut"]))
+        
+        equipo_data = cursor.fetchone()
+        if len(equipo_data) == 0:
+            flash('')      
+        else:
+            
+            query = ('''UPDATE Detalle_solicitud
+                        SET Detalle_solicitud.fecha_termino = DATE_ADD(Detalle_solicitud.fecha_termino, INTERVAL %s DAY),
+                        Detalle_solicitud.renovaciones = Detalle_solicitud.renovaciones + 1
+                        WHERE Detalle_solicitud.id = %s''')
 
-        query = ("""
-                UPDATE Detalle_solicitud
-                SET Detalle_solicitud.fecha_termino = DATE_ADD(Detalle_solicitud.fecha_termino, INTERVAL 7 DAY),
-                Detalle_solicitud.renovaciones = Detalle_solicitud.renovaciones + 1
-                WHERE Detalle_solicitud.id = %s
-                    AND Detalle_solicitud.estado = 2;
-                """)
-        # comprobar que la solicitud sea de de la secion
-        #cursor.execute(query,(solicitud_detalle_a_extender["id_solicitud_detalle"],))
-        db.query(query,(solicitud_detalle_a_extender["id_solicitud_detalle"],))
+            db.query(query,(equipo_data["dias_renovacion"],
+                            solicitud_detalle_a_extender["id_solicitud_detalle"]))
 
         return redirect('/')
 
+    return redirect('/')
+
+@mod.route('/perfil/extender_prestamo/componente', methods = ['GET','POST']) # funcion para cancelar una solicitud
+def extender_prestamo_componetes():
+    if request.method == "POST" and session["usuario"]["sancionado"] == False:
+        solicitud = request.form.to_dict()
+        query = ''' SELECT Detalle_solicitud_circuito.id,
+                        Circuito.dias_renovacion
+                    FROM Detalle_solicitud_circuito
+                        LEFT JOIN Solicitud_circuito ON Solicitud_circuito.id = Detalle_solicitud_circuito.id_solicitud_circuito
+                        LEFT JOIN Circuito ON Circuito.id = Detalle_solicitud_circuito.id_circuito
+                    WHERE Detalle_solicitud_circuito.id = %s
+                        AND Solicitud_circuito.rut_alumno = %s
+                        AND Detalle_solicitud_circuito.estado = 2'''
+                        
+        cursor = db.query(query,(solicitud["id_sol_componente"], 
+                                 session["usuario"]["rut"]))
+        equipo_data = cursor.fetchone()
+        if len(equipo_data) == 0:
+            flash('')  
+        
+        else:
+            query = '''UPDATE Detalle_solicitud_circuito
+                        SET Detalle_solicitud_circuito.fecha_termino = DATE_ADD(Detalle_solicitud_circuito.fecha_termino, INTERVAL %s DAY),
+                        Detalle_solicitud_circuito.renovaciones = Detalle_solicitud_circuito.renovaciones + 1
+                        WHERE Detalle_solicitud_circuito.id = %s'''
+            
+            db.query(query,(equipo_data["dias_renovacion"],
+                            solicitud["id_sol_componente"]))
+            flash('')  
+        return redirect('/')
     return redirect('/')
 
 # Cambio de contraseña

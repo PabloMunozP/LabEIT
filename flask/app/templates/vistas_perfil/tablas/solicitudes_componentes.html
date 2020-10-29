@@ -1,37 +1,34 @@
 
+
 <br>
 
 
 <div class="table-responsive">
   <div class="table-wrapper-scroll-y" style="position: relative; overflow:auto;">
-    <table id="tabla_equipos" class="table">
+    <table id="tabla_componentes" class="table">
       <thead class="text-white" style="background:#4D4D4D;">
         <tr>
-          <th>IDD</th>
-          <th>Equipo</th>
-          <th>Modelo</th>
-          <th>Marca</th>
+          <th scope="col">IDD</th>
+          <th scope="col">Componente</th>
+          <th scope="col">Cantidad</th>
+          
           <th>Fecha inicio</th>
           <th>Fecha término</th>
           <th>Fecha de devolución</th>
-          <th class="text-center">Estado</th>
-          {% if admin_inspeccionar_perfil == False%}
-          <th>Opciones</th>
-          {% endif %}
-
+          <th scope="col">Estado</th>
+          <th scope="col">Acciones</th>
         </tr>
       </thead>
       <tbody>
-{% for elemento in solicitudes_equipos %}
+        {% for elemento in componentes %}
         <tr style="background:#ECF0F1;">
-          <td>{{elemento.id}}</td>
-          <td>{{elemento.nombre}}</td>
-          <td>{{elemento.modelo}}</td>
-          <td>{{elemento.marca}}</td>
+          <td>{{elemento.IDD}}</td>
+          <td>{{elemento.componente}}</td>
+          <td>{{elemento.cantidad}}</td>
           <td>{{elemento.fecha_inicio if elemento.fecha_inicio}}</td>
           <td>{{elemento.fecha_termino if elemento.fecha_termino}}</td>
           <td>{{elemento.fecha_devolucion if elemento.fecha_devolucion}}</td>
-          {% if elemento.estado == 'Pendiente' %}
+            {% if elemento.estado == 'Pendiente' %}
 						<td class="text-center"><span class="badge badge-primary">{{elemento.estado}}</span></td>
 					{% elif elemento.estado == 'Por retirar' %}
 						<td class="text-center"><span class="badge badge-info">{{elemento.estado}}</span></td>
@@ -45,35 +42,29 @@
 						<td class="text-center"><span class="badge badge-danger">{{elemento.estado}}</span></td>
 					{% elif elemento.estado == 'Finalizada' %}
 						<td class="text-center"><span class="badge badge-secondary">{{elemento.estado}}</span></td>
-					{% endif %}
+            {% endif %}
+            {% if elemento.estado == "Pendiente" %}
 
-
-{% if admin_inspeccionar_perfil == False%}
-
-  {% if elemento.estado == "Pendiente" %}
-
-          <td>
-            <form action="/perfil/cancelar_solicitud" method="POST">
-              <input type="hidden" name=id_solicitud_detalle value="{{elemento.id}}" >
-              <button type="submit" class="btn btn-danger btn-sm">Cancelar</button>
-            </form>
-          </td>
-
-  {% elif elemento.estado == "En posesión" and sancionado == False %}
-          <td>
-            <form action="/perfil/extender_prestamo" method="POST">
-              <input type="hidden" name=id_solicitud_detalle value="{{elemento.id}}" >
-              <button type="submit" class="btn btn-info btn-sm">Extender</button>
-            </form>
-          </td>
-  {% else %}
-
-          <td></td>
-  {% endif %}
-
-{% endif %}
+            <td>
+              <form action="/perfil/cancelar_solicitud/componentes" method="POST">
+                <input type="hidden" name="id_sol_componente" value="{{elemento.IDD}}" >
+                <button type="submit" class="btn btn-danger btn-sm">Cancelar</button>
+              </form>
+            </td>
+  
+    {% elif elemento.estado == "En posesión" and sancionado == False %}
+            <td>
+              <form action="/perfil/extender_prestamo/componente" method="POST">
+                <input type="hidden" name="id_sol_componente" value="{{elemento.IDD}}" >
+                <button type="submit" class="btn btn-info btn-sm">Extender</button>
+              </form>
+            </td>
+    {% else %}
+  
+            <td></td>
+    {% endif %}
         </tr>
-{% endfor %}
+        {% endfor %}
       </tbody>
     </table>
   </div>
