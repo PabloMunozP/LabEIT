@@ -353,14 +353,14 @@ def cancelar_solicitud():
                     
         cursor = db.query(query,(solicitud["id_solicitud_detalle"], session["usuario"]["rut"]))
         if len(cursor.fetchall()) == 0:
-            flash('')        
+            flash('sin-permiso')        
         else:
         
             query = ('''UPDATE Detalle_solicitud
                             SET Detalle_solicitud.estado = 7
                             WHERE Detalle_solicitud.id = %s''') # 7 == cancelado
             db.query(query,(solicitud["id_solicitud_detalle"],))
-
+            flash('cancelar-correcto')   
         return redirect('/')
     return redirect('/')
 
@@ -386,11 +386,11 @@ def cancelar_solicitud_componente():
         cursor = db.query(query,(solicitud["id_sol_componente"],
                                  session["usuario"]["rut"]))  
         if len(cursor.fetchone()) == 0: 
-            print("error")
-            flash('') # Si no hay resultados, debe noficar que no tiene permisos para realizar la accion
+
+            flash('sin-permiso') # Si no hay resultados, debe noficar que no tiene permisos para realizar la accion
             return redirect('/')
         else:
-            print( "succes")
+
             query = ''' UPDATE Detalle_solicitud_circuito
                         SET Detalle_solicitud_circuito.estado = 7
                         WHERE Detalle_solicitud_circuito.id = %s
@@ -398,7 +398,7 @@ def cancelar_solicitud_componente():
             
             db.query(query,(solicitud["id_sol_componente"],))   
             
-            flash('') # Si se realiza correctamente, debe notificar          
+            flash('cancelar-correcto') # Si se realiza correctamente, debe notificar          
             return redirect('/')
         # query = ('''UPDATE Detalle_solicitud
         #             SET Detalle_solicitud.estado = 7
@@ -428,7 +428,7 @@ def extender_prestamo():
         
         equipo_data = cursor.fetchone()
         if len(equipo_data) == 0:
-            flash('')      
+            flash('sin-permiso')   
         else:
             
             query = ('''UPDATE Detalle_solicitud
@@ -438,9 +438,9 @@ def extender_prestamo():
 
             db.query(query,(equipo_data["dias_renovacion"],
                             solicitud_detalle_a_extender["id_solicitud_detalle"]))
-
+            flash('extender-correcto')
         return redirect('/')
-
+    flash('sin-permiso')
     return redirect('/')
 
 @mod.route('/perfil/extender_prestamo/componente', methods = ['GET','POST']) # funcion para cancelar una solicitud
@@ -460,7 +460,7 @@ def extender_prestamo_componetes():
                                  session["usuario"]["rut"]))
         equipo_data = cursor.fetchone()
         if len(equipo_data) == 0:
-            flash('')  
+            flash('sin-permiso')  
         
         else:
             query = '''UPDATE Detalle_solicitud_circuito
@@ -470,8 +470,11 @@ def extender_prestamo_componetes():
             
             db.query(query,(equipo_data["dias_renovacion"],
                             solicitud["id_sol_componente"]))
-            flash('')  
+            flash('extender-correcto')
+            
         return redirect('/')
+    
+    flash('sin-permiso')
     return redirect('/')
 
 # Cambio de contraseña
