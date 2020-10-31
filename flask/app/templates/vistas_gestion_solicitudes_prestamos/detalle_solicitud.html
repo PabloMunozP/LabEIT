@@ -430,7 +430,9 @@
 					</label>
 					<div class="col-md-4">
 						<p class="form-control-plaintext text-break">
-							{{datos_equipo["marca"]}}
+							{% if datos_equipo["marca"] %}
+								{{datos_equipo["marca"]}}
+							{% endif %}
 						</p>
 					</div>
 				</div>
@@ -443,7 +445,9 @@
 					<div class="col-md-4">
 						<p class="form-control-plaintext
 							 text-break">
-							 {{datos_equipo["modelo"]}}
+							 {% if datos_equipo["modelo"] %}
+								 {{datos_equipo["modelo"]}}
+							 {% endif %}
 						</p>
 					</div>
 					<label class="col-md-2 col-form-label texto-gris-eit">
@@ -477,7 +481,9 @@
 					<div class="col-md-2">
 						<p class="form-control-plaintext
 							 text-break">
-							 {{datos_equipo["dias_max_prestamo"]}} día(s)
+							 {% if datos_equipo["dias_max_prestamo"] %}
+								 {{datos_equipo["dias_max_prestamo"]}} día(s)
+							 {% endif %}
 						</p>
 					</div>
 				</div>
@@ -491,7 +497,9 @@
 					{% if datos_equipo["imagen"] %}
 						<div class="col-md-6">
 							<p class="form-control-plaintext text-break">
-								{{datos_equipo["descripcion"]}}
+								{% if datos_equipo["descripcion"] %}
+									{{datos_equipo["descripcion"]}}
+								{% endif %}
 							</p>
 						</div>
 						<div class="col-md-4 text-right">
@@ -502,7 +510,9 @@
 					{% else %}
 						<div class="col-md-10">
 							<p class="form-control-plaintext text-break">
-								{{datos_equipo["descripcion"]}}
+								{% if datos_equipo["descripcion"] %}
+									{{datos_equipo["descripcion"]}}
+								{% endif %}
 							</p>
 						</div>
 					{% endif %}

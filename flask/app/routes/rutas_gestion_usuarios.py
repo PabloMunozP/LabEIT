@@ -8,7 +8,7 @@ import glob
 import platform
 from itertools import cycle
 from datetime import datetime, timedelta
-from .email_sender import enviar_correo_notificacion
+from app.utils.email_sender import enviar_correo_notificacion
 from openpyxl import load_workbook
 from openpyxl.utils import get_column_letter
 PATH = BASE_DIR  # obtiene la ruta del directorio actual

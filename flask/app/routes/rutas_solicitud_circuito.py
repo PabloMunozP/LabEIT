@@ -1,14 +1,10 @@
-from flask import Flask,Blueprint,render_template,request,redirect,url_for,flash,session,jsonify,make_response,send_file
+import os, time
 from config import db,BASE_DIR
-import os, time, bcrypt
-import mysql.connector
-import rut_chile
-import glob
-from datetime import datetime, timedelta
-from jinja2 import Environment
 from openpyxl import Workbook
+from datetime import datetime, timedelta
 from openpyxl.styles import Font, PatternFill, Alignment
 from openpyxl.styles.borders import Border, Side, BORDER_THIN
+from flask import Flask,Blueprint,render_template,request,redirect,url_for,flash,session,jsonify,make_response,send_file
 
 mod = Blueprint("rutas_solicitud_circuito",__name__)
 

@@ -1,7 +1,7 @@
-from flask import Flask,Blueprint,render_template,request,redirect,url_for,flash,session,jsonify
+import os,time
 from config import db
 from datetime import datetime,timedelta
-import os,time
+from flask import Flask,Blueprint,render_template,request,redirect,url_for,flash,session,jsonify
 
 mod = Blueprint("rutas_gestion_cursos",__name__)
 

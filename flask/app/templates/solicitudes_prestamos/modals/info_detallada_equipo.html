@@ -13,17 +13,32 @@
         <div class="modal-body">
 
 					<div class="form-group row">
+				    <label class="col-md-2 col-form-label"><strong>Nombre:</strong></label>
+				    <div class="col-md-4">
+							<p class="form-control-plaintext text-break">
+								{% if equipo["nombre"] %}
+									{{equipo["nombre"]}}
+								{% endif %}
+							</p>
+				    </div>
+				  </div>
+
+					<div class="form-group row">
 				    <label class="col-md-2 col-form-label"><strong>Marca:</strong></label>
 				    <div class="col-md-4">
 							<p class="form-control-plaintext text-break">
-								{{equipo["marca"]}}
+								{% if equipo["marca"] %}
+									{{equipo["marca"]}}
+								{% endif %}
 							</p>
 				    </div>
 
 						<label class="col-md-2 col-form-label"><strong>Modelo:</strong></label>
 				    <div class="col-md-4">
 							<p class="form-control-plaintext text-break">
-								{{equipo["modelo"]}}
+								{% if equipo["modelo"] %}
+									{{equipo["modelo"]}}
+								{% endif %}
 							</p>
 				    </div>
 				  </div>
@@ -32,7 +47,9 @@
 				    <label class="col-md-4 col-form-label"><strong>Días de préstamo establecidos:</strong></label>
 				    <div class="col-md-2">
 							<p class="form-control-plaintext text-break">
-								{{equipo["dias_max_prestamo"]}}
+								{% if equipo["dias_max_prestamo"] %}
+									{{equipo["dias_max_prestamo"]}}
+								{% endif %}
 							</p>
 				    </div>
 
@@ -51,7 +68,9 @@
 						<div class="form-group row">
 							<div class="col-md-8">
 								<p class="text-justify">
-									{{equipo["descripcion"]|nl2br}}
+									{% if equipo["descripcion"] %}
+										{{equipo["descripcion"]|nl2br}}
+									{% endif %}
 								</p>
 							</div>
               {% if equipo["imagen"] != "None" %}
@@ -65,7 +84,9 @@
 				    <label class="col-md-2 col-form-label"><strong>Descripción:</strong></label>
 				    <div class="col-md-10">
 							<p class="form-control-plaintext text-justify">
-								{{equipo["descripcion"]|nl2br}}
+								{% if equipo["descripcion"] %}
+										{{equipo["descripcion"]|nl2br}}
+								{% endif %}
 							</p>
 				    </div>
 				  </div>
