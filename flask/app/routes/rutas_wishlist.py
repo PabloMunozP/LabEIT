@@ -1,16 +1,12 @@
-from flask import Flask, Blueprint, render_template, request, redirect, url_for, flash, session, jsonify, send_file
-from config import db, BASE_DIR
-from werkzeug.utils import secure_filename
 import os
 import time
-import bcrypt
-import smtplib
 import glob
 from datetime import datetime
-from email import encoders
-from email.mime.base import MIMEBase
-from email.mime.text import MIMEText
-from .email_sender import enviar_correo_notificacion
+from config import db, BASE_DIR
+from werkzeug.utils import secure_filename
+from app.utils.email_sender import enviar_correo_notificacion
+from flask import Flask, Blueprint, render_template, request, redirect, url_for, flash, session, jsonify, send_file
+
 PATH = BASE_DIR
 TAMAÑO_MAX_COT = 10000000
 PROFILE_DOCS_PATH = PATH.replace(

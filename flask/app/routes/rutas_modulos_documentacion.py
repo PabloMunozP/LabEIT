@@ -1,7 +1,6 @@
-from jinja2 import Environment
 from datetime import datetime,timedelta
 from werkzeug.utils import secure_filename
-import os,time,bcrypt,random,timeago,shutil
+import os,time,shutil
 from config import db,BASE_DIR,ALLOWED_EXTENSIONS,MAX_CONTENT_LENGTH
 from flask import Flask,Blueprint,render_template,request,redirect,url_for,flash,session,jsonify,send_file
 

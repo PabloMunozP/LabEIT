@@ -1,18 +1,7 @@
-import os
-import json
-import time
-import bcrypt
-import random
-import timeago
-import shutil
-import smtplib
+import os,json,time,bcrypt
 from uuid import uuid4  # Token
-from email import encoders
-from jinja2 import Environment
-from email.mime.base import MIMEBase
-from email.mime.text import MIMEText
 from datetime import datetime, timedelta
-from .email_sender import enviar_correo_notificacion
+from app.utils.email_sender import enviar_correo_notificacion
 from config import db, BASE_DIR, ALLOWED_EXTENSIONS, MAX_CONTENT_LENGTH
 from flask import Flask, Blueprint, render_template, request, redirect, url_for, flash, session, jsonify, send_file
 
@@ -254,8 +243,6 @@ def enviar_recuperacion_password():
     # Se reemplazan los datos del usuario en el template a enviar vía correo
     archivo_html = archivo_html.replace(
         "%nombre_usuario%", datos_usuario["nombres"])
-    archivo_html = archivo_html.replace(
-        "%codigo_restablecimiento%", str(random.randint(0, 1000)))
     archivo_html = archivo_html.replace("%token_restablecimiento%", token)
 
     # Se agrega el token de recuperación a la base de datos

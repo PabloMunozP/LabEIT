@@ -1,0 +1,57 @@
+<div style="justify-content: center; align-items: center; display: flex;">
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    {% for message in messages %}
+
+        {% if message == 'extender-correcto' %}
+        <div class="alert alert-success alert-dismissible fade show pop-top" role="alert" >
+          Prestamo extendido correctamente.
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+
+        {% elif message == 'cancelar-correcto' %}
+        <div class="alert alert-info alert-dismissible fade show pop-top" role="alert" >
+          Solicitud cancelada correctamente.
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+
+        {% elif message == 'sin-permiso' %}
+        
+        <div class="alert alert-danger alert-dismissible fade show pop-top" role="alert" >
+          Usted no tiene permiso para realizar esta acción.
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        
+
+        {% endif %}
+    {% endfor %}
+  {% endif %}
+{% endwith %}
+
+</div>
+
+
+
+
+
+<style>
+  .pop-top{
+    position: absolute;
+    z-index: 101;
+    top: 50px;
+  }
+</style>
+<script>
+  $(document).ready(function() {
+    // show the alert
+    setTimeout(function() {
+        $(".pop-top").alert('close');
+    }, 3000);
+});
+</script>

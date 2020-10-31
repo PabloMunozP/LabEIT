@@ -1,13 +1,12 @@
-from flask import Flask,Blueprint,render_template,request,redirect,url_for,flash,session,jsonify, make_response,send_file
-from flask_csv import send_csv
-from config import db,BASE_DIR
-import os,time,bcrypt
-from datetime import datetime, timedelta
 import json
-from jinja2 import Environment
+import os,time
 from openpyxl import Workbook
+from jinja2 import Environment
+from config import db,BASE_DIR
+from datetime import datetime, timedelta
 from openpyxl.styles import Font, PatternFill, Alignment
 from openpyxl.styles.borders import Border, Side, BORDER_THIN
+from flask import Flask,Blueprint,render_template,request,redirect,url_for,flash,session,jsonify, make_response,send_file
 
 def redirect_url(default='index'): # Redireccionamiento desde donde vino la request
     return request.args.get('next') or \

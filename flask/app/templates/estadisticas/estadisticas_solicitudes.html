@@ -254,13 +254,6 @@
 						var diffTiempo = Math.abs(fecha_limite_superior-fecha_limite_inferior);
 						var diffDias = Math.ceil(diffTiempo / (1000*60*60*24))
 
-						if(diffDias > 31){
-							alert("La diferencia entre las fechas seleccionadas no debe superar los 31 días.");
-							$("#fecha_desde_equipos_solicitados").val("");
-							$("#fecha_hasta_equipos_solicitados").val("");
-							return false;
-						}
-
 						// Se desactiva el botón submit
 						$(".btn-consulta-estadisticas").prop('disabled', true);
 						$.ajax({

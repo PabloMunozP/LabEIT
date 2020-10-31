@@ -1,21 +1,11 @@
-import smtplib
 import json
-from uuid import uuid4  # Token
-from email import encoders
 from openpyxl import Workbook
 from jinja2 import Environment
-from email.mime.base import MIMEBase
-from email.mime.text import MIMEText
 from datetime import datetime, timedelta
 from werkzeug.utils import secure_filename
 import os
 import time
-import bcrypt
-import random
-import timeago
-import shutil
-from email.mime.multipart import MIMEMultipart
-from .email_sender import enviar_correo_notificacion
+from app.utils.email_sender import enviar_correo_notificacion
 from openpyxl.styles import Font, PatternFill, Alignment
 from openpyxl.styles.borders import Border, Side, BORDER_THIN
 from config import db, BASE_DIR, ALLOWED_EXTENSIONS, MAX_CONTENT_LENGTH
