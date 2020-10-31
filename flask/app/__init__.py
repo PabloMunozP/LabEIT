@@ -75,6 +75,8 @@ def internal_server_error(error):
 # ------------------------------------------- Filtros Jinja2 para templates
 @app.template_filter('nl2br') # Permite cambiar el formato de los saltos de línea en textarea
 def nl2br(s):
+    if s is None:
+        return ""
     s = s.strip()
     s = s.replace("\r","")
     return s.replace("\n", "<br/>")

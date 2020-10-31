@@ -1,19 +1,14 @@
-from flask import Flask,Blueprint,render_template,request,redirect,url_for,flash,session,jsonify,send_from_directory
-from config import db, BASE_DIR
-from werkzeug.utils import secure_filename
-import os, time, bcrypt, timeago
-import mysql.connector
-import rut_chile
 import glob
-import platform
+from config import db, BASE_DIR
+import os, time, bcrypt, timeago
 from datetime import datetime, timedelta
+from werkzeug.utils import secure_filename
+from flask import Flask,Blueprint,render_template,request,redirect,url_for,flash,session,jsonify,send_from_directory
+
 PATH = BASE_DIR # obtiene la ruta del directorio actual
 PROFILE_PICS_PATH = PATH.replace(os.sep, '/')+'/app/static/imgs/profile_pics/' #  remplaza [\\] por [/] en windows
 EXTENSIONES_PERMITIDAS = ["PNG","JPG","JPEG"]
 TAMANO_MAX_ARCHIVO = 500000 # 500kb
-
-
-
 
 def redirect_url(default='index'): # Redireccionamiento desde donde vino la request
     return request.args.get('next') or \
