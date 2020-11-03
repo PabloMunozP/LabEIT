@@ -89,6 +89,12 @@ def iniciar_sesion():
     # Se codifica la password ingresada en el formulario para comparación de hash
     datos_solicitante["password"] = datos_solicitante["password"].encode(
         encoding="UTF-8")
+    
+    # En caso de que el usuario esté registrado pero no haya establecido una contraseña
+    # se devuelve al login
+    if len(datos_usuario_registrado["contraseña"]) == 0:
+        flash("credenciales-invalidas")
+        return redirect("/")
 
     # Si las contraseñas no coinciden, entonces se devuelve al login y se notifica el error
     if not bcrypt.checkpw(datos_solicitante["password"], datos_usuario_registrado["contraseña"].encode(encoding="UTF-8")):
