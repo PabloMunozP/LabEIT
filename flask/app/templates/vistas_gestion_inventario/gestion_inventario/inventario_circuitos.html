@@ -12,6 +12,7 @@
     <table id="tabla_circuitos" class="table">
       <thead class="text-white" style="background:#4D4D4D;">
           <tr>
+              <th scope="col">Código</th>
               <th scope="col">Nombre</th>
               <th scope="col">Descripción</th>
               <th scope="col">Cantidad</th>
@@ -24,6 +25,7 @@
       <tbody>
           {% for elemento in lista_circuitos %}
           <tr style="background:#ECF0F1;">
+              <td>{{elemento.codigo}}</td>
               <td>{{elemento.nombre}}</td>
               <td>{{elemento.descripcion}}</td>
               <td>{{elemento.cantidad}}</td>

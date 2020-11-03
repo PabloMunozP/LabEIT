@@ -8,12 +8,20 @@
         </button>
       </div>
 
-          <form action="/gestion_inventario_admin/insert_circuito" method="POST">
+          <form action="/gestion_inventario_admin/insert_circuito" onsubmit="return validar_codigo_componente();" method="POST">
           <div class="modal-body">
 
             <div class="form-group">
               <label for="nombres"> Nombre </label>
               <input class="form-control" type="text" name="nombre_circuito" id="nombre_circuito" required autocomplete="off">
+            </div>
+
+            <div class="form-group">
+              <label for="codigo_componente"> Código </label>
+              <input class="form-control" type="text" name="codigo_componente" id="codigo_componente" required autocomplete="off" onkeyup="javascript:this.value=this.value.toUpperCase();">
+              <div class="invalid-feedback">
+                El código del componente ya está registrado.
+              </div>
             </div>
 
             <div class="form-group">
@@ -51,3 +59,32 @@
   </div>
 </div>
 </div>
+
+<script>
+  function validar_codigo_componente(){
+
+  var match = false;
+
+  $.ajax({
+        data : {
+          codigo : $('#codigo_componente').val(),
+              },
+        type : 'POST',
+        url : "/gestion_inventario_admin/validar_codigo_componente",
+        async:false,
+        success: function(data){
+          console.log(data);
+          if (data.match == 'True'){
+            
+            $('#codigo_componente').addClass('is-invalid');
+            $('#agregar_equipo_similar').scrollTop(0);
+
+          }
+          else{
+            match = true;
+          }
+        }
+      })
+  return match;
+}
+</script>

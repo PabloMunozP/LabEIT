@@ -86,13 +86,11 @@ def gestion_inventario_admin():
     if 'usuario' not in session or session["usuario"]["id_credencial"] != 3:
         return redirect('/')
     else:
-        equipos = consultar_lista_equipos_general()
-        equipos_detalle = consultar_lista_equipos()
-        circuitos = consultar_lista_circuito()
+
         return render_template('vistas_gestion_inventario/gestion_inventario.html',
-            lista_equipo = equipos,
-            lista_equipo_detalle = equipos_detalle,
-            lista_circuitos = circuitos)
+            lista_equipo = consultar_lista_equipos_general(),
+            lista_equipo_detalle = consultar_lista_equipos(),
+            lista_circuitos = consultar_lista_circuito())
 
 
 # **** VISTA_PRINCIPAL/MODAL "AGREGAR EQUIPO" **** #
@@ -145,6 +143,36 @@ def validar_codigo_equipo_nuevo():
             return jsonify({'error':'missing_data'})
             
     return jsonify({'error':'missing data!'})
+
+
+
+@mod.route("/gestion_inventario_admin/validar_codigo_componente", methods = ['POST']) # AJAX
+def validar_codigo_componente_nuevo():
+    if request.method == "POST" and session["usuario"]["id_credencial"] == 3:
+        
+        try:
+            
+            CODIGO = request.form["codigo"]
+            print(CODIGO)
+            query = ('''SELECT *
+                        FROM Circuito
+                        WHERE Circuito.codigo = %s''')
+            cursor = db.query(query,(CODIGO,))
+            
+            if len(cursor.fetchall()) > 0: # Si hay coincidencias retorna verdadero
+                
+                return jsonify({'match':'True'})
+            
+            else: # Si no hay coicidencias retorna False
+                
+                return jsonify({'match':'False'})
+        except:
+            
+            return jsonify({'error':'missing_data'})
+            
+    return jsonify({'error':'missing data!'})
+
+
 
 @mod.route("/gestion_inventario_admin/insert", methods = ['POST'])
 def funcion_añadir_equipo_form():
@@ -567,8 +595,8 @@ def consultar_lista_circuito():
 #Consulta para insertar circuito
 def insertar_lista_circuitos(valores_a_insertar):
     query = ('''
-        INSERT INTO Circuito (nombre, cantidad, descripcion, dias_max_prestamo, dias_renovacion, imagen)
-        VALUES (%s, %s, %s, %s, %s, %s);
+        INSERT INTO Circuito (codigo, nombre, cantidad, descripcion, dias_max_prestamo, dias_renovacion, imagen)
+        VALUES (%s, %s, %s, %s, %s, %s, %s);
     ''')
     #cursor.execute(query,(
     #    valores_a_insertar['nombre_circuito'],
@@ -578,13 +606,13 @@ def insertar_lista_circuitos(valores_a_insertar):
     #    valores_a_insertar['dias_renovacion'],
     #    valores_a_insertar['imagen_circuito']))
 
-    db.query(query,(
-        valores_a_insertar['nombre_circuito'],
-        valores_a_insertar['cantidad_circuito'],
-        valores_a_insertar['descripcion_circuito'],
-        valores_a_insertar['dias_max_prestamo'],
-        valores_a_insertar['dias_renovacion'],
-        valores_a_insertar['imagen_circuito']))
+    db.query(query,(valores_a_insertar['codigo_componente'],
+                    valores_a_insertar['nombre_circuito'],
+                    valores_a_insertar['cantidad_circuito'],
+                    valores_a_insertar['descripcion_circuito'],
+                    valores_a_insertar['dias_max_prestamo'],
+                    valores_a_insertar['dias_renovacion'],
+                    valores_a_insertar['imagen_circuito']))
 
     return 'OK'
 
@@ -607,7 +635,8 @@ def funcion_añadir_circuito_form():
 def editar_circuito(informacion_a_actualizar):  # Query UPDATE
             query = ('''
                 UPDATE Circuito
-                SET Circuito.nombre = %s,
+                SET Circuito.codigo = %s,
+                    Circuito.nombre = %s,
                     Circuito.cantidad = %s,
                     Circuito.descripcion = %s,
                     Circuito.dias_max_prestamo= %s,
@@ -625,15 +654,15 @@ def editar_circuito(informacion_a_actualizar):  # Query UPDATE
             #    informacion_a_actualizar['id_circuito']
             #    ))
 
-            db.query(query,(
-                informacion_a_actualizar['nombre_circuito'],
-                informacion_a_actualizar['cantidad_circuito'],
-                informacion_a_actualizar['descripcion_circuito'],
-                informacion_a_actualizar['dias_max_prestamo'],
-                informacion_a_actualizar['dias_renovacion'],
-                informacion_a_actualizar['imagen_circuito'],
-                informacion_a_actualizar['id_circuito']
-                ))
+            db.query(query,(informacion_a_actualizar['codigo_componente'],
+                            informacion_a_actualizar['nombre_circuito'],
+                            informacion_a_actualizar['cantidad_circuito'],
+                            informacion_a_actualizar['descripcion_circuito'],
+                            informacion_a_actualizar['dias_max_prestamo'],
+                            informacion_a_actualizar['dias_renovacion'],
+                            informacion_a_actualizar['imagen_circuito'],
+                            informacion_a_actualizar['id_circuito']
+                            ))
 
             return informacion_a_actualizar
 
