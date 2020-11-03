@@ -104,7 +104,8 @@
                 id_solicitud : elemento.id
             },
             type : 'POST',
-            url : '/gestion_solicitudes_prestamos_circuitos/consultar_tabla_solicitud'
+            url : '/gestion_solicitudes_prestamos_circuitos/consultar_tabla_solicitud',
+            async: false,
           })
           .done(function(data){
 

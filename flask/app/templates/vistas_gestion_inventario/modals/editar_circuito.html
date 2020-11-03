@@ -8,7 +8,7 @@
             <span aria-hidden="true">&times;</span>
           </button>
         </div>
-        <form id="editar_form_circuito" action="/gestion_inventario_admin/actualizar_informacion_circuito" method="POST">
+        <form id="editar_form_circuito" action="/gestion_inventario_admin/actualizar_informacion_circuito" method="POST" onsubmit="return validar_codigo_componente_editar();">
           <div class="modal-body">
             <input class="form-control" type="text" name="id_circuito" value="" id="editar_equipo_hidden_id_circuito" hidden>
 
@@ -16,6 +16,14 @@
             <div class="form-group">
               <label for="nombres"> Nombre </label>
               <input class="form-control" type="text" name="nombre_circuito" id="editar_nombre_circuito" required>
+            </div>
+
+            <div class="form-group">
+              <label for="codigo_componente"> Código </label>
+              <input class="form-control" type="text" name="codigo_componente" id="codigo_componente_editar" required autocomplete="off" onkeyup="javascript:this.value=this.value.toUpperCase();">
+              <div class="invalid-feedback">
+                El código del componente ya está registrado.
+              </div>
             </div>
 
             <div class="form-group">
@@ -58,6 +66,7 @@
     function cargar_datos_equipo_circuito(elemento){
       document.getElementById("modal-title").innerHTML = '<i class="fas fa-edit"></i> Editar circuito ' + elemento.nombre ;
       $("#editar_equipo_hidden_id_circuito").val(elemento.id);
+      $("#codigo_componente_editar").val(elemento.codigo);
       $("#editar_nombre_circuito").val(elemento.nombre);
       $("#editar_cantidad_circuito").val(elemento.cantidad);
       $("#editar_descripcion_circuito").val(elemento.descripcion);
@@ -66,3 +75,31 @@
       $("#editar-imagen-circuito").val(elemento.imagen);
     }
   </script>
+<script>
+  function validar_codigo_componente_editar(){
+
+  var match = false;
+
+  $.ajax({
+        data : {
+          codigo : $('#codigo_componente_editar').val(),
+              },
+        type : 'POST',
+        url : "/gestion_inventario_admin/validar_codigo_componente",
+        async:false,
+        success: function(data){
+          console.log(data);
+          if (data.match == 'True'){
+            
+            $('#codigo_componente_editar').addClass('is-invalid');
+            $('#editar_circuito').scrollTop(0);
+
+          }
+          else{
+            match = true;
+          }
+        }
+      })
+  return match;
+}
+</script>
