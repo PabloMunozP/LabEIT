@@ -7,7 +7,6 @@
                     <th scope="col" class="text-center">Componente solicitado</th>
                     <th scope="col">Cantidad</th>
                     <th scope="col">Estado</th>
-                    <th scope="col" class="text-center">Acciones</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -29,13 +28,13 @@
                                 <span class="badge badge-success">En posesión</span>
                                 {% elif elemento.estado == 'Con atraso' %}
                                 <span class="badge badge-danger">Con atraso</span>
+                                {% elif elemento.estado == 'Pendiente' %}
+                                <span class="badge badge-primary">Pendiente</span>
                                 {% else %}
                                 {{elemento.estado}}
                                 {% endif %}
                               </td>
-                              <td>
-                                <button type="button" title="Ver detalle" class="btn btn-sm btn-secondary mr-1 waves-effect waves-light"><i class="fas fa-clipboard-list"></i></button>
-                              </td>
+
                           </tr>
                       {% endfor %}
                 </tbody>

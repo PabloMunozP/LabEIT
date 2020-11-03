@@ -255,9 +255,7 @@ def configurar_perfil():
         #print(informacion_a_actualizar)
         query = ('''
             UPDATE Usuario
-            SET nombres = %s,
-                apellidos = %s,
-                region = %s,
+            SET region = %s,
                 comuna = %s,
                 direccion = %s,
                 celular = %s
@@ -272,9 +270,7 @@ def configurar_perfil():
         #    informacion_a_actualizar['celular'],
         #    session['usuario']['rut']
         #    ))
-        db.query(query,(informacion_a_actualizar['nombres'],
-                        informacion_a_actualizar['apellidos'],
-                        informacion_a_actualizar['region'],
+        db.query(query,(informacion_a_actualizar['region'],
                         informacion_a_actualizar['comuna'],
                         informacion_a_actualizar['direccion'],
                         informacion_a_actualizar['celular'],

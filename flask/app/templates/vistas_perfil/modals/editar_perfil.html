@@ -7,12 +7,7 @@
       </div>
       <form id="editar_form" action="/perfil/actualizar_informacion" method="POST">
         <div class="modal-body">
-            <div class="form-group">
-                <label for="nombres"> Nombres</label><input class="form-control" type="text" name="nombres" id="nombres" onchange="validar_informacion_perfil()" value="" required>
-            </div>
-            <div class="form-group">
-                <label for="apellidos"> Apellidos</label><input class="form-control" type="text" name="apellidos" id="apellidos" onchange="validar_informacion_perfil()" value="" required>
-            </div>
+
             <div class="form-group">
                 <label for="regiones"> Región</label><select class="form-control" name="region" id="regiones" onchange="validar_informacion_perfil();" required></select>
             </div>
@@ -44,8 +39,6 @@
 <!-- Script para darle valores al modal Editar perfil -->
 <script>
   function Cargar_informacion() {
-    if('{{perfil_info.apellidos}}' != 'None'){document.getElementById("apellidos").value = "{{perfil_info.apellidos}}";}
-    if('{{perfil_info.nombres}}' != 'None'){document.getElementById("nombres").value = "{{perfil_info.nombres}}";}
     if('{{perfil_info.celular}}' != 'None'){document.getElementById("celular").value = "{{perfil_info.celular}}";}
     if('{{perfil_info.direccion}}' != 'None'){document.getElementById("direccion").value = "{{perfil_info.direccion}}";}
     if('{{perfil_info.region}}' != 'None'){
@@ -70,9 +63,7 @@ const boton_guardar = document.getElementById("boton_guardar");
 var validar_inputs = false;
 // Valida el contenido de inputs
 editar_form.addEventListener('input',() =>{
-  if (nombres.value.length > 0 &&
-      apellidos.value.length > 0 &&
-      direccion.value.length > 0 &&
+  if (direccion.value.length > 0 &&
       celular.value.length > 0){
         validar_inputs = true;
   } else {
