@@ -6,8 +6,7 @@
     <table id="tabla_circuitos" class="table">
       <thead class="text-white" style="background:#4D4D4D;">
         <tr>
-          <th scope="col">ID</th>
-          <th scope="col">Nombre</th>
+          <th scope="col">Componente</th>
           <th scope="col">Descripción</th>
           <th scope="col">Cantidad disponibles</th>
           <th scope="col">Acciones</th>
@@ -17,7 +16,6 @@
       <tbody>
         {% for elemento in lista_circuitos %}
         <tr style="background:#ECF0F1;">
-          <td>{{elemento.id}}</td>
           <td>{{elemento.nombre}}</td>
           <td>{{elemento.descripcion}}</td>
           <td>{{elemento.cantidad-elemento.prestados}}/{{elemento.cantidad}}</td>
