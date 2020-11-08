@@ -170,11 +170,9 @@
         </span>
       </div>
 
-      <div class="table-responsive mt-3">
-    		<div class="table-wrapper-scroll-y" style="position: relative;
-    								max-height: 450px;
-    								overflow:auto;">
-          <table class="table" style="background:#ECF0F1;" id="tabla_usuarios">
+      <div class="table-responsive mt-2">
+        <div class="table-wrapper-scroll-y" style="position: relative; overflow:auto;">
+          <table class="table" id="tabla_usuarios">
     			  <thead class="text-white" style="background:#4D4D4D;">
                   <tr>
                       <th scope="col">Nombre</th>
@@ -187,7 +185,7 @@
               </thead>
               <tbody>
                   {%for usuario in usuarios%}
-                      <tr>
+                      <tr style="background:#ECF0F1;">
                           <td>{{usuario["nombres"]}}</td>
                           <td>{{usuario["apellidos"]}}</td>
                           <td>{{usuario["rut"]|formato_rut}}</td>
