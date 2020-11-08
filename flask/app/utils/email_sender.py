@@ -6,7 +6,7 @@ from email.mime.multipart import MIMEMultipart
 
 # Envío de correo (notificaciones de solicitudes de préstamo)
 def enviar_correo_notificacion(archivo, str_asunto, correo_usuario, masivo=False):
-    # Se crea el mensaje
+    # Se crea el mensaje.
     correo = MIMEText(archivo, "html")
     correo.set_charset("utf-8")
     correo["From"] = "labeit.udp@gmail.com"

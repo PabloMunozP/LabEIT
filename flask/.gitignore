@@ -1,8 +1,6 @@
 __pycache__/
 app/routes/__pycache__/
 virtual_env/
-app/static/files/documentacion_softwares
-app/static/files/exportaciones
-app/static/files/cotizaciones_wishlist
-app/static/imgs/profile_pics
+app/static/files/*
+app/static/imgs/*
 
