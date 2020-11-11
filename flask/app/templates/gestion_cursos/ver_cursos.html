@@ -58,7 +58,7 @@
             </thead>
             <tbody>
                 {%for curso in cursos%}
-                    <tr>
+                    <tr style="background:#ECF0F1;">
                         <td>{{curso['codigo_udp']}}</td>
                         <td>{{curso['nombre']}}</td>
                         {% if curso['descripcion'] %}
@@ -89,6 +89,7 @@
   <script type="text/javascript">
     $(document).ready(function() {
       $('#tabla_cursos').DataTable( {
+            "order": [[ 1, "asc" ]],
             "language": {
                 "lengthMenu": "Mostrar _MENU_ registros por página",
                 "zeroRecords": "Nothing found - sorry",
