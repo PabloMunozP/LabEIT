@@ -29,6 +29,7 @@ def consultar_cursos():
             codigo_udp,
             nombre
         FROM Curso
+        ORDER BY nombre
     ''')
     # cursor.execute(query)
     cursor = db.query(query,None)
