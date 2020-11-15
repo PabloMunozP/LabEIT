@@ -14,7 +14,7 @@
                       <p>Recuerda estar atento a tu bandeja de entrada. Serás notificado por correo acerca del estado de tus solicitudes.</p>
                       <div class="form-group">
                         <label for="curso_id">Motivo</label>
-                        <select class="form-control" name="curso_id" id="curso_id" required>
+                        <select class="form-control" size="4" name="curso_id" id="curso_id" required>
                           <option value="0">Personal</option>
                           {% for elemento in lista_cursos %}
                           <option value="{{elemento.id}}">{{elemento.codigo_udp}} {{elemento.nombre}}</option>

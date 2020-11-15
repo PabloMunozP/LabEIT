@@ -1,4 +1,4 @@
-<div class="modal fade" id="info_detallada_equipo_{{equipo["id"]}}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal fade" id="info_detallada_equipo" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg" role="document">
     <div class="modal-content">
       <div class="modal-header bg-gris-eit">
@@ -8,89 +8,75 @@
         </button>
       </div>
       <form class="formulario-agregar-equipo-carro" method="post">
-        <input hidden type="text" name="id_equipo" value="{{equipo["id"]}}">
+        <input hidden type="text" name="id_equipo" id="modal_input_id_equipo">
 
         <div class="modal-body">
 
 					<div class="form-group row">
 				    <label class="col-md-2 col-form-label"><strong>Nombre:</strong></label>
 				    <div class="col-md-4">
-							<p class="form-control-plaintext text-break">
-								{% if equipo["nombre"] %}
-									{{equipo["nombre"]}}
-								{% endif %}
+							<p class="form-control-plaintext text-break" id="modal_nombre_equipo">
+							</p>
+						</div>
+						
+						<label class="col-md-2 col-form-label"><strong>Marca:</strong></label>
+				    <div class="col-md-4">
+							<p class="form-control-plaintext text-break" id="modal_marca_equipo">
 							</p>
 				    </div>
 				  </div>
 
 					<div class="form-group row">
-				    <label class="col-md-2 col-form-label"><strong>Marca:</strong></label>
-				    <div class="col-md-4">
-							<p class="form-control-plaintext text-break">
-								{% if equipo["marca"] %}
-									{{equipo["marca"]}}
-								{% endif %}
-							</p>
-				    </div>
-
 						<label class="col-md-2 col-form-label"><strong>Modelo:</strong></label>
 				    <div class="col-md-4">
-							<p class="form-control-plaintext text-break">
-								{% if equipo["modelo"] %}
-									{{equipo["modelo"]}}
-								{% endif %}
+							<p class="form-control-plaintext text-break" id="modal_modelo_equipo">
+							</p>
+						</div>
+
+						<label class="col-md-4 col-form-label"><strong>Días de préstamo establecidos:</strong></label>
+				    <div class="col-md-2">
+							<p class="form-control-plaintext text-break" id="modal_dias_max_prestamo">
 							</p>
 				    </div>
+
 				  </div>
 
 					<div class="form-group row">
-				    <label class="col-md-4 col-form-label"><strong>Días de préstamo establecidos:</strong></label>
+				    <label class="col-md-4 col-form-label"><strong>Días de renovación establecidos:</strong></label>
 				    <div class="col-md-2">
-							<p class="form-control-plaintext text-break">
-								{% if equipo["dias_max_prestamo"] %}
-									{{equipo["dias_max_prestamo"]}}
-								{% endif %}
+							<p class="form-control-plaintext text-break" id="modal_dias_renovacion_prestamo">
 							</p>
 				    </div>
 
 						<label class="col-md-4 col-form-label"><strong>Cantidad de unidades:</strong></label>
 				    <div class="col-md-2">
-							<p class="form-control-plaintext text-break">
-								{{equipo["cantidad_disponible"]}}/{{equipo["cantidad_total"]}}
+							<p class="form-control-plaintext text-break" id="modal_cantidad_unidades">
 							</p>
 				    </div>
 				  </div>
 
-					{% if equipo["imagen"] %}
-					<div class="form-group row">
-				    <label class="col-md-2 col-form-label"><strong>Descripción:</strong></label>
-				  </div>
+					<div hidden id="seccion_con_imagen">
 						<div class="form-group row">
-							<div class="col-md-8">
-								<p class="text-justify">
-									{% if equipo["descripcion"] %}
-										{{equipo["descripcion"]|nl2br}}
-									{% endif %}
-								</p>
-							</div>
-              {% if equipo["imagen"] != "None" %}
-                <div class="col-md-4">
-                  <img style="max-width:80%;" class="img-fluid" src="{{equipo["imagen"]}}">
-                </div>
-              {% endif %}
+							<label class="col-md-2 col-form-label"><strong>Descripción:</strong></label>
 						</div>
-					{% else %}
-					<div class="form-group row">
+							<div class="form-group row">
+								<div class="col-md-8">
+									<p class="text-justify" id="modal_descripcion_equipo_sin_imagen">
+									</p>
+								</div>
+									<div class="col-md-4">
+										<img style="max-width:80%;" class="img-fluid" src="" id="modal_imagen_equipo">
+									</div>
+							</div>
+					</div>
+
+					<div hidden class="form-group row" id="seccion_sin_imagen">
 				    <label class="col-md-2 col-form-label"><strong>Descripción:</strong></label>
 				    <div class="col-md-10">
-							<p class="form-control-plaintext text-justify">
-								{% if equipo["descripcion"] %}
-										{{equipo["descripcion"]|nl2br}}
-								{% endif %}
+							<p class="form-control-plaintext text-justify" id="modal_descripcion_equipo_con_imagen">
 							</p>
 				    </div>
 				  </div>
-					{% endif %}
 
 					<hr>
 
@@ -107,18 +93,18 @@
 					<div class="card-header mt-4" style="background:#4D4D4D;">
 						<h5 class="card-title text-white my-auto"><i class="fas fa-chalkboard-teacher mr-2"></i>Asignatura asociada</h5>
 						<div class="form-check mt-1 form-check-inline">
-							<input class="form-check-input" name="asignatura_asociada" type="checkbox" id="checkbox_asignatura_asociada_{{equipo["id"]}}" onclick="check_asociacion_asignatura({{equipo["id"]}})">
-							<label class="form-check-label text-white" for="checkbox_asignatura_asociada_{{equipo["id"]}}">Selecciona esta opción en caso de que el equipo a solicitar esté asociado a una asignatura.</label>
+							<input class="form-check-input" name="asignatura_asociada" type="checkbox" id="checkbox_asignatura_asociada" onclick="check_asociacion_asignatura()">
+							<label class="form-check-label text-white" for="checkbox_asignatura_asociada">Selecciona esta opción en caso de que el equipo a solicitar esté asociado a una asignatura.</label>
 						</div>
 					</div>
 
-						<div class="mt-2" hidden id="form_asociacion_asignatura_{{equipo["id"]}}">
+						<div class="mt-2" hidden id="form_asociacion_asignatura">
 
 							<p><i class="fas fa-info-circle mr-2"></i>Por favor, indícanos la asignatura a la que se encuentra asociada la solicitud de este equipo.
 											Esta información podrá ayudarnos a mejorar la calidad de nuestros servicios.
 							</p>
 							<div class="form-group">
-								<select size="5" name="id_asignatura_asociada" class="form-control select_asignatura_asociada" id="select_asignatura_asociada_{{equipo["id"]}}">
+								<select size="5" name="id_asignatura_asociada" class="form-control select_asignatura_asociada" id="select_asignatura_asociada">
 									{% for curso in lista_cursos %}
 										<option value="{{curso["id"]}}">{{curso["nombre"]}}</option>
 									{% endfor %}
@@ -143,13 +129,13 @@
 </div>
 
 <script>
-	function check_asociacion_asignatura(id_equipo){
-		var elemento_checkbox = document.getElementById("checkbox_asignatura_asociada_"+id_equipo);
+	function check_asociacion_asignatura(){
+		var elemento_checkbox = document.getElementById("checkbox_asignatura_asociada");
 		if(elemento_checkbox.checked){
-			document.getElementById("form_asociacion_asignatura_"+id_equipo).hidden = false;
+			document.getElementById("form_asociacion_asignatura").hidden = false;
 		}else{
-			$("#select_asignatura_asociada_"+id_equipo).val([]);
-			document.getElementById("form_asociacion_asignatura_"+id_equipo).hidden = true;
+			$("#select_asignatura_asociada").val([]);
+			document.getElementById("form_asociacion_asignatura").hidden = true;
 		}
 	}
 </script>

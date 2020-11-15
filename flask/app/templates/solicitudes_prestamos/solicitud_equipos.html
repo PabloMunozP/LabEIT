@@ -2,10 +2,7 @@
 	{%block body%}
 
 	{% include "/solicitudes_prestamos/modals/confirmacion_pedido.html" %}
-
-	{% for equipo in lista_equipos %}
-		{% include "/solicitudes_prestamos/modals/info_detallada_equipo.html" %}
-	{% endfor %}
+	{% include "/solicitudes_prestamos/modals/info_detallada_equipo.html" %}
 
 	<div class="container-fluid">
 
@@ -71,7 +68,7 @@
 										<td>{{equipo["modelo"]}}</td>
 										<td class="text-center">{{equipo["cantidad_disponible"]}}/{{equipo["cantidad_total"]}}</td>
 										<td class="text-center">
-											<button type="button" title="Ver información detallada" class="btn btn-sm btn-info" data-toggle="modal" data-target="#info_detallada_equipo_{{equipo["id"]}}"><i class="fas fa-file-invoice"></i></button>
+											<button type="button" title="Ver información detallada" class="btn btn-sm btn-info" onclick='cargar_info_equipo({{equipo | tojson }})' data-toggle="modal" data-target="#info_detallada_equipo"><i class="fas fa-file-invoice"></i></button>
 										</td>
 								</tr>
 							{% endfor %}
@@ -182,8 +179,12 @@
 							 $("#carro_pedidos").html(data);
 								 // Se activa el botón submit
 							 $(".submit-agregar-pedido").prop('disabled', false);
-
 							 $("#seccion-botones-carro-pedidos").prop("hidden",false);
+							 $("#info_detallada_equipo").modal("hide");
+							 $("#select_asignatura_asociada").val([]);
+							 $("#select_asignatura_asociada").scrollTop(0);
+							 $("#form_asociacion_asignatura").prop("hidden",true);
+							 $("#checkbox_asignatura_asociada").prop("checked",false);
 						 });
 						event.preventDefault();
 				});
@@ -278,6 +279,32 @@
 			$(".form-check-input").css("opacity","0");
 			$(this).append($(".form-check-input"));
 		});
+
+		function cargar_info_equipo (equipo) {
+			console.log(equipo);
+			$("#modal_input_id_equipo").val(equipo.id);
+			$("#modal_nombre_equipo").html(equipo.nombre);
+			$("#modal_marca_equipo").html(equipo.marca);
+			$("#modal_modelo_equipo").html(equipo.modelo);
+			$("#modal_dias_max_prestamo").html(equipo.dias_max_prestamo);
+			$("#modal_dias_renovacion_prestamo").html(equipo.dias_renovacion);
+			$("#modal_cantidad_unidades").html(equipo.cantidad_disponible+"/"+equipo.cantidad_total);
+			
+			if (equipo.imagen.length === 0) {
+				// No hay una imagen asociada
+				$("#seccion_con_imagen").prop("hidden",true);
+				$("#seccion_sin_imagen").prop("hidden",false);
+
+				$("#modal_descripcion_equipo_con_imagen").html(equipo.descripcion);
+
+			} else {
+				$("#seccion_con_imagen").prop("hidden",false);
+				$("#seccion_sin_imagen").prop("hidden",true);
+
+				$("#modal_descripcion_equipo_sin_imagen").html(equipo.descripcion);
+				$("#modal_imagen_equipo").attr("src",equipo.imagen);
+			}
+		}
 
 	</script>
 
